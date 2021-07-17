@@ -1,0 +1,62 @@
+Objetivos
+---------
+
+Aprendizaje del lenguaje forth:
+
+* descripción
+* estandar
+* implementaciones (threaded technique)
+* que se utiliza luego de más de 40 años
+
+Links
+-----
+
+### Documentación
+
+And so Forth...
+https://thebeez.home.xs4all.nl/ForthPrimer/Forth_primer.html
+NOTA: por ahora la mejor introducción
+
+A Brief Introduction to Forth
+https://users.ece.cmu.edu/~koopman/forth/hopl.html
+
+A Beginner's Guide to Forth
+http://galileo.phys.virginia.edu/classes/551.jvn.fall01/primer.htm
+
+Threaded technique
+https://web.archive.org/web/20080706120032/http://www.zetetics.com/bj/papers/moving1.htm
+https://en.wikipedia.org/wiki/Threaded_code
+
+Estandar
+http://forth-standard.org/
+http://www.forth200x.org/documents/html/rationale.html
+
+Minimal bootstrap
+http://zwizwa.be/-/staapl/20080811-154605
+
+4th
+https://sourceforge.net/p/forth-4th/wiki/This%20is%20Forth/
+https://sourceforge.net/p/forth-4th/wiki/Temporary%20strings/
+https://thebeez.home.xs4all.nl/4tH/
+
+Ejemplos
+https://rosettacode.org/wiki/Forth
+
+Edición usando forth
+https://web.archive.org/web/20091015035652/http://theforthsource.com/guide13.html
+
+### Implementaciones
+
+http://gforth.org/
+
+eForth - a small Forth Implementation by C.-H. Ting
+https://wiki.forth-ev.de/doku.php/en:projects:430eforth:start
+
+https://github.com/larsbrinkhoff/lbForth
+https://github.com/larsbrinkhoff/lbForth/blob/master/targets/riscv/asm.fth
+
+libforth: A small Forth interpreter that can be used as a library written in c99
+https://github.com/howerj/libforth
+
+Public Domain Forths
+http://www.forth.org/eforth.html

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Personal website" />
+    <meta name="author" content="Juan Picca" />
+    <meta name="copyright" content="All content on blog.jumapico.uy is copyrighted. All rights are reserved." />
+    <meta name="generator" content="Nanoc 4.11.15" />
+
+    <script defer="defer" src="https://www.googletagmanager.com/gtag/js?id=UA-45127389-2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-45127389-2');
+    </script>
+    <link rel="stylesheet" type="text/css" href="/files/stylesheet.css"/>
+    <title>Juan Picca's website - Encriptar archivos con gpg</title>
+  </head>
+  <body>
+    <div id="site-title">
+      <a href="/"><h1>Blog de Juan Picca</h1></a>
+    </div>
+    <hr />
+    <h1 id="title">Encriptar archivos con gpg</h1>
+    <p class="post-info">Fecha de agregado: 2018-07-27</p>
+    
+    <p class="post-info">Palabras clave:
+      
+        &#x20;<a class="tag" href="/tags/#tar">tar</a>
+      
+        &#x20;<a class="tag" href="/tags/#gpg">gpg</a>
+      
+    </p>
+    <hr />
+<h1>Encriptar archivos con gpg</h1>
+<p>Para encriptar varios archivos:</p>
+<pre><code>$ tar --sort=name -Jcv file_1 file_2 ... file_N | gpg -c -o secrets.tar.xz.gpg
+</code></pre>
+<p>Para desencriptarlos (¡CUIDADO, SE SOBREESCRIBIRÁN LOS ARCHIVOS!):</p>
+<pre><code>$ gpg -d secrets.tar.xz.gpg | tar -Jx
+</code></pre>
+<p>Notas:</p>
+<ul>
+<li>Asegurarse de que los archivos a mantener en secreto están excluidos del
+repositorio.</li>
+</ul>
+
+    <p class="muted">
+        ¿Preguntas o comentarios?
+        Por favor utilizar <a href="https://lists.sr.ht/~jumapico/blog-comments">la lista para comentarios del blog</a> enviando un email (en texto plano) a <a href="mailto:~jumapico/blog-comments@lists.sr.ht?subject=encrypt-files-with-gpg">~jumapico/blog-comments@lists.sr.ht</a>.
+    </p>
+    <footer>
+      <hr />
+      <p id="site-footer"><strong>Copyright 2017-2021</strong> <a href="/about/">Juan Picca</a></p>
+    </footer>
+  </body>
+</html>

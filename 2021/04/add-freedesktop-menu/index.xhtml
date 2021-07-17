@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Personal website" />
+    <meta name="author" content="Juan Picca" />
+    <meta name="copyright" content="All content on blog.jumapico.uy is copyrighted. All rights are reserved." />
+    <meta name="generator" content="Nanoc 4.11.15" />
+
+    <script defer="defer" src="https://www.googletagmanager.com/gtag/js?id=UA-45127389-2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-45127389-2');
+    </script>
+    <link rel="stylesheet" type="text/css" href="/files/stylesheet.css"/>
+    <title>Juan Picca's website - Agregando menu de freedesktop</title>
+  </head>
+  <body>
+    <div id="site-title">
+      <a href="/"><h1>Blog de Juan Picca</h1></a>
+    </div>
+    <hr />
+    <h1 id="title">Agregando menu de freedesktop</h1>
+    <p class="post-info">Fecha de agregado: 2021-04-02</p>
+    
+    <p class="post-info">Palabras clave:
+      
+        &#x20;<a class="tag" href="/tags/#linux">linux</a>
+      
+        &#x20;<a class="tag" href="/tags/#menu">menu</a>
+      
+        &#x20;<a class="tag" href="/tags/#freedesktop">freedesktop</a>
+      
+    </p>
+    <hr />
+<p>Se desea agregar un <a href="https://specifications.freedesktop.org/menu-spec/menu-spec-latest.html">menu siguiendo la especificación dada por freedesktop</a>.</p>
+<p>El caso es el siguiente:</p>
+<ul>
+<li>Se creará un paquete base que entre otras cosas agrega una entrada en el menú
+principal.</li>
+<li>Otros paquetes, los cuales tendrán como dependencia el paquete base, agregarán
+items a la entrada del menú.</li>
+</ul>
+<p>Para realizar pruebas se utilizarán dos scripts distintos que permiten
+<em>instalar</em> y <em>desinstalar</em> los archivos necesarios para agregar un item del
+menú:</p>
+<ul>
+<li><a href="/resources/add-freedesktop-menu/demo-vendor-menu-by-category.sh">demo-vendor-menu-by-category.sh</a>:
+Los nuevos items se agregan utilizando en el archivo <code>.desktop</code> de la
+aplicación la linea <code>Categories=X-myvendor;</code>.</li>
+<li><a href="/resources/add-freedesktop-menu/demo-vendor-menu-by-filename.sh">demo-vendor-menu-by-filename.sh</a>:
+Los nuevos items se agregan editando el archivo
+<code>/etc/xdg/menus/applications-merged/myvendor-applications.menu</code> y agregando
+una entrada <code>&lt;Filename&gt;nombre-de-archivo.desktop&lt;/Filename&gt;</code> dentro del tag
+<code>&lt;Include&gt;</code>.</li>
+</ul>
+<p>De lo anterior, la forma más flexible a usar es mediante la definición de una
+nueva categoría.</p>
+
+    <p class="muted">
+        ¿Preguntas o comentarios?
+        Por favor utilizar <a href="https://lists.sr.ht/~jumapico/blog-comments">la lista para comentarios del blog</a> enviando un email (en texto plano) a <a href="mailto:~jumapico/blog-comments@lists.sr.ht?subject=add-freedesktop-menu">~jumapico/blog-comments@lists.sr.ht</a>.
+    </p>
+    <footer>
+      <hr />
+      <p id="site-footer"><strong>Copyright 2017-2021</strong> <a href="/about/">Juan Picca</a></p>
+    </footer>
+  </body>
+</html>

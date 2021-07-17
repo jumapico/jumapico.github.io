@@ -1,0 +1,22 @@
+Objetivos
+---------
+
+Relevar donde puede obtenerse ejemplos de un compilador de C cuyo código sea
+abarcable
+
+Llinks
+------
+
+Documentados:
+lcc, A Retargetable Compiler for ANSI C
+https://sites.google.com/site/lccretargetablecompiler/
+
+Pequeños:
+Tiny C Compiler
+https://bellard.org/tcc
+https://bellard.org/tcc/tcc-doc.html
+
+Notas
+-----
+
+Escritura de compiladores en C

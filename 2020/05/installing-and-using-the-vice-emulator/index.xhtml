@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Personal website" />
+    <meta name="author" content="Juan Picca" />
+    <meta name="copyright" content="All content on blog.jumapico.uy is copyrighted. All rights are reserved." />
+    <meta name="generator" content="Nanoc 4.11.15" />
+
+    <script defer="defer" src="https://www.googletagmanager.com/gtag/js?id=UA-45127389-2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-45127389-2');
+    </script>
+    <link rel="stylesheet" type="text/css" href="/files/stylesheet.css"/>
+    <title>Juan Picca's website - Instalando y utilizando el emulador vice (Commodore 64)</title>
+  </head>
+  <body>
+    <div id="site-title">
+      <a href="/"><h1>Blog de Juan Picca</h1></a>
+    </div>
+    <hr />
+    <h1 id="title">Instalando y utilizando el emulador vice (Commodore 64)</h1>
+    <p class="post-info">Fecha de agregado: 2020-05-11</p>
+    
+    <p class="post-info">Palabras clave:
+      
+        &#x20;<a class="tag" href="/tags/#vice">vice</a>
+      
+        &#x20;<a class="tag" href="/tags/#commodore 64">commodore 64</a>
+      
+    </p>
+    <hr />
+<h2>Motivación</h2>
+<p>Se desea probar aplicaciones/demos de <a href="https://en.wikipedia.org/wiki/Commodore_64">Commodore 64</a> en linux, particularmente
+en debian.</p>
+<h2>Instalar emulador vice</h2>
+<p>Para emular <a href="https://en.wikipedia.org/wiki/Commodore_64">Commodore 64</a> y otras consolas se utilizará el emulador <a href="https://vice-emu.sourceforge.io/">vice</a>:</p>
+<pre><code>$ sudo apt-get install -Vy vice
+</code></pre>
+<h2>Copiar roms</h2>
+<p>El problema con el paquete <a href="https://vice-emu.sourceforge.io/">vice</a> es que debido a las licencias de las roms
+necesarias para emular un sistema <a href="https://en.wikipedia.org/wiki/Commodore_64">Commodore 64</a>, estas no son distribuidas en
+el paquete de debian.</p>
+<p>A pesar de que en el archivo <a href="https://web.archive.org/web/20200511062929/https://sources.debian.org/src/vice/3.4.0.dfsg-1/debian/README.ROMs/">README.ROMs</a> se hace referencia a utilizar
+<a href="ftp://ftp.zimmers.net/pub/cbm/crossplatform/emulators/VICE/old/index.html">ftp://ftp.zimmers.net/pub/cbm/crossplatform/emulators/VICE/old/index.html</a>
+para descargar las roms, se ha visto que estas también se encuentran en el
+ódigo fuente de vice descargado de sourceforge:
+<a href="https://sourceforge.net/projects/vice-emu/files/releases/vice-3.4.tar.gz">https://sourceforge.net/projects/vice-emu/files/releases/vice-3.4.tar.gz</a>.  Las
+ROMS se encuentran bajo el directorio <code>data</code>.  La lista de las roms necesarias
+que se deben copiar al sistema, que fueron quitadas por problemas de licencias
+se encuentran listadas en el archivo <a href="https://web.archive.org/web/20200512124527/https://sources.debian.org/src/vice/3.4.0.dfsg-1/debian/ROM.list/">ROM.list</a></p>
+<p>Para instalar las roms al sistema se puede utilizar el comando <code>install</code>:</p>
+<pre><code>$ VERSION=$(apt-cache show vice | grep -oP '^Version: \K\d\.\d')
+$ wget -P /tmp &quot;https://sourceforge.net/projects/vice-emu/files/releases/vice-${VERSION}.tar.gz&quot;
+$ tar xf /tmp/vice-${VERSION}.tar.gz -C /tmp
+$ cd /tmp/vice-${VERSION}
+$ wget &quot;https://sources.debian.org/data/contrib/v/vice/3.4.0.dfsg-1/debian/ROM.list&quot;
+$ sudo /bin/bash -c '
+    for i in $(cat ROM.list); do
+        /usr/bin/install -m 644 -o root -g root $i /usr/lib/vice/${i#data/}
+    done
+'
+</code></pre>
+<p><strong>Tener en cuenta que si no se copian las roms del directorio <code>DRIVES</code>, no
+podrán cargarse imagenes de disco para utilizar con el emulador</strong>.  Omitir este
+detalle puede llevar a unas horas sin entender porqué no funciona el <em>attach</em> de
+las imágenes de disco.  Por esto es que conviene copiar <em>todas</em> las roms, y no
+algunas selectivamente.</p>
+<h2>Ejecutar programa de prueba</h2>
+<p>Como ejemplo de prueba, se descargará una imagen de disco con el programa
+<a href="https://github.com/jkotlinski/durexforth">durexforth</a>:</p>
+<pre><code>$ FILE=durexforth-v2_0_0.d64
+$ wget -P /tmp &quot;https://github.com/jkotlinski/durexforth/releases/download/v2.0.0/${FILE}&quot;
+</code></pre>
+<p>Para ejecutar el primer programa del disco:</p>
+<pre><code>$ x64 -nativemonitor /tmp/$FILE
+</code></pre>
+<p>Se utiliza la opción <code>-nativemonitor</code> para que en lugar de abrirse una ventana
+para el monitor que no permite copiar y pegar texto, se utilice la consola desde
+la cual fué lanzado el emulador como terminal del monitor, lo que permite copiar
+y pegar texto.</p>
+<p>Si se quiere solamente atachear el disco y ejecutar algunos comandos al inicio
+del emulador se puede utilizar:</p>
+<pre><code>$ x64 -nativemonitor -8 /tmp/$FILE -keybuf 'load &quot;$&quot;,8\nlist\n'
+</code></pre>
+<p>Aquí, <code>-8</code> permite agregar (<em>attach</em>) el archivo indicado como una imagen de
+disco en la <em>unidad #8</em>.  La opción <code>-keybuf</code> permite simular la introducción
+por teclado de texto.</p>
+<p>Como referencia, conviene previo a usar el emulador leer sobre los <a href="https://www.c64-wiki.com/wiki/C64-Commands">comandos de
+C64</a>, en particular el <a href="https://www.c64-wiki.com/wiki/LOAD">comando LOAD</a>, el cual permite la carga y ejecución de
+programas.</p>
+
+    <p class="muted">
+        ¿Preguntas o comentarios?
+        Por favor utilizar <a href="https://lists.sr.ht/~jumapico/blog-comments">la lista para comentarios del blog</a> enviando un email (en texto plano) a <a href="mailto:~jumapico/blog-comments@lists.sr.ht?subject=installing-and-using-the-vice-emulator">~jumapico/blog-comments@lists.sr.ht</a>.
+    </p>
+    <footer>
+      <hr />
+      <p id="site-footer"><strong>Copyright 2017-2021</strong> <a href="/about/">Juan Picca</a></p>
+    </footer>
+  </body>
+</html>

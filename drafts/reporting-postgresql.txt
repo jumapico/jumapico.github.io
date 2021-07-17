@@ -1,0 +1,24 @@
+\pset tuples_only on
+\pset border 0
+\pset footer off
+
+
+
+\echo 'Content-Type: text/plain; charset=UTF-8'
+\echo 'Content-Transfer-Encoding: base64'
+\echo 'Content-Disposition: attachment; filename="season_detail.csv"'
+--
+-- Create a temporary table of all story and episode records for a season.
+--
+CREATE TEMPORARY TABLE temp_season_table AS
+SELECT
+*
+FROM
+dw.stories LEFT OUTER JOIN dw.episodes USING (st_id)
+WHERE
+season = ${DW_SEASON}
+ORDER BY st_id,ep_number;
+--
+-- Output the temporary table to uuencode
+--
+\COPY temp_season_table TO PROGRAM 'uuencode --base64 season_detail.csv' CSV HEADER

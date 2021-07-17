@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Personal website" />
+    <meta name="author" content="Juan Picca" />
+    <meta name="copyright" content="All content on blog.jumapico.uy is copyrighted. All rights are reserved." />
+    <meta name="generator" content="Nanoc 4.11.15" />
+
+    <script defer="defer" src="https://www.googletagmanager.com/gtag/js?id=UA-45127389-2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-45127389-2');
+    </script>
+    <link rel="stylesheet" type="text/css" href="/files/stylesheet.css"/>
+    <title>Juan Picca's website - Trabajar con sql</title>
+  </head>
+  <body>
+    <div id="site-title">
+      <a href="/"><h1>Blog de Juan Picca</h1></a>
+    </div>
+    <hr />
+    <h1 id="title">Trabajar con sql</h1>
+    <p class="post-info">Fecha de agregado: 2018-04-13</p>
+    
+    <p class="post-info">Palabras clave:
+      
+        &#x20;<a class="tag" href="/tags/#sql">sql</a>
+      
+        &#x20;<a class="tag" href="/tags/#postgresql">postgresql</a>
+      
+    </p>
+    <hr />
+<p><a href="https://tapoueh.org/blog/2017/06/how-to-write-sql/">Como escribir sql</a>:</p>
+<ul>
+<li>
+<p>Con PostgreSQL:</p>
+<pre><code>$ psql --variable &quot;&lt;name&gt;=&lt;value&gt;&quot; -f query.sql database
+</code></pre>
+<p>o en una sesión <code>psql</code>:</p>
+<pre><code>&gt; \cd path/to/my/sources
+&gt; \set name value
+&gt; \i query.sql
+</code></pre>
+</li>
+<li>
+<p><a href="https://stackoverflow.com/questions/3564283/how-to-declare-variable-and-use-it-in-the-same-sql-script-oracle-sql">Con Oracle</a></p>
+<p>En una sesión <a href="http://www.oracle.com/technetwork/developer-tools/sqlcl/overview/index.html"><code>sqlcl</code></a>
+usando <a href="http://oracle.readthedocs.io/en/latest/plsql/bind/">bind variables</a>:</p>
+<pre><code>SQL&gt; cd path/to/my/sources
+SQL&gt; var name datatype
+SQL&gt; exec :name := value
+SQL&gt; @query.sql
+</code></pre>
+</li>
+</ul>
+
+    <p class="muted">
+        ¿Preguntas o comentarios?
+        Por favor utilizar <a href="https://lists.sr.ht/~jumapico/blog-comments">la lista para comentarios del blog</a> enviando un email (en texto plano) a <a href="mailto:~jumapico/blog-comments@lists.sr.ht?subject=working-with-sql">~jumapico/blog-comments@lists.sr.ht</a>.
+    </p>
+    <footer>
+      <hr />
+      <p id="site-footer"><strong>Copyright 2017-2021</strong> <a href="/about/">Juan Picca</a></p>
+    </footer>
+  </body>
+</html>

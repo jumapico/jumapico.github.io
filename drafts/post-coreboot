@@ -1,0 +1,52 @@
+Objetivos
+---------
+
+Cambiar bios de PC
+
+Links
+-----
+
+Barebox on the Pi - Raspberry Pi Forums
+https://www.raspberrypi.org/forums/viewtopic.php?t=25087
+
+Bus Pirate v3.6 - DP
+http://dangerousprototypes.com/docs/Bus_Pirate_v3.6
+
+Coreboot on the ThinkPad X220 with a Raspberry Pi - Tyler Cipriani
+https://tylercipriani.com/blog/2016/11/13/coreboot-on-the-thinkpad-x220-with-a-raspberry-pi/
+
+hamishcoleman/thinkpad-ec: Infrastructure for examining and patching Thinkpad embedded controller firmware
+https://github.com/hamishcoleman/thinkpad-ec
+
+heads-wiki | Documentation for the Heads firmware project
+http://osresearch.net/Installing-Heads
+
+Lesson1 - coreboot
+https://www.coreboot.org/Lesson1
+
+T440s_bios.jpg (JPEG Image, 1600 × 1200 pixels) - Scaled (78%)
+https://www.allservice.ro/forum/images/T440s_bios.jpg
+
+Viktor's DIY: How to Recover a Laptop After a Failed BIOS Update
+http://diy.viktak.com/2014/07/how-to-recover-laptop-after-failed-bios.html
+
+Welcome to the coreboot documentation — coreboot 4.9-753-g5620b10546 documentation
+https://doc.coreboot.org/
+
+2014 Firmware Summit - The Chromium Projects
+https://www.chromium.org/chromium-os/2014-firmware-summit
+
+Board:lenovo/t430s - coreboot
+https://www.coreboot.org/Board:lenovo/t430s
+
+Porting coreboot to a new Mainboard - YouTube
+https://www.youtube.com/watch?v=8wPskpLHFIo
+
+Initramfs - coreboot
+https://web.archive.org/web/20180616214513/https://coreboot.org/Initramfs
+
+Serial Peripheral Interface - Wikipedia
+https://en.wikipedia.org/wiki/Serial_Peripheral_Interface
+
+Using a serial console for u-boot and Linux kernel debugging - LoveRPi®
+http://wiki.loverpi.com/faq:sbc:libre-aml-s805x-serial-console-uboot

@@ -1,0 +1,31 @@
+Objetivos
+---------
+
+Aprender como se crea un paquete de una librería java para debian
+
+Links
+-----
+
+Java/Packaging - Debian Wiki
+https://wiki.debian.org/Java/Packaging
+
+Java/Packaging/Ant - Debian Wiki
+https://wiki.debian.org/Java/Packaging/Ant
+
+Java/Packaging/FAQ - Debian Wiki
+https://wiki.debian.org/Java/Packaging/FAQ
+
+Java/Packaging/Gradle - Debian Wiki
+https://wiki.debian.org/Java/Packaging/Gradle
+
+Java/Packaging/Java101 - Debian Wiki
+https://wiki.debian.org/Java/Packaging/Java101
+
+Java/Packaging/Maven - Debian Wiki
+https://wiki.debian.org/Java/Packaging/Maven
+
+Java/Packaging/NoBuildSystem - Debian Wiki
+https://wiki.debian.org/Java/Packaging/NoBuildSystem
+
+Javahelper Tutorial
+https://people.debian.org/~apo/java/tutorial.html

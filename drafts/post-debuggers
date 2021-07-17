@@ -1,0 +1,19 @@
+Objetivos
+---------
+
+Aprender el uso de debuggers (para C y C++)
+
+Links
+-----
+
+Beej's Quick Guide to GDB
+https://beej.us/guide/bggdb/
+
+CppCon 2015: Greg Law " Give me 15 minutes & I'll change your view of GDB" - YouTube
+https://www.youtube.com/watch?v=PorfLSr3DDI
+
+Practical Debugging with LLDB: July 2013
+http://debugging-with-lldb.blogspot.com/2013_07_01_archive.html
+
+Using LLDB as a Standalone Debugger
+https://developer.apple.com/library/mac/documentation/IDEs/Conceptual/gdb_to_lldb_transition_guide/document/lldb-terminal-workflow-tutorial.html#//apple_ref/doc/uid/TP40012917-CH4-SW1

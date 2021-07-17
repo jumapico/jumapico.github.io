@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Personal website" />
+    <meta name="author" content="Juan Picca" />
+    <meta name="copyright" content="All content on blog.jumapico.uy is copyrighted. All rights are reserved." />
+    <meta name="generator" content="Nanoc 4.11.15" />
+
+    <script defer="defer" src="https://www.googletagmanager.com/gtag/js?id=UA-45127389-2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-45127389-2');
+    </script>
+    <link rel="stylesheet" type="text/css" href="/files/stylesheet.css"/>
+    <title>Juan Picca's website - Forth en Open Firmware mediante qemu</title>
+  </head>
+  <body>
+    <div id="site-title">
+      <a href="/"><h1>Blog de Juan Picca</h1></a>
+    </div>
+    <hr />
+    <h1 id="title">Forth en Open Firmware mediante qemu</h1>
+    <p class="post-info">Fecha de agregado: 2018-12-31</p>
+    
+    <p class="post-info">Palabras clave:
+      
+        &#x20;<a class="tag" href="/tags/#forth">forth</a>
+      
+        &#x20;<a class="tag" href="/tags/#openfirmware">openfirmware</a>
+      
+        &#x20;<a class="tag" href="/tags/#qemu">qemu</a>
+      
+    </p>
+    <hr />
+<p>Instalar en <em>debian</em> el paquete <code>qemu-system-ppc</code>:</p>
+<pre><code>$ sudo apt-get install -V qemu-system-ppc
+</code></pre>
+<p>Para utilizar <em><a href="https://en.wikipedia.org/wiki/Forth_(programming_language)">Forth</a></em> (en <em><a href="https://en.wikipedia.org/wiki/Open_Firmware">Open Firmware</a></em>) ejecutar:</p>
+<pre><code>$ qemu-system-ppc64 \
+    --net none \
+    -nographic \
+    -vga none \
+    -chardev stdio,mux=on,id=char0 \
+    -mon chardev=char0,mode=readline \
+    -serial chardev:char0
+</code></pre>
+<p>El comando anterior ejecuta <a href="https://www.qemu.org/">QEMU</a> en la terminal, redirigiendo la
+entrada/salida a la consola, multiplexandola entre el <em>monitor de qemu</em> y el
+<em>puerto virtual serial</em>.</p>
+<p>Para alternar entre el <em>monitor de qemu</em> y el <em>puerto virtual serial</em> utilizar
+<strong>Ctrl-a c</strong>. Para mostrar la ayuda utilizar <strong>Ctrl-a h</strong>.</p>
+<h2>Nota</h2>
+<p>La idea de utilizar el interprete de <a href="https://en.wikipedia.org/wiki/Forth_(programming_language)">Forth</a> en <a href="https://en.wikipedia.org/wiki/Open_Firmware">Open
+Firmware</a> mediante <a href="https://www.qemu.org/">QEMU</a> surgió a partir de
+la imagen del día 04, <a href="https://www.qemu-advent-calendar.org/2018/download/day04.tar.xz">Day 4 - Fun with Forth</a>, del <a href="https://www.qemu-advent-calendar.org/2018/">QEMU Advent
+Calendar 2018</a>.</p>
+
+    <p class="muted">
+        ¿Preguntas o comentarios?
+        Por favor utilizar <a href="https://lists.sr.ht/~jumapico/blog-comments">la lista para comentarios del blog</a> enviando un email (en texto plano) a <a href="mailto:~jumapico/blog-comments@lists.sr.ht?subject=forth-in-openfirmware-through-qemu">~jumapico/blog-comments@lists.sr.ht</a>.
+    </p>
+    <footer>
+      <hr />
+      <p id="site-footer"><strong>Copyright 2017-2021</strong> <a href="/about/">Juan Picca</a></p>
+    </footer>
+  </body>
+</html>

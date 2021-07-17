@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Personal website" />
+    <meta name="author" content="Juan Picca" />
+    <meta name="copyright" content="All content on blog.jumapico.uy is copyrighted. All rights are reserved." />
+    <meta name="generator" content="Nanoc 4.11.15" />
+
+    <script defer="defer" src="https://www.googletagmanager.com/gtag/js?id=UA-45127389-2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-45127389-2');
+    </script>
+    <link rel="stylesheet" type="text/css" href="/files/stylesheet.css"/>
+    <title>Juan Picca's website - Shaders de OpenGL en el emulador higan</title>
+  </head>
+  <body>
+    <div id="site-title">
+      <a href="/"><h1>Blog de Juan Picca</h1></a>
+    </div>
+    <hr />
+    <h1 id="title">Shaders de OpenGL en el emulador higan</h1>
+    <p class="post-info">Fecha de agregado: 2020-05-20</p>
+    <p class="post-info">Última actualización: 2020-07-05</p>
+    <p class="post-info">Palabras clave:
+      
+        &#x20;<a class="tag" href="/tags/#higan">higan</a>
+      
+        &#x20;<a class="tag" href="/tags/#debian">debian</a>
+      
+        &#x20;<a class="tag" href="/tags/#opengl">opengl</a>
+      
+        &#x20;<a class="tag" href="/tags/#shaders">shaders</a>
+      
+    </p>
+    <hr />
+<p>Luego de instalar el emulador <a href="https://higan-emu.com/">higan</a> en <a href="https://www.debian.org/">debian</a>:</p>
+<pre><code>$ sudo apt-get install -Vy higan
+</code></pre>
+<p>lo primero que se nota es la pobre calidad gráfica al querer utilizar una rom.
+Para solucionar el problema una opción que se indica en la documentación es
+<a href="https://higan.readthedocs.io/en/stable/guides/shaders/#how-to-install-custom-shaders">instalar shaders custom</a>, siendo el repositorio <a href="https://github.com/hizzlekizzle/quark-shaders">quark-shaders</a> el recomendado.
+Para esto se descarga el repositorio, se instala en el sistema y se corrigen los
+permisos:</p>
+<pre><code>$ wget -P /tmp --content-disposition \
+    https://github.com/hizzlekizzle/quark-shaders/archive/master.tar.gz
+$ sudo tar xf /tmp/quark-shaders-master.tar.gz \
+    --transform='s/quark-shaders-master/Video Shaders/' --no-same-owner \
+    -C /usr/share/higan/
+$ sudo chmod -R -x,+X,go-w '/usr/share/higan/Video Shaders'
+</code></pre>
+<p>Luego para poder utilizar los shaders se ejecuta <code>higan</code>, se va a la opción
+<strong>Settings &gt; Advanced...</strong> y allí como driver de video se elige la opción
+<strong>OpenGL</strong>.  Se cierra el programa y se vuelve a ejecutar para que los cambios
+sean aplicados.  Para elegir un shader ahora se va a la opción <strong>Settings &gt;
+Video Shader &gt;</strong> y ahora ya se puede elegir entre una buena lista de opciones.
+El shader <strong>2xBR-2pass</strong> me dió un buen resultado.</p>
+
+    <p class="muted">
+        ¿Preguntas o comentarios?
+        Por favor utilizar <a href="https://lists.sr.ht/~jumapico/blog-comments">la lista para comentarios del blog</a> enviando un email (en texto plano) a <a href="mailto:~jumapico/blog-comments@lists.sr.ht?subject=opengl-shaders-in-higan-emulator">~jumapico/blog-comments@lists.sr.ht</a>.
+    </p>
+    <footer>
+      <hr />
+      <p id="site-footer"><strong>Copyright 2017-2021</strong> <a href="/about/">Juan Picca</a></p>
+    </footer>
+  </body>
+</html>

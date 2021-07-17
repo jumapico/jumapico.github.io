@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Personal website" />
+    <meta name="author" content="Juan Picca" />
+    <meta name="copyright" content="All content on blog.jumapico.uy is copyrighted. All rights are reserved." />
+    <meta name="generator" content="Nanoc 4.11.15" />
+
+    <script defer="defer" src="https://www.googletagmanager.com/gtag/js?id=UA-45127389-2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-45127389-2');
+    </script>
+    <link rel="stylesheet" type="text/css" href="/files/stylesheet.css"/>
+    <title>Juan Picca's website - Servidor HTTP standalone</title>
+  </head>
+  <body>
+    <div id="site-title">
+      <a href="/"><h1>Blog de Juan Picca</h1></a>
+    </div>
+    <hr />
+    <h1 id="title">Servidor HTTP standalone</h1>
+    <p class="post-info">Fecha de agregado: 2018-07-04</p>
+    <p class="post-info">Última actualización: 2021-05-14</p>
+    <p class="post-info">Palabras clave:
+      
+        &#x20;<a class="tag" href="/tags/#python">python</a>
+      
+    </p>
+    <hr />
+<p>Se pueden servir los archivos de un directorio utilizando la clase
+<a href="https://docs.python.org/3/library/http.server.html#http.server.SimpleHTTPRequestHandler">SimpleHTTPRequestHandler</a> de la librería <a href="https://docs.python.org/3/library/http.server.html">http.server</a> de <a href="https://www.python.org/">python3</a> desde la
+linea de comandos:</p>
+<pre><code>$ python3 -m http.server
+</code></pre>
+<h2>Otros</h2>
+<ul>
+<li>
+<p><a href="https://busybox.net/">busybox</a>:</p>
+<pre><code>$ busybox httpd -f -p 8000
+</code></pre>
+</li>
+<li>
+<p><a href="https://www.php.net/">php</a>:</p>
+<pre><code>$ php -S localhost:8000
+</code></pre>
+</li>
+<li>
+<p><a href="https://www.ruby-lang.org/">ruby</a> (lista directorios):</p>
+<pre><code>$ ruby -run -ehttpd . -p8000
+</code></pre>
+</li>
+</ul>
+<!-- References -->
+
+    <p class="muted">
+        ¿Preguntas o comentarios?
+        Por favor utilizar <a href="https://lists.sr.ht/~jumapico/blog-comments">la lista para comentarios del blog</a> enviando un email (en texto plano) a <a href="mailto:~jumapico/blog-comments@lists.sr.ht?subject=standalone-http-server">~jumapico/blog-comments@lists.sr.ht</a>.
+    </p>
+    <footer>
+      <hr />
+      <p id="site-footer"><strong>Copyright 2017-2021</strong> <a href="/about/">Juan Picca</a></p>
+    </footer>
+  </body>
+</html>

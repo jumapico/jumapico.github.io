@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Personal website" />
+    <meta name="author" content="Juan Picca" />
+    <meta name="copyright" content="All content on blog.jumapico.uy is copyrighted. All rights are reserved." />
+    <meta name="generator" content="Nanoc 4.11.15" />
+
+    <script defer="defer" src="https://www.googletagmanager.com/gtag/js?id=UA-45127389-2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-45127389-2');
+    </script>
+    <link rel="stylesheet" type="text/css" href="/files/stylesheet.css"/>
+    <title>Juan Picca's website - Descarga de katas de codewars</title>
+  </head>
+  <body>
+    <div id="site-title">
+      <a href="/"><h1>Blog de Juan Picca</h1></a>
+    </div>
+    <hr />
+    <h1 id="title">Descarga de katas de codewars</h1>
+    <p class="post-info">Fecha de agregado: 2017-05-07</p>
+    <p class="post-info">Última actualización: 2017-05-09</p>
+    <p class="post-info">Palabras clave:
+      
+        &#x20;<a class="tag" href="/tags/#codewars">codewars</a>
+      
+        &#x20;<a class="tag" href="/tags/#shell">shell</a>
+      
+    </p>
+    <hr />
+<p>Se busca crear un script para descargar los <em>katas</em> del sitio
+<a href="https://codewars.com">codewars</a>.</p>
+<p>La información a descargar será la siguiente que se visualiza cuando se realiza
+un <em>kata</em>:</p>
+<ol>
+<li>Instrucciones.</li>
+<li>Código de ejemplo. Suele ser el encabezado de la función a implementar.</li>
+<li>Tests de ejemplo. Suelen ser los test iniciales para probar la función.</li>
+</ol>
+<p>Para descargar la información probaremos utilizar la
+<a href="https://dev.codewars.com/#api-reference">API</a> brindada por <em>codewars</em>,
+especificamente https://dev.codewars.com/#post-train-code-challenge.</p>
+<p>Como ejemplo realizamos una prueba de invocación a la api utilizando el shell:</p>
+<pre><code>$ accesstoken=&quot;xxx&quot; # Ver &quot;API Access Token&quot; en &quot;https://www.codewars.com/users/edit&quot;
+$ slug=&quot;a-rule-of-divisibility-by-13&quot;
+$ language=&quot;c&quot;
+$ output=$(curl &quot;https://www.codewars.com/api/v1/code-challenges/${slug}/${language}/train&quot; -X POST -H &quot;Authorization: $accesstoken&quot;)
+$ echo $output | jq -r '.description'
+$ echo $output | jq -r '.session.setup'
+$ echo $output | jq -r '.session.exampleFixture'
+</code></pre>
+<p>Para el script se busca que los archivos se descarguen en un directorio con
+nombre <code>slug_language</code>. Se agrega el sufijo <code>_language</code> ya que un mismo kata
+puede realizarse en varios lenguajes.</p>
+<p>Al codificar el script se debió tener en cuenta:</p>
+<ol>
+<li>
+<p>La extensión de los archivos se debe obtener a partir del nombre del
+lenguaje. Esto se realiza mediante una función <code>language2extension</code> que
+utiliza un <code>case</code> para transladar el nombre del lenguaje a la extensión de
+archivos utilizada por este.</p>
+</li>
+<li>
+<p>Se encontró que en caso de utilizar un <code>slug</code> o <code>language</code> inválido la api de
+codewars devuelve un código HTTP <code>500</code> y el mensaje con <em>content-type
+text/html</em>. Por esto se modifica la invocación de <code>curl</code> para que agregue
+los cabezales HTTP del response mediante el parámetro <code>--include</code>.</p>
+<p>Para verificar el código de error se utiliza: <code>[ 200 != &quot;$(echo &quot;$output&quot; | head -n +1 | cut -d' ' -f2)&quot; ]</code>.</p>
+<p>Para extraer el body se utiliza <code>sed</code>: <code>echo &quot;$output&quot; | sed '1,/^\r$/d'</code>.</p>
+</li>
+<li>
+<p>La descripción devuelta para los katas no tienen el nombre del problema, por
+lo que en el archivo <code>description.md</code> se agrega al principio un cabezal con
+el nombre del kata, el slug utilizado en negritas y una linea horizontal:</p>
+<pre><code>cat &lt;&lt;END
+# $(echo &quot;$body&quot; | jq -r '.name')
+
+**($slug)**
+
+---
+
+END
+</code></pre>
+</li>
+<li>
+<p>Se genera el script <code>run.sh</code> para ejecutar el kata, basado en el post <a href="/2017/04/codewars-offline/">Uso de
+codewars offline</a>:</p>
+<pre><code>$ mkdir -p ~/src
+$ (cd ~/src; git clone git@github.com:Codewars/codewars-runner-cli.git)
+$ docker-compose -f ~/src/codewars-runner-cli/docker-compose.yml \
+    run --rm $language -c &quot;$(cat solution.$extension)&quot; -f &quot;$(cat tests.$extension)&quot;
+</code></pre>
+</li>
+</ol>
+<p>El script completo está disponible en el archivo
+<a href="/resources/codewars-kata-download/codewars-kata-download">codewars-kata-download</a>.</p>
+
+    <p class="muted">
+        ¿Preguntas o comentarios?
+        Por favor utilizar <a href="https://lists.sr.ht/~jumapico/blog-comments">la lista para comentarios del blog</a> enviando un email (en texto plano) a <a href="mailto:~jumapico/blog-comments@lists.sr.ht?subject=codewars-kata-download">~jumapico/blog-comments@lists.sr.ht</a>.
+    </p>
+    <footer>
+      <hr />
+      <p id="site-footer"><strong>Copyright 2017-2021</strong> <a href="/about/">Juan Picca</a></p>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Personal website" />
+    <meta name="author" content="Juan Picca" />
+    <meta name="copyright" content="All content on blog.jumapico.uy is copyrighted. All rights are reserved." />
+    <meta name="generator" content="Nanoc 4.11.15" />
+
+    <script defer="defer" src="https://www.googletagmanager.com/gtag/js?id=UA-45127389-2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-45127389-2');
+    </script>
+    <link rel="stylesheet" type="text/css" href="/files/stylesheet.css"/>
+    <title>Juan Picca's website - Entendiendo la salida de dpkg-query status</title>
+  </head>
+  <body>
+    <div id="site-title">
+      <a href="/"><h1>Blog de Juan Picca</h1></a>
+    </div>
+    <hr />
+    <h1 id="title">Entendiendo la salida de dpkg-query status</h1>
+    <p class="post-info">Fecha de agregado: 2018-08-21</p>
+    
+    <p class="post-info">Palabras clave:
+      
+        &#x20;<a class="tag" href="/tags/#dpkg">dpkg</a>
+      
+    </p>
+    <hr />
+<h1>Entendiendo la salida de dpkg-query status</h1>
+<p>Estoy interesado en saber si un paquete está instalado en el sistema (debian).</p>
+<p>Para ello se puede utilizar <code>dpkg -l</code>, por ejemplo consultando el estado del
+paquete <code>network-manager</code>:</p>
+<pre><code>$ dpkg -l network-manager
+Desired=Unknown/Install/Remove/Purge/Hold
+| Status=Not/Inst/Conf-files/Unpacked/halF-conf/Half-inst/trig-aWait/Trig-pend
+|/ Err?=(none)/Reinst-required (Status,Err: uppercase=bad)
+||/ Name                              Version               Architecture          Description
++++-=================================-=====================-=====================-========================================================================
+ii  network-manager                   1.12.2-2              amd64                 network management framework (daemon and userspace tools)
+</code></pre>
+<p>Ahora, interesa obtener la misma información para utilizar en un script sin
+tener que utilizar expresiones regulares para parsear la salida.</p>
+<p>Para ello se pueden utilizar los comandos <code>dpkg</code> o <code>dpkg-query</code>.</p>
+<p>La diferencia entre ellos está descrita en la página del <a href="https://manpages.debian.org/testing/dpkg/dpkg.1.en.html">manual de
+dpkg</a>:</p>
+<blockquote>
+<p>dpkg can also be used as a front-end to dpkg-deb(1) and dpkg-query(1). The
+list of supported actions can be found later on in the ACTIONS section. If any
+such action is encountered dpkg just runs dpkg-deb or dpkg-query with the
+parameters given to it, but no specific options are currently passed to them,
+to use any such option the back-ends need to be called directly.</p>
+</blockquote>
+<p>Ya que se desea controlar lo más posible la salida del comando se utilizará
+<code>dpkg-query</code>:</p>
+<pre><code>$ dpkg-query -W -f '${Status}\n' network-manager
+install ok installed
+</code></pre>
+<p>Para entender la salida conviene utilizar la <a href="https://manpages.debian.org/testing/dpkg/dpkg.1.en.html">página del manual de
+<code>dpkg</code></a> que explica las
+<strong>flags</strong> que puede tener un paquete:</p>
+<blockquote>
+<p><strong>Package flags</strong></p>
+<p><strong>ok</strong> A package marked ok is in a known state, but might need further
+processing.</p>
+<p><strong>reinstreq</strong> A package marked reinstreq is broken and requires
+reinstallation. These packages cannot be removed, unless forced with option
+--force-remove-reinstreq.</p>
+</blockquote>
+<p>En comparación, la <a href="https://manpages.debian.org/testing/dpkg/dpkg-query.1.en.html">página del manual de <code>dpkg-query</code></a> no
+es tan clara:</p>
+<blockquote>
+<p><strong>Error flags:</strong></p>
+<p>&lt;empty&gt; = (none)</p>
+<p>R = Reinst-require</p>
+</blockquote>
+<p>Ambas páginas listan de forma similar los <em>Package states</em> y los <em>Package
+selection states</em>, pero solo la <a href="https://manpages.debian.org/testing/dpkg/dpkg.1.en.html">página del manual de <code>dpkg</code></a> los
+explica.</p>
+
+    <p class="muted">
+        ¿Preguntas o comentarios?
+        Por favor utilizar <a href="https://lists.sr.ht/~jumapico/blog-comments">la lista para comentarios del blog</a> enviando un email (en texto plano) a <a href="mailto:~jumapico/blog-comments@lists.sr.ht?subject=understanding-dpkg-query-status-output">~jumapico/blog-comments@lists.sr.ht</a>.
+    </p>
+    <footer>
+      <hr />
+      <p id="site-footer"><strong>Copyright 2017-2021</strong> <a href="/about/">Juan Picca</a></p>
+    </footer>
+  </body>
+</html>

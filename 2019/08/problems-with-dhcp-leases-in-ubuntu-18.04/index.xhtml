@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Personal website" />
+    <meta name="author" content="Juan Picca" />
+    <meta name="copyright" content="All content on blog.jumapico.uy is copyrighted. All rights are reserved." />
+    <meta name="generator" content="Nanoc 4.11.15" />
+
+    <script defer="defer" src="https://www.googletagmanager.com/gtag/js?id=UA-45127389-2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-45127389-2');
+    </script>
+    <link rel="stylesheet" type="text/css" href="/files/stylesheet.css"/>
+    <title>Juan Picca's website - Problemas con dhcp leases en Ubuntu 18.04</title>
+  </head>
+  <body>
+    <div id="site-title">
+      <a href="/"><h1>Blog de Juan Picca</h1></a>
+    </div>
+    <hr />
+    <h1 id="title">Problemas con dhcp leases en Ubuntu 18.04</h1>
+    <p class="post-info">Fecha de agregado: 2019-08-20</p>
+    
+    <p class="post-info">Palabras clave:
+      
+        &#x20;<a class="tag" href="/tags/#dhcp">dhcp</a>
+      
+        &#x20;<a class="tag" href="/tags/#netplan">netplan</a>
+      
+        &#x20;<a class="tag" href="/tags/#systemd-networkd">systemd-networkd</a>
+      
+    </p>
+    <hr />
+<p><strong>TL;DR: netplan en Ubuntu 18.04 no utiliza por defecto la mac al interactuar
+con el servidor dhcp</strong>.</p>
+<h2>Contexto</h2>
+<p>Varios PC's, los cuales se instalaron a partir de una misma imagen de disco
+basada en <a href="http://releases.ubuntu.com/18.04/">Ubuntu 18.04</a>, presentan problemas con la IP asignada mediante
+<a href="https://en.wikipedia.org/wiki/Dynamic_Host_Configuration_Protocol">dhcp</a>.
+Por como está configurado el <a href="https://manpages.debian.org/stable/isc-dhcp-server/dhcpd.conf.5.en.html">lease time (default-lease-time/max-lease-time)</a>
+en el servidor dhcp, las IP's deberían reservarse por varios días, pero se
+observa que en realidad estas cambian de forma esporádica.</p>
+<h2>Problema</h2>
+<p>A partir de Ubuntu 18.04 se <a href="https://wiki.ubuntu.com/BionicBeaver/ReleaseNotes#Network_configuration">depreca ifupdown en favor de netplan.io</a> para
+realizar la configuración de la red.</p>
+<p>Una configuración típica de la red con netplan se realiza mediante archivos
+<a href="https://en.wikipedia.org/wiki/YAML">yaml</a> en el directorio <code>/etc/netplan/</code>.</p>
+<p>Por ejemplo, en el archivo <code>/etc/netplan/use-dhcp.yaml</code>:</p>
+<pre><code>network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    all-ethernets:
+      match:
+        name: en*
+      dhcp4: true
+</code></pre>
+<p>La configuración anterior indica que se utilizará <a href="https://manpages.ubuntu.com/manpages/bionic/man8/systemd-networkd.8.html">systemd-networkd</a> para
+manejar y configurar las interfaces de red cableadas (prefijo <em>en</em>), y que la IP
+se obtendrá utilizando dhcp.</p>
+<p>El problema radica en que <em>por defecto</em> <code>systemd-networkd</code>, el <em>renderer</em>
+elegido, no utiliza el <a href="https://en.wikipedia.org/wiki/MAC_address">mac address</a> como identificador del PC (como se
+espera), sinó que en su lugar utiliza como tipo de identificador el <a href="https://manpages.ubuntu.com/manpages/bionic/man5/systemd.network.5.html">valor por
+defecto de <code>ClientIdentifier</code> cuyo valor es <code>duid</code></a>.
+El <em>tipo de duid</em> a utilizar se indica en la <a href="https://manpages.ubuntu.com/manpages/bionic/man5/networkd.conf.5.html">configuración de <code>networkd</code></a> y
+corresponde por defecto a <code>vendor</code>, cuyo valor se genera de la siguiente forma:</p>
+<blockquote>
+<p>the DUID value will be generated using &quot;43793&quot; as the vendor identifier
+(systemd) and hashed contents of machine-id.</p>
+</blockquote>
+<p>Dado que los PC's se instalaron a partir de una misma imagen utilizando
+<a href="https://clonezilla.org/">clonezilla</a>, todos poseen el mismo archivo <a href="https://manpages.ubuntu.com/manpages/bionic/man5/machine-id.5.html"><code>/etc/machine-id</code>, el cual
+es establecido durante la instalación</a> y debería contener el <em>unique machine
+ID</em> del sistema local.</p>
+<p>Por lo anterior, se entiende el porqué del comportamiento erratico de los leases
+de dhcp: cada vez que se pide una IP para un PC, se le está enviando al servidor
+el mismo identificador.</p>
+<h2>Solución</h2>
+<p>Según la <a href="https://manpages.ubuntu.com/manpages/bionic/man5/netplan.5.html">página del manual de netplan</a>, alcanza con agregar la opción
+<code>dhcp-identifier: mac</code> para que se le indique a <code>systemd-networkd</code> que utilice
+la mac de la tarjeta de red como id del cliente al solicitarle una IP al
+servidor dhcp con lo que se soluciona el problema.</p>
+<p>El archivo de configuración de netplan pasa a quedar como sigue:</p>
+<pre><code>network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    all-ethernets:
+      match:
+        name: en*
+      dhcp4: true
+      dhcp-identifier: mac
+</code></pre>
+<h2>Observaciones</h2>
+<p>Se <em>siente</em> como una complejidad adicional el agregado de netplan por defecto
+en ubuntu.</p>
+<p>También se puede considerar <em>una mala elección</em> por parte de systemd
+(convengamos que críticas no le faltan a systemd), el uso de un identificador
+que no sea la mac para identificar al PC.</p>
+
+    <p class="muted">
+        ¿Preguntas o comentarios?
+        Por favor utilizar <a href="https://lists.sr.ht/~jumapico/blog-comments">la lista para comentarios del blog</a> enviando un email (en texto plano) a <a href="mailto:~jumapico/blog-comments@lists.sr.ht?subject=problems-with-dhcp-leases-in-ubuntu-18.04">~jumapico/blog-comments@lists.sr.ht</a>.
+    </p>
+    <footer>
+      <hr />
+      <p id="site-footer"><strong>Copyright 2017-2021</strong> <a href="/about/">Juan Picca</a></p>
+    </footer>
+  </body>
+</html>

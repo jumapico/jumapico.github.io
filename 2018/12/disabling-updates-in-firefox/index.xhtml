@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Personal website" />
+    <meta name="author" content="Juan Picca" />
+    <meta name="copyright" content="All content on blog.jumapico.uy is copyrighted. All rights are reserved." />
+    <meta name="generator" content="Nanoc 4.11.15" />
+
+    <script defer="defer" src="https://www.googletagmanager.com/gtag/js?id=UA-45127389-2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-45127389-2');
+    </script>
+    <link rel="stylesheet" type="text/css" href="/files/stylesheet.css"/>
+    <title>Juan Picca's website - Deshabilitando updates en firefox</title>
+  </head>
+  <body>
+    <div id="site-title">
+      <a href="/"><h1>Blog de Juan Picca</h1></a>
+    </div>
+    <hr />
+    <h1 id="title">Deshabilitando updates en firefox</h1>
+    <p class="post-info">Fecha de agregado: 2018-12-17</p>
+    <p class="post-info">Última actualización: 2019-02-25</p>
+    <p class="post-info">Palabras clave:
+      
+        &#x20;<a class="tag" href="/tags/#firefox">firefox</a>
+      
+    </p>
+    <hr />
+<p>Hace unos días (¿meses?) que cada vez que inicio <em>Firefox</em>, en sus últimas
+versiones, aparece el mensaje de que hay una nueva versión para actualizar. Esto
+me sucede aunque el navegador esté actualizado (¿bug?).</p>
+<p>Por lo que me decidí a deshabilitar el <em>checkeo de nuevas versiones</em>, solo para
+encontrarme con que esta opción fué quitada, como se detalla en el <a href="https://bugzilla.mozilla.org/1420514">bug 1420514</a>.
+Como se indica también en dicho bug la solución es utilizar <a href="https://github.com/mozilla/policy-templates/blob/master/README.md">Enterprise Policy</a>
+para deshabilitar dicha funcionalidad.</p>
+<p>Para hacer esto, siguiendo la documentación hallada en la página de <a href="https://github.com/mozilla/policy-templates/blob/master/README.md">Enterprise
+Policy</a>, se debe crear en el directorio en que fué instalado
+<em>Firefox</em> el directorio <code>distribution</code>, en el cual debe existir el archivo
+<code>policies.json</code>, el cual es el que contiene las opciones de la politica.</p>
+<p>En la página (tanto del bug como de la política), se indica que la opción
+buscada es <code>DisableAppUpdate</code>, la cual debe tener un valor <code>true</code>.</p>
+<p>Por ello, se modifica el script utilizado para actualizar <em>Firefox</em> que se
+encuentra en el post <a href="/2018/06/upgrading-firefox/">Actualizando Firefox Quantum</a>
+agregando la creación del archivo <code>policies.json</code>:</p>
+<pre><code>mkdir -p /opt/firefox-$version/distribution
+cat &gt; /opt/firefox-$version/distribution/policies.json &lt;&lt;'END'
+{
+  &quot;policies&quot;: {
+    &quot;DisableAppUpdate&quot;: true,
+    &quot;DontCheckDefaultBrowser&quot;: true
+  }
+}
+END
+</code></pre>
+<p><em>Nota: se agrega también la opción <code>DontCheckDefaultBrowser</code>, la cual
+evita que se muestre un popup preguntando si queremos que Firefox sea el
+navegador por defecto</em>.</p>
+<p>El script completo se puede encontrar <a href="./upgrade-firefox">aquí</a></p>
+<p>Existe el addon <a href="https://addons.mozilla.org/en-US/firefox/addon/enterprise-policy-generator/">Enterprise Policy Generator</a>
+que pude utilizarse para generar el archivo <code>policies.json</code> de forma más amena.</p>
+<p>Por último, conviene ver la página <a href="https://support.mozilla.org/en-US/products/firefox-enterprise">Firefox Enterprise</a> para
+más información.</p>
+
+    <p class="muted">
+        ¿Preguntas o comentarios?
+        Por favor utilizar <a href="https://lists.sr.ht/~jumapico/blog-comments">la lista para comentarios del blog</a> enviando un email (en texto plano) a <a href="mailto:~jumapico/blog-comments@lists.sr.ht?subject=disabling-updates-in-firefox">~jumapico/blog-comments@lists.sr.ht</a>.
+    </p>
+    <footer>
+      <hr />
+      <p id="site-footer"><strong>Copyright 2017-2021</strong> <a href="/about/">Juan Picca</a></p>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Personal website" />
+    <meta name="author" content="Juan Picca" />
+    <meta name="copyright" content="All content on blog.jumapico.uy is copyrighted. All rights are reserved." />
+    <meta name="generator" content="Nanoc 4.11.15" />
+
+    <script defer="defer" src="https://www.googletagmanager.com/gtag/js?id=UA-45127389-2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-45127389-2');
+    </script>
+    <link rel="stylesheet" type="text/css" href="/files/stylesheet.css"/>
+    <title>Juan Picca's website - Montar samba con gio en escritorio mate</title>
+  </head>
+  <body>
+    <div id="site-title">
+      <a href="/"><h1>Blog de Juan Picca</h1></a>
+    </div>
+    <hr />
+    <h1 id="title">Montar samba con gio en escritorio mate</h1>
+    <p class="post-info">Fecha de agregado: 2019-08-21</p>
+    <p class="post-info">Última actualización: 2019-09-01</p>
+    <p class="post-info">Palabras clave:
+      
+        &#x20;<a class="tag" href="/tags/#samba">samba</a>
+      
+        &#x20;<a class="tag" href="/tags/#gio">gio</a>
+      
+        &#x20;<a class="tag" href="/tags/#mate-desktop">mate-desktop</a>
+      
+        &#x20;<a class="tag" href="/tags/#debian">debian</a>
+      
+    </p>
+    <hr />
+<p>Para montar un servidor de archivos samba se puede utilizar el comando <a href="https://manpages.debian.org/testing/libglib2.0-bin/gio.1.en.html">gio</a>,
+particularmente:</p>
+<pre><code>$ gio mount &quot;smb://DOMAIN;user@server/folder&quot;
+</code></pre>
+<p>Al querer acceder a los archivos en una consola mediante el directorio
+<code>/run/user/$UID/gvfs</code> se encuentra que este está vacío.</p>
+<p>Buscando en internet (ver referencias) se encuentra que el problema es la falta
+del paquete <a href="https://packages.debian.org/buster/gvfs-fuse">gvfs-fuse</a> instalado que se corrige mediante</p>
+<pre><code>$ sudo apt-get install -Vy gvfs-fuse
+</code></pre>
+<p>Merece la pena mencionar que mediante las dependencias reversas del paquete</p>
+<pre><code>$ apt-cache rdepends gvfs-fuse
+gvfs-fuse
+Reverse Depends:
+  gnome-core
+  pcmanfm
+  pcmanfm-qt
+  pcmanfm
+  nemo
+  cinnamon-core
+</code></pre>
+<p>se encuentra que este no está siendo instalado automáticamente al instalarse el
+paquete <code>task-mate-desktop</code> o alguna de sus dependencias; solo se instala para
+los escritorios <a href="https://www.gnome.org/">gnome</a>, <a href="https://en.wikipedia.org/wiki/Cinnamon_(desktop_environment)">cinnamon</a>, <a href="https://lxde.org/">LXDE</a> (mediante la dependencia a
+<code>pcmanfm</code>) y <a href="https://lxqt.org/">LXQT</a> (mediante la dependencia a <code>pcmanfm-qt</code>).</p>
+<h2>Referencias</h2>
+<ul>
+<li><a href="https://superuser.com/questions/717893/how-do-i-navigate-to-a-samba-location-ive-mounted-in-nautilus-on-the-command-li">https://superuser.com/questions/717893/how-do-i-navigate-to-a-samba-location-ive-mounted-in-nautilus-on-the-command-li</a>
+Indica la instalación del paquete <code>gvfs-fuse</code> y también que la ruta para
+acceder a los archivos es <code>/run/user/$UID/gvfs</code>.  Es un post viejo y tiene
+varias imprecisiones.</li>
+<li><a href="https://blog.sleeplessbeastie.eu/2018/09/26/how-to-display-reverse-package-dependencies/">https://blog.sleeplessbeastie.eu/2018/09/26/how-to-display-reverse-package-dependencies/</a>
+Se indican varias opciones para obtener dependencias reversas de paquetes en
+debian.</li>
+</ul>
+<h2>Notas</h2>
+<p>A raíz del problema se creó el <a href="https://bugs.debian.org/935374">bug 935374</a> en debian.</p>
+
+    <p class="muted">
+        ¿Preguntas o comentarios?
+        Por favor utilizar <a href="https://lists.sr.ht/~jumapico/blog-comments">la lista para comentarios del blog</a> enviando un email (en texto plano) a <a href="mailto:~jumapico/blog-comments@lists.sr.ht?subject=mount-samba-with-gio-in-mate-desktop">~jumapico/blog-comments@lists.sr.ht</a>.
+    </p>
+    <footer>
+      <hr />
+      <p id="site-footer"><strong>Copyright 2017-2021</strong> <a href="/about/">Juan Picca</a></p>
+    </footer>
+  </body>
+</html>

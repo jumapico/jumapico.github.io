@@ -1,0 +1,29 @@
+Objetivo
+--------
+
+Mostrar como se puede configurar la red en qemu
+
+Links
+-----
+
+QEMU - ArchWiki
+https://wiki.archlinux.org/index.php/QEMU#Tap_networking_with_QEMU
+
+BridgeNetworkConnectionsProxyArp - Debian Wiki
+https://wiki.debian.org/BridgeNetworkConnectionsProxyArp
+
+BridgeNetworkConnections - Debian Wiki
+https://wiki.debian.org/BridgeNetworkConnections#Bridging_with_a_wireless_NIC
+
+Documentation/Networking - QEMU
+https://wiki.qemu.org/Documentation/Networking
+
+networking:bridge [Wiki]
+https://wiki.linuxfoundation.org/networking/bridge#it-doesn-t-work-with-my-wireless-card
+
+Notas
+-----
+
+Se utiliza virtualbox solo por la facilidad de la red nat y poder comunicarse
+con el guest en el mismo host.
+Ver como simular el comportamiento de virtualbox para dejar de utilizarlo.

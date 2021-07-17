@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Personal website" />
+    <meta name="author" content="Juan Picca" />
+    <meta name="copyright" content="All content on blog.jumapico.uy is copyrighted. All rights are reserved." />
+    <meta name="generator" content="Nanoc 4.11.15" />
+
+    <script defer="defer" src="https://www.googletagmanager.com/gtag/js?id=UA-45127389-2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-45127389-2');
+    </script>
+    <link rel="stylesheet" type="text/css" href="/files/stylesheet.css"/>
+    <title>Juan Picca's website - Lugar correcto para scripts rc.d</title>
+  </head>
+  <body>
+    <div id="site-title">
+      <a href="/"><h1>Blog de Juan Picca</h1></a>
+    </div>
+    <hr />
+    <h1 id="title">Lugar correcto para scripts rc.d</h1>
+    <p class="post-info">Fecha de agregado: 2020-08-24</p>
+    
+    <p class="post-info">Palabras clave:
+      
+        &#x20;<a class="tag" href="/tags/#openbsd">openbsd</a>
+      
+        &#x20;<a class="tag" href="/tags/#init">init</a>
+      
+        &#x20;<a class="tag" href="/tags/#rc.d">rc.d</a>
+      
+    </p>
+    <hr />
+<p>Una anécdota interesante.</p>
+<p>Estos días leyendo el libro <a href="https://mwl.io/nonfiction/os#ao2e">Absolute OpenBSD</a>
+de <a href="https://mwl.io/">Michael W. Lucas</a> y viendo la sección relativa a los
+<em>scripts de inicialización del sistema</em> (<em>Startup System Scripts</em>), me pregunté
+el porqué estaban bajo <code>/etc</code> ya que deberían ser scripts de sistema y no de
+configuración -que de por sí es un directorio utilizado para archivos
+modificados por el administrador-.</p>
+<p>Una grata sorpresa ver que unos días despues <em>Julio Merino</em> en su blog
+<a href="https://jmmv.dev/">https://jmmv.dev/</a> realiza un post sobre el mismo tema titulado
+<a href="https://jmmv.dev/2020/08/rcd-libexec-etc.html">rc.d belongs in libexec, not etc</a>
+en el que expone la misma inquietud, dando una interesante perspectiva
+histórica de como se llegó a la situación actual.</p>
+
+    <p class="muted">
+        ¿Preguntas o comentarios?
+        Por favor utilizar <a href="https://lists.sr.ht/~jumapico/blog-comments">la lista para comentarios del blog</a> enviando un email (en texto plano) a <a href="mailto:~jumapico/blog-comments@lists.sr.ht?subject=correct-place-for-rc.d-scripts">~jumapico/blog-comments@lists.sr.ht</a>.
+    </p>
+    <footer>
+      <hr />
+      <p id="site-footer"><strong>Copyright 2017-2021</strong> <a href="/about/">Juan Picca</a></p>
+    </footer>
+  </body>
+</html>

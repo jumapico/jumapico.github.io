@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Personal website" />
+    <meta name="author" content="Juan Picca" />
+    <meta name="copyright" content="All content on blog.jumapico.uy is copyrighted. All rights are reserved." />
+    <meta name="generator" content="Nanoc 4.11.15" />
+
+    <script defer="defer" src="https://www.googletagmanager.com/gtag/js?id=UA-45127389-2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-45127389-2');
+    </script>
+    <link rel="stylesheet" type="text/css" href="/files/stylesheet.css"/>
+    <title>Juan Picca's website - Crear script con datos embebidos</title>
+  </head>
+  <body>
+    <div id="site-title">
+      <a href="/"><h1>Blog de Juan Picca</h1></a>
+    </div>
+    <hr />
+    <h1 id="title">Crear script con datos embebidos</h1>
+    <p class="post-info">Fecha de agregado: 2019-01-21</p>
+    
+    <p class="post-info">Palabras clave:
+      
+        &#x20;<a class="tag" href="/tags/#bash">bash</a>
+      
+    </p>
+    <hr />
+<p>Hay veces que es útil generar un script que contenga datos embebidos, por
+ejemplo un archivo tar, para usar como instalador.</p>
+<p>Para crear el script instalador se necesita:</p>
+<ul>
+<li>código del script que utiliza el payload (<code>script-HEADER</code>),</li>
+<li>datos (<code>payload</code>)</li>
+</ul>
+<p>La creación se realiza utilizando <code>cat</code>:</p>
+<pre><code>$ cat script-HEADER payload &gt; script
+</code></pre>
+<p>Para utilizar los datos (payload) en <code>script-HEADER</code> se debe utilizar un código
+similar al siguiente:</p>
+<pre><code>#!/bin/bash
+...
+
+# unpack payload
+FILE=$(mktemp -u)
+finish() {
+    rm -f $FILE
+}
+trap finish EXIT
+ARCHIVE=$(awk '/^__ARCHIVE__/ { print NR + 1; exit 0; }' &quot;${0}&quot;)
+tail -n+${ARCHIVE} &quot;${0}&quot; &gt; $FILE
+
+...
+
+exit 0
+__ARCHIVE__
+</code></pre>
+<p><strong>IMPORTANTE: Las lineas</strong></p>
+<pre><code>exit 0
+__ARCHIVE__
+</code></pre>
+<p><strong>deben ser las últimas del script.</strong></p>
+
+    <p class="muted">
+        ¿Preguntas o comentarios?
+        Por favor utilizar <a href="https://lists.sr.ht/~jumapico/blog-comments">la lista para comentarios del blog</a> enviando un email (en texto plano) a <a href="mailto:~jumapico/blog-comments@lists.sr.ht?subject=create-script-with-payload">~jumapico/blog-comments@lists.sr.ht</a>.
+    </p>
+    <footer>
+      <hr />
+      <p id="site-footer"><strong>Copyright 2017-2021</strong> <a href="/about/">Juan Picca</a></p>
+    </footer>
+  </body>
+</html>

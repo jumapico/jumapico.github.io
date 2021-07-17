@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Personal website" />
+    <meta name="author" content="Juan Picca" />
+    <meta name="copyright" content="All content on blog.jumapico.uy is copyrighted. All rights are reserved." />
+    <meta name="generator" content="Nanoc 4.11.15" />
+
+    <script defer="defer" src="https://www.googletagmanager.com/gtag/js?id=UA-45127389-2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-45127389-2');
+    </script>
+    <link rel="stylesheet" type="text/css" href="/files/stylesheet.css"/>
+    <title>Juan Picca's website - Modificar paquete privativo de debian</title>
+  </head>
+  <body>
+    <div id="site-title">
+      <a href="/"><h1>Blog de Juan Picca</h1></a>
+    </div>
+    <hr />
+    <h1 id="title">Modificar paquete privativo de debian</h1>
+    <p class="post-info">Fecha de agregado: 2020-05-21</p>
+    
+    <p class="post-info">Palabras clave:
+      
+        &#x20;<a class="tag" href="/tags/#packaging">packaging</a>
+      
+        &#x20;<a class="tag" href="/tags/#debian">debian</a>
+      
+    </p>
+    <hr />
+<p>Pasos para modificar e instalar un paquete privativo -no se tiene el código
+fuente- de debian <strong>utilizando el usuario <code>root</code></strong>:</p>
+<ol>
+<li>
+<p>Desempaquetar</p>
+<pre><code># scratch=$(mktemp -d)
+# dpkg -x &lt;package&gt;.deb $scratch
+# dpkg -e &lt;package&gt;.deb $scratch/DEBIAN
+</code></pre>
+</li>
+<li>
+<p>Modificar contenido del paquete</p>
+<p>Se modifica el contenido del paquete; puede ser sus dependencias en el
+archivo de control (<code>$scratch/DEBIAN/control</code>) o scripts de
+<code>{pre,post}{inst,rm}</code> o archivos.
+<em>Conviene aumentar el número de versión.</em></p>
+<p><strong>Notas</strong>:</p>
+<ul>
+<li>Varios paquetes agregan repositorios y claves (utilizando <a href="https://manpages.debian.org/testing/apt/apt-key.8.en.html">apt-key</a>) en
+los scripts de <code>{pre,post}inst</code>.</li>
+<li>En paquetes que tengan un tiempo de haber sido creados varias veces se
+incluyen dependencias a paquetes que ya no existen o que cambiaron su
+nombre.  Una alternativa a tener que solucionar la dependencia de un
+paquete utilizando <a href="https://manpages.debian.org/testing/equivs/equivs-build.1.en.html">equivs</a> es modificarlas en el archivo
+<code>DEBIAN/control</code>.</li>
+</ul>
+</li>
+<li>
+<p>Reempaquetar</p>
+<pre><code># dpkg -b $scratch patched_&lt;package&gt;.deb
+</code></pre>
+</li>
+<li>
+<p>Instalar</p>
+<p>Ya que el paquete estaría fuera de un repositorio para instalarlo es
+necesario utilizar <code>dpkg</code> y luego asegurarse que se cumplen todas las
+dependencias del paquete con la opción <code>--fix-broken</code> de <code>apt-get install</code>:</p>
+<pre><code># dpkg -i pached_&lt;package&gt;.deb
+# apt-get install -V --fix-broken
+</code></pre>
+</li>
+</ol>
+<p>Fuente: <a href="https://hashman.ca/zoom/">https://hashman.ca/zoom/</a></p>
+
+    <p class="muted">
+        ¿Preguntas o comentarios?
+        Por favor utilizar <a href="https://lists.sr.ht/~jumapico/blog-comments">la lista para comentarios del blog</a> enviando un email (en texto plano) a <a href="mailto:~jumapico/blog-comments@lists.sr.ht?subject=modify-privative-debian-package">~jumapico/blog-comments@lists.sr.ht</a>.
+    </p>
+    <footer>
+      <hr />
+      <p id="site-footer"><strong>Copyright 2017-2021</strong> <a href="/about/">Juan Picca</a></p>
+    </footer>
+  </body>
+</html>

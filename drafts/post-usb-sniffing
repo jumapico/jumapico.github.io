@@ -1,0 +1,37 @@
+Objetivos
+---------
+
+Filtros de cups/Backends de sane de dispositivos conectados por usb
+
+Links
+-----
+
+CaptureSetup/USB - The Wireshark Wiki
+https://wiki.wireshark.org/CaptureSetup/USB
+
+Virtual USB Analyzer - Tutorial
+http://vusb-analyzer.sourceforge.net/tutorial.html
+
+Beagle USB 12 - Low/Full Speed USB Protocol Analyzer + Sticker ID: 708 - $399.95 : Adafruit Industries, Unique & fun DIY electronics and kits
+https://www.adafruit.com/product/708
+
+Beagle Protocol Analyzer User Manual – Total Phase
+https://totalphase.zendesk.com/hc/en-us/articles/200472426-Beagle-Protocol-Analyzer-User-Manual
+
+USB Sniffing - flashrom
+https://www.flashrom.org/USB_Sniffing
+
+V-USB - A Firmware-Only USB Driver for Atmel AVR Microcontrollers
+https://www.obdev.at/products/vusb/index.html
+
+USB Reverse Engineering: A Universal Guide | Hackaday
+https://hackaday.com/2018/05/25/usb-reverse-engineering-a-universal-guide/
+
+[001] Sigrok and Logic Analyzers - YouTube
+https://www.youtube.com/watch?v=dobU-b0_L1I
+
+Getting started with a logic analyzer - sigrok
+https://sigrok.org/wiki/Getting_started_with_a_logic_analyzer
+
+USB Reverse Engineering: Down the rabbit hole | /dev/alias – Hack. Dev. Transcend.
+https://www.devalias.net/devalias/2018/05/13/usb-reverse-engineering-down-the-rabbit-hole/

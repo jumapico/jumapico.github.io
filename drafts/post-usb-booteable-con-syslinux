@@ -1,0 +1,9 @@
+
+
+
+Pruebas:
+sudo qemu-system-x86_64 -hdb /dev/sdb
+
+https://lists.debian.org/debian-live/2015/10/msg00013.html
+
+qemu-system-x86_64 -m size=512 -hdb ~/Downloads/debian-live-10.1.0-amd64-mate.iso

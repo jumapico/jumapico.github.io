@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Personal website" />
+    <meta name="author" content="Juan Picca" />
+    <meta name="copyright" content="All content on blog.jumapico.uy is copyrighted. All rights are reserved." />
+    <meta name="generator" content="Nanoc 4.11.15" />
+
+    <script defer="defer" src="https://www.googletagmanager.com/gtag/js?id=UA-45127389-2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-45127389-2');
+    </script>
+    <link rel="stylesheet" type="text/css" href="/files/stylesheet.css"/>
+    <title>Juan Picca's website - Leyendo paquetes fuente de debian con aptfs</title>
+  </head>
+  <body>
+    <div id="site-title">
+      <a href="/"><h1>Blog de Juan Picca</h1></a>
+    </div>
+    <hr />
+    <h1 id="title">Leyendo paquetes fuente de debian con aptfs</h1>
+    <p class="post-info">Fecha de agregado: 2020-05-18</p>
+    
+    <p class="post-info">Palabras clave:
+      
+        &#x20;<a class="tag" href="/tags/#debian">debian</a>
+      
+        &#x20;<a class="tag" href="/tags/#aptfs">aptfs</a>
+      
+    </p>
+    <hr />
+<p>Para poder utilizar <a href="https://chris-lamb.co.uk/projects/aptfs">aptfs</a> en debian <strong>es necesario tener agregado por lo menos
+un repositorio de <a href="https://wiki.debian.org/Packaging/SourcePackage">paquetes fuente</a></strong>, sinó luego de montar aptfs el directorio
+se verá vacío.</p>
+<p>Para instalar <a href="https://chris-lamb.co.uk/projects/aptfs">aptfs</a> y configurar los fuentes de <a href="https://www.debian.org/devel/testing">debian testing</a> (suponiendo
+que no están ya agregados a apt):</p>
+<pre><code>$ sudo apt-get install -Vy aptfs
+$ echo 'deb-src http://deb.debian.org/debian testing main contrib non-free' \
+   | sudo tee /etc/apt/sources.list.d/testing-src.list &gt; /dev/null
+$ sudo apt-get update
+</code></pre>
+<p>Para montar <a href="https://chris-lamb.co.uk/projects/aptfs">aptfs</a> (usando un máximo de 10 paquetes fuentes desempaquetados a
+la vez):</p>
+<pre><code>$ mkdir -p ~/workspace-debian-sources
+$ mount.aptfs -o max_unpacked_packages=10 ~/workspace-debian-sources
+</code></pre>
+
+    <p class="muted">
+        ¿Preguntas o comentarios?
+        Por favor utilizar <a href="https://lists.sr.ht/~jumapico/blog-comments">la lista para comentarios del blog</a> enviando un email (en texto plano) a <a href="mailto:~jumapico/blog-comments@lists.sr.ht?subject=read-debian-source-packages-with-aptfs">~jumapico/blog-comments@lists.sr.ht</a>.
+    </p>
+    <footer>
+      <hr />
+      <p id="site-footer"><strong>Copyright 2017-2021</strong> <a href="/about/">Juan Picca</a></p>
+    </footer>
+  </body>
+</html>

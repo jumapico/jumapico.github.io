@@ -1,0 +1,9 @@
+Paquetes a revisar
+------------------
+
+apt-build: "frontend to apt to build, optimize and install packages" ¿similar a
+    gentoo?
+config-package-dev: construcción de paquetes de configuración
+customdeb: modificar archivos deb binarios
+mini-buildd: autobuilder y repositorio para paquetes deb
+sqlcl-package: ejemplo de un `package builder`

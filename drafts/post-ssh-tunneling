@@ -1,0 +1,28 @@
+Objetivos
+---------
+
+Aprender a realizar ssh tunneling
+
+Links
+-----
+
+DAG: Tunneling SSH over HTTP(S)
+http://dag.wiee.rs/howto/ssh-http-tunneling/
+
+Debian - Share same port for HTTPS, SSH and OpenVPN
+http://bernaerts.dyndns.org/linux/75-debian/210-debian-sslh
+
+How To Encrypt Traffic to Redis with Stunnel on Ubuntu 16.04 | DigitalOcean
+https://www.digitalocean.com/community/tutorials/how-to-encrypt-traffic-to-redis-with-stunnel-on-ubuntu-16-04#what-is-stunnel
+
+Notes and links on proxytunnel, sslh, apache, stunnel, putty, ssh and more « The Wiert Corner – irregular stream of stuff
+https://wiert.me/2016/12/12/notes-and-links-on-proxytunnel-sslh-apache-stunnel-putty-ssh-and-more/
+
+Socat, sslh and stunnel to share https port 443 | Angus Ainslie's Blog
+http://ainslies.net/?p=14283
+
+SSLH - Share A Same Port For HTTPS And SSH - OSTechNix
+https://www.ostechnix.com/sslh-share-port-https-ssh/
+
+stunnel: Home
+https://www.stunnel.org/

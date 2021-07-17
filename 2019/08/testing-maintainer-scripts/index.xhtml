@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Personal website" />
+    <meta name="author" content="Juan Picca" />
+    <meta name="copyright" content="All content on blog.jumapico.uy is copyrighted. All rights are reserved." />
+    <meta name="generator" content="Nanoc 4.11.15" />
+
+    <script defer="defer" src="https://www.googletagmanager.com/gtag/js?id=UA-45127389-2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-45127389-2');
+    </script>
+    <link rel="stylesheet" type="text/css" href="/files/stylesheet.css"/>
+    <title>Juan Picca's website - Testeando scripts del mantenedor de un paquete</title>
+  </head>
+  <body>
+    <div id="site-title">
+      <a href="/"><h1>Blog de Juan Picca</h1></a>
+    </div>
+    <hr />
+    <h1 id="title">Testeando scripts del mantenedor de un paquete</h1>
+    <p class="post-info">Fecha de agregado: 2019-08-02</p>
+    
+    <p class="post-info">Palabras clave:
+      
+        &#x20;<a class="tag" href="/tags/#debian">debian</a>
+      
+        &#x20;<a class="tag" href="/tags/#packaging">packaging</a>
+      
+        &#x20;<a class="tag" href="/tags/#maintainer scripts">maintainer scripts</a>
+      
+    </p>
+    <hr />
+<p>En debian los paquetes poseen <a href="https://www.debian.org/doc/debian-policy/ch-binary.html#maintainer-scripts">maintainer scripts</a> (o scripts del mantenedor
+de un paquete) utilizados durante las etapas de instalación y borrado de
+paquetes.  Hay que tener en cuenta que los paquetes pueden estar en uno de
+varios estados y las transiciones de estos se detallan gráficamente en los
+<a href="https://www.debian.org/doc/debian-policy/ap-flowcharts.html">diagramas de flujo de los maintainer scripts</a> en el manual de políticas de
+debian.</p>
+<p>Hay veces que durante la creación de paquetes se debe hacer un script, y al
+momento de instalar se obtiene un error como el siguiente:</p>
+<pre><code>$ dpkg -i my-package_1_amd64.deb
+...
+dpkg: error processing package my-package (--install):
+ installed my-package post-installation script subprocess returned error exit status 10
+...
+</code></pre>
+<p>En ese caso una forma <strong>rápida y sucia</strong> de probar el script es editando
+directamente el script correspondiente (<em>{pre,post}{inst,rm}</em>) en el directorio
+<code>/var/lib/dpkg/info</code> respaldando previamente:</p>
+<pre><code>$ sudo cp /var/lib/dpkg/info/my-package.postinst{,.bak}
+$ sudo vi /var/lib/dpkg/info/my-package.postinst
+</code></pre>
+<p>Para shell conviene agregar <code>set -x</code> para obtener mayor información sobre los
+errores.</p>
+<p>Luego de realizar cambios se utiliza <code>dpkg</code> para corroborar que los scripts no
+devuelvan errores al ser invocados:</p>
+<pre><code>$ sudo dpgk --configure my-package
+</code></pre>
+<p><em>NOTA: en caso de seguir este tip se recomienda utilizar una máquina virtual
+para instalar el paquete</em></p>
+<p>Tener en cuenta que para probar los maintainer scripts conviene utilizar
+<a href="https://wiki.debian.org/piuparts">piuparts</a>.</p>
+
+    <p class="muted">
+        ¿Preguntas o comentarios?
+        Por favor utilizar <a href="https://lists.sr.ht/~jumapico/blog-comments">la lista para comentarios del blog</a> enviando un email (en texto plano) a <a href="mailto:~jumapico/blog-comments@lists.sr.ht?subject=testing-maintainer-scripts">~jumapico/blog-comments@lists.sr.ht</a>.
+    </p>
+    <footer>
+      <hr />
+      <p id="site-footer"><strong>Copyright 2017-2021</strong> <a href="/about/">Juan Picca</a></p>
+    </footer>
+  </body>
+</html>

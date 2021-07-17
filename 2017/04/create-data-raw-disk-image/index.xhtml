@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Personal website" />
+    <meta name="author" content="Juan Picca" />
+    <meta name="copyright" content="All content on blog.jumapico.uy is copyrighted. All rights are reserved." />
+    <meta name="generator" content="Nanoc 4.11.15" />
+
+    <script defer="defer" src="https://www.googletagmanager.com/gtag/js?id=UA-45127389-2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-45127389-2');
+    </script>
+    <link rel="stylesheet" type="text/css" href="/files/stylesheet.css"/>
+    <title>Juan Picca's website - Creación de imagen raw para disco de datos</title>
+  </head>
+  <body>
+    <div id="site-title">
+      <a href="/"><h1>Blog de Juan Picca</h1></a>
+    </div>
+    <hr />
+    <h1 id="title">Creación de imagen raw para disco de datos</h1>
+    <p class="post-info">Fecha de agregado: 2017-04-18</p>
+    
+    <p class="post-info">Palabras clave:
+      
+        &#x20;<a class="tag" href="/tags/#linux">linux</a>
+      
+        &#x20;<a class="tag" href="/tags/#shell">shell</a>
+      
+    </p>
+    <hr />
+<p><strong>TODO: crear script para crear imagen</strong></p>
+<p>Hay dos escenarios distintos según la versión del paquete <code>util-linux</code>
+instalada, ya que a partir de la versión <code>2.21</code> se agrega la opción
+<code>--partscan</code> al comando <code>losetup</code> lo que facilita la creación de la imagen:</p>
+<pre><code>losetup(8):
+   - the command has been rewritten, features:
+   ...
+     * supports new command line option --partscan to enable kernel partition
+       table parser
+</code></pre>
+<p>Para mas detalles ver las <a href="https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git/tree/Documentation/releases/v2.21-ReleaseNotes">notas de la release 2.21</a></p>
+<h2>Pasos comunes</h2>
+<pre><code># cd /path/
+# dd if=/dev/zero of=data.img bs=1M count=$((10 * 1024))
+# parted data.img mktable gpt
+# parted --align optimal data.img mkpart DATA ext4 0% 100%
+</code></pre>
+<h2>util-linux &gt;= 2.21</h2>
+<pre><code># LOOPDEV=&quot;$(losetup --partscan --show --find data.img | tr -d '\n')&quot;
+# [ -z &quot;$LOOPDEV&quot; ] &amp;&amp; { echo &quot;Can't attach to loop device&quot;; exit 1; }
+# [ ! -e &quot;${LOOPDEV}p1&quot; ] &amp;&amp; { echo &quot;Partition in loop device not detected&quot;; losetup --detach &quot;$LOOPDEV&quot;; exit 1; }
+# mkfs.ext4 &quot;${LOOPDEV}p1&quot;
+# losetup --detach &quot;$LOOPDEV&quot;
+</code></pre>
+<h2>util-linux &lt; 2.21</h2>
+<pre><code># PARTINFO=&quot;$(parted -m data.img &quot;unit s print&quot;)&quot;
+# SECTSIZE=&quot;$(echo &quot;$PARTINFO&quot; | head -2 | tail -1 | cut -d':' -f5)&quot;
+# read -r PART_START PART_SIZE &lt;&lt;&lt; &quot;$(echo &quot;$PARTINFO&quot; | grep '^1' | cut -d':' -f2,4 --output-delimiter=' ' | tr -d s)&quot;
+# LOOPDEV=&quot;$(losetup --find --show \
+    --offset &quot;$((PART_START * SECTSIZE))&quot; \
+    --sizelimit &quot;$((PART_SIZE * SECTSIZE))&quot; \
+    data.img | tr -d '\n')&quot;
+# [ -z &quot;$LOOPDEV&quot; ] &amp;&amp; { echo &quot;Can't attach to loop device&quot;; exit 1; }
+# mkfs.ext4 &quot;$LOOPDEV&quot;
+# losetup --detach &quot;$LOOPDEV&quot;
+</code></pre>
+
+    <p class="muted">
+        ¿Preguntas o comentarios?
+        Por favor utilizar <a href="https://lists.sr.ht/~jumapico/blog-comments">la lista para comentarios del blog</a> enviando un email (en texto plano) a <a href="mailto:~jumapico/blog-comments@lists.sr.ht?subject=create-data-raw-disk-image">~jumapico/blog-comments@lists.sr.ht</a>.
+    </p>
+    <footer>
+      <hr />
+      <p id="site-footer"><strong>Copyright 2017-2021</strong> <a href="/about/">Juan Picca</a></p>
+    </footer>
+  </body>
+</html>
