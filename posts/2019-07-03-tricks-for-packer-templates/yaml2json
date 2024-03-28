@@ -1,0 +1,26 @@
+#!/usr/bin/python3
+
+import json
+import sys
+
+import yaml
+
+def usage():
+    print("""
+Usage: yaml2json
+
+Convert the standard input in yaml into json to the standard output.
+
+""")
+
+def convert(in_, out):
+    json.dump(yaml.load(in_), out, sort_keys=True, indent=4)
+
+def main():
+    if len(sys.argv) != 1:
+        usage()
+        sys.exit(1)
+    convert(sys.stdin, sys.stdout)
+
+if __name__ == "__main__":
+    main()
