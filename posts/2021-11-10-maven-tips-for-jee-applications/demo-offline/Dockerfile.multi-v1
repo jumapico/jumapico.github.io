@@ -1,0 +1,24 @@
+FROM docker.io/library/openjdk:11.0.12-jdk-slim-bullseye AS build
+# -- setup build user --
+# A user is created to launch the build process.
+# The user UID is arbitrary, not commonly used by regular users.
+# The home of this user is used to build the app; we need to fix permissions.
+RUN useradd -u 7685 -r -g users -m -s /sbin/nologin -c "Builder user" builder
+WORKDIR /home/builder/app
+RUN chown -R builder:users /home/builder/app && chmod -R 755 /home/builder/app
+USER builder
+
+# -- build artifact --
+# Use the fact that with cached layers we can speed up the build downloading
+# first the maven dependencies: copy maven-wrapper and pom.xml
+# to download the dependencies in one layer.
+COPY --chown=builder:users ./.mvn ./.mvn
+COPY --chown=builder:users ./pom-v1.xml ./mvnw .
+RUN ./mvnw -B -f pom-v1.xml dependency:go-offline
+# Copy the code to build the package (the dependencies are already downloaded).
+COPY --chown=builder:users ./src ./src
+RUN ./mvnw -B -o -f pom-v1.xml package
+
+# -- build final image --
+FROM docker.io/jboss/wildfly:25.0.0.Final
+COPY --from=build --chown=jboss: /home/builder/app/target/*.war /opt/jboss/wildfly/standalone/deployments/
