@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Notas on Blog de Juan Picca</title>
+    <link>https://blog.jumapico.uy/notes/</link>
+    <description>Recent content in Notas on Blog de Juan Picca</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Fri, 03 Jan 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://blog.jumapico.uy/notes/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Juegos completados</title>
+      <link>https://blog.jumapico.uy/notes/juegos-completados/</link>
+      <pubDate>Fri, 03 Jan 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/notes/juegos-completados/</guid>
+      <description>Ya que mis hijos han empezado a contabilizar que juegos están completando, nada mejor que mantener una lista.
+Juego Annakaren Iván Juan Sofía Alwa&#39;s Legacy 2024-11 Animal Well 2024-12 Broforce 2024-12 Carrion 2024 Castlevania: Aria of Sorrow x Castlevania: Circle of the Moon x Castlevania: Order of Ecclesia x Castlevania: Symphony of the Night x Chasm x x Children of Morta x x x x Dadish 2025-01 Dead Cells x Dome Keeper x Hammerwatch x x x Kirby&#39;s Return to Dream Land 2024 2024 2024 Kirby and the Forgotten Land 2024 Lode Runner Legacy 2024 Mega Man X 2024-12 Mega Man X3 2025-01 Nuclear Blaze 2024-12 2024 2024 Pokemón Violet 2024 Record of Lodoss War: Deedlit in Wonder Labyrinth 2024-12 Super Mario Bros.</description>
+    </item>
+    
+    <item>
+      <title>Aplicaciones android</title>
+      <link>https://blog.jumapico.uy/notes/android-apps/</link>
+      <pubDate>Mon, 22 Apr 2024 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/notes/android-apps/</guid>
+      <description>Listado de aplicaciones utilizadas.
+Nota: primero debe instalarse F-Droid desde el PC.
+De F-Droid Aurora Store DiskUsage Element Fennec F-Droid KOReader KeePassDX MuPDF mini NewPipe Notepad QR Scanner (PFA) Simple Contacts Pro Simple File Manager Pro Simple Gallery Pro Simple Keyboard Simple SMS Messenger Simple Voice Recorder Syncthing VLC WiFiAnalyzer De Google Play (instalados vía Aurora Store) Nota: algunas de estas aplicaciones pueden venir ya instaladas en el celular.
+Google Chrome Google Maps Google Translate Netflix Prex Uruguay RealCalc Scientific Calculator Webex Meetings Webex WhatsApp Messenger </description>
+    </item>
+    
+    <item>
+      <title>Firefox</title>
+      <link>https://blog.jumapico.uy/notes/firefox/</link>
+      <pubDate>Sun, 21 Apr 2024 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/notes/firefox/</guid>
+      <description>Notas sobre la instalación de Firefox Utilizo dos versiones de firefox:
+Firefox ESR, el cual customizo con los complementos y configuración listados en esta página. Firefox, el cual no customizo y utilizo en sitios que den problemas con las customizaciones anteriores. Complementos Firefox Cookie AutoDelete Elimina cookies automáticamente. Dark Reader Permite habilitar el Dark mode por sitio. Firefox Multi-Account Containers Separa cookies por contenedor. Greasemonkey User script manager. NoScript Habilitar Javascript solo en los sitios deseados.</description>
+    </item>
+    
+    <item>
+      <title>Javascript</title>
+      <link>https://blog.jumapico.uy/notes/javascript/</link>
+      <pubDate>Tue, 09 Nov 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/notes/javascript/</guid>
+      <description>Herramientas browsersync Time-saving synchronised browser testing.
+nodemon nodemon is a tool that helps develop node.js based applications by automatically restarting the node application when file changes in the directory are detected.
+nvm nvm allows you to quickly install and use different versions of node via the command line.
+rollup Rollup is a module bundler for JavaScript which compiles small pieces of code into something larger and more complex, such as a library or application.</description>
+    </item>
+    
+    <item>
+      <title>Retos</title>
+      <link>https://blog.jumapico.uy/notes/challenges/</link>
+      <pubDate>Fri, 25 Jun 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/notes/challenges/</guid>
+      <description>Retos varios encontrados en internet, para los tiempos libres&amp;hellip;
+Project Euler The Python Challenge The Cryptopals Crypto Challenges CryptoHack Internet Problem Solving Contest Challenging projects every programmer should try picoCTF </description>
+    </item>
+    
+    <item>
+      <title>Oracle DBMS</title>
+      <link>https://blog.jumapico.uy/notes/oracle-dbms/</link>
+      <pubDate>Wed, 02 Sep 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/notes/oracle-dbms/</guid>
+      <description>Documentación Oracle Database Documentation SQL Language Reference - 12.2 SQL*Plus- User&amp;rsquo;s Guide and Reference (12.2) ALL_TABLES: ALL_TABLES describes the relational tables accessible to the current user.
+DESCRIBE: Lists the column definitions for the specified table, view or synonym, or the specifications for the specified function or procedure.
+¿A que tablas se tiene acceso? SQL&amp;gt; select table_name from all_tables order by 1; Generar archivo csv con resultado de select (sqlcl): set sqlformat csv spool consulta.</description>
+    </item>
+    
+    <item>
+      <title>RISC-V</title>
+      <link>https://blog.jumapico.uy/notes/risc-v/</link>
+      <pubDate>Wed, 22 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/notes/risc-v/</guid>
+      <description>Materiales Guía Práctica de RISC-V: El Atlas de una Arquitectura Abierta. Libro para empezar, por ahora la mejor referencia que he leído. Hace una muy buena introducción de la arquitectura. De lo mejor que tiene son las secciones con comentarios al respecto de las decisiones de diseño, las que hacen más amena la lectura y ayudan a entender mejor el ISA. Hay que tener en cuenta que el libro es de fines del 2017 y ya existen algunos cambios en las especificaciones.</description>
+    </item>
+    
+    <item>
+      <title>TED talks</title>
+      <link>https://blog.jumapico.uy/notes/tedtalks/</link>
+      <pubDate>Sat, 04 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/notes/tedtalks/</guid>
+      <description>Comentarios de algunas charlas, principalmente las TED &amp;hellip;
+Mi hija quiere entender el sistema financiero How to learn any language in six months The first 20 hours - how to learn anything Mi hija quiere entender el sistema financiero | Hernan Casciari | TEDxMontevideo Hay que verlo completo, las veces que sea necesario :) El final es cursi, pero el cuento espectacular.
+How to learn any language in six months | Chris Lonsdale | TEDxLingnanUniversity Ver lo que funciona y aplicarlo</description>
+    </item>
+    
+    <item>
+      <title>Maven</title>
+      <link>https://blog.jumapico.uy/notes/maven/</link>
+      <pubDate>Wed, 22 Apr 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/notes/maven/</guid>
+      <description>Introducción a maven Maven in 5 Minutes - primer vistazo a Maven. Maven tutorial - segundo vistazo a Maven. POM Reference - explicación del archivo pom.xml. Reference for the Maven project descriptor - detalles de tags del archivo pom.xml. Introduction to the Standard Directory Layout Luego de tener familiaridad con Maven es conveniente ver toda la documentación
+Miscelanea Builds reproducibles configurando project.build.outputTimestamp en pom.xml usando plugin reproducible-build-maven-plugin Instalar jar&amp;rsquo;s en repositorio local (plugin maven-install-plugin): obteniendo información de la linea de comandos obteniendo información del archivo pom.</description>
+    </item>
+    
+    <item>
+      <title>Citas</title>
+      <link>https://blog.jumapico.uy/notes/cites/</link>
+      <pubDate>Tue, 05 Sep 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/notes/cites/</guid>
+      <description>Programación (cat-v.org)
+wikiquote
+Aguas tranquilas no hacen marineros hábiles.
+La excelencia no es un acto, es un hábito.
+Una meta sin un plan es sólo una expresión de deseo.
+If you think education is expensive, try ignorance.
+El mejor momento para plantar un árbol fué hace veinte años. El segundo mejor momento es ahora.
+Imagination is more important than knowledge.
+No hay nada más caro que algo gratis
+Success comes from experience.</description>
+    </item>
+    
+    <item>
+      <title>Debian</title>
+      <link>https://blog.jumapico.uy/notes/debian/</link>
+      <pubDate>Tue, 25 Apr 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/notes/debian/</guid>
+      <description>Creación de repositorios y mirrors Create a smart debian repository with reprepro Local corporate APT repositories Mirror with reprepro Creación de paquetes Manuales para desarrolladores Debian Developer&amp;rsquo;s Reference Guide for Debian Maintainers Debian New Maintainers&amp;rsquo; Guide (a ser reemplazada por Guide for Debian Maintainers) Replacing binaries with dpkg-divert APT for package self-builders pbuilder tips sbuild-debian-developer-setup Quilt Using Quilt How to use quilt to manage patches in Debian packages Introduction to Quilt Patches to Packages Working with patches elinux Quilt Working on RPMs with quilt: an illustrated guide Empaquetado skopeo ITP Debian Go Packaging Team Sobre skopeo: DIY Docker using Skopeo+OStree+Runc Read only root (Debian) Readonly Root in debian wiki Protecting the Root Filesystem on Ubuntu with Overlayroot The Case for the /usr Merge #860915 - cloud-initramfs-tools: Please re-enable generation of the overlayroot package Debian reproducible issues (reproducible-notes scm) known issues randomness_in_documentation_generated_by_lua_ldoc timestamps_in_tarball timestamp_in_pear_registry_files php registry - PEAR random_order_in_documentation_generated_by_javadoc Bugs Beginners HOWTO Squashing Release-Critical Bugs in Debian: A Primer Release-critical bugs status (paquetes candidatos para colaborar) Varios Instalación de paquetes de forma desatendida: Everything you need to know about conffiles: configuration files managed by dpkg microHOWTO: Perform an unattended installation of a Debian package </description>
+    </item>
+    
+    <item>
+      <title>Enlaces varios</title>
+      <link>https://blog.jumapico.uy/notes/misc/</link>
+      <pubDate>Tue, 25 Apr 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/notes/misc/</guid>
+      <description> Aprenda Inglés - BBC bash cheatsheet Damian Conway, &amp;ldquo;More Instantly Better Vim&amp;rdquo; - OSCON 2013 GTD system Hurricane Electric Hosted DNS iFixit Image guide - Example: CentOS image Isso – a commenting server similar to Disqus Jóvenes a programar </description>
+    </item>
+    
+    <item>
+      <title>Eudyptula challenge</title>
+      <link>https://blog.jumapico.uy/notes/eudyptula-challenge/</link>
+      <pubDate>Tue, 25 Apr 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/notes/eudyptula-challenge/</guid>
+      <description>Task 01 Enlaces a la documentación del kernel:
+https://www.kernel.org/doc/html/latest/ https://www.kernel.org/doc/Documentation/ Documentación general para desarrollo: https://www.kernel.org/doc/html/latest/process/index.html
+Descripción de como funciona la comunidad de desarrollo del kernel: https://www.kernel.org/doc/html/latest/process/howto.html
+El kernel usa ISO C89 con extensiones no estandar No se utiliza la standard C library Requerimientos para compilar y ejecutar el kernel: https://www.kernel.org/doc/html/latest/process/changes.html Estilo de código: https://www.kernel.org/doc/html/latest/process/coding-style.html Información de como generar parches y que estilo debe utilizarse: https://www.kernel.org/doc/html/latest/process/submitting-patches.html Documentación para entender el kernel: https://www.</description>
+    </item>
+    
+  </channel>
+</rss>

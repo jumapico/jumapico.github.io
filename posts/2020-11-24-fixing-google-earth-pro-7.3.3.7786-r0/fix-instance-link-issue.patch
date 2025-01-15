@@ -1,0 +1,19 @@
+--- opt/google/earth/pro/googleearth.orig	2020-11-24 15:44:50.476392680 -0300
++++ opt/google/earth/pro/googleearth	2020-11-24 15:44:07.937099724 -0300
+@@ -2,6 +2,10 @@
+ # This script configures any environment prerequisites needed by Google Earth.
+ # Start Google Earth using this script rather than googleearth-bin directly.
+ 
++if ! grep -q googleearth-bin "$HOME"/.googleearth/instance-running-lock/cmdline 2>/dev/null; then
++  rm -f "$HOME"/.googleearth/instance-running-lock
++fi
++
+ # If you want to use an external copy of GPSBabel, you can specify it here.
+ # if [[ -z "$GPSBABEL" ]]; then export GPSBABEL="$(which gpsbabel)"; fi
+ 
+@@ -18,4 +22,4 @@
+   fi
+ fi
+ 
+-"$(dirname "$(readlink -f "$0")")/googleearth-bin" "$@"
++exec "$(dirname "$(readlink -f "$0")")/googleearth-bin" "$@"
