@@ -1,0 +1,1936 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Inicio on Blog de Juan Picca</title>
+    <link>https://blog.jumapico.uy/</link>
+    <description>Recent content in Inicio on Blog de Juan Picca</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Sun, 16 Feb 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://blog.jumapico.uy/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Juegos completados</title>
+      <link>https://blog.jumapico.uy/notes/juegos-completados/</link>
+      <pubDate>Sun, 16 Feb 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/notes/juegos-completados/</guid>
+      <description>Ya que mis hijos han empezado a contabilizar que juegos están completando, nada mejor que mantener una lista.
+Nota: conviene usar sitios como https://howlongtobeat.com/ para tener una idea de cuanto tiempo puede llevar un juego antes de empezar.
+Juego Annakaren Iván Juan Sofía Alwa&#39;s Legacy 2024-11 Animal Well 2024-12 Broforce 2024-12 Carrion 2024 Castlevania: Aria of Sorrow x Castlevania: Circle of the Moon x Castlevania: Order of Ecclesia x Castlevania: Symphony of the Night x Chasm x x Children of Morta x x x x Dadish 2025-01 Dead Cells x Dome Keeper x Hammerwatch x x x Kirby&#39;s Return to Dream Land 2024 2024 2024 Kirby and the Forgotten Land 2024 Lode Runner Legacy 2024 Lost Ruins 2025-02 Mega Man 11 2025-01 Mega Man X 2024-12 Mega Man X3 2025-01 Nuclear Blaze 2024-12 2024 2024 Pokemón Violet 2024 Record of Lodoss War: Deedlit in Wonder Labyrinth 2024-12 Super Ghouls &#39;n Ghosts 2025-01 Super Mario Bros.</description>
+    </item>
+    
+    <item>
+      <title>Aplicaciones android</title>
+      <link>https://blog.jumapico.uy/notes/android-apps/</link>
+      <pubDate>Thu, 06 Feb 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/notes/android-apps/</guid>
+      <description>Listado de aplicaciones utilizadas.
+Nota: primero debe instalarse F-Droid desde el PC.
+De F-Droid Aurora Store DiskUsage Element Fennec F-Droid KOReader KeePassDX MuPDF mini NewPipe Notepad QR Scanner (PFA) Simple Contacts Pro Simple File Manager Pro Simple Gallery Pro Simple Keyboard Simple SMS Messenger Simple Voice Recorder VLC WiFiAnalyzer De Google Play (instalados vía Aurora Store) Nota: algunas de estas aplicaciones pueden venir ya instaladas en el celular.
+Google Chrome Google Maps Google Translate Netflix Prex Uruguay NumWorks Graphing Calculator Webex Meetings Webex WhatsApp Messenger </description>
+    </item>
+    
+    <item>
+      <title>Problemas de hardware con HP Prime G2</title>
+      <link>https://blog.jumapico.uy/posts/2025-01-23-hardware-problems-hp-prime-g2/</link>
+      <pubDate>Thu, 23 Jan 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2025-01-23-hardware-problems-hp-prime-g2/</guid>
+      <description>Mi esposa estaba necesitando una calculadora científica y eligió una HP Prime G2.
+Obviamente el post no es para decir &amp;ldquo;que buena calculadora&amp;rdquo;.
+En la segunda carga que se realizó dejó de prender.
+Por suerte mi hermano pudo revisarla y esto es lo que encontró:
+Buscando en internet no fuí el primero con el problema. Un ejemplo de ello es el post HP Prime G2 can die if you turn it off while charging.</description>
+    </item>
+    
+    <item>
+      <title>Desarrollando con angular en openbsd</title>
+      <link>https://blog.jumapico.uy/posts/2025-01-15-angular-in-openbsd/</link>
+      <pubDate>Wed, 15 Jan 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2025-01-15-angular-in-openbsd/</guid>
+      <description>TL;DR: si un proyecto utiliza rollup en OpenBSD, hacer:
+$ jq &#39;. + {overrides: {&amp;quot;rollup&amp;quot;: &amp;quot;npm:@rollup/wasm-node&amp;quot;}}&#39; \ package.json &amp;gt; package.tmp.json &amp;amp;&amp;amp; mv package.tmp.json package.json $ npm update A continuación los pasos para desarrollar aplicaciones angular en OpenBSD
+1. Instalar paquete de node: $ doas pkg_add -Dsnap node Aquí se utiliza -Dsnap porque se está en -current.
+2. Configurar npm Según el manual de npm (man npm), el directorio donde se instalan los paquetes de forma global:</description>
+    </item>
+    
+    <item>
+      <title>Notas de las lecciones de entrenamiento de Lua</title>
+      <link>https://blog.jumapico.uy/posts/2024-10-11-lua-training-lessons/</link>
+      <pubDate>Fri, 11 Oct 2024 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2024-10-11-lua-training-lessons/</guid>
+      <description>A continuación algunas notas como recordatorio sobre el entrenamiento de Lua:
+Cuando rompe, salta encima, no respeta espacios o tiene conductas que queremos cambiar, primero le indicamos la orden no y si no corrige se utiliza aislamiento (se la encierra cuatro o cinco segundos en un lugar pequeño y oscuro, por ejemplo un baño). Practicar orden quieto para los casos de movimiento y permanencia a distancia (esto último implica salir de la habitación y que ella espere) dando premio.</description>
+    </item>
+    
+    <item>
+      <title>Iván me superó jugando Völgarr</title>
+      <link>https://blog.jumapico.uy/posts/2024-09-03-ivan-me-supero-en-el-volgarr/</link>
+      <pubDate>Tue, 03 Sep 2024 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2024-09-03-ivan-me-supero-en-el-volgarr/</guid>
+      <description>Ayer, 02 de setiembre de 2024, mi hijo Iván de 9 años me superó y se dió vuelta el juego Völgarr The Viking.
+Luego de ocho días (como me lo están indicando a medida que escribo), Iván terminó el juego en modo normal derrotando al dragón.
+En sus palabras de lo que más le dificultó para terminar el juego:
+Lo más difícil es memorizarse los patrones de los jefes y memorizarte el nivel entero.</description>
+    </item>
+    
+    <item>
+      <title>jaas is the way</title>
+      <link>https://blog.jumapico.uy/posts/2024-08-30-jaas-is-the-way/</link>
+      <pubDate>Fri, 30 Aug 2024 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2024-08-30-jaas-is-the-way/</guid>
+      <description>TL;DR: para desencriptar passwords de jboss 5 descargar el script JBoss.java y ejecutarlo usando:
+$ java JBoss.java Cada tanto me topo con la necesidad de migrar una aplicación que se encuentra deployada en jboss 5.
+Una parte de la tarea es verificar que el nuevo servidor puede conectarse a las bases de datos y/o ldap, por lo que si las contraseñas se almacenaron &amp;ldquo;encriptadas&amp;rdquo; es necesario desencriptarlas.
+Aquí el &amp;ldquo;encriptadas&amp;rdquo; entre comillas ya que se encuentran codificadas con un cifrado simétrico cuya clave es conocida y da lugar al título de este post.</description>
+    </item>
+    
+    <item>
+      <title>Firefox</title>
+      <link>https://blog.jumapico.uy/notes/firefox/</link>
+      <pubDate>Sun, 21 Apr 2024 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/notes/firefox/</guid>
+      <description>Notas sobre la instalación de Firefox Utilizo dos versiones de firefox:
+Firefox ESR, el cual customizo con los complementos y configuración listados en esta página. Firefox, el cual no customizo y utilizo en sitios que den problemas con las customizaciones anteriores. Complementos Firefox Cookie AutoDelete Elimina cookies automáticamente. Dark Reader Permite habilitar el Dark mode por sitio. Firefox Multi-Account Containers Separa cookies por contenedor. Greasemonkey User script manager. NoScript Habilitar Javascript solo en los sitios deseados.</description>
+    </item>
+    
+    <item>
+      <title>python: dependencias transitivas con pip-tools</title>
+      <link>https://blog.jumapico.uy/posts/2024-03-28-python-transitive-dependencies-with-pip-tools/</link>
+      <pubDate>Thu, 28 Mar 2024 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2024-03-28-python-transitive-dependencies-with-pip-tools/</guid>
+      <description>Tip: utilizar pip-tools (documentación) para generar lista de dependencias a utilizar en un proyecto python.
+Ejemplo de uso Para el caso de una aplicación flask + htmx:
+$ python3 -m venv ENV $ source ENV/bin/activate (ENV) $ pip install pip-tools (ENV) $ cat &amp;gt; requirements.in &amp;lt;&amp;lt;&#39;END&#39; flask flask-htmx END (ENV) $ pip-compile requirements.in El último comando es el que nos interesa, ya que genera el archivo requirements.txt con los números de versión y dependencias transitivas de los paquetes que se encuentran listados en requirements.</description>
+    </item>
+    
+    <item>
+      <title>Jugando Dome Keeper en OpenBSD</title>
+      <link>https://blog.jumapico.uy/posts/2023-10-24-playing-dome-keeper-openbsd/</link>
+      <pubDate>Tue, 24 Oct 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2023-10-24-playing-dome-keeper-openbsd/</guid>
+      <description>Estos días he estado jugando al Dome Keeper de bippinbits, y viendo que estaba hecho con Godot Engine aproveché a probar si funciona en OpenBSD 7.4.
+TL;DR: ¡funciona la versión 1.5 con Godot Engine 3.5.3!
+Pasos a seguir:
+Obtener una versión de Dome Keeper.
+En mi caso utilicé para realizar pruebas la versión Dome Keeper Deluxe Edition (1.5) [amd64][Multi][Steam][Godot]
+Este instalador es un Self-extracting archive que no funciona en OpenBSD pero ya que el decompressor stub (header) es un shell script podemos inspeccionar el código llegando a los pasos siguientes para extraer el archivo embebido (payload):</description>
+    </item>
+    
+    <item>
+      <title>Review kindle scribe</title>
+      <link>https://blog.jumapico.uy/posts/2023-07-16-review-kindle-scribe/</link>
+      <pubDate>Sun, 16 Jul 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2023-07-16-review-kindle-scribe/</guid>
+      <description>TL;DR: perfecto para leer archivos pdf, horrible si se busca privacidad, molesto el giroscopio ya que la pantalla gira 180 grados y no hay forma de deshabilitarlo.
+Ya hace unas semanas Jean Pierre me pudo traer a la vuelta de su viaje por USA un Kindle Scribe *, el cual costó unos 450 USD (32 GB, Premium Pen, sin ningún descuento).
+Si bien estaba entre el scribe y un Kobo Elipsa 2e, elegí el scribe por la mayor densidad en píxeles: 300 ppi vs 227 ppi, teniendo un tamaño similar de display: 10.</description>
+    </item>
+    
+    <item>
+      <title>Expectativas erroneas con login.conf</title>
+      <link>https://blog.jumapico.uy/posts/2023-04-23-wrong-expectations-with-login_conf/</link>
+      <pubDate>Sun, 23 Apr 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2023-04-23-wrong-expectations-with-login_conf/</guid>
+      <description>TL;DR: no modificar el archivo /etc/login.conf
+Auditoría de seguridad A partir de un blog que leí hace unos cuantos días me enteré de la existencia del paquete lynis disponible para openbsd.
+De la descripción del paquete:
+Security auditing tool for Linux, Mac and Unix based systems. Scan your systems in a matter of minutes and know what can be improved.
+Así que pensé ¿porqué no probarlo?
+Luego de instalarlo (doas pkg_add lynis) y realizar un escaneo, uno de los detalles que obtengo es:</description>
+    </item>
+    
+    <item>
+      <title>Dependencias de artefactos jee</title>
+      <link>https://blog.jumapico.uy/posts/2023-02-24-jee-artifacts-dependencies/</link>
+      <pubDate>Fri, 24 Feb 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2023-02-24-jee-artifacts-dependencies/</guid>
+      <description>Se tienen muchas aplicaciones en un servidor de aplicaciones wildfly bastante viejo. Se desea evaluar la posibilidad de pasar a utilizar un servidor más reciente, pero separando las aplicaciones y no deployandolas todas juntas nuevamente.
+Parte del problema (aparte de la migración), es que los artefactos existentes fueron construidos con ant en lugar de maven y no se tiene información de las dependencias entre aplicaciones jee y son muchas.
+Un enfoque para intentar determinar la dependencia entre aplicaciones es dibujar con graphviz un grafo obteniendo la información de los archivos de configuración xml que se encuentran en los artefactos (ej.</description>
+    </item>
+    
+    <item>
+      <title>Usando wildfly con overlayfs</title>
+      <link>https://blog.jumapico.uy/posts/2023-02-23-using-wildfly-overlayfs/</link>
+      <pubDate>Thu, 23 Feb 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2023-02-23-using-wildfly-overlayfs/</guid>
+      <description>Estos días estoy teniendo que probar varias aplicaciones JEE en los servidores de aplicaciones java wildfly y payara.
+No solo estoy teniendo que probar aplicaciones, sinó también cerciorarme de que la customización realizada a los application servers (as) vanilla sean correctas.
+Para facilitarme lo anterior, encontré que una forma relativamente sencilla de realizar pruebas y ver que cambios se realizan en un as es utilizar overlayfs (manpage) para dejar incambiados los archivos del as (directorio lowerdir) y poder inspeccionar fácilmente los cambios realizados (directorio upperdir).</description>
+    </item>
+    
+    <item>
+      <title>Instalando unityhub en debian</title>
+      <link>https://blog.jumapico.uy/posts/2022-11-25-install-unityhub-in-debian/</link>
+      <pubDate>Fri, 25 Nov 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2022-11-25-install-unityhub-in-debian/</guid>
+      <description>Se busca instalar unityhub pero en la documentación se utiliza apt-key add, el cual según el manual de apt-key no se recomienda:
+Note: Instead of using this command a keyring should be placed directly in the /etc/apt/trusted.gpg.d/ directory with a descriptive name and either &amp;ldquo;gpg&amp;rdquo; or &amp;ldquo;asc&amp;rdquo; as file extension.
+Por lo cual se sustituye el uso de
+$ wget -qO - https://hub.unity3d.com/linux/keys/public | sudo apt-key add - por
+$ wget -qO - &#39;https://hub.</description>
+    </item>
+    
+    <item>
+      <title>Tips sobre instalación de debian testing (bookworm) en lenovo thinkpad L13</title>
+      <link>https://blog.jumapico.uy/posts/2022-10-25-tips-install-debian-lenovo-l13/</link>
+      <pubDate>Tue, 25 Oct 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2022-10-25-tips-install-debian-lenovo-l13/</guid>
+      <description>Hace unos días tuve que instalar una Lenovo Thinkpad L13 Gen3 (21B4-S1H300).
+El sistema operativo elegido: debian testing (bookworm).
+A continuación algunos tips a tener en cuenta durante la instalación.
+Elección de imagen de instalación Usualmente suelo utilizar una imagen netinst de debian testing para realizar las instalaciones. El problema en este caso es que el hardware es bastante nuevo (2022/07 según la carcasa) y la imagen netinst no incluye los drivers del wifi a octubre de 2022:</description>
+    </item>
+    
+    <item>
+      <title>Configurar gitlab-runner usando executor virtualbox</title>
+      <link>https://blog.jumapico.uy/posts/2022-09-05-gitlab-runner-virtualbox/</link>
+      <pubDate>Mon, 05 Sep 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2022-09-05-gitlab-runner-virtualbox/</guid>
+      <description>Objetivo Se busca configurar la funcionalidad de CI/CD de una instancia de gitlab community edition (self-managed).
+Para ello debe agregarse por lo menos un runner que es una aplicación utilizada por gitlab CI/CD para ejecutar las tareas en un pipeline.
+Al registrar un runner en gitlab se debe elegir un executor el cual determina el ambiente en el que cada trabajo es ejecutado.
+Actualmente estoy utilizando el shell executor el cual tiene como ventajas la facilidad de configuración, pero como contra que los trabajos tienen acceso al servidor en que está instalado el runner el cual está compartido con otros servicios.</description>
+    </item>
+    
+    <item>
+      <title>Mejorar velocidad del storage en podman</title>
+      <link>https://blog.jumapico.uy/posts/2022-08-26-podman-improve-storage-speed/</link>
+      <pubDate>Fri, 26 Aug 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2022-08-26-podman-improve-storage-speed/</guid>
+      <description>Problema podman funciona demasiado lento.
+El sistema operativo es debian testing (Debian GNU/Linux bookworm/sid)
+Diagnóstico Una pista al problema se encuentra en los issues de podman, particularmente el issue 13226, el cual indica que el problema puede ser debido al driver utilizado por el storage. Allí se indica que el storage driver utilizado por el usuario que creó la incidencia puede ser vfs en lugar de overlay y que esto afecta significativamente la performance.</description>
+    </item>
+    
+    <item>
+      <title>Cambiar fuente por defecto de QT en OpenBSD</title>
+      <link>https://blog.jumapico.uy/posts/2022-08-17-change-qt-default-font-openbsd/</link>
+      <pubDate>Wed, 17 Aug 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2022-08-17-change-qt-default-font-openbsd/</guid>
+      <description>Estoy utilizando mate-desktop en OpenBSD el cual está basado en GTK.
+Para poder cambiar las fuentes utilizadas por programas que utilicen la librería Qt:
+Instalar el paquete qt5ct:
+$ doas pkg_add qt5ct Agregar la variable de entorno QT_QPA_PLATFORMTHEME=qt5ct al comienzo de ~/.xsession como indica la descripción del paquete:
+$ pkg_info -d qt5ct ... Set QT_QPA_PLATFORMTHEME=qt5ct in the environment to use it. ... Configurar las fuentes ejecutando qt5ct (pestaña Fonts).
+Referencias:</description>
+    </item>
+    
+    <item>
+      <title>Usando controlador midi AKAI MPK mini mk3 en OpenBSD</title>
+      <link>https://blog.jumapico.uy/posts/2022-07-05-using-akaimpk3-openbsd/</link>
+      <pubDate>Tue, 05 Jul 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2022-07-05-using-akaimpk3-openbsd/</guid>
+      <description>Se intenta utilizar un controlador midi AKAI MPK mini mk3 en OpenBSD 7.1 (-current).
+Detección Se busca verificar que el teclado funciona con OpenBSD, o sea, que es detectado por el kernel.
+Para ello se enchufa el teclado y se usa dmesg para ver si el kernel generó algún evento:
+$ dmesg ... uhidev0 at uhub0 port 1 configuration 1 interface 0 &amp;quot;AKAI MPK mini 3&amp;quot; rev 2.00/2.00 addr 5 uhidev0: iclass 3/0 uhid0 at uhidev0: input=32, output=32, feature=0 umidi0 at uhub0 port 1 configuration 1 interface 2 &amp;quot;AKAI MPK mini 3&amp;quot; rev 2.</description>
+    </item>
+    
+    <item>
+      <title>Uso de PostgreSQL en OpenBSD</title>
+      <link>https://blog.jumapico.uy/posts/2022-06-14-using-postgresql-on-openbsd/</link>
+      <pubDate>Tue, 14 Jun 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2022-06-14-using-postgresql-on-openbsd/</guid>
+      <description>Instalación de paquetes Primero buscamos los paquetes a instalar y corroboramos la versión disponible:
+$ pkg_info -Q postgresql ... postgresql-client-14.3 postgresql-contrib-14.3 postgresql-docs-14.3 postgresql-ip4r-2.4.1pl1 postgresql-odbc-13.02.0000 postgresql-pg_upgrade-14.3 postgresql-pllua-2.0.10 postgresql-plpython-14.3 postgresql-plr-8.4.1 postgresql-previous-13.5p0 postgresql-server-14.3p1 postgresql_autodoc-1.40p1 ... Para instalar la versión 14.3 de postgresql se utiliza
+$ doas pkg_add postgresql-server postgresql-client postgresql-contrib y si se quiere tener la documentación localmente:
+$ doas pkg_add postgresql-docs w3m Creación de base de datos Comenzamos leyendo el README del paquete, /usr/local/share/doc/pkg-readmes/postgresql-server.</description>
+    </item>
+    
+    <item>
+      <title>Química General de Milone</title>
+      <link>https://blog.jumapico.uy/posts/2022-06-08-quimica-general-de-milone/</link>
+      <pubDate>Wed, 08 Jun 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2022-06-08-quimica-general-de-milone/</guid>
+      <description>Los otros días me encontré en Mercado Libre con el libro Química General de Jorge Milone.
+Y junto a la tapa el recuerdo: ¡este fué mi primer libro de programación!.
+Corría el año 1996, tenía 14 años y estaba en tercero de liceo (ver sobre el sistema educativo uruguayo). Recuerdo haber ido a la librería a buscar el libro del curso y leyendo los contenidos me pareció superior el de Milone, así que me terminé comprando este.</description>
+    </item>
+    
+    <item>
+      <title>Notas: The DAM Book</title>
+      <link>https://blog.jumapico.uy/posts/2022-06-01-notes-the-dam-book/</link>
+      <pubDate>Wed, 01 Jun 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2022-06-01-notes-the-dam-book/</guid>
+      <description>Notas sobre partes del libro The DAM Book. Principalmente palabras clave para recordar ideas a futuro.
+¿cuando un archivo está listo para archivarse?
+RAW:
+nombre de archivo permanente metadata se terminó de trabajar en el archivo Derivative (DRV)
+bucket system ~&amp;gt; los directorios se ordenan en secuencia numérica
+Prefix _ Sequence number _ Content
+RAW_0000_YYYY-MM-DD_Content
+usar _ en lugar de espacios para evitar problemas con programas
+batch-renaming utility
+intentar mantener el nombre de archivo en 31 carácteres: puntuación, underscore, dashes, puntos</description>
+    </item>
+    
+    <item>
+      <title>Usando nodejs en OpenBSD</title>
+      <link>https://blog.jumapico.uy/posts/2022-05-25-using-node-in-openbsd/</link>
+      <pubDate>Wed, 25 May 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2022-05-25-using-node-in-openbsd/</guid>
+      <description>TL;DR:
+$ doas pkg_add node $ cat &amp;gt; ~/.npmrc &amp;lt;&amp;lt;&#39;END&#39; prefix = ${HOME}/.npm-packages END # agregar la linea `PATH=&amp;quot;$PATH:$HOME/.npm-packages/bin&amp;quot;` en el archivo `~/.profile` Instalando nodejs en OpenBSD Por suerte nodejs se encuentra entre los ports de OpenBSD, por lo cual se instala haciendo:
+$ doas pkg_add node Probamos que funcione:
+$ node Welcome to Node.js v16.14.2. Type &amp;quot;.help&amp;quot; for more information. &amp;gt; $ npm version { npm: &#39;8.5.0&#39;, node: &#39;16.14.2&#39;, v8: &#39;9.</description>
+    </item>
+    
+    <item>
+      <title>Instalando escritorio MATE en OpenBSD</title>
+      <link>https://blog.jumapico.uy/posts/2022-05-20-installing-mate-in-openbsd/</link>
+      <pubDate>Fri, 20 May 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2022-05-20-installing-mate-in-openbsd/</guid>
+      <description>Notas para la instalación y configuración del escritorio MATE en OpenBSD:
+Instalar los paquetes mate y mate-extras:
+$ doas pkg_add mate mate-extras Seguir las indicaciones del paquete mate que se encuentran en el archivo /usr/local/share/doc/pkg-readmes/mate:
+Agregar mate-session en ~/.xsession:
+exec /usr/local/bin/ck-launch-session /usr/local/bin/mate-session Habilitar messagebus para ver el indicador de la conexión AC/batería:
+$ doas rcctl enable messagebus $ doas rcctl start messagebus Configuración de bloqueo al cerrar la tapa.
+Por defecto, al cerrar la tapa del laptop el equipo entra en suspensión y no se bloquea la pantalla, por lo que al volver a levantar la tapa y encender el equipo volvemos al escritorio y no está bloqueado.</description>
+    </item>
+    
+    <item>
+      <title>Usando wiki markup en Confluence</title>
+      <link>https://blog.jumapico.uy/posts/2022-05-13-using-wiki-markup-in-confluence/</link>
+      <pubDate>Fri, 13 May 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2022-05-13-using-wiki-markup-in-confluence/</guid>
+      <description>En las versiones nuevas de Confluence ya no es posible utilizar directamente el marcado tipo wiki en las páginas. Si bien hay forma de ingresar texto insertando un bloque de wiki markup, luego este no puede ser editado, por lo cual no es una opción para mi.
+Por suerte se puede instalar la app Wiki Markup for Confluence, una macro que retiene el wiki markup entre sesiones.
+La ventaja de utilizar el markup de Confluence sobre markdown es que es posible utilizar macros, tanto los que trae por defecto confluence como extensiones, ejemplo: plantuml mediante la app PlantUML for Confluence.</description>
+    </item>
+    
+    <item>
+      <title>OpenBSD: instalando mutt</title>
+      <link>https://blog.jumapico.uy/posts/2022-05-03-openbsd-installing-mutt/</link>
+      <pubDate>Tue, 03 May 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2022-05-03-openbsd-installing-mutt/</guid>
+      <description>Recordatorio a futuro
+Al instalar mutt en OpenBSD hay que instalar el flavor (sabor) sasl:
+$ doas pkg_add mutt--sasl En caso de utilizar el flavor por defecto (doas pkg_add mutt--) y luego querer enviar un email se obtiene el mensaje de error &amp;ldquo;no authenticators available&amp;rdquo;.</description>
+    </item>
+    
+    <item>
+      <title>Intento de visualización de paquetes instalados y sus dependencias en OpenBSD</title>
+      <link>https://blog.jumapico.uy/posts/2022-05-01-attempt-view-packages-dependencies/</link>
+      <pubDate>Sun, 01 May 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2022-05-01-attempt-view-packages-dependencies/</guid>
+      <description>Objetivo Ver de forma gráfica las dependencias entre los paquetes de OpenBSD instalados desde ports. Esto es porque a medida que se van instalando paquetes aumenta significativamente la cantidad de dependencias transitivas y se busca una forma de visualizar este aumento.
+Para ello se utilizará la información brindada por pkg_info y se transformará a una imagen utilizando graphviz
+Prueba de creación de imagen con graphviz Se desea generar una imagen a partir de la información de un gráfo dirigido, ya que esta es una forma natural de modelar dependencias entre paquetes.</description>
+    </item>
+    
+    <item>
+      <title>Programando arduino en openbsd</title>
+      <link>https://blog.jumapico.uy/posts/2022-04-24-programming-arduino-in-openbsd/</link>
+      <pubDate>Sun, 24 Apr 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2022-04-24-programming-arduino-in-openbsd/</guid>
+      <description>En un artículo previo utilicé Arduino-Makefile en debian para crear y cargar programas arduino. Me pregunto&amp;hellip; ¿ahora que estoy utilizando OpenBSD (7.1, -current) cambiará mucho como hacerlo?
+TL;DR:
+Instalar paquetes:
+$ doas pkg_add arduino-makefile picocom Agregar al usuario al grupo dialer:
+$ doas usermod -G dialer jmpc Utilizar como Makefile:
+# Arduino Make file. Refer to https://github.com/sudar/Arduino-Makefile BOARD_TAG = mega BOARD_SUB = atmega2560 MONITOR_PORT = /dev/ttyU0 AVRDUDE_CONF = /usr/local/share/examples/avrdude/avrdude.conf USER_LIB_PATH = libraries # ARDUINO_LIBS = &amp;lt;.</description>
+    </item>
+    
+    <item>
+      <title>Obtener token OTP del BROU</title>
+      <link>https://blog.jumapico.uy/posts/2022-04-05-get-brou-otp/</link>
+      <pubDate>Tue, 05 Apr 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2022-04-05-get-brou-otp/</guid>
+      <description>Motivación El BROU posee una aplicación de llave digital para realizar transacciones que permite generar un one-time password.
+Ya que no deseo tener instalada la aplicación en un dispositivo android&amp;hellip;, ¿es posible replicar la generación del token en una aplicación de escritorio como KeePassXC que utilizo para gestionar mis contraseñas?
+Inspección de la aplicación Para inspeccionar la aplicación primero se debe descargar la aplicación. Para ello se me ocurren dos alternativas:</description>
+    </item>
+    
+    <item>
+      <title>Ejecutando juegos de gog en debian - Mable &amp;amp; The Wood</title>
+      <link>https://blog.jumapico.uy/posts/2022-03-06-run-gog-games-in-debian-mable/</link>
+      <pubDate>Sun, 06 Mar 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2022-03-06-run-gog-games-in-debian-mable/</guid>
+      <description>A continuación los pasos seguidos para instalar el juego Mable &amp;amp; The Wood distribuido por GOG en debian testing (12) a partir de la experiencia adquirida al instalar el juego Volgarr the Viking en debian.
+Pasos a seguir:
+Instalar la aplicación y ver si anda de casualidad o dicho de otra forma, comprobar que no funciona en el sistema. Crear sistema base Ubuntu 18.04 amd64 y utilizar el dynamic loader y las librerías de dicho sistema para ejecutar el juego.</description>
+    </item>
+    
+    <item>
+      <title>Ejecutando juegos de gog en debian - Volgarr the Viking</title>
+      <link>https://blog.jumapico.uy/posts/2022-02-28-run-gog-games-in-debian-volgarr/</link>
+      <pubDate>Mon, 28 Feb 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2022-02-28-run-gog-games-in-debian-volgarr/</guid>
+      <description>A continuación los pasos seguidos para instalar el juego Volgarr the Viking distribuido por GOG en debian.
+El instalador es el archivo gog_volgarr_the_viking_2.1.0.3.sh y según la página de gog el juego es un binario de 32 bits, por lo cual para ejecutarlo se debe tener habilitada la arquitectura i386. En la página también se indica que funciona en Ubuntu 18.04 32bits.
+Vale la pena aclarar que tengo varias PC&amp;rsquo;s con distintas versiones y configuraciones de debian, por lo cual se indicarán los pasos seguidos en cada PC.</description>
+    </item>
+    
+    <item>
+      <title>Programando en ensamblador</title>
+      <link>https://blog.jumapico.uy/posts/2022-01-20-programming-in-assembly/</link>
+      <pubDate>Thu, 20 Jan 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2022-01-20-programming-in-assembly/</guid>
+      <description>La última fué la semana de refrescar ensamblador revisando https://asmtutor.com/ luego de llegar allí mediante los posts Learn Assembly y Assembly Nights.
+Sobre el sitio https://asmtutor.com/:
+Learn Assembly Language
+This project was put together to teach myself NASM x86 assembly language on linux.
+Leyendo por arriba, dos detalles:
+El sitio es sobre (la arquitectura) x86 y allí se utiliza la int 80h para llamar a las funciones del kernel linux.</description>
+    </item>
+    
+    <item>
+      <title>Antes de comprar una lavarropa...</title>
+      <link>https://blog.jumapico.uy/posts/2022-01-16-before-buying-a-washing-machine/</link>
+      <pubDate>Sun, 16 Jan 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2022-01-16-before-buying-a-washing-machine/</guid>
+      <description>Hace unos días que el lavarropas hace ruido. Mucho ruido. Sin duda el problema es el rodamiento -o rulemán como le decimos en Uruguay-.
+Para alegría de mi esposa por fin me decidí a arreglarlo, por lo que me puse a buscar videos en internet sobre como reparar un lavarropas Ariston Aqualtis AQM9FW9U.
+Algo obvio, no encontré un video para ese lavarropas, sinó para lavarropas similares de la misma marca.</description>
+    </item>
+    
+    <item>
+      <title>Tips de uso de maven para aplicaciones jee</title>
+      <link>https://blog.jumapico.uy/posts/2021-11-10-maven-tips-for-jee-applications/</link>
+      <pubDate>Wed, 10 Nov 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2021-11-10-maven-tips-for-jee-applications/</guid>
+      <description>A continuación varios tips relativos al uso de maven para aplicaciones jakarta ee:
+Creación de archivo pom.xml Instalación de maven-wrapper Prueba de descarga de dependencias Creación de imagen de contenedores Creación de imagen usando un multi-stage build Uso de mirror durante la creación de imagen con multi-stage build Creación de archivo pom.xml Una de las formas usuales de crear un archivo pom es mediante arquetipo de maven. En mi experiencia el uso de arquetipos no es aconsejable, ya que o están desactualizados o es muy difícil de encontrar uno que cumpla con todos los criterios deseados para un proyecto.</description>
+    </item>
+    
+    <item>
+      <title>Javascript</title>
+      <link>https://blog.jumapico.uy/notes/javascript/</link>
+      <pubDate>Tue, 09 Nov 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/notes/javascript/</guid>
+      <description>Herramientas browsersync Time-saving synchronised browser testing.
+nodemon nodemon is a tool that helps develop node.js based applications by automatically restarting the node application when file changes in the directory are detected.
+nvm nvm allows you to quickly install and use different versions of node via the command line.
+rollup Rollup is a module bundler for JavaScript which compiles small pieces of code into something larger and more complex, such as a library or application.</description>
+    </item>
+    
+    <item>
+      <title>Subiendo archivos a ichi.city</title>
+      <link>https://blog.jumapico.uy/posts/2021-11-08-upload-files-to-ichi-city/</link>
+      <pubDate>Mon, 08 Nov 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2021-11-08-upload-files-to-ichi-city/</guid>
+      <description>Websites estáticos Hoy encontré el sitio ichi.city, el cual permite crear un sitio estático utilizando subdominios y sincronizarlo mediante sftp.
+Si, hay otras alternativas que utilizan repositorios git
+https://srht.site/ https://docs.gitlab.com/ee/user/project/pages/ https://pages.github.com/ y otras que permiten editar archivos en linea y subir contenido (archivo .zip)
+https://neocities.org/ La contra de las primeras es que es necesario saber git y de la segunda que no es comodo tener que estar comprimiendo y subiendo el sitio manualmente (interaccionando con el sitio web para ello).</description>
+    </item>
+    
+    <item>
+      <title>Configurar mirror local de maven</title>
+      <link>https://blog.jumapico.uy/posts/2021-10-04-configure-maven-local-mirror/</link>
+      <pubDate>Mon, 04 Oct 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2021-10-04-configure-maven-local-mirror/</guid>
+      <description>Para configurar un mirror local se utilizará nexus repository oss, más específicamente la imagen de contenedores que se encuentra en dockerhub: https://hub.docker.com/r/sonatype/nexus3/.
+Para ejecutar la imagen se realizarán los siguientes pasos:
+Agregar entrada en /etc/hosts para agregar nombre de host a usar y asociarla a la IP del equipo (no localhost):
+Obtener ip físico del equipo:
+$ ip -o -4 a | grep -o -P &#39;\sinet\s\K[^/]*&#39; | grep -v 127.0.0.1 192.</description>
+    </item>
+    
+    <item>
+      <title>Corrigiendo maven-wrapper</title>
+      <link>https://blog.jumapico.uy/posts/2021-10-01-fixing-maven-wrapper/</link>
+      <pubDate>Fri, 01 Oct 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2021-10-01-fixing-maven-wrapper/</guid>
+      <description>ACTUALIZACIÓN
+Utilizando la nueva versión de maven-wrapper y partiendo de un directorio que contenga un archivo pom.xml válido:
+$ MVNW_VERBOSE=true \ MVNW_REPOURL=&#39;https://my-mirror.example.com/maven2&#39; \ mvn wrapper:wrapper -Dmaven=3.8.6 $ MVNW_VERBOSE=true \ ./mvnw install Hoy estuve trabajando en un proyecto que utiliza maven, configurandolo para descargar todas las dependencias de un mirror local.
+Durante la inspección de las urls desde donde se realizan las descargas encuentro que luego de configurar el archivo .mvn/wrapper/maven-wrapper.properties con un mirror alternativo, por ejemplo:</description>
+    </item>
+    
+    <item>
+      <title>Impresiones usando BookWyrm</title>
+      <link>https://blog.jumapico.uy/posts/2021-09-06-impressions-using-bookwyrm/</link>
+      <pubDate>Mon, 06 Sep 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2021-09-06-impressions-using-bookwyrm/</guid>
+      <description>A partir de un artículo en Hacker News decidí probar BookWyrm:
+BookWyrm is a social network for tracking your reading, talking about books, writing reviews, and discovering what to read next. Federation allows BookWyrm users to join small, trusted communities that can connect with one another, and with other ActivityPub services like Mastodon and Pleroma.
+Para ello elegí su instancia insignia, bookwyrm.social.
+Mis impresiones sobre su uso:
+El sitio tiene una interfáz y estética muy agradables.</description>
+    </item>
+    
+    <item>
+      <title>Debian cambió el codename - problemas al actualizar</title>
+      <link>https://blog.jumapico.uy/posts/2021-08-15-debian-changed-codename-problems-updating/</link>
+      <pubDate>Sun, 15 Aug 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2021-08-15-debian-changed-codename-problems-updating/</guid>
+      <description>TL;DR:
+$ sudo apt-get update --allow-releaseinfo-change Debian acaba de liberar bullseye. En mi caso particular utilizo testing, lo cual no me afecta mucho aparte de que se termina el período de freezing.
+Lo que me tomó por sorpresa fué que al actualizar los repositorios obtuviera el siguiente mensaje:
+$ sudo apt-get update Get:1 http://deb.debian.org/debian testing InRelease [81.6 kB] Get:2 http://security.debian.org/debian-security testing-security InRelease [35.6 kB] Get:3 http://deb.debian.org/debian testing-updates InRelease [36.8 kB] Hit:4 https://download.</description>
+    </item>
+    
+    <item>
+      <title>Reinstalando windows 10</title>
+      <link>https://blog.jumapico.uy/posts/2021-08-04-reinstalling-windows-10/</link>
+      <pubDate>Wed, 04 Aug 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2021-08-04-reinstalling-windows-10/</guid>
+      <description>Contexto Estos días tuve un familiar con un problema en la laptop. Especificamente un fallo en el disco duro, por lo que debí reinstalarle windows 10.
+Ya que es posible que el disco siga con problemas y a futuro deba volver a realizar el procedimiento (ya que por ahora no piensa cambiarlo), agrego las indicaciones seguidas para que la próxima vez sea más sencillo de realizar.
+Sobre la licencia de windows En varios modelos de laptops, la licencia de windows viene embebida en el BIOS y alcanza con instalar la última versión de windows 10.</description>
+    </item>
+    
+    <item>
+      <title>Problemas con WORKDIR en Dockerfile</title>
+      <link>https://blog.jumapico.uy/posts/2021-07-08-issues-with-workdir-in-dockerfile/</link>
+      <pubDate>Thu, 08 Jul 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2021-07-08-issues-with-workdir-in-dockerfile/</guid>
+      <description>Como recordatorio.
+Escribiendo un multistage Dockerfile para crear una container image obtenida usando podman:
+... # The user UID is arbitrary, non common used by regular users. RUN useradd -u 7685 -r -g users -m -s /sbin/nologin -c &amp;quot;Builder user&amp;quot; builder # Set the working directory to the `app` directory inside builder home directory WORKDIR /home/builder/app # Specify the user which should be used to execute all commands below USER builder # -- Warm maven cache -- # Copy pom file and mvnw COPY --chown=builder:users .</description>
+    </item>
+    
+    <item>
+      <title>Retos</title>
+      <link>https://blog.jumapico.uy/notes/challenges/</link>
+      <pubDate>Fri, 25 Jun 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/notes/challenges/</guid>
+      <description>Retos varios encontrados en internet, para los tiempos libres&amp;hellip;
+Project Euler The Python Challenge The Cryptopals Crypto Challenges CryptoHack Internet Problem Solving Contest Challenging projects every programmer should try picoCTF </description>
+    </item>
+    
+    <item>
+      <title>Instalación y configuración de base de datos oracle local</title>
+      <link>https://blog.jumapico.uy/posts/2021-05-04-install-and-configuring-a-local-oracle-db/</link>
+      <pubDate>Tue, 04 May 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2021-05-04-install-and-configuring-a-local-oracle-db/</guid>
+      <description>Durante la creación de aplicaciones que utilicen una base de datos oracle, es cómodo tener una instancia local para realizar pruebas.
+En el caso de que otra persona u equipo se encargue luego del mantenimiento de la aplicación, es necesario tener documentados los pasos a seguir para la instalación y configuración de la instancia local.
+Aprovechando que oracle disponibilizó una container image de Oracle Database 12c en dockerhub, decidí crear dos archivos sql script para realizar la configuración y que estén autodocumentados:</description>
+    </item>
+    
+    <item>
+      <title>Corrigiendo la especificación microprofile jwt</title>
+      <link>https://blog.jumapico.uy/posts/2021-05-03-fixing-microprofile-jwt-spec/</link>
+      <pubDate>Mon, 03 May 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2021-05-03-fixing-microprofile-jwt-spec/</guid>
+      <description>A continuación se detallan algunas de las pruebas que estuve haciendo hace unos meses con la especificación microprofile jwt propagation 1.2, también llamada JWT RBAC (role based access control) y que me llevaron a corregir la especificación.
+Notas:
+Estas pruebas fueron realizadas con wildfly 22.0.1.Final. Las diferentes versiones del código mostrado aquí se encuentra en el repositorio https://git.sr.ht/~jumapico/jakarta-ee-experiments, bajo el directorio mp4-demo-jwt. Versión 01 Se comienza con:
+Un pom.xml que contiene las dependencias de microprofile:</description>
+    </item>
+    
+    <item>
+      <title>Charlas varias - pre 2021</title>
+      <link>https://blog.jumapico.uy/posts/2021-05-02-talks-misc-pre-2021/</link>
+      <pubDate>Sun, 02 May 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2021-05-02-talks-misc-pre-2021/</guid>
+      <description>Terminando con las diapositivas de charlas pendientes (previas a 2021).
+Using clang-tidy for customized checkers and large scale source tree refactoring - V. Bridgers - 2020
+clang-apply-replacements tool - sin duda lo que me faltó hace unos años cuando quise modificar libreoffice usando clang (en ese caso hice parte de forma automática y otra manual).
+SPDX &amp;amp; REUSE - For better license statements - Andreas Cord-Landwehr - 2020
+Para indicar la licencia utilizando SPDX:</description>
+    </item>
+    
+    <item>
+      <title>Estable no es aburrido</title>
+      <link>https://blog.jumapico.uy/posts/2021-05-02-stable-is-not-boring/</link>
+      <pubDate>Sun, 02 May 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2021-05-02-stable-is-not-boring/</guid>
+      <description>Quizás por la edad o por los años que me he dedicado a la informática, pero ya hace tiempo que aumenta la atracción por la idea de utilizar sistemas/lenguajes/herramientas estables.
+Seguro de allí viene mi cariño a los sistemas debian (linux) y bsd (openbsd) (¿quizás por ser ambos posix?), C como lenguaje, bash para scripting (de pequeño porte), vi como editor, y la lista sigue, pero sin duda con cosas poco &amp;ldquo;novedosas&amp;rdquo; y que vienen funcionando hace años&amp;hellip;</description>
+    </item>
+    
+    <item>
+      <title>Agregando menu de freedesktop</title>
+      <link>https://blog.jumapico.uy/posts/2021-04-02-add-freedesktop-menu/</link>
+      <pubDate>Fri, 02 Apr 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2021-04-02-add-freedesktop-menu/</guid>
+      <description>Se desea agregar un menu siguiendo la especificación dada por freedesktop.
+El caso es el siguiente:
+Se creará un paquete base que entre otras cosas agrega una entrada en el menú principal. Otros paquetes, los cuales tendrán como dependencia el paquete base, agregarán items a la entrada del menú. Para realizar pruebas se utilizarán dos scripts distintos que permiten instalar y desinstalar los archivos necesarios para agregar un item del menú:</description>
+    </item>
+    
+    <item>
+      <title>Construyendo programas arduino</title>
+      <link>https://blog.jumapico.uy/posts/2021-03-30-building-arduino-programs/</link>
+      <pubDate>Tue, 30 Mar 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2021-03-30-building-arduino-programs/</guid>
+      <description>TL;DR
+Para programar aplicaciones arduino utilizar Arduino-Makefile.
+El archivo Makefile, utilizando una arduino mega y las librerías que se encuentran en el directorio libraries, es de la forma:
+# Arduino Make file. Refer to https://github.com/sudar/Arduino-Makefile BOARD_TAG = mega BOARD_SUB = atmega2560 MONITOR_PORT = /dev/ttyACM0 AVRDUDE_CONF = /etc/avrdude.conf USER_LIB_PATH = libraries ARDUINO_LIBS = &amp;lt;...&amp;gt; include /usr/share/arduino/Arduino.mk Opciones para creación de programas Actualmente para crear programas con arduino se puede utilizar tres opciones:</description>
+    </item>
+    
+    <item>
+      <title>Creando imagen oci para wildfly con datasource de oracle</title>
+      <link>https://blog.jumapico.uy/posts/2021-03-11-creating-oci-image-wildfly-oracle-datasource/</link>
+      <pubDate>Thu, 11 Mar 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2021-03-11-creating-oci-image-wildfly-oracle-datasource/</guid>
+      <description>Update 1: se agrega script generate-wildfly-patch.sh para generar los parches necesarios a partir de un tarball de wildfly.
+Update 2: se agrega script patch-add-ojdbc-to-wildfly.sh para modificar wildfly agregando ojdbc.
+Se busca crear una imagen oci utilizando podman a partir de la imagen oficial de wildfly en dockerhub y que esté configurada para utilizar un datasource que se conecte a una base de datos oracle.
+Verificar imagen Suele ocurrir que durante la creación de las imagenes los scripts descargan aplicaciones y modifican parte de los archivos descargados, por lo que se desea conocer si la imagen que se utilizará es un caso de estos.</description>
+    </item>
+    
+    <item>
+      <title>Problemas con WAD</title>
+      <link>https://blog.jumapico.uy/posts/2021-02-22-problems-with-wad/</link>
+      <pubDate>Mon, 22 Feb 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2021-02-22-problems-with-wad/</guid>
+      <description>Leí sobre la utilidad watch and deploy (WAD) para realizar el redeploy de aplicaciones JEE de forma automática a distintos servidores al cambiar el código fuente.
+Pruebas A partir de aquí las pruebas realizadas con un proyecto de ejemplo. Para preparar el entorno se descarga el servidor wildfly, ejemplos de código y wad:
+$ DIR=$HOME/workspace/pruebas-wad $ mkdir -p $DIR &amp;amp;&amp;amp; cd $DIR $ wget &#39;https://download.jboss.org/wildfly/22.0.1.Final/wildfly-22.0.1.Final.tar.gz&#39; $ tar xf wildfly-22.0.1.Final.tar.gz $ git clone --branch 22.</description>
+    </item>
+    
+    <item>
+      <title>JEE9 - Aplicación minima jaxrs desde cero</title>
+      <link>https://blog.jumapico.uy/posts/2021-02-18-jee9-minimal-jaxrs-from-scratch/</link>
+      <pubDate>Thu, 18 Feb 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2021-02-18-jee9-minimal-jaxrs-from-scratch/</guid>
+      <description>Objetivo Se busca crear desde cero, sin partir de un arquetipo o proyecto existente, una aplicación minima Jakarta EE 9 empaquetada como un archivo war. Para construir la aplicación se utilizará maven y para ejecutarla el servidor de aplicaciones wildfly.
+Instalando y configurando dependencias git Ya que se utilizará git para realizar el control de versiones, si varios desarrolladores van a trabajar en el mismo proyecto conviene preveer el ignorar los archivos generados por los IDE&amp;rsquo;s más comunes.</description>
+    </item>
+    
+    <item>
+      <title>Charlas BSDCan 2015-2020</title>
+      <link>https://blog.jumapico.uy/posts/2021-02-17-talks-bsdcan-2015-2020/</link>
+      <pubDate>Wed, 17 Feb 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2021-02-17-talks-bsdcan-2015-2020/</guid>
+      <description>Charlas BSDCan
+2020 Interesantes Unearthing the History of Unix 2019 Interesantes MirageOS: minimizing the attack surface and vectors of network services syspatch(8) OpenBSD: add VMM to &amp;lsquo;packer&amp;rsquo; (porting Go software) Road Warrior Disaster Recovery Indiferentes Building a security appliance based on FreeBSD Security stops where the trust begins
+2018 Interesantes devmatch &amp;ndash; matching devices to modules Forget reusability, aim for perfection Without documentation, code is unusable, and bad documentation is about as bad as bad code.</description>
+    </item>
+    
+    <item>
+      <title>Charlas LINUXPLUMBERS 2020</title>
+      <link>https://blog.jumapico.uy/posts/2021-02-12-talks-linuxplumbers-2020/</link>
+      <pubDate>Fri, 12 Feb 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2021-02-12-talks-linuxplumbers-2020/</guid>
+      <description>Charlas LPC 2020 - LINUX PLUMBERS CONFERENCE
+Interesantes Kernel documentation Developers don’t maintain domains forever
+Clang-tidy and Clang-format clang-format: Sorting #includes ld.so in the 2020’s Big software is fragile
+A library’s version is its ABI which isn’t captured in a number
+Making a distribution is fundamentally about ABI.
+A collection of software that maintains an internally coherent ABI through a release. Flatpak - a desktop version of containers Understanding Linux Lists Indiferentes (Pero por lo menos generaron algún comentario)</description>
+    </item>
+    
+    <item>
+      <title>Charlas OSFC 2020</title>
+      <link>https://blog.jumapico.uy/posts/2021-02-11-talks-osfc-2020/</link>
+      <pubDate>Thu, 11 Feb 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2021-02-11-talks-osfc-2020/</guid>
+      <description>Charlas OSFC 2020 - Open Source Firmware Conference
+Interesantes The delicate disadvantage of Reverse-Engineering Lesson learned: everyone else makes money from your work.
+Definition of Reverse-Engineering: The ability to infer knowledge. (That’s really it. No prior-knowledge is required: you DERIVE knowledge)
+Ultimately you could do a huge amount of good. With your skill there is nothing that can stop you except yourself
+Unit testing coreboot Uso de cmocka - unit testing framework for C (no extra dependencies) Indiferentes (Pero por lo menos generaron algún comentario)</description>
+    </item>
+    
+    <item>
+      <title>Charlas FOSDEM 2021</title>
+      <link>https://blog.jumapico.uy/posts/2021-02-09-talks-fosdem-2021/</link>
+      <pubDate>Tue, 09 Feb 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2021-02-09-talks-fosdem-2021/</guid>
+      <description>Charlas FOSDEM 2021
+Interesantes GNU Mes - the Full Source Bootstrap Actualización del estado de GNU Mes - bootstrappable builds Reverse-Engineering of (binary) File-Formats THE DEFINITIVE GUIDE TO EXPLORING FILE FORMATS Uso de entropía para detectar secciones en el archivo Herramientas: Binwalk - herramienta de análisis radiff2 - diff binario Kaitai Struct - DSL para formatos de archivo binario hobbits - visualización y análisis de archivos binarios ImHex - hex editor Alpine Musl Containers: Now Upstream Uso de Alpine como imagen base para containers Alpine: musl + busybox; OpenRC, ash (busybox) overview JEP 386: Alpine Linux Port - Hecho Port the JDK to Alpine Linux, and to other Linux distributions that use musl as their primary C library, on both the x64 and AArch64 architectures</description>
+    </item>
+    
+    <item>
+      <title>Instalar Trine 2 en debian</title>
+      <link>https://blog.jumapico.uy/posts/2021-01-17-install-trine2-in-debian/</link>
+      <pubDate>Sun, 17 Jan 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2021-01-17-install-trine2-in-debian/</guid>
+      <description>Se busca instalar el juego Trine 2 comprado en GOG.
+Se instala gog_trine_2_complete_story_2.0.0.5.sh ejecutando como root en /opt.
+Al ejecutar el programa llegamos al siguiente error:
+$ export LD_LIBRARY_PATH=&amp;quot;/opt/GOG Games/Trine 2 Complete Story/game/lib/lib32&amp;quot; $ &amp;quot;/opt/GOG Games/Trine 2 Complete Story/game/bin/trine2_linux_launcher_32bit&amp;quot; -bash: /opt/GOG Games/Trine 2 Complete Story/game/bin/trine2_linux_launcher_32bit: No such file or directory Revisando el archivo:
+$ file &amp;quot;/opt/GOG Games/Trine 2 Complete Story/game/bin/trine2_linux_launcher_32bit&amp;quot; /opt/GOG Games/Trine 2 Complete Story/game/bin/trine2_linux_launcher_32bit: ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux.</description>
+    </item>
+    
+    <item>
+      <title>Charla &#34;Preventing the Collapse of Civilization&#34;</title>
+      <link>https://blog.jumapico.uy/posts/2020-12-25-talk-preventing-civilization-collapse/</link>
+      <pubDate>Fri, 25 Dec 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2020-12-25-talk-preventing-civilization-collapse/</guid>
+      <description>Buenos puntos en la charla Preventing the Collapse of Civilization de Jonathan Blow:
+It takes a lot of energy to communicate from generation to generation, there are losses [15:18] If you have never seen an industry produce robust software, What makes you think they can? [29:40] I am working at a high level of abstraction ~&amp;gt; Loss of Capability [31:42] We are adding so much complication ~&amp;gt; The OS *removes capabilities* from the CPU [37:19] Deep knowledge replaced by trivia [45:31] We must simplify, at every level [53:00] Removing complexity is the right short-term play, even if it doesn&amp;rsquo;t seem so [55:00] </description>
+    </item>
+    
+    <item>
+      <title>Coursera - Troubleshooting and Debugging Techniques</title>
+      <link>https://blog.jumapico.uy/posts/2020-12-14-coursera-troubleshooting-and-debugging-techniques/</link>
+      <pubDate>Mon, 14 Dec 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2020-12-14-coursera-troubleshooting-and-debugging-techniques/</guid>
+      <description>Recién termino el curso Troubleshooting and Debugging Techniques en Coursera. Muy bueno.
+Troubleshooting Si bien parte de mi trabajo está relacionado a la temática (ya que suelo realizar soporte de linux nivel 3) el curso formaliza bastante la tarea de Troubleshooting en su ciclo de:
+Obtención de información: ¿cual es el estado actual?, ¿cuando pasa?, ¿cuales son las consecuencias? Pasar del no funciona a una descripción más exacta preguntando a los involucrados.</description>
+    </item>
+    
+    <item>
+      <title>Navegador para sitios gemini</title>
+      <link>https://blog.jumapico.uy/posts/2020-12-08-gemini-browser/</link>
+      <pubDate>Tue, 08 Dec 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2020-12-08-gemini-browser/</guid>
+      <description>Desde mediados de 2019 se liberó la especificación de Project Gemini, el cual define un protocolo alternativo a HTTP junto a un formato para documentos alternativo a HTML llamado gemtext.
+El fin último que se busca es eliminar la complejidad que implica desarrollar hoy en día un navegador web y crear un protocolo que sea sencillo de implementar por los desarrolladores, de forma tal de volver a &amp;ldquo;democratizar&amp;rdquo; la web -o por lo menos una alternativa a esta-.</description>
+    </item>
+    
+    <item>
+      <title>Creando builds manifests en sourcehut</title>
+      <link>https://blog.jumapico.uy/posts/2020-11-29-creating-build-manifests-in-sourcehut/</link>
+      <pubDate>Sun, 29 Nov 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2020-11-29-creating-build-manifests-in-sourcehut/</guid>
+      <description>Contexto En un post anterior comenté que elegí migrar mis repositorios personales a sourcehut. Ya que todavía no tienen un servicio similar al de github pages -donde tengo hosteado este blog a la fecha-, decidí mantener el repositorio jumapico.github.io en github, pero realizando los siguientes cambios:
+El repositorio jumapico.ws que contiene las fuentes del blog fué migrado a sourcehut. Se pasó del uso de Travis CI a utilizar el mecanismo brindado por sourcehut: builds.</description>
+    </item>
+    
+    <item>
+      <title>Coursera - Nand2Tetris I</title>
+      <link>https://blog.jumapico.uy/posts/2020-11-25-coursera-nand2tetris-i/</link>
+      <pubDate>Wed, 25 Nov 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2020-11-25-coursera-nand2tetris-i/</guid>
+      <description>El último mes y medio estuve haciendo el curso Nand2Tetris I en Coursera.
+Una buena impresión general.
+Según los instructores no es necesario saber programar y realmente puede seguirse el curso sin problemas.
+Se hace mucho énfasis en la abstracción entre capas y las diferencias entre interfaz e implementación a nivel de hardware.
+El Hardware description language diseñado por los instructores y utilizado en el curso es realmente sencillo y como estos lo indican es posible de aprender en unas horas, es simple y potente.</description>
+    </item>
+    
+    <item>
+      <title>Soportando a sourcehut</title>
+      <link>https://blog.jumapico.uy/posts/2020-11-25-supporting-sourcehut/</link>
+      <pubDate>Wed, 25 Nov 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2020-11-25-supporting-sourcehut/</guid>
+      <description>Hoy decidí comenzar a pagar por sourcehut.
+Es cierto que hay alternativas gratis mas populares y establecidas, pero decidí aportar mi grano de arena en su soporte.
+De la mano de Drew DeVault, la primera vez que escuché sobre sourcehut fué en su blog -que dicho sea de paso, me resulta bastante interesante de seguir- y realmente me llamó la atención la idea, como se está ejecutando y sin ninguna duda el estilo web utilizado por sourcehut.</description>
+    </item>
+    
+    <item>
+      <title>Corrigiendo Google Earth Pro 7.3.3.7786-r0</title>
+      <link>https://blog.jumapico.uy/posts/2020-11-24-fixing-google-earth-pro-7.3.3.7786-r0/</link>
+      <pubDate>Tue, 24 Nov 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2020-11-24-fixing-google-earth-pro-7.3.3.7786-r0/</guid>
+      <description>Google Earth Pro 7.3.3.7786-r0 crea un link simbólico $HOME/.googleearth/instance-running-lock apuntando al directorio /proc/&amp;lt;pid&amp;gt; (siendo pid el process id de la instancia de google earth).
+El problema que ocurre es que al reiniciar la computadora el pid puede haber sido asignado a un proceso que se encuentre en ejecución, en cuyo caso Google Earth Pro solo indica el problema al ser ejecutado desde la consola.
+Una solución al problema anterior puede ser el siguiente parche que elimina el enlace si este existe y no corresponde a una instancia de googleearth-bin:</description>
+    </item>
+    
+    <item>
+      <title>Coursera - Build a Data Science Web App with Streamlit and Python</title>
+      <link>https://blog.jumapico.uy/posts/2020-10-02-coursera-data-science-with-streamlit/</link>
+      <pubDate>Fri, 02 Oct 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2020-10-02-coursera-data-science-with-streamlit/</guid>
+      <description>Como lo indica el título, hice mi primer proyecto guiado en la plataforma coursera: Build a Data Science Web App with Streamlit and Python.
+Si bien hace tiempo ya había escuchado sobre Streamlit aproveché para seguir el curso como excusa para ver un poco al respecto.
+A continuación mis impresiones respecto al curso.
+Sobre Rhyme Rhyme es la plataforma utilizada para dictar el curso.
+Si bien es presentada entre otras cosas como una solución para el caso de</description>
+    </item>
+    
+    <item>
+      <title>Configurar scanner de impresora multifunción</title>
+      <link>https://blog.jumapico.uy/posts/2020-09-16-configuring-multifunction-printer-scanner/</link>
+      <pubDate>Wed, 16 Sep 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2020-09-16-configuring-multifunction-printer-scanner/</guid>
+      <description>TL;DR:
+$ sudo sh -c &#39;cat &amp;gt; /etc/udev/rules.d/99-libsane-panasonic.rules&#39; &amp;lt;&amp;lt;&#39;END&#39; ACTION==&amp;quot;add&amp;quot;, ENV{DEVTYPE}==&amp;quot;usb_device&amp;quot;, ATTRS{idVendor}==&amp;quot;04da&amp;quot;, ATTRS{idProduct}==&amp;quot;0f0b&amp;quot;, ENV{libsane_matched}=&amp;quot;yes&amp;quot;, RUN=&amp;quot;/usr/local/bin/hack-panasonic $devnode&amp;quot; END $ sudo sh -c &#39;cat &amp;gt; /usr/local/bin/hack-panasonic&#39; &amp;lt;&amp;lt;&#39;END&#39; #!/bin/bash [ $# -ne 1 -o ! -c &amp;quot;$1&amp;quot; ] &amp;amp;&amp;amp; exit 1 exec /usr/bin/setfacl -m g:users:rw &amp;quot;$1&amp;quot; END $ sudo chmod +x /usr/local/bin/hack-panasonic $ sudo reboot Se busca escanear desde una impresora multifunción Panasonic KX-MB1520AG bajo Ubuntu 18.04. Para ver si la impresora es reconocida por sane se prueba utilizando el comando scanimage, verificando previamente que esté conectada al sistema (mediante lsusb):</description>
+    </item>
+    
+    <item>
+      <title>Oracle DBMS</title>
+      <link>https://blog.jumapico.uy/notes/oracle-dbms/</link>
+      <pubDate>Wed, 02 Sep 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/notes/oracle-dbms/</guid>
+      <description>Documentación Oracle Database Documentation SQL Language Reference - 12.2 SQL*Plus- User&amp;rsquo;s Guide and Reference (12.2) ALL_TABLES: ALL_TABLES describes the relational tables accessible to the current user.
+DESCRIBE: Lists the column definitions for the specified table, view or synonym, or the specifications for the specified function or procedure.
+¿A que tablas se tiene acceso? SQL&amp;gt; select table_name from all_tables order by 1; Generar archivo csv con resultado de select (sqlcl): set sqlformat csv spool consulta.</description>
+    </item>
+    
+    <item>
+      <title>ocsp response not current</title>
+      <link>https://blog.jumapico.uy/posts/2020-08-26-ocsp-response-not-current/</link>
+      <pubDate>Wed, 26 Aug 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2020-08-26-ocsp-response-not-current/</guid>
+      <description>TL;DR: para ajustar la hora en OpenBSD cuando esta se desfasa tanto que falla la validación de fecha (y hora) de los certificados TLS hacer:
+$ doas rdate pool.ntp.org Al tratar de instalar un paquete en OpenBSD obtuve la siguiente salida:
+openbsd67$ pkg_info -Q vim https://cdn.openbsd.org/pub/OpenBSD/6.7/packages-stable/amd64/: TLS handshake failure: ocsp verify failed: ocsp response not current https://cdn.openbsd.org/pub/OpenBSD/6.7/packages/amd64/: TLS handshake failure: ocsp verify failed: ocsp response not current https://cdn.openbsd.org/pub/OpenBSD/6.7/packages/amd64/: empty Probando con el comando ftp (en OpenBSD los comandos wget o curl no estan disponibles por defecto) para ver si es un problema del servidor se obtiene el mismo error, a no ser que se deshabilite la validación del certificado, o más especificamente la validación de fechas:</description>
+    </item>
+    
+    <item>
+      <title>Lugar correcto para scripts rc.d</title>
+      <link>https://blog.jumapico.uy/posts/2020-08-24-correct-place-for-rc.d-scripts/</link>
+      <pubDate>Mon, 24 Aug 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2020-08-24-correct-place-for-rc.d-scripts/</guid>
+      <description>Una anécdota interesante.
+Estos días leyendo el libro Absolute OpenBSD de Michael W. Lucas y viendo la sección relativa a los scripts de inicialización del sistema (Startup System Scripts), me pregunté el porqué estaban bajo /etc ya que deberían ser scripts de sistema y no de configuración -que de por sí es un directorio utilizado para archivos modificados por el administrador-.
+Una grata sorpresa ver que unos días despues Julio Merino en su blog https://jmmv.</description>
+    </item>
+    
+    <item>
+      <title>RISC-V</title>
+      <link>https://blog.jumapico.uy/notes/risc-v/</link>
+      <pubDate>Wed, 22 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/notes/risc-v/</guid>
+      <description>Materiales Guía Práctica de RISC-V: El Atlas de una Arquitectura Abierta. Libro para empezar, por ahora la mejor referencia que he leído. Hace una muy buena introducción de la arquitectura. De lo mejor que tiene son las secciones con comentarios al respecto de las decisiones de diseño, las que hacen más amena la lectura y ayudan a entender mejor el ISA. Hay que tener en cuenta que el libro es de fines del 2017 y ya existen algunos cambios en las especificaciones.</description>
+    </item>
+    
+    <item>
+      <title>Rotura pantalla lenovo</title>
+      <link>https://blog.jumapico.uy/posts/2020-07-22-dead-lenovo-screen/</link>
+      <pubDate>Wed, 22 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2020-07-22-dead-lenovo-screen/</guid>
+      <description>Dos lecciones aprendidas de la peor forma:
+Al transportar la laptop hacerlo SIEMPRE con la tapa cerrada y lejos de los niños. Asegurarse de que en caso de ser posible el BIOS pueda utilizarse con monitor externo. Y si, este post tiene una alta componente de catarsis :)</description>
+    </item>
+    
+    <item>
+      <title>Instalando OpenBSD 6.7 multiboot UEFI</title>
+      <link>https://blog.jumapico.uy/posts/2020-07-17-install-openbsd67-multiboot-uefi/</link>
+      <pubDate>Fri, 17 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2020-07-17-install-openbsd67-multiboot-uefi/</guid>
+      <description>TLDR
+Al instalar OpenBSD junto a Debian (multiboot) en un disco con tablas de particiones GPT y un BIOS que utilize UEFI:
+Utilizar una única partición encriptada para OpenBSD. Que el tamaño de la partición para OpenBSD sea por lo menos de 150GB. En estos días quise probar de instalar OpenBSD. Entre los motivos se encuentran:
+Probar un sistema que fué diseñado (cualquier sistema basado en BSD) como alternativa de uno cuyo crecimiento fué orgánico (cualquiera basado en GNU/Linux).</description>
+    </item>
+    
+    <item>
+      <title>TED talks</title>
+      <link>https://blog.jumapico.uy/notes/tedtalks/</link>
+      <pubDate>Sat, 04 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/notes/tedtalks/</guid>
+      <description>Comentarios de algunas charlas, principalmente las TED &amp;hellip;
+Mi hija quiere entender el sistema financiero How to learn any language in six months The first 20 hours - how to learn anything Mi hija quiere entender el sistema financiero | Hernan Casciari | TEDxMontevideo Hay que verlo completo, las veces que sea necesario :) El final es cursi, pero el cuento espectacular.
+How to learn any language in six months | Chris Lonsdale | TEDxLingnanUniversity Ver lo que funciona y aplicarlo</description>
+    </item>
+    
+    <item>
+      <title>Resources Javascript 2020</title>
+      <link>https://blog.jumapico.uy/posts/2020-07-02-resources-javascript/</link>
+      <pubDate>Thu, 02 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2020-07-02-resources-javascript/</guid>
+      <description>Recordatorio
+VanillaJS :)
+Eloquent JavaScript
+how to manage HTML DOM with vanilla JavaScript only?
+20 Web Projects With Vanilla JavaScript ($)</description>
+    </item>
+    
+    <item>
+      <title>Problemas con locales en debian</title>
+      <link>https://blog.jumapico.uy/posts/2020-06-24-perl-warning-setting-locale-failed/</link>
+      <pubDate>Wed, 24 Jun 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2020-06-24-perl-warning-setting-locale-failed/</guid>
+      <description>Ante mensajes del tipo:
+perl: warning: Setting locale failed. perl: warning: Please check that your locale settings: LANGUAGE = (unset), LC_ALL = (unset), perl: warning: Setting locale failed. LC_MEASUREMENT = &amp;quot;es_UY.UTF-8&amp;quot;, perl: warning: Please check that your locale settings: LC_PAPER = &amp;quot;es_UY.UTF-8&amp;quot;, LANGUAGE = (unset), LANG = &amp;quot;en_US.UTF-8&amp;quot; LC_ALL = (unset), are supported and installed on your system. LC_MEASUREMENT = &amp;quot;es_UY.UTF-8&amp;quot;, LC_PAPER = &amp;quot;es_UY.UTF-8&amp;quot;, perl: warning: Falling back to a fallback locale (&amp;quot;en_US.</description>
+    </item>
+    
+    <item>
+      <title>Convertir formato de checksums de BSD a Coreutils</title>
+      <link>https://blog.jumapico.uy/posts/2020-06-12-convert-checksum-format-from-bsd-to-coreutils/</link>
+      <pubDate>Fri, 12 Jun 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2020-06-12-convert-checksum-format-from-bsd-to-coreutils/</guid>
+      <description>Los checksum generados por sha256 de BSD -particularmente de OpenBSD-, aparte de utilizar la representación hexadecimales igual a los generados por sha256sum de coreutils permiten que su salida utilice la notación base64 que no es soportada por la versión de coreutils.
+Es posible convertir un archivo con checksums generados por la versión de BSD utilizando la representación de base64 a una representación hexadecimal (que pueda utilizarse con coreutils) utilizarse el siguiente programa awk:</description>
+    </item>
+    
+    <item>
+      <title>Ver imagenes en consola</title>
+      <link>https://blog.jumapico.uy/posts/2020-05-27-view-images-in-console/</link>
+      <pubDate>Wed, 27 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2020-05-27-view-images-in-console/</guid>
+      <description>Para ver imágenes en consola (funciona usando screen/tmux) se puede usar:
+cacaview, paquete caca-utils en debian/ubuntu catimg, paquete catimg en debian/ubuntu Nota: catimg es el que se ve mejor, pero hay que tener en cuenta que se va a tener una idea de la imagen (con suerte).</description>
+    </item>
+    
+    <item>
+      <title>Modificar paquete privativo de debian</title>
+      <link>https://blog.jumapico.uy/posts/2020-05-21-modify-privative-debian-package/</link>
+      <pubDate>Thu, 21 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2020-05-21-modify-privative-debian-package/</guid>
+      <description>Pasos para modificar e instalar un paquete privativo -no se tiene el código fuente- de debian utilizando el usuario root:
+Desempaquetar
+# scratch=$(mktemp -d) # dpkg -x &amp;lt;package&amp;gt;.deb $scratch # dpkg -e &amp;lt;package&amp;gt;.deb $scratch/DEBIAN Modificar contenido del paquete
+Se modifica el contenido del paquete; puede ser sus dependencias en el archivo de control ($scratch/DEBIAN/control) o scripts de {pre,post}{inst,rm} o archivos. Conviene aumentar el número de versión.
+Notas:
+Varios paquetes agregan repositorios y claves (utilizando apt-key) en los scripts de {pre,post}inst.</description>
+    </item>
+    
+    <item>
+      <title>Shaders de OpenGL en el emulador higan</title>
+      <link>https://blog.jumapico.uy/posts/2020-05-20-opengl-shaders-in-higan-emulator/</link>
+      <pubDate>Wed, 20 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2020-05-20-opengl-shaders-in-higan-emulator/</guid>
+      <description>Luego de instalar el emulador higan en debian:
+$ sudo apt-get install -Vy higan lo primero que se nota es la pobre calidad gráfica al querer utilizar una rom. Para solucionar el problema una opción que se indica en la documentación es instalar shaders custom, siendo el repositorio quark-shaders el recomendado. Para esto se descarga el repositorio, se instala en el sistema y se corrigen los permisos:
+$ wget -P /tmp --content-disposition \ https://github.</description>
+    </item>
+    
+    <item>
+      <title>Leyendo paquetes fuente de debian con aptfs</title>
+      <link>https://blog.jumapico.uy/posts/2020-05-18-read-debian-source-packages-with-aptfs/</link>
+      <pubDate>Mon, 18 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2020-05-18-read-debian-source-packages-with-aptfs/</guid>
+      <description>Para poder utilizar aptfs en debian es necesario tener agregado por lo menos un repositorio de paquetes fuente, sinó luego de montar aptfs el directorio se verá vacío.
+Para instalar aptfs y configurar los fuentes de debian testing (suponiendo que no están ya agregados a apt):
+$ sudo apt-get install -Vy aptfs $ echo &#39;deb-src http://deb.debian.org/debian testing main contrib non-free&#39; \ | sudo tee /etc/apt/sources.list.d/testing-src.list &amp;gt; /dev/null $ sudo apt-get update Para montar aptfs (usando un máximo de 10 paquetes fuentes desempaquetados a la vez):</description>
+    </item>
+    
+    <item>
+      <title>Instalando y utilizando el emulador vice (Commodore 64)</title>
+      <link>https://blog.jumapico.uy/posts/2020-05-11-installing-and-using-the-vice-emulator/</link>
+      <pubDate>Mon, 11 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2020-05-11-installing-and-using-the-vice-emulator/</guid>
+      <description>Motivación Se desea probar aplicaciones/demos de Commodore 64 en linux, particularmente en debian.
+Instalar emulador vice Para emular Commodore 64 y otras consolas se utilizará el emulador vice:
+$ sudo apt-get install -Vy vice Copiar roms El problema con el paquete vice es que debido a las licencias de las roms necesarias para emular un sistema Commodore 64, estas no son distribuidas en el paquete de debian.
+A pesar de que en el archivo README.</description>
+    </item>
+    
+    <item>
+      <title>Usando opengrok con jetty</title>
+      <link>https://blog.jumapico.uy/posts/2020-04-29-using-opengrok-with-jetty/</link>
+      <pubDate>Wed, 29 Apr 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2020-04-29-using-opengrok-with-jetty/</guid>
+      <description>Motivación Revisando el código de qemu me encontré con que es bastante tedioso el buscar las definiciones de algunas funciones, por lo que pensé en utilizar opengrok para poder navegar de forma más fácil en el código. Ya que normalmente utilizo jetty como web server para aplicaciones java pensé en utilizarlo para ejecutar opengrok, en lugar de utilizar tomcat como es sugerido.
+Instalación y configuración de opengrok En la página web de opengrok se indica que se requiere un servlet container, por lo que jetty debería poder utilizarse, ya que en la descripción de la página web se indica:</description>
+    </item>
+    
+    <item>
+      <title>Workaround de neovim para editar archivos cobol</title>
+      <link>https://blog.jumapico.uy/posts/2020-04-26-neovim-workaround-to-edit-cobol-files/</link>
+      <pubDate>Sun, 26 Apr 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2020-04-26-neovim-workaround-to-edit-cobol-files/</guid>
+      <description>cobol admite dos formatos distintos del archivo:
+fixed: viene del formato utilizado por las tarjetas perforadas e implica que las columnas tienen diferentes usos. free: introducido en Cobol 2002, el código puede agregarse en cualquier columna (como los lenguajes a los que se está acostumbrado). vim, y particularmente neovim, incluyen plugins para trabajar con cobol:
+https://github.com/vim/vim/blob/master/runtime/ftplugin/cobol.vim https://github.com/vim/vim/blob/master/runtime/indent/cobol.vim https://github.com/vim/vim/blob/master/runtime/syntax/cobol.vim El problema es que utilizan el formato fixed e indentan comenzando desde la séptima columna.</description>
+    </item>
+    
+    <item>
+      <title>Maven</title>
+      <link>https://blog.jumapico.uy/notes/maven/</link>
+      <pubDate>Wed, 22 Apr 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/notes/maven/</guid>
+      <description>Introducción a maven Maven in 5 Minutes - primer vistazo a Maven. Maven tutorial - segundo vistazo a Maven. POM Reference - explicación del archivo pom.xml. Reference for the Maven project descriptor - detalles de tags del archivo pom.xml. Introduction to the Standard Directory Layout Luego de tener familiaridad con Maven es conveniente ver toda la documentación
+Miscelanea Builds reproducibles configurando project.build.outputTimestamp en pom.xml usando plugin reproducible-build-maven-plugin Instalar jar&amp;rsquo;s en repositorio local (plugin maven-install-plugin): obteniendo información de la linea de comandos obteniendo información del archivo pom.</description>
+    </item>
+    
+    <item>
+      <title>Tips para creación de shell scripts</title>
+      <link>https://blog.jumapico.uy/posts/2020-03-30-tips-for-shell-script-creation/</link>
+      <pubDate>Mon, 30 Mar 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2020-03-30-tips-for-shell-script-creation/</guid>
+      <description>A continuación algunos tips a utilizar durante la creación de scripts en bash.
+Cabecera #!/bin/bash #------------------------------------------------------------------------------- # SPDX-License-Identifier: GPL-3.0-or-later # SPDX-FileCopyrightText: 2021, Juan Picca &amp;lt;juan.picca@jumapico.uy&amp;gt; # # Script documentation # #------------------------------------------------------------------------------- [ -n &amp;quot;$DEBUG&amp;quot; ] &amp;amp;&amp;amp; { export PS4=&#39;+ [${BASH_SOURCE##*/}:${LINENO}] &#39;; set -x; } set -euo pipefail Esta consta de:
+Licencia.
+Si un archivo no indica licencia (y tampoco el proyecto que lo contiene) se debe suponer que este archivo es privado y no puede utilizarse.</description>
+    </item>
+    
+    <item>
+      <title>Usando multiarch en debian para emular binarios de RISC-V</title>
+      <link>https://blog.jumapico.uy/posts/2020-03-22-using-multiarch-in-debian-to-emulate-riscv-binaries/</link>
+      <pubDate>Sun, 22 Mar 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2020-03-22-using-multiarch-in-debian-to-emulate-riscv-binaries/</guid>
+      <description>TL;DR: El enfoque descripto a continuación no funcionó como era esperado respecto a la reinstalación de paquetes en arquitectura riscv64.
+NO UTILIZAR
+Motivación Como seguro quedó manifestado en posts anteriores estoy interesado en el ISA RISC-V. Para evaluar el avance de la arquitectura RISC-V en debian que se lleva adelante en debian ports -y eventualmente ayudar con el reporte de bugs- es que decidí habilitar el soporte multiarch de debian para RISC-V.</description>
+    </item>
+    
+    <item>
+      <title>Configurando NOOBS para raspberry pi 3B</title>
+      <link>https://blog.jumapico.uy/posts/2020-03-12-configuring-noobs-for-raspberry-pi-3b/</link>
+      <pubDate>Thu, 12 Mar 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2020-03-12-configuring-noobs-for-raspberry-pi-3b/</guid>
+      <description>Contexto Hoy me hice un tiempo para desempolvar la raspberry pi 3B que tenía guardada y actualizar el sistema a debian estable (buster) con mate para que mi hijo empiece a aprender a usar la computadora.
+Si bien NOOBS permite descargar imagenes por red, al parecer tuvo problemas para utilizar la red wifi de casa, por lo que quise aprovechar la oportunidad para actualizar la sdcard ([ya había instalado algún otro sistema previamente][!</description>
+    </item>
+    
+    <item>
+      <title>Marcando mensajes como leidos en el sitio web de hsbc</title>
+      <link>https://blog.jumapico.uy/posts/2020-02-12-marking-messages-as-read-in-hsbc-website/</link>
+      <pubDate>Wed, 12 Feb 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2020-02-12-marking-messages-as-read-in-hsbc-website/</guid>
+      <description>Seguro que los usuarios del sitio web del banco HSBC (Uruguay) ya se dieron cuenta de lo incómoda que es la funcionalidad de mensajes de la página web:
+Se envía una cantidad excesiva de propaganda como mensajes; aunque puede cambiarse en las preferencias luego de que nos damos cuenta (y nos contactamos con el banco al respecto), el problema es si ya fueron enviados muchos mensajes como es mi caso. Para leer los mensajes hay que entrar a cada uno; no hay forma de seleccionar varios a la vez y marcarlos todos como leídos (también confirmado con el banco).</description>
+    </item>
+    
+    <item>
+      <title>Libro nuevo: Computer Organization and Design RISC-V Edition</title>
+      <link>https://blog.jumapico.uy/posts/2020-01-12-new-book-isbn-9780128122754/</link>
+      <pubDate>Sun, 12 Jan 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2020-01-12-new-book-isbn-9780128122754/</guid>
+      <description>Al fin (luego de un mes de pedido) me llegó el libro Computer Organization and Design RISC-V Edition: The Hardware Software Interface.
+Para un buen repaso de arquitectura de computadores con énfasis en RISC-V.</description>
+    </item>
+    
+    <item>
+      <title>SiFive Tech Symposium Montevideo 2019</title>
+      <link>https://blog.jumapico.uy/posts/2020-01-08-sifive-tech-symposium-montevideo-2019/</link>
+      <pubDate>Wed, 08 Jan 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2020-01-08-sifive-tech-symposium-montevideo-2019/</guid>
+      <description>El 21 de Noviembre pasado tuve el gusto de participar del SiFive Tech Symposium en Montevideo (Uruguay) con Jean Pierre.
+Haciendo un recuento de algunas de las charlas:
+Sin duda la que más valoré fué la keynote dada por Alfredo Arnaud, A low power RISC-V aimed at Implantable Medical Devices, ya que presenta la perspectiva de trabajo para equipos médicos, donde se manejan bajas frecuencias de trabajo y un ahorro extremo de energía (no se puede estar cambiando un marcapasos cada año, por ejemplo).</description>
+    </item>
+    
+    <item>
+      <title>Blink en Hifive1 utilizando ensamblador</title>
+      <link>https://blog.jumapico.uy/posts/2019-12-01-hifive1-blink-asm/</link>
+      <pubDate>Sun, 01 Dec 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2019-12-01-hifive1-blink-asm/</guid>
+      <description>En este post se busca implementar el programa blink en una placa hifive1 rev b utilizando ensamblador. Vale la pena mencionar que la placa posee un led RGB, por lo que el blink se hará utilizando el color blanco, formado al encender los tres leds simultaneamente.
+La idea de hacer el post surge a partir de la imperdible charla Microcontroller Firmware from Scratch dada por Nikolai Kondrashov en el FOSDEM 2019, sumado a mis ganas de programar en ensamblador de RISC-V.</description>
+    </item>
+    
+    <item>
+      <title>Obtener resolución de Xorg remotamente</title>
+      <link>https://blog.jumapico.uy/posts/2019-11-25-obtain-xorg-resolution-remotely/</link>
+      <pubDate>Mon, 25 Nov 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2019-11-25-obtain-xorg-resolution-remotely/</guid>
+      <description>Se desea obtener la resolución de una instancia del servidor Xorg de forma remota utilizando ssh para lo cual se utilizará el programa xrandr.
+Para ello, luego de conectarnos al pc utilizando ssh se listarán los procesos correspondientes al servidor Xorg:
+$ pgrep -a Xorg 1894 /usr/lib/xorg/Xorg -core :0 -seat seat0 -auth /var/run/lightdm/root/:0 -nolisten tcp vt7 -novtswitch 3005 /usr/lib/xorg/Xorg -core :1 -seat seat0 -auth /var/run/lightdm/root/:1 -nolisten tcp vt8 -novtswitch De estos se deberá elegir uno de los procesos anteriores, al cual se le consultará, mediante el programa xrandr por la resolución utilizada.</description>
+    </item>
+    
+    <item>
+      <title>Replicar entorno perl usando perlbrew</title>
+      <link>https://blog.jumapico.uy/posts/2019-10-25-replicate-perl-environment-using-perlbrew/</link>
+      <pubDate>Fri, 25 Oct 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2019-10-25-replicate-perl-environment-using-perlbrew/</guid>
+      <description>Introducción Durante el desarrollo, test y deploy de aplicaciones es conveniente poder replicar el mismo entorno en los diferentes pc&amp;rsquo;s y servidores con los que se trabaje. Además, es doblemente conveniente el poder realizar la configuración del entorno de forma offline, ya que esto disminuye el tiempo utilizado en descarga de archivos y también se mitiga el riesgo de no poder crear el entorno en caso de que sea imposible descargar alguna dependencia por falta de disponibilidad de algún servidor *.</description>
+    </item>
+    
+    <item>
+      <title>Recursos para aprender perl</title>
+      <link>https://blog.jumapico.uy/posts/2019-10-07-resources-for-learning-perl/</link>
+      <pubDate>Mon, 07 Oct 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2019-10-07-resources-for-learning-perl/</guid>
+      <description>Los otros días le pedí a mi amigo Jean Pierre (programador senior, si no más, en perl entre otras cosas) que me diera algunas recomendaciones ya que estoy aprendiendo perl y cuento con él para que me facilite el camino de aprendizaje.
+Programas perlbrew (App::perlbrew), admin-free perl installation management tool. perltidy (Perl::Tidy), a perl script indenter and reformatter. cpanm (App::cpanminus), get, unpack, build and install modules from CPAN. countperl (Perl::Metrics::Simple), Count packages, subs, lines, etc.</description>
+    </item>
+    
+    <item>
+      <title>Bloqueando puertos usb</title>
+      <link>https://blog.jumapico.uy/posts/2019-08-28-blocking-usb-ports/</link>
+      <pubDate>Wed, 28 Aug 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2019-08-28-blocking-usb-ports/</guid>
+      <description>De la descripción del paquete usbguard en debian:
+The USBGuard software framework helps to protect your computer against rogue USB devices (a.k.a. BadUSB) by implementing basic whitelisting and blacklisting capabilities based on device attributes.
+Referencias de uso:
+https://roussos.cc/2019/08/19/usbguard/ </description>
+    </item>
+    
+    <item>
+      <title>Montar samba con gio en escritorio mate</title>
+      <link>https://blog.jumapico.uy/posts/2019-08-21-mount-samba-with-gio-in-mate-desktop/</link>
+      <pubDate>Wed, 21 Aug 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2019-08-21-mount-samba-with-gio-in-mate-desktop/</guid>
+      <description>Para montar un servidor de archivos samba se puede utilizar el comando gio, particularmente:
+$ gio mount &amp;quot;smb://DOMAIN;user@server/folder&amp;quot; Al querer acceder a los archivos en una consola mediante el directorio /run/user/$UID/gvfs se encuentra que este está vacío.
+Buscando en internet (ver referencias) se encuentra que el problema es la falta del paquete gvfs-fuse instalado que se corrige mediante
+$ sudo apt-get install -Vy gvfs-fuse Merece la pena mencionar que mediante las dependencias reversas del paquete</description>
+    </item>
+    
+    <item>
+      <title>Problemas con dhcp leases en Ubuntu 18.04</title>
+      <link>https://blog.jumapico.uy/posts/2019-08-20-problems-with-dhcp-leases-in-ubuntu-18.04/</link>
+      <pubDate>Tue, 20 Aug 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2019-08-20-problems-with-dhcp-leases-in-ubuntu-18.04/</guid>
+      <description>TL;DR: netplan en Ubuntu 18.04 no utiliza por defecto la mac al interactuar con el servidor dhcp.
+Contexto Varios PC&amp;rsquo;s, los cuales se instalaron a partir de una misma imagen de disco basada en Ubuntu 18.04, presentan problemas con la IP asignada mediante dhcp. Por como está configurado el lease time (default-lease-time/max-lease-time) en el servidor dhcp, las IP&amp;rsquo;s deberían reservarse por varios días, pero se observa que en realidad estas cambian de forma esporádica.</description>
+    </item>
+    
+    <item>
+      <title>Failed to load module &#34;canberra-gtk-module&#34;</title>
+      <link>https://blog.jumapico.uy/posts/2019-08-07-failed-to-load-module-canberra-gtk-module/</link>
+      <pubDate>Wed, 07 Aug 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2019-08-07-failed-to-load-module-canberra-gtk-module/</guid>
+      <description>Al ejecutar gimp desde consola en debian buster (10) aparece el siguiente mensaje:
+$ gimp Gtk-Message: 01:00:51.060: Failed to load module &amp;quot;canberra-gtk-module&amp;quot; Esto es debido a que falta instalar el paquete libcanberra-gtk-module. Para corregir el mensaje de error ejecutar:
+$ sudo apt-get install -V libcanberra-gtk-module ... The following NEW packages will be installed: libcanberra-gtk-module (0.30-7) libcanberra-gtk0 (0.30-7) 0 upgraded, 2 newly installed, 0 to remove and 0 not upgraded. ... Notas De la descripción del paquete libcanberra0 (apt show libcanberra0):</description>
+    </item>
+    
+    <item>
+      <title>Conectandose a un certificado autofirmado en debian</title>
+      <link>https://blog.jumapico.uy/posts/2019-08-06-connecting-to-self-signed-certificate-in-debian/</link>
+      <pubDate>Tue, 06 Aug 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2019-08-06-connecting-to-self-signed-certificate-in-debian/</guid>
+      <description>TL;DR: Descargar el certificado en /usr/local/share/ca-certificates/ y ejecutar update-ca-certificates.
+Descripción del problema Se intenta la conexión a un servidor web utilizando https el cual posee un certificado auto firmado (self signed certificate).
+Al intentar la conexión suelen obtenerse mensajes similares a los siguientes:
+wget:
+--2019-08-06 16:02:30-- https://my-hostname:8443/ Resolving my-hostname (my-hostname)... 127.0.1.1 Connecting to my-hostname (my-hostname)|127.0.1.1|:8443... connected. ERROR: The certificate of ‘my-hostname’ is not trusted. ERROR: The certificate of ‘my-hostname’ doesn&#39;t have a known issuer.</description>
+    </item>
+    
+    <item>
+      <title>Testeando scripts del mantenedor de un paquete</title>
+      <link>https://blog.jumapico.uy/posts/2019-08-02-testing-maintainer-scripts/</link>
+      <pubDate>Fri, 02 Aug 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2019-08-02-testing-maintainer-scripts/</guid>
+      <description>En debian los paquetes poseen maintainer scripts (o scripts del mantenedor de un paquete) utilizados durante las etapas de instalación y borrado de paquetes. Hay que tener en cuenta que los paquetes pueden estar en uno de varios estados y las transiciones de estos se detallan gráficamente en los diagramas de flujo de los maintainer scripts en el manual de políticas de debian.
+Hay veces que durante la creación de paquetes se debe hacer un script, y al momento de instalar se obtiene un error como el siguiente:</description>
+    </item>
+    
+    <item>
+      <title>Formularios pdf en linux</title>
+      <link>https://blog.jumapico.uy/posts/2019-07-25-pdf-forms-in-linux/</link>
+      <pubDate>Thu, 25 Jul 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2019-07-25-pdf-forms-in-linux/</guid>
+      <description>TL;DR Para editar formularios en archivos PDF en linux utilizar qpdfview cuando fallen los otros visores pdf.
+Historia Luego de probar (en Ubuntu 18.04 y Debian 10) los distintos visores para archivos PDF:
+Atril Evince Okular y luego de pensar que el problema estába en la versión de la librería poppler en base a la wiki de Arch relativa a pdf, ps y djvu (de las mejores, si no la mejor wiki relativa a GNU/Linux) se probaron las opciones descriptas viendose que qpdfview funcionó sin problemas donde los tres programas anteriormente mencionados fallaron.</description>
+    </item>
+    
+    <item>
+      <title>Upgrade de chromium por whatsapp</title>
+      <link>https://blog.jumapico.uy/posts/2019-07-20-upgrade-chromium-for-whatsapp/</link>
+      <pubDate>Sat, 20 Jul 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2019-07-20-upgrade-chromium-for-whatsapp/</guid>
+      <description>Descripción del problema Hace unos días WhatsApp dejó de funcionar con los navegadores instalados por defecto en una PC con Ubuntu 14.04 (i386).
+Las versiones de los navegadores instalados son:
+Chromium: 53.0.2785.143-0ubuntu0.14.04.1.1145 Firefox: 50.1.0+build2-0ubuntu0.14.04.1 Debido a que hay programas (applets) que solo funcionan con la versión instalada de Firefox y esta no puede actualizarse, el PC no utiliza el repositorio de ubuntu sinó un repositorio local de una versión no actualizada del repositorio de ubuntu.</description>
+    </item>
+    
+    <item>
+      <title>Problemas con filtros (drivers) de impresora</title>
+      <link>https://blog.jumapico.uy/posts/2019-07-17-printer-filters-problems/</link>
+      <pubDate>Wed, 17 Jul 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2019-07-17-printer-filters-problems/</guid>
+      <description>Problema No se puede imprimir utilizando una impresora Epson L606.
+Información:
+La impresora funciona con Ubuntu 14.04 (i386). No funciona Ubuntu 18.04 (amd64). La PC ya tiene instalados los drivers para la impresora, pero no sabe si la instalación fué realizada mediante un paquete deb -privativo, descargado de epson- o directamente utilizando un script. Suposición Se supone que quien instaló el driver para la impresora utilizó el driver de Ubuntu 14.</description>
+    </item>
+    
+    <item>
+      <title>Trucos para plantillas de packer</title>
+      <link>https://blog.jumapico.uy/posts/2019-07-03-tricks-for-packer-templates/</link>
+      <pubDate>Wed, 03 Jul 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2019-07-03-tricks-for-packer-templates/</guid>
+      <description>Packer es un programa utilizado para automatizar la creación de golden images o machine images.
+El objetivo de este post es enumerar algunos trucos para facilitar la creación de los scripts utilizados para generar las imagenes.
+Casos de ejemplos Hay veces que conviene comenzar con un template funcionando y ajustarlo que tener que realizar el template de cero.
+Como ejemplo de buenos repositorios de template se tiene
+bento: contiene varias distribuciones y versiones de estas, lo que lo convierte en un buen punto de partida.</description>
+    </item>
+    
+    <item>
+      <title>jre vs jre-headless</title>
+      <link>https://blog.jumapico.uy/posts/2019-05-21-jre-vs-jre-headless/</link>
+      <pubDate>Tue, 21 May 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2019-05-21-jre-vs-jre-headless/</guid>
+      <description>Problema Al ejecutar una aplicación java con GUI se obtiene una traza similar a la siguiente:
+may 21, 2019 11:33:53 PM org.bardsoftware.impl.eclipsito.BootImpl$1 uncaughtException ADVERTENCIA: [uncaughtException]java.awt.HeadlessException java.awt.HeadlessException at java.awt.GraphicsEnvironment.checkHeadless(GraphicsEnvironment.java:207) at java.awt.Window.&amp;lt;init&amp;gt;(Window.java:535) at java.awt.Frame.&amp;lt;init&amp;gt;(Frame.java:420) at javax.swing.JFrame.&amp;lt;init&amp;gt;(JFrame.java:218) at net.sourceforge.ganttproject.GanttSplash.&amp;lt;init&amp;gt;(GanttSplash.java:32) at net.sourceforge.ganttproject.GanttProject$14.run(GanttProject.java:1008) at java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:312) at java.awt.EventQueue.dispatchEventImpl(EventQueue.java:745) at java.awt.EventQueue.access$300(EventQueue.java:103) at java.awt.EventQueue$3.run(EventQueue.java:706) at java.awt.EventQueue$3.run(EventQueue.java:704) at java.security.AccessController.doPrivileged(Native Method) at java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:76) at java.awt.EventQueue.dispatchEvent(EventQueue.java:715) at java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:218) at java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:133) at java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:122) at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:118) at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:110) at java.awt.EventDispatchThread.run(EventDispatchThread.java:91) may 21, 2019 11:33:54 PM net.</description>
+    </item>
+    
+    <item>
+      <title>Creación de diagramas ascii</title>
+      <link>https://blog.jumapico.uy/posts/2019-04-10-draw-ascii-diagram/</link>
+      <pubDate>Wed, 10 Apr 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2019-04-10-draw-ascii-diagram/</guid>
+      <description>Asciio es una aplicación perl que permite crear diagramas en ASCII.
+Para instalarla en Debian ejecutar:
+$ sudo apt-get update $ sudo apt-get install -Vy asciio Un screenshot se puede encontrar el sitio debian screenshots.</description>
+    </item>
+    
+    <item>
+      <title>Embeber fuentes en pdf</title>
+      <link>https://blog.jumapico.uy/posts/2019-03-27-embed-fonts-in-pdf/</link>
+      <pubDate>Wed, 27 Mar 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2019-03-27-embed-fonts-in-pdf/</guid>
+      <description>Asegurarse que los programas necesarios se encuenten instalados. En Debian hacer:
+$ sudo apt-get install -Vy poppler-utils ghostscript Para verificar que el archivo tenga fuentes no embebidas utilizar pdffonts:
+$ pdffonts input.pdf name type encoding emb sub uni object ID ------------------------------------ ----------------- ---------------- --- --- --- --------- Helvetica Type 1 WinAnsi no no no 2 0 Para embeber las fuentes utilizar gs:
+gs \ -sFONTPATH=/path/to/fonts:/another/dir/with/more/fonts \ -o output.pdf \ -sDEVICE=pdfwrite \ -dPDFSETTINGS=/prepress \ input.</description>
+    </item>
+    
+    <item>
+      <title>Instalar F-Droid desde un PC</title>
+      <link>https://blog.jumapico.uy/posts/2019-03-22-install-fdroid-from-pc/</link>
+      <pubDate>Fri, 22 Mar 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2019-03-22-install-fdroid-from-pc/</guid>
+      <description>Se busca descargar, validar e instalar F-Droid utilizando un PC. Como sistema operativo se utilizará debian buster (en full-freeze al momento de escribir el post).
+Descarga de archivos Primero se descarga la aplicación y la firma PGP del sitio web:
+$ wget &#39;https://f-droid.org/FDroid.apk&#39; $ wget &#39;https://f-droid.org/FDroid.apk.asc&#39; Validación de archivos Para validar la integridad de los archivos primero debe obtenerse la clave pública con la que fué realizada la firma.
+En la página Release Channels and Signing Keys se indica la clave PGP:</description>
+    </item>
+    
+    <item>
+      <title>Expresiones varias con grep</title>
+      <link>https://blog.jumapico.uy/posts/2019-03-11-misc-grep-expressions/</link>
+      <pubDate>Mon, 11 Mar 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2019-03-11-misc-grep-expressions/</guid>
+      <description>Utilizar varias expresiones en la misma linea mediante el parámetro -e.
+man grep:
+-e PATTERN, &amp;ndash;regexp=PATTERN
+Use PATTERN as the pattern. If this option is used multiple times or is combined with the -f (&amp;ndash;file) option, search for all patterns given. This option can be used to protect a pattern beginning with “-”.
+Ejemplo: Eliminar comentarios y lineas en blanco, generalmente para inspeccionar archivos de configuración:
+grep -v -e &#39;^#&#39; -e &#39;^\s*$&#39; /etc/adduser.</description>
+    </item>
+    
+    <item>
+      <title>Archivos reproducibles</title>
+      <link>https://blog.jumapico.uy/posts/2019-03-01-reproducible-files/</link>
+      <pubDate>Fri, 01 Mar 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2019-03-01-reproducible-files/</guid>
+      <description>Este tip es creado para tener un lugar fácil en el cual buscar cuando no se recuerdan exactamente los comandos a utilizar.
+Comandos utilizados frecuentemente para la creación de archivos reproducibles. En su mayoría obtenidos de 1 y 2.
+Creación de archivo tar (ver 3) Entradas ordenadas Versión 1 - tar no posee la opción --sort
+$ find src -print0 | LC_ALL=C sort -z | \ tar --no-recursion --null -T - -cf archive.</description>
+    </item>
+    
+    <item>
+      <title>IP&#39;s repetidas</title>
+      <link>https://blog.jumapico.uy/posts/2019-02-01-repeated-ips/</link>
+      <pubDate>Fri, 01 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2019-02-01-repeated-ips/</guid>
+      <description>Descripción del problema Un PC reporta que no tiene red. Esta PC utiliza configuración estática para establecer la IP. Se encuentra que:
+La IP responde ping. Es posible conectarse al PC utilizando ssh, pero se cierra la conexión a los 30 segundos aproximadamente con el mensaje: packet_write_wait: Connection to 10.11.12.13 port 22: Broken pipe En esos segundos en que es posible conectarse no se encuentran mensajes relevantes en los logs (/var/log/kern.</description>
+    </item>
+    
+    <item>
+      <title>Comprimir binarios</title>
+      <link>https://blog.jumapico.uy/posts/2019-01-21-compress-binaries/</link>
+      <pubDate>Mon, 21 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2019-01-21-compress-binaries/</guid>
+      <description>En varias competiciones de demoscene lo que importa es el tamaño: 1k, 4k, 64k por nombrar algunas.
+Suponiendo que ya se tiene el binario, minimizado (ver linux_4k_intro_coding_asm06) es común comprimirlo.
+Las dos formas más comunes que suelen encontrarse difieren en quien realiza la descompresión:
+La descompresión la realiza el ELF La descompresión se realiza mediante un script que se encuentra en el header A continuación se verán las distintas alternativas mediante ejemplos encontrados en distintas demos, centrandose en las del caso 2.</description>
+    </item>
+    
+    <item>
+      <title>Crear script con datos embebidos</title>
+      <link>https://blog.jumapico.uy/posts/2019-01-21-create-script-with-payload/</link>
+      <pubDate>Mon, 21 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2019-01-21-create-script-with-payload/</guid>
+      <description>Hay veces que es útil generar un script que contenga datos embebidos, por ejemplo un archivo tar, para usar como instalador.
+Para crear el script instalador se necesita:
+código del script que utiliza el payload (script-HEADER), datos (payload) La creación se realiza utilizando cat:
+$ cat script-HEADER payload &amp;gt; script Para utilizar los datos (payload) en script-HEADER se debe utilizar un código similar al siguiente:
+#!/bin/bash ... # unpack payload FILE=$(mktemp -u) finish() { rm -f $FILE } trap finish EXIT ARCHIVE=$(awk &#39;/^__ARCHIVE__/ { print NR + 1; exit 0; }&#39; &amp;quot;${0}&amp;quot;) tail -n+${ARCHIVE} &amp;quot;${0}&amp;quot; &amp;gt; $FILE .</description>
+    </item>
+    
+    <item>
+      <title>Resetear extensiones de gnome</title>
+      <link>https://blog.jumapico.uy/posts/2019-01-02-reset-gnome-extensions/</link>
+      <pubDate>Wed, 02 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2019-01-02-reset-gnome-extensions/</guid>
+      <description>Hace días que tengo problemas con las extensiones de gnome en varias de mis PC&amp;rsquo;s usando gnome classic:
+PC 1 (gnome 3.22): no aparece la windows list PC 2 (gnome 3.30): solo aparece el fondo de pantalla. No aparece la topbar ni la windows list y cuando se abre una ventana esta aparece sin decoraciones. La solución que encontré para corregir los problemas anteriores fué resetear las extensiones de gnome shell, eliminando el directorio ~/.</description>
+    </item>
+    
+    <item>
+      <title>Forth en Open Firmware mediante qemu</title>
+      <link>https://blog.jumapico.uy/posts/2018-12-31-forth-in-openfirmware-through-qemu/</link>
+      <pubDate>Mon, 31 Dec 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2018-12-31-forth-in-openfirmware-through-qemu/</guid>
+      <description>Instalar en debian el paquete qemu-system-ppc:
+$ sudo apt-get install -V qemu-system-ppc Para utilizar Forth (en Open Firmware) ejecutar:
+$ qemu-system-ppc64 \ --net none \ -nographic \ -vga none \ -chardev stdio,mux=on,id=char0 \ -mon chardev=char0,mode=readline \ -serial chardev:char0 El comando anterior ejecuta QEMU en la terminal, redirigiendo la entrada/salida a la consola, multiplexandola entre el monitor de qemu y el puerto virtual serial.
+Para alternar entre el monitor de qemu y el puerto virtual serial utilizar Ctrl-a c.</description>
+    </item>
+    
+    <item>
+      <title>Elegir aplicación por defecto de ~/.local/share/applications</title>
+      <link>https://blog.jumapico.uy/posts/2018-12-26-set-default-application-from-local-share-applications/</link>
+      <pubDate>Wed, 26 Dec 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2018-12-26-set-default-application-from-local-share-applications/</guid>
+      <description>Se desea elegir el navegador web por defecto de un archivo .desktop al que se le modificó la linea Exec para customizar los parámetros del navegador web Firefox y que se encuentra en el directorio ~/.local/share/applications.
+Este cambio se quiere realizar en el entorno de escritorio mate, pero es un error conocido reportado en el issue 150 de mate-control-center que no es posible elegir aplicaciones de ~/.local/share/applications como aplicaciones por defecto.</description>
+    </item>
+    
+    <item>
+      <title>Setup de navegadores web 1/2 - Firefox</title>
+      <link>https://blog.jumapico.uy/posts/2018-12-24-browsers-setup-firefox/</link>
+      <pubDate>Mon, 24 Dec 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2018-12-24-browsers-setup-firefox/</guid>
+      <description>A continuación se describen los pasos para configurar Firefox utilizando tomb para almacenar los datos de forma privada.
+TL;DR: Ejecutar script setup-browsers-firefox
+Creación de archivo tomb Como se vió en el post anterior Mejorar la seguridad de archivos de Dropbox con tomb, aquí se desea también mejorar la seguridad de los archivos utilizados por el navegador Firefox (y algún otro llegado el momento), ya que en dichos archivos se encuentra el historial de navegación y las cookies de los sitios visitados, algunas de las cuales pueden ser de autenticación.</description>
+    </item>
+    
+    <item>
+      <title>Setup de navegadores web 2/2 - Chromium</title>
+      <link>https://blog.jumapico.uy/posts/2018-12-24-browsers-setup-chromium/</link>
+      <pubDate>Mon, 24 Dec 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2018-12-24-browsers-setup-chromium/</guid>
+      <description>A continuación se describen los pasos para configurar Chromium utilizando tomb para almacenar los datos de forma privada.
+Este post está relacionado al post Setup de navegadores web 1/2 - Firefox.
+Creación de archivo tomb Se utilizará el mismo archivo tomb para los navegadores Firefox y Chromium. Ver post [Setup de navegadores web 1/2 - Firefox][3].
+Copia del profile (user data) de Chromium A continuación se copiarán los archivos utilizados por Chromium dentro del archivo tomb.</description>
+    </item>
+    
+    <item>
+      <title>Deshabilitando updates en firefox</title>
+      <link>https://blog.jumapico.uy/posts/2018-12-17-disabling-updates-in-firefox/</link>
+      <pubDate>Mon, 17 Dec 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2018-12-17-disabling-updates-in-firefox/</guid>
+      <description>Hace unos días (¿meses?) que cada vez que inicio Firefox, en sus últimas versiones, aparece el mensaje de que hay una nueva versión para actualizar. Esto me sucede aunque el navegador esté actualizado (¿bug?).
+Por lo que me decidí a deshabilitar el checkeo de nuevas versiones, solo para encontrarme con que esta opción fué quitada, como se detalla en el bug 1420514. Como se indica también en dicho bug la solución es utilizar Enterprise Policy para deshabilitar dicha funcionalidad.</description>
+    </item>
+    
+    <item>
+      <title>Usando sbuild para cambiar paquetes fuente</title>
+      <link>https://blog.jumapico.uy/posts/2018-12-12-using-sbuild-to-change-source-packages/</link>
+      <pubDate>Wed, 12 Dec 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2018-12-12-using-sbuild-to-change-source-packages/</guid>
+      <description>Objetivo Se quieren realizar cambios al paquete supercat para hacerlo reproducible en debian testing (buster).
+Como no se desean instalar las dependencias de construcción en el sistema (apt-get build-dep), se quiere utilizar un entorno schroot para crear el source del paquete utilizando sbuild.
+En lo que sigue se supone familiaridad con el [nuevo método para probar la reproducibilidad de un paquete en debian][wdo rb howto new method].
+Esto está asociado al post setup del nuevo método de pruebas para paquetes reproducibles en debian.</description>
+    </item>
+    
+    <item>
+      <title>Pelicula sobre la demoscene</title>
+      <link>https://blog.jumapico.uy/posts/2018-12-11-film-about-demoscene/</link>
+      <pubDate>Tue, 11 Dec 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2018-12-11-film-about-demoscene/</guid>
+      <description>Los otros días terminé de ver el documental Demoscene: The Art Of The Algorithms:
+En él se realiza un recuento bastante histórico de la demoscene.
+Debo confesar que siempre que ví una demoscene se me pasaba por la cabeza dos pensamientos: 1) ¿como lo hacen? y 2) ¡Como me gustaría hacer una demo a mi también!.
+Algunos recursos relativos a la demoscene: Repositorios de archivos/foros sobre la demoscene:
+https://www.pouet.net/ https://scene.org/ Enlaces vários:</description>
+    </item>
+    
+    <item>
+      <title>Manejador de contraseñas</title>
+      <link>https://blog.jumapico.uy/posts/2018-12-10-password-manager/</link>
+      <pubDate>Mon, 10 Dec 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2018-12-10-password-manager/</guid>
+      <description>Para manejar las contraseñas se puede utilizar keepassxc, recomendado por la Electronic Frontier Foundation y disponible en Debian:
+$ sudo apt-get install -V keepassxc Como alternativa se puede ver el programa pass - the standard unix password manager, también disponible en Debian y que sigue más de cerca la filosofía unix, utilizando varios programas ya disponibles:
+$ sudo apt-get install -V pass </description>
+    </item>
+    
+    <item>
+      <title>Setup del nuevo método de pruebas para paquetes reproducibles en debian</title>
+      <link>https://blog.jumapico.uy/posts/2018-11-16-setup-new-method-for-testing-reproducible-packages-in-debian/</link>
+      <pubDate>Fri, 16 Nov 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2018-11-16-setup-new-method-for-testing-reproducible-packages-in-debian/</guid>
+      <description>Objetivos Crear entorno de trabajo para builds reproducibles en debian buster (testing). Probar el entorno con el paquete supercat que aparece como no reproducible a la fecha. El sistema en el cual se trabajará es debian testing (buster) amd64.
+NOTA: A raíz del artículo se modificó la wiki de debian (revisión 79).
+Preparación del entorno La guía para preparar el entorno se puede encontrar en la wiki de debian.
+El nuevo método requiere que se cree un schroot, lo cual se detalla en otra página de la wiki.</description>
+    </item>
+    
+    <item>
+      <title>Mejorar la seguridad de archivos de Dropbox con tomb</title>
+      <link>https://blog.jumapico.uy/posts/2018-11-14-improve-dropbox-file-security-with-tomb/</link>
+      <pubDate>Wed, 14 Nov 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2018-11-14-improve-dropbox-file-security-with-tomb/</guid>
+      <description>En lo que sigue se intenta mejorar la seguridad de los archivos descargados mediante Dropbox a un PC, de tal forma que si un adversario tiene acceso al disco duro los archivos no son accesibles.
+Se supone que se tiene permisos de administrador en el PC y que el disco no posee una encriptación completa.
+Programa tomb tomb es un programa utilizado para encriptar archivos en linux.
+De la página del manual:</description>
+    </item>
+    
+    <item>
+      <title>Problema de apt: Input/output error</title>
+      <link>https://blog.jumapico.uy/posts/2018-11-14-apt-issue-input-output-error/</link>
+      <pubDate>Wed, 14 Nov 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2018-11-14-apt-issue-input-output-error/</guid>
+      <description>Al intentar instalar un paquete en Ubuntu 14.04 se obtiene el siguiente problema con apt-get:
+$ sudo apt-get install -V firefox-dbg Reading package lists... Done Building dependency tree Reading state information... Done The following NEW packages will be installed: firefox-dbg (50.1.0+build2-0ubuntu0.14.04.1) 0 upgraded, 1 newly installed, 0 to remove and 3 not upgraded. Need to get 0 B/245 MB of archives. After this operation, 893 MB of additional disk space will be used.</description>
+    </item>
+    
+    <item>
+      <title>Creando winepak para evoland</title>
+      <link>https://blog.jumapico.uy/posts/2018-09-04-creating-winepak-for-evoland/</link>
+      <pubDate>Tue, 04 Sep 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2018-09-04-creating-winepak-for-evoland/</guid>
+      <description>Objetivo Luego de enterarme de la existencia de winepak, pensé en empaquetar una aplicación de windows para probar como funciona.
+Para dar un contexto, winepak es un runtime para flatpak que como su nombre lo indica incluye a wine y puede utilizarse para ejecutar aplicaciones windows, instalandolas mediante flatpak.
+PlayOnLinux Una alternativa a crear un flatpak podría ser utilizar playonlinux.
+La ventaja de flatpak es que se puede tener instalado a nivel de sistema los runtime con las diferentes versiones de wine, mientras que en playonlinux estas instalaciones se deben hacer por usuario.</description>
+    </item>
+    
+    <item>
+      <title>Template de proyectos</title>
+      <link>https://blog.jumapico.uy/posts/2018-08-23-project-templates/</link>
+      <pubDate>Thu, 23 Aug 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2018-08-23-project-templates/</guid>
+      <description>¿Porqué usar un template de proyectos? Para acelerar el inicio de un proyecto. Para crear un proyecto con los componentes que sean deseables sin tener que invertir tiempo en customizar la construcción del paquete y las elecciones hechas: Programa para construir el paquete Programa para correr los distintos tipos de tests Customización para integración continua y deployment continuo ¿Que programa usar? Recordando la documentación de pyramid referente a la creación de proyectos, empiezo la búsqueda de opciones por cookiecutter.</description>
+    </item>
+    
+    <item>
+      <title>Entendiendo la salida de dpkg-query status</title>
+      <link>https://blog.jumapico.uy/posts/2018-08-21-understanding-dpkg-query-status-output/</link>
+      <pubDate>Tue, 21 Aug 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2018-08-21-understanding-dpkg-query-status-output/</guid>
+      <description>Entendiendo la salida de dpkg-query status Estoy interesado en saber si un paquete está instalado en el sistema (debian).
+Para ello se puede utilizar dpkg -l, por ejemplo consultando el estado del paquete network-manager:
+$ dpkg -l network-manager Desired=Unknown/Install/Remove/Purge/Hold | Status=Not/Inst/Conf-files/Unpacked/halF-conf/Half-inst/trig-aWait/Trig-pend |/ Err?=(none)/Reinst-required (Status,Err: uppercase=bad) ||/ Name Version Architecture Description +++-=================================-=====================-=====================-======================================================================== ii network-manager 1.12.2-2 amd64 network management framework (daemon and userspace tools) Ahora, interesa obtener la misma información para utilizar en un script sin tener que utilizar expresiones regulares para parsear la salida.</description>
+    </item>
+    
+    <item>
+      <title>Issues en cups-pdf relacionados con nscd</title>
+      <link>https://blog.jumapico.uy/posts/2018-08-03-cups-pdf-issues-related-to-nscd/</link>
+      <pubDate>Fri, 03 Aug 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2018-08-03-cups-pdf-issues-related-to-nscd/</guid>
+      <description>Descripción del problema En Ubuntu 14.04 se encontraron problemas al imprimir a la Impresora PDF (PDF Writer, provista por el paquete cups-pdf).
+El problema es que de un momento a otro dejan de generarse los PDF&amp;rsquo;s en la carpeta $HOME/PDF sin ningún mensaje de error.
+Se puede imprimir en otras impresoras (en papel) sin problemas.
+Esto ocurre en un sistema con autenticación por LDAP y utilizando nscd
+Para que los PDF&amp;rsquo;s se almacenen en $HOME/PDF en lugar de su ubicación por defecto, /var/spool/cups-pdf/${USER}, se configura cups-pdf agregando en el archivo /etc/cups/cups-pdf.</description>
+    </item>
+    
+    <item>
+      <title>Encriptar archivos con gpg</title>
+      <link>https://blog.jumapico.uy/posts/2018-07-27-encrypt-files-with-gpg/</link>
+      <pubDate>Fri, 27 Jul 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2018-07-27-encrypt-files-with-gpg/</guid>
+      <description>Encriptar archivos con gpg Para encriptar varios archivos:
+$ tar --sort=name -Jcv file_1 file_2 ... file_N | gpg -c -o secrets.tar.xz.gpg Para desencriptarlos (¡CUIDADO, SE SOBREESCRIBIRÁN LOS ARCHIVOS!):
+$ gpg -d secrets.tar.xz.gpg | tar -Jx Notas:
+Asegurarse de que los archivos a mantener en secreto están excluidos del repositorio. </description>
+    </item>
+    
+    <item>
+      <title>Usando equivs para crear links faltantes</title>
+      <link>https://blog.jumapico.uy/posts/2018-07-12-equivs-using-links/</link>
+      <pubDate>Thu, 12 Jul 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2018-07-12-equivs-using-links/</guid>
+      <description>El parche presentado en este post fué aceptado en el código fuente de equivs.
+Mi agradecimiento a Axel Beckert por el tiempo dedicado.
+Descripción del problema Utilizando pdfsam 2.2.4 en Ubuntu 14.04 (i386) se notó que ocurre un problema en la generación de thumbnails durante la edición de los pdf&amp;rsquo;s.
+Revisando el log se obtiene:
+12:12:08,656 ERROR Unable to generate thumbnail java.lang.UnsatisfiedLinkError: Unable to load library &amp;lsquo;freetype&amp;rsquo;: libfreetype.so: no se puede abrir el archivo del objeto compartido: No existe el archivo o el directorio</description>
+    </item>
+    
+    <item>
+      <title>Servidor HTTP standalone</title>
+      <link>https://blog.jumapico.uy/posts/2018-07-04-standalone-http-server/</link>
+      <pubDate>Wed, 04 Jul 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2018-07-04-standalone-http-server/</guid>
+      <description>Se pueden servir los archivos de un directorio utilizando la clase SimpleHTTPRequestHandler de la librería http.server de python3 desde la linea de comandos:
+$ python3 -m http.server Otros busybox:
+$ busybox httpd -f -p 8000 php:
+$ php -S localhost:8000 ruby (lista directorios):
+$ ruby -run -ehttpd . -p8000 </description>
+    </item>
+    
+    <item>
+      <title>Usando mate-terminal con 256 colores</title>
+      <link>https://blog.jumapico.uy/posts/2018-06-25-using-mate-terminal-with-256-colors/</link>
+      <pubDate>Mon, 25 Jun 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2018-06-25-using-mate-terminal-with-256-colors/</guid>
+      <description>Usando mate-terminal con 256 colores Actualmente debido al bug 209 en mate terminal (abierto al 25 de Junio de 2018) tengo problemas para utilizar el tema luna del plugin de vim airline.
+Como se indica en el bug, se puede utilizar
+$ TERM=xterm-256color vim para corroborar que estableciendo correctamente la variable de entorno TERM el problema se soluciona.
+Ahora, no encontre como determinar que el shell está utilizando mate-terminal y no deseo setear la variable TERM en ~/.</description>
+    </item>
+    
+    <item>
+      <title>Actualizando Firefox Quantum</title>
+      <link>https://blog.jumapico.uy/posts/2018-06-11-upgrading-firefox/</link>
+      <pubDate>Mon, 11 Jun 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2018-06-11-upgrading-firefox/</guid>
+      <description>Objetivo Script para actualizar Firefox a partir de Firefox Quantum.
+TL;DR: Instalar en /usr/local/sbin el script upgrade-firefox.
+Historia y motivación La actualización utilizando sudo ya no funciona.
+Hace tiempo descargué Firefox en /opt y cada vez que aparecía el mensaje indicando que Firefox no podía actualizarse automáticamente (debido a falta de permisos)
+realizaba la actualización ejecutando Firefox desde consola con sudo:
+$ mkdir /tmp/asdf $ sudo /opt/firefox/firefox --no-remote --profile /tmp/asdf y luego gráficamente yendo a menú &amp;gt; Help &amp;gt; About Firefox.</description>
+    </item>
+    
+    <item>
+      <title>Generación de tarjetas alfabéticas</title>
+      <link>https://blog.jumapico.uy/posts/2018-06-11-generate-alphabet-cards/</link>
+      <pubDate>Mon, 11 Jun 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2018-06-11-generate-alphabet-cards/</guid>
+      <description>Los otros días pensé en hacerle a mi hijo de tres años y medio unas tarjetas de papel con las letras y números para jugar juntos y ayudarlo con el armado de palabras.
+En retrospectiva, mejor haber buscado antes en internet y haber encontrado por ejemplo Alphabets &amp;amp; Words de Mr Printables.
+Objetivo: Software evaluado El objetivo es realizar la tarea de la forma más sencilla posible.
+Ya que son 27 letras (alfabeto español) y 10 números, totalizando 37 hojas con seis carácteres cada una, la idea es hacerlo mediante scripts.</description>
+    </item>
+    
+    <item>
+      <title>Generar proyecto java ee 7 utilizando arquetipos</title>
+      <link>https://blog.jumapico.uy/posts/2018-06-07-javaee7-ear-archetype/</link>
+      <pubDate>Thu, 07 Jun 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2018-06-07-javaee7-ear-archetype/</guid>
+      <description>Para ello se utilizará el plugin de maven, archetype.
+La documentación resumida del plugin se obtiene usando:
+$ mvn archetype:help la documentación detallada de generate se obtiene con:
+$ mvn archetype:help -Ddetail=true -Dgoal=generate Para buscar un arquetipo para un proyecto de wildfly se puede utilizar:
+$ mvn archetype:generate -Dfilter=&#39;wildfly&#39; Si se quiere generar el arquetipo
+11: remote -&amp;gt; org.wildfly.archetype:wildfly-javaee7-webapp-ear-archetype (An archetype that generates a starter Java EE 7 webapp project for JBoss Wildfly.</description>
+    </item>
+    
+    <item>
+      <title>Depurar script de cloud-init</title>
+      <link>https://blog.jumapico.uy/posts/2018-06-01-debug-cloudinit-script/</link>
+      <pubDate>Fri, 01 Jun 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2018-06-01-debug-cloudinit-script/</guid>
+      <description>Depurar script de cloudinit
+Borrar los archivos:
+/var/lib/cloud/instances/$UUID/boot-finished /var/lib/cloud/instances/$UUID/sem/config_scripts_user Luego ejecutar el módulo final para ejecutar el script user_data:
+cloud-init modules --mode final NOTA: Los cambios se mantienen, por lo que se debe escribir código idempotente.</description>
+    </item>
+    
+    <item>
+      <title>Medir velocidad de red</title>
+      <link>https://blog.jumapico.uy/posts/2018-06-01-measure-network-bandwith/</link>
+      <pubDate>Fri, 01 Jun 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2018-06-01-measure-network-bandwith/</guid>
+      <description>Medir velocidad (aproximada) de red entre PC&amp;rsquo;s utilizando netcat y nload
+PC servidor:
+$ nc -l port &amp;gt; /tmp/test.out PC cliente, consola 1:
+$ sudo nload interface PC cliente, consola 2:
+$ nc server-ip port &amp;lt; /path/to/file NOTA: Tener en cuenta que según las políticas de red algunos puertos pueden estar filtrados. Si ese es el caso y es posible utilizar el puerto 80 este puede ser una opción.</description>
+    </item>
+    
+    <item>
+      <title>Binarios utilizados al realizar un build</title>
+      <link>https://blog.jumapico.uy/posts/2018-05-31-binaries-used-in-build/</link>
+      <pubDate>Thu, 31 May 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2018-05-31-binaries-used-in-build/</guid>
+      <description>Listar todos los binarios invocados al compilar un paquete:
+$ TMP=$(mktemp) $ strace -o &amp;quot;$TMP&amp;quot; -f -e trace=execve -e &#39;signal=!all&#39; make $ sed -ne &#39;s/.*execve(&amp;quot;\([^&amp;quot;]*\)&amp;quot;,.*/\1/p&#39; &amp;quot;$TMP&amp;quot; \ | xargs ls -d 2&amp;gt;/dev/null \ | sort \ | uniq </description>
+    </item>
+    
+    <item>
+      <title>Corregir páginas web con greasemonkey</title>
+      <link>https://blog.jumapico.uy/posts/2018-05-29-fix-page-greasemonkey/</link>
+      <pubDate>Tue, 29 May 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2018-05-29-fix-page-greasemonkey/</guid>
+      <description>Corregir páginas web con greasemonkey Problema Debo escribir un email utilizando un cliente webmail desde Firefox.
+Como una imagen dice más que mil palabras:
+Como puede verse el area del mensaje se superpone a la linea del asunto del email.
+El cliente webmail es roundcube (en el fuente de la página aparece el javascript var rcmail = new rcube_webmail();), desconozco la versión y no pude obtenerla de las páginas del roundcube.</description>
+    </item>
+    
+    <item>
+      <title>Crear paquetes dummy en debian para satisfacer dependencias</title>
+      <link>https://blog.jumapico.uy/posts/2018-05-28-dummy-packages-debian/</link>
+      <pubDate>Mon, 28 May 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2018-05-28-dummy-packages-debian/</guid>
+      <description>Crear paquetes dummy en debian para satisfacer dependencias:
+Instalar paquete equivs si no está instalado: apt-get install -qVy equivs.
+Crear archivo de control para generar el paquete dummy utilizando equivs-control.
+Ejemplo: equivs-control my-stub-package.
+Editar el archivo generado, en el caso de ejemplo my-stub-package. Los campos que deben editarse generalmente para cumplir una dependencia son: Package, Version y Architecture.
+Generar el paquete dummy utilizando equivs-build.
+Siguiendo el ejemplo anterior, equivs-control my-stub-package.</description>
+    </item>
+    
+    <item>
+      <title>Generar pdf a partir de página web</title>
+      <link>https://blog.jumapico.uy/posts/2018-05-23-pdf-from-web-page/</link>
+      <pubDate>Wed, 23 May 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2018-05-23-pdf-from-web-page/</guid>
+      <description>Generar pdf a partir de página web:
+Para ello se puede utilizar el programa wkhtmltopdf</description>
+    </item>
+    
+    <item>
+      <title>Consulta y modificación de parámetros del kernel</title>
+      <link>https://blog.jumapico.uy/posts/2018-05-18-kernel-params/</link>
+      <pubDate>Fri, 18 May 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2018-05-18-kernel-params/</guid>
+      <description>Obtener información de un módulo del kernel Para obtener información de un módulo del kernel está el programa modinfo:
+Ejemplo:
+# modinfo drm filename: /lib/modules/4.16.0-1-amd64/kernel/drivers/gpu/drm/drm.ko license: GPL and additional rights description: DRM shared core routines author: Gareth Hughes, Leif Delgass, José Fonseca, Jon Smirl license: GPL and additional rights description: DRM bridge infrastructure author: Ajay Kumar &amp;lt;ajaykumar.rs@samsung.com&amp;gt; license: GPL and additional rights description: DRM panel infrastructure author: Thierry Reding &amp;lt;treding@nvidia.com&amp;gt; depends: retpoline: Y intree: Y name: drm vermagic: 4.</description>
+    </item>
+    
+    <item>
+      <title>Instalar nginx en centos 7</title>
+      <link>https://blog.jumapico.uy/posts/2018-05-04-install-nginx-in-centos7/</link>
+      <pubDate>Fri, 04 May 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2018-05-04-install-nginx-in-centos7/</guid>
+      <description>Instalar nginx en centos 7 Los otros días tuve que crear un servidor para servir un mirror de los paquetes de ubuntu 18.04.
+Se utilizará Centos 7 para el servidor, instalandolo a partir del DVD ISO. La mayoría de las opciones se dejarán por defecto, eligiendose la opción Minimal Install para el entorno base y sin addons.
+Ya con el sistema instalado empieza la diversión:
+Se actualiza el sistema y se instala nginx.</description>
+    </item>
+    
+    <item>
+      <title>Varios ssh</title>
+      <link>https://blog.jumapico.uy/posts/2018-05-02-misc-ssh/</link>
+      <pubDate>Wed, 02 May 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2018-05-02-misc-ssh/</guid>
+      <description>Varios ssh:
+Cambiar password del keyfile:
+$ ssh-keygen -p -f keyfile Regenerar el archivo public key a partir del keyfile:
+$ ssh-keygen -y -f input_keyfile Nota: el key pair mencionado en la documentación de amazon ec2 es en realidad el keyfile generado con ssh-keygen con extension pem. El public key se genera a partir de este, por lo que no es necesario tenerlo almacenado.</description>
+    </item>
+    
+    <item>
+      <title>Trabajar con sql</title>
+      <link>https://blog.jumapico.uy/posts/2018-04-13-working-with-sql/</link>
+      <pubDate>Fri, 13 Apr 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2018-04-13-working-with-sql/</guid>
+      <description>Como escribir sql:
+Con PostgreSQL:
+$ psql --variable &amp;quot;&amp;lt;name&amp;gt;=&amp;lt;value&amp;gt;&amp;quot; -f query.sql database o en una sesión psql:
+&amp;gt; \cd path/to/my/sources &amp;gt; \set name value &amp;gt; \i query.sql Con Oracle
+En una sesión sqlcl usando bind variables:
+SQL&amp;gt; cd path/to/my/sources SQL&amp;gt; var name datatype SQL&amp;gt; exec :name := value SQL&amp;gt; @query.sql </description>
+    </item>
+    
+    <item>
+      <title>Agregar webOS OSE a NOOBS</title>
+      <link>https://blog.jumapico.uy/posts/2018-03-31-add-webos-to-noobs/</link>
+      <pubDate>Sat, 31 Mar 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2018-03-31-add-webos-to-noobs/</guid>
+      <description>Agregar webOS OSE a NOOBS Instrucciones para agregar SO a noobs: https://github.com/raspberrypi/noobs#how-to-create-a-custom-os-version
+Generación de tarballs Crear directorios de trabajo:
+$ mkdir -p ~/noobs-webos/mnt Descargar imagen de webOS OSE (se utiliza la disponible en https://github.com/webosose/build-webos/issues/1):
+$ wget -P ~/noobs-webos &amp;quot;https://www.rvdboorn.nl/webos-image-raspberrypi3.rootfs.rpi-sdimg&amp;quot; Crear loop devices para las particiones dentro de la imagen:
+$ sudo losetup --partscan --read-only --find --show ~/noobs-webos/webos-image-raspberrypi3.rootfs.rpi-sdimg /dev/loop0 La salida del comando anterior indica que se estará utilizando el dispositivo /dev/loop0.</description>
+    </item>
+    
+    <item>
+      <title>Backport de drivers de impresora en ubuntu</title>
+      <link>https://blog.jumapico.uy/posts/2018-03-12-backport-ubuntu-package/</link>
+      <pubDate>Mon, 12 Mar 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2018-03-12-backport-ubuntu-package/</guid>
+      <description>Se necesita imprimir a una impresora Datamax-O&amp;rsquo;Neil E-4205A desde ubuntu 14.04.
+El problema es que el soporte para esta impresora recién está agregado a partir de la release 5.2.12 de Gutenprint y en ubuntu 14.04, de la página correspondiente al paquete gutenprint se obtiene que la versión disponible es la 5.2.10~pre2-0ubuntu2.
+De lo anterior se ve que es necesario realizar un backport del paquete.
+Navegando en la página del paquete de ubuntu, https://packages.</description>
+    </item>
+    
+    <item>
+      <title>Problemas en repositorio apt de qgis</title>
+      <link>https://blog.jumapico.uy/posts/2018-01-05-qgis-apt-repository-problems/</link>
+      <pubDate>Fri, 05 Jan 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2018-01-05-qgis-apt-repository-problems/</guid>
+      <description>Descripción del problema Se desea instalar qgis versión 2.14 en un ubuntu 14.04.
+Para ello se siguen las instrucciones indicadas en https://qgis.org/en/site/forusers/alldownloads.html#debian-ubuntu (como root):
+Se agrega el repositorio de qgis a la lista de repositorios de apt:
+# cat &amp;gt; /etc/apt/sources.list.d/qgis.list &amp;lt;&amp;lt;&#39;END&#39; deb https://qgis.org/ubuntugis-ltr trusty main deb http://ppa.launchpad.net/ubuntugis/ubuntugis-unstable/ubuntu trusty main END Se instalan los certificados de los repositorios:
+Para qgis:
+# apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key CAEB3DC3BDF7FB45 Executing: gpg --ignore-time-conflict --no-options --no-default-keyring --homedir /tmp/tmp.</description>
+    </item>
+    
+    <item>
+      <title>Problemas con features al montar partición ext4</title>
+      <link>https://blog.jumapico.uy/posts/2017-11-20-ext4-mount-problems/</link>
+      <pubDate>Mon, 20 Nov 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2017-11-20-ext4-mount-problems/</guid>
+      <description>Por segunda o tercera vez me ocurre el problema que al crear una partición ext4 en un pendrive con mi PC, al intentar utilizarlo en otro PC con un SO distinto no puedo montar la partición.
+El mensaje que aparece en dmesg es el siguiente:
+[12317.658982] sd 113:0:0:0: Attached scsi generic sg2 type 0 [12317.659600] sd 113:0:0:0: [sdc] 7864320 512-byte logical blocks: (4.02 GB/3.75 GiB) [12317.660054] sd 113:0:0:0: [sdc] Write Protect is off [12317.</description>
+    </item>
+    
+    <item>
+      <title>Obtener screenshots para juegos de debian</title>
+      <link>https://blog.jumapico.uy/posts/2017-09-22-get-debian-games-screenshots/</link>
+      <pubDate>Fri, 22 Sep 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2017-09-22-get-debian-games-screenshots/</guid>
+      <description>El otro día pensé en instalar algún juego para linux.
+Lo malo que juegos libres no hay muchos y gráficamente no son muy bonitos. Por eso pensé en ver screenshots de juegos disponibles para debian, a ver si había alguno que llamara mi atención para instalarlo. Para automatizar el ver los screenshots de los paquetes seguí los siguientes pasos:
+Primero se listan los paquetes en la sección games:
+$ aptitude search -F %p &#39;?</description>
+    </item>
+    
+    <item>
+      <title>Citas</title>
+      <link>https://blog.jumapico.uy/notes/cites/</link>
+      <pubDate>Tue, 05 Sep 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/notes/cites/</guid>
+      <description>Programación (cat-v.org)
+wikiquote
+Aguas tranquilas no hacen marineros hábiles.
+La excelencia no es un acto, es un hábito.
+Una meta sin un plan es sólo una expresión de deseo.
+If you think education is expensive, try ignorance.
+El mejor momento para plantar un árbol fué hace veinte años. El segundo mejor momento es ahora.
+Imagination is more important than knowledge.
+No hay nada más caro que algo gratis
+Success comes from experience.</description>
+    </item>
+    
+    <item>
+      <title>Virtualizar servidor centos</title>
+      <link>https://blog.jumapico.uy/posts/2017-08-16-virtualizar-servidor-centos/</link>
+      <pubDate>Wed, 16 Aug 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2017-08-16-virtualizar-servidor-centos/</guid>
+      <description>A continuación se detalla la experiencia obtenida al virtualizar un servidor CentOS 5.7 que utiliza LVM. La vm correspondiente a dicho servidor será creada en un servidor de vm&amp;rsquo;s con CentOS 6.4 utilizando libvirt y virt-manager.
+Dump del disco físico Para comenzar la virtualización copiamos el contenido del disco al servidor de vm&amp;rsquo;s.
+En el servidor de vm&amp;rsquo;s (al que se desea enviar la imagen) se ejecuta para recibir la imagen de disco:</description>
+    </item>
+    
+    <item>
+      <title>Problemas con EDID</title>
+      <link>https://blog.jumapico.uy/posts/2017-06-30-problemas-edid/</link>
+      <pubDate>Fri, 30 Jun 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2017-06-30-problemas-edid/</guid>
+      <description>Hay veces que la resolución de video es baja y no puede cambiarse. Esto suele pasar por dos motivos:
+El hardware no está correctamente reconocido o configurado. No se está obteniendo correctamente la información EDID. Aquí se supondrá que el hardware está correctamente detectado y configurado y nos concentraremos en caso en que no se obtiene correctamente la información EDID.
+Verificación de precondiciones Para corroborar las precondiciones del problema verificaremos:</description>
+    </item>
+    
+    <item>
+      <title>Bootear kernel alternativo remotamente</title>
+      <link>https://blog.jumapico.uy/posts/2017-06-29-bootear-kernel-alternativo-remotamente/</link>
+      <pubDate>Thu, 29 Jun 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2017-06-29-bootear-kernel-alternativo-remotamente/</guid>
+      <description>El presente artículo busca responder la pregunta: ¿como se hace para iniciar un PC de usuario con un kernel distinto al por defecto de forma remota en debian o derivados?.
+O sea, si estamos frente al PC nos alcanza con presionar la tecla shift cuando la PC bootea y elegir en el menú de grub el kernel deseado, ¿pero como lo hacemos remotamente?
+Una vez logueados al sistema de forma remota (utilizando ssh) lo que se debe hacerse es modificar las opciones de grub para que al reiniciar el sistema la PC se utilice el kernel deseado.</description>
+    </item>
+    
+    <item>
+      <title>Diagnostico de problemas de video</title>
+      <link>https://blog.jumapico.uy/posts/2017-06-29-diagnostico-problemas-video/</link>
+      <pubDate>Thu, 29 Jun 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2017-06-29-diagnostico-problemas-video/</guid>
+      <description>A continuación se listan algunos comandos que he utilizado para diagnosticar problemas de video en Ubuntu 14.04 (obviamente pueden utilizarse en cualquier derivado de debian).
+Versión del sistema operativo con el problema
+$ cat /etc/os-release Versión del kernel con el problema
+$ uname -a Linea de comando del kernel
+¿Se está utilizando algún parámetro que incida sobre el video?
+$ cat /proc/cmdline Los parámetros sospechosos pueden ser cualquiera que contenga video, vga o modeset.</description>
+    </item>
+    
+    <item>
+      <title>Errores de red en minishift</title>
+      <link>https://blog.jumapico.uy/posts/2017-05-27-minishift-network-error/</link>
+      <pubDate>Sat, 27 May 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2017-05-27-minishift-network-error/</guid>
+      <description>Intentando probar la versión 1.0.1 de minishift para linux con virtualbox 5.1.22-115126~Debian~stretch aparece el siguiente error en mi laptop (en la PC de escritorio no tuve el problema):
+$ minishift start --vm-driver virtualbox Starting local OpenShift cluster using &#39;virtualbox&#39; hypervisor... E0528 01:40:13.870597 1984 start.go:176] Error starting the VM: Error creating the VM. Error creating machine: Error checking the host: Error checking and/or regenerating the certs: There was an error validating certificates for host &amp;quot;192.</description>
+    </item>
+    
+    <item>
+      <title>Descarga de katas de codewars</title>
+      <link>https://blog.jumapico.uy/posts/2017-05-07-codewars-kata-download/</link>
+      <pubDate>Sun, 07 May 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2017-05-07-codewars-kata-download/</guid>
+      <description>Se busca crear un script para descargar los katas del sitio codewars.
+La información a descargar será la siguiente que se visualiza cuando se realiza un kata:
+Instrucciones. Código de ejemplo. Suele ser el encabezado de la función a implementar. Tests de ejemplo. Suelen ser los test iniciales para probar la función. Para descargar la información probaremos utilizar la API brindada por codewars, especificamente https://dev.codewars.com/#post-train-code-challenge.
+Como ejemplo realizamos una prueba de invocación a la api utilizando el shell:</description>
+    </item>
+    
+    <item>
+      <title>Debian</title>
+      <link>https://blog.jumapico.uy/notes/debian/</link>
+      <pubDate>Tue, 25 Apr 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/notes/debian/</guid>
+      <description>Creación de repositorios y mirrors Create a smart debian repository with reprepro Local corporate APT repositories Mirror with reprepro Creación de paquetes Manuales para desarrolladores Debian Developer&amp;rsquo;s Reference Guide for Debian Maintainers Debian New Maintainers&amp;rsquo; Guide (a ser reemplazada por Guide for Debian Maintainers) Replacing binaries with dpkg-divert APT for package self-builders pbuilder tips sbuild-debian-developer-setup Quilt Using Quilt How to use quilt to manage patches in Debian packages Introduction to Quilt Patches to Packages Working with patches elinux Quilt Working on RPMs with quilt: an illustrated guide Empaquetado skopeo ITP Debian Go Packaging Team Sobre skopeo: DIY Docker using Skopeo+OStree+Runc Read only root (Debian) Readonly Root in debian wiki Protecting the Root Filesystem on Ubuntu with Overlayroot The Case for the /usr Merge #860915 - cloud-initramfs-tools: Please re-enable generation of the overlayroot package Debian reproducible issues (reproducible-notes scm) known issues randomness_in_documentation_generated_by_lua_ldoc timestamps_in_tarball timestamp_in_pear_registry_files php registry - PEAR random_order_in_documentation_generated_by_javadoc Bugs Beginners HOWTO Squashing Release-Critical Bugs in Debian: A Primer Release-critical bugs status (paquetes candidatos para colaborar) Varios Instalación de paquetes de forma desatendida: Everything you need to know about conffiles: configuration files managed by dpkg microHOWTO: Perform an unattended installation of a Debian package </description>
+    </item>
+    
+    <item>
+      <title>Enlaces varios</title>
+      <link>https://blog.jumapico.uy/notes/misc/</link>
+      <pubDate>Tue, 25 Apr 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/notes/misc/</guid>
+      <description> Aprenda Inglés - BBC bash cheatsheet Damian Conway, &amp;ldquo;More Instantly Better Vim&amp;rdquo; - OSCON 2013 GTD system Hurricane Electric Hosted DNS iFixit Image guide - Example: CentOS image Isso – a commenting server similar to Disqus Jóvenes a programar </description>
+    </item>
+    
+    <item>
+      <title>Eudyptula challenge</title>
+      <link>https://blog.jumapico.uy/notes/eudyptula-challenge/</link>
+      <pubDate>Tue, 25 Apr 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/notes/eudyptula-challenge/</guid>
+      <description>Task 01 Enlaces a la documentación del kernel:
+https://www.kernel.org/doc/html/latest/ https://www.kernel.org/doc/Documentation/ Documentación general para desarrollo: https://www.kernel.org/doc/html/latest/process/index.html
+Descripción de como funciona la comunidad de desarrollo del kernel: https://www.kernel.org/doc/html/latest/process/howto.html
+El kernel usa ISO C89 con extensiones no estandar No se utiliza la standard C library Requerimientos para compilar y ejecutar el kernel: https://www.kernel.org/doc/html/latest/process/changes.html Estilo de código: https://www.kernel.org/doc/html/latest/process/coding-style.html Información de como generar parches y que estilo debe utilizarse: https://www.kernel.org/doc/html/latest/process/submitting-patches.html Documentación para entender el kernel: https://www.</description>
+    </item>
+    
+    <item>
+      <title>Creación de imagen raw para disco de datos</title>
+      <link>https://blog.jumapico.uy/posts/2017-04-18-create-data-raw-disk-image/</link>
+      <pubDate>Tue, 18 Apr 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2017-04-18-create-data-raw-disk-image/</guid>
+      <description>TODO: crear script para crear imagen
+Hay dos escenarios distintos según la versión del paquete util-linux instalada, ya que a partir de la versión 2.21 se agrega la opción --partscan al comando losetup lo que facilita la creación de la imagen:
+losetup(8): - the command has been rewritten, features: ... * supports new command line option --partscan to enable kernel partition table parser Para mas detalles ver las notas de la release 2.</description>
+    </item>
+    
+    <item>
+      <title>Uso de codewars offline</title>
+      <link>https://blog.jumapico.uy/posts/2017-04-16-codewars-offline/</link>
+      <pubDate>Sun, 16 Apr 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/posts/2017-04-16-codewars-offline/</guid>
+      <description>En lo siguiente se describe como ejecutar los katas de codewars de forma offline.
+Para ello se utilizará el proyecto codewars-runner-cli, el cual permite la ejecución de código en distintos lenguajes mediante el uso de docker-compose (docker) y es desarrollado por codewars.
+Se descarga el repositorio del proyecto:
+$ mkdir -p ~/src $ cd ~/src $ git clone --depth=1 git@github.com:Codewars/codewars-runner-cli.git Se crea un directorio en el cual se descargará la información del kata.</description>
+    </item>
+    
+    <item>
+      <title>Enlaces</title>
+      <link>https://blog.jumapico.uy/links/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/links/</guid>
+      <description>A continuación páginas que leí, me interesaron y creo que puede ser interesante recordar y compartir. Para algunas de las páginas puede haber comentarios y para otras no. Es también una alternativa a webring o utilizar programas como openring.
+Por ahora ver el archivo links.rec.</description>
+    </item>
+    
+    <item>
+      <title>Sobre mi</title>
+      <link>https://blog.jumapico.uy/about/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.jumapico.uy/about/</guid>
+      <description>Soy Juan Picca.
+Mis imágenes usuales:
+email / sourcehut / linkedin
+Sitios amigos:
+Blog de Marcos Canán El código de este sitio se encuentra disponible en sourcehut.</description>
+    </item>
+    
+  </channel>
+</rss>
