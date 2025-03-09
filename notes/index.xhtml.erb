@@ -1,0 +1,12 @@
+---
+title: Notes
+---
+
+<h1>Notas</h1>
+<ul>
+<% sorted_notes.each do |post| %>
+  <li>
+    <%= post[:updated_at] || post[:created_at] %> <a href="<%= post.path %>"><%= post[:title] %></a>
+  </li>
+<% end %>
+</ul>
