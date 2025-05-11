@@ -1,0 +1,91 @@
+#!/usr/bin/python3
+import os
+import yaml
+
+path = lambda d, f: os.path.join(d, f)
+flatten = lambda l: [item for sublist in l for item in sublist]
+
+def help():
+    print("""
+Usage: calculate-dependencies <file.yaml>
+
+Calculate dependencies from packer templates in yaml format.
+Currently only get dependencies from:
+
+* builders:
+  * virtualbox-iso (1)
+  * virtualbox-ovf
+* provisioners:
+  * file
+  * shell
+
+(1): Add all files in the `http_directory` as dependencies.
+""")
+
+def get_dependencies_virtualbox_iso_http_directory(data):
+    dependencies = []
+    http_directories = [builder["http_directory"] for builder in data["builders"] if builder["type"] == "virtualbox-iso"]
+    for http_directory in http_directories:
+        preseed_files = [path(http_directory, f) for f in os.listdir(http_directory) if os.path.isfile(path(http_directory, f))]
+        dependencies.extend(preseed_files)
+    return dependencies
+
+def get_dependencies_virtualbox_ovf_source_path(data):
+    dependencies = []
+    source_path = [builder["source_path"] for builder in data["builders"] if builder["type"] == "virtualbox-ovf"]
+    dependencies.extend(source_path)
+    return dependencies
+
+def get_dependencies_shell_scripts(data):
+    dependencies = []
+    scripts = [provisioner["scripts"] for provisioner in data['provisioners'] if provisioner["type"] == "shell"]
+    dependencies.extend(flatten(scripts))
+    return dependencies
+
+def get_dependencies_file_source(data):
+    dependencies = []
+    sources = [provisioner["source"] for provisioner in data['provisioners'] if provisioner["type"] == "file"]
+    for source in sources:
+        if os.path.isfile(source):
+            dependencies.extend(source)
+        else:
+            directories = [source]
+            while len(directories) != 0:
+                directory = directories.pop()
+                for (dirpath, dirnames, filenames) in os.walk(directory):
+                    dependencies.extend([path(dirpath, file) for file in filenames])
+                    directories.extend(dirnames)
+    return dependencies
+
+def get_dependencies(yamlfile):
+    with open(yamlfile) as file:
+        data = yaml.load(file)
+        dependencies = []
+        dependencies.extend(get_dependencies_virtualbox_iso_http_directory(data))
+        dependencies.extend(get_dependencies_virtualbox_ovf_source_path(data))
+        dependencies.extend(get_dependencies_shell_scripts(data))
+        dependencies.extend(get_dependencies_file_source(data))
+        # make the dependencies reproducible
+        dependencies = sorted(list(set(dependencies)))
+        # get a string
+        dependencies = " ".join(dependencies)
+        return dependencies
+
+
+if __name__ == '__main__':
+    import sys
+
+    if len(sys.argv) != 2:
+        help()
+        sys.exit(1)
+    if not os.path.isfile(sys.argv[1]):
+        print("File %s does not exist" % sys.argv[1])
+        sys.exit(1)
+    try:
+        print(get_dependencies(sys.argv[1]))
+    except yaml.scanner.ScannerError:
+        print("Invalid yaml file")
+        sys.exit(1)
+    except FileNotFoundError as e:
+        print(e)
+        sys.exit(1)
