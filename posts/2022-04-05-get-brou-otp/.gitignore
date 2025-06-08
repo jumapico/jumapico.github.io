@@ -1,0 +1,16 @@
+# apk sources
+apkdownload/
+aurorastore/
+uy.com.brou.token/
+uy.jumapico.brou.token/
+uy.jumapico.brou.token.orig/
+
+# tools
+apktool_2.6.1.jar
+debug.keystore
+
+# node files
+node_modules/
+
+# aes ctr functions - not included due missing license
+aes.js
