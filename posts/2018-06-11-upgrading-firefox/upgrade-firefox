@@ -1,0 +1,47 @@
+#!/bin/bash
+set -e
+if [ $EUID -ne 0 ]; then
+    echo "Run with root permissions" >&2
+    exit 1
+fi
+if [ $# -ne 1 ] || ! [[ "$1" =~ ^(.*/)?firefox-[0-9.]*.tar.bz2$ ]]; then
+    echo "Usage: upgrade-firefox /path/to/firefox-<version>.tar.bz2" >&2
+    exit 1
+fi
+if ! [ -f "$1" ]; then
+    echo "File not exist" >&2
+    exit 1
+fi
+version=$(basename "$1")
+version=${version#firefox-}
+version=${version%.tar.bz2}
+if [ -d /opt/firefox-$version ]; then
+    echo "This version of Firefox is already installed" >&2
+    exit 1
+fi
+current=$(find /opt -maxdepth 1 | grep -oP '/opt/firefox-\K\d.*' \
+    | LC_ALL=C sort -rV | head -1)
+if dpkg --compare-versions "$current" ge "$version"; then
+    echo "This version of Firefox is not the latest" >&2
+    exit 1
+fi
+tar xf "$1" -C /opt/ --transform 's/^firefox/firefox-'$version'/'
+cat <<'END' > /opt/firefox-$version/CAN-BE-REMOVED
+Installed through upgrade-firefox script
+END
+mkdir -p /opt/firefox-$version/distribution
+cat > /opt/firefox-$version/distribution/policies.json <<'END'
+{
+  "policies": {
+    "DisableAppUpdate": true,
+    "DontCheckDefaultBrowser": true
+  }
+}
+END
+ln -sf -T firefox-$version /opt/firefox-latest
+for old in $(find /opt -maxdepth 1 -name 'firefox-[1-9]*' | LC_ALL=C sort -rV \
+        | tail +3); do
+    [ -e "$old/CAN-BE-REMOVED" ] && rm -fr "$old"
+done
+echo "Done"
+exit 0
