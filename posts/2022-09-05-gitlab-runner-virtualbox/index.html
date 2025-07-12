@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Configurar gitlab-runner usando executor virtualbox | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Configurar gitlab-runner usando executor virtualbox</h1>
+        <h2 class="date">2022-09-05</h2>
+      </div>
+<h2>Objetivo</h2>
+<p>Se busca configurar la funcionalidad de CI/CD de una instancia de <a href="https://about.gitlab.com/">gitlab</a>
+community edition (self-managed).</p>
+<p>Para ello debe agregarse por lo menos un <a href="https://docs.gitlab.com/runner/">runner</a> que es una aplicación
+utilizada por gitlab CI/CD para ejecutar las tareas en un pipeline.</p>
+<p>Al registrar un runner en gitlab se debe elegir un <a href="https://docs.gitlab.com/runner/executors/">executor</a> el cual determina
+el ambiente en el que cada trabajo es ejecutado.</p>
+<p>Actualmente estoy utilizando el <a href="https://docs.gitlab.com/runner/executors/shell.html">shell executor</a> el cual tiene como ventajas la
+facilidad de configuración, pero como contra que los trabajos tienen acceso al
+servidor en que está instalado el runner el cual está compartido con otros
+servicios.</p>
+<p>Se descartó utilizar el <a href="https://docs.gitlab.com/runner/executors/docker.html">docker executor</a> ya que requiere tener instalado
+<a href="https://www.docker.com/">docker</a> y no funciona con <a href="https://podman.io/">podman</a> (el cual está instalado en el equipo al cual
+se agregará el servicio de runner).</p>
+<p>De las alternativas restantes, se intentará utilizar el <a href="https://docs.gitlab.com/runner/executors/virtualbox.html">executor virtualbox</a>
+por la característica de proveer un <em>entorno limpio</em> para cada build y no tener
+problemas de que las tareas que se ejecuten accedan a los datos del servidor.</p>
+<p>Una vez elegido <a href="https://www.virtualbox.org/">virtualbox</a>, hay que elegir la imagen a utilizar y la forma de
+configurarla.  Ya que los proyectos que desean agregarse al pipeline de CI/CD
+deben generar <a href="https://github.com/opencontainers/image-spec">imagenes de contenedores</a> utilizando archivos con formato
+<a href="https://docs.docker.com/engine/reference/builder/">Dockerfile</a> y teniendo en cuenta que podman, mediante su subcomando <a href="https://docs.podman.io/en/latest/markdown/podman-machine.1.html">machine</a>
+<a href="https://docs.podman.io/en/latest/markdown/podman-machine-init.1.html#description">utiliza por defecto</a> la distribución <a href="https://getfedora.org/en/coreos/">Fedora CoreOS</a> se intentará
+utilizar esta.</p>
+<p>Respecto a Fedora CoreOS o FCOS, <a href="https://docs.fedoraproject.org/en-US/fedora-coreos/getting-started/">parte de su filosofía</a> radica en distribuir
+una imagen genérica mínima la cual deberá aprovisionarse en el primer inicio
+(first boot) utilizando <a href="https://coreos.github.io/ignition/">ignition</a>.
+ignition utiliza un archivo en formato json para realizar el aprovisionamiento
+durante la etapa de <a href="https://docs.kernel.org/filesystems/ramfs-rootfs-initramfs.html#what-is-initramfs">initramfs</a>.
+Hay que notar que la <a href="https://docs.fedoraproject.org/en-US/fedora-coreos/producing-ign/">forma recomendada</a> de generar un archivo para ignition es
+usando <a href="https://coreos.github.io/butane/">butane</a>, el cual requiere que se escriba la configuración en formato
+yaml que luego es validada por butane y convertida a json.
+Por otro lado, ya que utilizaremos virtualbox como virtualizador se aprevechará
+que <a href="https://coreos.github.io/ignition/supported-platforms/">ignition permite</a> utilizar las <a href="https://www.virtualbox.org/manual/UserManual.html#guestadd-guestprops">virtualbox guest properties</a> para cargar la
+información de aprovisionamiento.
+Como ejemplo conviene seguir la <a href="https://docs.fedoraproject.org/en-US/fedora-coreos/provisioning-virtualbox/">guía de aprovisionamiento en virtualbox</a>.
+Por defecto FCOS contiene git y podman, que son las herramientas que utilizamos
+para generar los build y ssh para que gitlab-runner se conecte, por lo cual la
+imagen cumple con los requerimientos de gitlab-runner.</p>
+<p>Por último, se configurará gitlab-runner para usar la imágen de virtualbox
+basada en FCOS.</p>
+<p><strong>NOTA: gitlab-runner es ejecutado con root por defecto y el
+<a href="https://docs.gitlab.com/runner/executors/virtualbox.html">executor virtualbox</a> utiliza el usuario root para ejecutar virtualbox,
+por lo que el usuario en el cual se instala la máquina virtual debe ser root</strong></p>
+<h2>Setup de proyecto de prueba</h2>
+<p>Antes de instalar gitlab-runner y configurar el executor (lo que implica crear y
+configurar una máquina virtual) hay que crear un proyecto (repositorio git en
+la instancia de gitlab) al cual se le registrará el runner.</p>
+<p>A continuación se describe el contenido de un proyecto sencillo y representativo
+que se puede utilizar para probar el runner.  Esperamos que el proyecto:</p>
+<ul>
+<li>utilice podman para generar un contenedor (que luego será descartado)</li>
+<li>descargue un contenedor de dockerhub (para verificar conectividad)</li>
+</ul>
+<p>Para probar lo anterior utilizaremos solo dos archivos:</p>
+<ul>
+<li>
+<p><a href="./.gitlab-ci.yml">.gitlab-ci.yml</a> de contenido:</p>
+<pre><code>stages:
+  - build
+
+build-job:
+  stage: build
+  script:
+    - echo &quot;Compiling the code...&quot;
+    - podman build -t test-runner-config:latest .
+    - echo &quot;Compilation complete.&quot;
+</code></pre>
+</li>
+<li>
+<p><a href="./Dockerfile">Dockerfile</a> de contenido:</p>
+<pre><code>FROM docker.io/library/busybox:1.34.1-musl@sha256:0eddf32dbd528c2a46b97498a6f79d1fc14dbf59c5e2d7e9759e7a026b529c03
+RUN date &gt; /creation-date
+</code></pre>
+</li>
+</ul>
+<p>Para registrar un runner (obtener el token para registrarlo) se debe ir a
+<em>Settings (del proyecto) &gt; CI/CD</em>, expandir la sección <em>Runners</em> y extraer los
+datos bajo <em>Specific runners</em>: la url de la instancia de gitlab y el token para
+registrarse.  Estos valores se utilizarán más adelante.</p>
+<h2>Instalar gitlab-runner</h2>
+<p>Para instalar el runner se siguen las indicaciones dadas en
+<a href="https://docs.gitlab.com/runner/install/linux-repository.html">Install GitLab Runner using the official GitLab repositories</a></p>
+<h2>Preparación de imágen basada en FCOS</h2>
+<h3>Creación de configuración de FCOS</h3>
+<p>Se escribe la configuración en butane con las siguientes características:</p>
+<ul>
+<li>
+<p>Se <a href="https://docs.fedoraproject.org/en-US/fedora-coreos/authentication/#_using_password_authentication">agregará el usuario</a> <code>gitlab-runner</code> con directorio HOME
+<code>/var/lib/gitlab-runner</code> que será utilizado por el runner para ejecutar los
+trabajos y el cual utilizará una contraseña aleatoria.</p>
+<p>Hay que notar que el password es solo para uso en la consola, ya que por
+defecto FCOS no permite el uso de passwords por ssh.
+Para solucionar esto se debe <a href="https://docs.fedoraproject.org/en-US/fedora-coreos/authentication/#_enabling_ssh_password_authentication">habilitar el uso de passwords con ssh</a>.</p>
+</li>
+<li>
+<p>Se configurará el <a href="https://docs.fedoraproject.org/en-US/fedora-coreos/authentication/#_default_user">usuario privilegiado por defecto</a> <code>core</code> para conectarse al
+sistema en caso de que se requiera inspeccionar en busca de errores que surjan
+a futuro.</p>
+</li>
+<li>
+<p>Se agrega un segundo disco que <a href="https://docs.fedoraproject.org/en-US/fedora-coreos/storage/#_defining_a_filesystem">será formateado</a> con una única partición ext4
+que será montada en el directorio <code>/var/lib/gitlab-runner</code> donde podrá ser
+utilizado por el usuario <code>gitlab-runner</code>.</p>
+<p>Hay que tener en cuenta que en nuestro caso de uso de virtualbox el segundo
+disco es referenciado como <code>/dev/sdb</code>.</p>
+</li>
+<li>
+<p>Se crea el archivo <code>/etc/hostname</code> para dar nombre al SO en la vm.</p>
+</li>
+</ul>
+<p>Para realizar lo anterior se utiliza el script <a href="./gen-ignition.sh">gen-ignition.sh</a> que además:</p>
+<ul>
+<li>genera un password aleatorio para el usuario github-runner</li>
+<li>genera un certificado ssh para conectarse con el usuario core</li>
+<li>valida la configuración elegida mediante butane y genera el archivo json a
+utilizar con ignition</li>
+</ul>
+<p><strong>Nota</strong>: para un correcto funcionamiento del script hay que tener instalado el
+paquete <code>pwgen</code> (<code>doas apt-get install -Vy pwgen</code>)
+y el ejecutable de <code>butane</code> (<code>wget -O butane 'https://github.com/coreos/butane/releases/download/v0.15.0/butane-x86_64-unknown-linux-gnu' &amp;&amp; doas install butane /usr/local/bin</code>).</p>
+<p>La ejecución se realiza utilizando el comando:</p>
+<pre><code>$ doas ./gen-ignition.sh gitlab-runner
+ignition config file: /root/VirtualBox Vms/gitlab-runner/gitlab-runner.ign
+file with pass for user github-runner: /root/VirtualBox Vms/gitlab-runner/user_gitlabrunner.pass
+file to connect with core user: /root/VirtualBox Vms/gitlab-runner/user_core.cert
+
+Done
+</code></pre>
+<h3>Creación de la VM</h3>
+<p>Se comienza <a href="https://getfedora.org/en/coreos/download?tab=metal_virtualized&amp;stream=stable&amp;arch=x86_64">descargando</a> la imagen estable para virtualbox en el directorio
+<code>/tmp</code>:</p>
+<pre><code>$ wget -P /tmp https://builds.coreos.fedoraproject.org/prod/streams/stable/builds/36.20220806.3.0/x86_64/fedora-coreos-36.20220806.3.0-virtualbox.x86_64.ova
+</code></pre>
+<p>Para crear la vm se utiliza el script <a href="./prepare-vm.sh">prepare-vm.sh</a>.  Este script, aparte de
+importar la vm realiza las siguientes tareas:</p>
+<ul>
+<li>crea un segundo disco y lo agrega a la vm</li>
+<li>se carga la configuración de ignition creada previamente por el script
+<a href="./gen-ignition.sh">gen-ignition.sh</a> como una property de la vm</li>
+<li>se agrega un port forward para conectarse a la vm por el puerto 2222 del host</li>
+<li>se configura un puerto serial para tener acceso a la salida de la consola en
+un archivo</li>
+</ul>
+<pre><code>$ doas ./prepare-vm.sh gitlab-runner
+0%...10%...20%...30%...40%...50%...60%...70%...80%...90%...100%
+Interpreting /tmp/fedora-coreos-36.20220806.3.0-virtualbox.x86_64.ova...
+OK.
+Disks:
+  vmdisk1	10737418240	816268288	http://www.vmware.com/interfaces/specifications/vmdk.html#streamOptimized	disk.vmdk	816268288	-1
+
+Virtual system 0:
+ 0: Suggested OS type: &quot;Fedora_64&quot;
+    (change with &quot;--vsys 0 --ostype &lt;type&gt;&quot;; use &quot;list ostypes&quot; to list all possible values)
+ 1: VM name specified with --vmname: &quot;gitlab-runner&quot;
+ 2: Suggested VM group &quot;/&quot;
+    (change with &quot;--vsys 0 --group &lt;group&gt;&quot;)
+ 3: Suggested VM settings file name &quot;/root/VirtualBox Vms/Fedora CoreOS stable/Fedora CoreOS stable.vbox&quot;
+    (change with &quot;--vsys 0 --settingsfile &lt;filename&gt;&quot;)
+ 4: Suggested VM base folder &quot;/root/VirtualBox Vms&quot;
+    (change with &quot;--vsys 0 --basefolder &lt;path&gt;&quot;)
+ 5: Product (ignored): fedora-coreos Fedora CoreOS stable
+ 6: Vendor (ignored): fedora-coreos
+ 7: Version (ignored): 36.20220806.3.0
+ 8: Number of CPUs: 2
+    (change with &quot;--vsys 0 --cpus &lt;n&gt;&quot;)
+ 9: Guest memory: 4096 MB
+    (change with &quot;--vsys 0 --memory &lt;MB&gt;&quot;)
+10: USB controller
+    (disable with &quot;--vsys 0 --unit 10 --ignore&quot;)
+11: Network adapter: orig NAT, config 6, extra slot=0;type=NAT
+12: SATA controller, type AHCI
+    (disable with &quot;--vsys 0 --unit 12 --ignore&quot;)
+13: Hard disk image: source image=disk.vmdk, target path=disk.vmdk, controller=12;port=0
+    (change target path with &quot;--vsys 0 --unit 13 --disk path&quot;;
+    change controller with &quot;--vsys 0 --unit 13 --controller &lt;index&gt;&quot;;
+    change controller port with &quot;--vsys 0 --unit 13 --port &lt;n&gt;&quot;;
+    disable with &quot;--vsys 0 --unit 13 --ignore&quot;)
+0%...10%...20%...30%...40%...50%...60%...70%...80%...90%...100%
+Successfully imported the appliance.
+</code></pre>
+<p>Paso seguido se inicia la vm para que aplique la configuración:</p>
+<pre><code>$ doas vboxmanage startvm gitlab-runner --type headless
+Waiting for VM &quot;gitlab-runner&quot; to power on...
+VM &quot;gitlab-runner&quot; has been successfully started.
+</code></pre>
+<p>Podemos verificar el estado de la configuración y si esta terminó inspeccionando
+la salida de la consola que se configuró previamente:</p>
+<pre><code>$ doas tail -f &quot;/root/VirtualBox Vms/gitlab-runner/gitlab-runner.log&quot;
+</code></pre>
+<p>Para loguearnos con el usuario core utilizamos el certificado:</p>
+<pre><code>$ doas ssh -i &quot;/root/VirtualBox Vms/gitlab-runner/user_core.cert&quot; -p 2222 core@localhost
+The authenticity of host '[localhost]:2222 ([127.0.0.1]:2222)' can't be established.
+ED25519 key fingerprint is SHA256:Qunkm7ADQbMOixsKPLwbZeATETdfr9+jSgz4Fk8OUhg.
+This key is not known by any other names
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '[localhost]:2222' (ED25519) to the list of known hosts.
+Fedora CoreOS 36.20220806.3.0
+Tracker: https://github.com/coreos/fedora-coreos-tracker
+Discuss: https://discussion.fedoraproject.org/tag/coreos
+
+[core@gitlab-runner-vm ~]$
+</code></pre>
+<p>Y paso seguido apagamos la vm:</p>
+<pre><code>[core@gitlab-runner-vm ~]$ sudo shutdown -h now
+Connection to localhost closed by remote host.
+Connection to localhost closed.
+</code></pre>
+<p>Para verificar que apagó correctamente utilizamos:</p>
+<pre><code>$ doas vboxmanage showvminfo gitlab-runner | grep -i state
+State:                       powered off (since 2022-09-27T17:01:30.000000000)
+</code></pre>
+<h2>Configuración y pruebas de gitlab-runner</h2>
+<p>Para registrar el runner se siguen las indicaciones de
+<a href="https://docs.gitlab.com/runner/commands/#non-interactive-registration">Non-interactive registration</a>.</p>
+<pre><code>$ export CI_SERVER_URL='https://url/to/my/instance'
+$ export REGISTRATION_TOKEN='my-registration-token'
+$ export SSH_PASSWORD='ohphei3op+oh5NuDophei&amp;W4zooDahquaiNgohr9gah=b3eini#k,ai6wei/weij'
+$ doas gitlab-runner register --non-interactive --url &quot;$CI_SERVER_URL&quot; --registration-token &quot;$REGISTRATION_TOKEN&quot; --executor virtualbox --virtualbox-base-name gitlab-runner --ssh-user gitlab-runner --ssh-password &quot;$SSH_PASSWORD&quot;
+Runtime platform                                    arch=amd64 os=linux pid=1154947 revision=bbcb5aba version=15.3.0
+Running in system-mode.
+
+Registering runner... succeeded                     runner=XXXXXXXX
+Runner registered successfully. Feel free to start it, but if it's running already the config should be automatically reloaded!
+
+Configuration (with the authentication token) was saved in &quot;/etc/gitlab-runner/config.toml&quot;
+</code></pre>
+<p><strong>Nota</strong>: Sobre las variables de entorno: aquí se utilizan para que no quede en
+la linea de comandos información sensible y son las variables utilizadas por
+gitlab-runner en la opción de linea de comando correspondiente.  Como se está
+utilizando <a href="https://flak.tedunangst.com/post/doas">doas</a> y este &quot;limpia&quot; las variables de entorno (alcanza para probar
+hacer <code>doas printenv</code>) es que se reintroducen utilizando parámetros.</p>
+<h2>Conclusiones</h2>
+<ul>
+<li>Configurar gitlab-runner con executor shell es sencillo y rápido, pero tiene
+problemas de seguridad.</li>
+<li>La documentación para configurar el executor virtualbox no está clara en
+varios puntos.  El que más tiempo me llevó fué darme cuenta que virtualbox se
+ejecuta con <code>root</code> en lugar de con el usuario <code>gitlab-runner</code> que es el
+usuario que se crea al instalar el paquete <code>gitlab-runner</code> y el utilizado por
+el executor shell.</li>
+<li>Lo que más valió la pena fué el familiarizarme con fedora coreos y la
+introducción de <a href="https://coreos.github.io/ignition/">ignition</a> vía <a href="https://coreos.github.io/butane/">butane</a> para configuración del sistema que
+parece ser una solución más sencilla y de menor alcance que <a href="https://cloud-init.io/">cloud-init</a>, el
+cual era usado en las imágenes de <em>Generic Cloud</em> de centos7.</li>
+</ul>
+<h2>Apendice - Cambiar directorio <code>~/VirtualBox VMs</code></h2>
+<p><strong>Sin tener máquinas virtuales creadas o con todas las máquinas virtuales
+apagadas</strong></p>
+<pre><code>$ vboxmanage setproperty machinefolder $HOME/virtualbox-vms
+</code></pre>
+<p>Para verificar el cambio utilizar</p>
+<pre><code>$ vboxmanage list systemproperties | grep folder
+</code></pre>
+<p>Fuente: <a href="https://askubuntu.com/questions/800824/how-to-change-virtualbox-default-vm-location-in-command-line">https://askubuntu.com/questions/800824/how-to-change-virtualbox-default-vm-location-in-command-line</a></p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

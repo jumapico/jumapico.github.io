@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dependencias de artefactos jee | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Dependencias de artefactos jee</h1>
+        <h2 class="date">2023-02-24</h2>
+      </div>
+<p>Se tienen <strong>muchas</strong> aplicaciones en un servidor de aplicaciones <a href="https://www.wildfly.org/">wildfly</a>
+bastante viejo.
+Se desea evaluar la posibilidad de pasar a utilizar un servidor más reciente,
+pero <em>separando</em> las aplicaciones y no deployandolas todas juntas nuevamente.</p>
+<p>Parte del problema (aparte de la migración), es que los artefactos existentes
+fueron construidos con <a href="https://ant.apache.org/">ant</a> en lugar de <a href="https://maven.apache.org/">maven</a> y no se tiene información
+de las dependencias entre aplicaciones jee y son <strong>muchas</strong>.</p>
+<p>Un enfoque para intentar determinar la dependencia entre aplicaciones es dibujar
+con <a href="https://www.graphviz.org/">graphviz</a> un grafo obteniendo la información de los archivos de
+configuración xml que se encuentran en los artefactos (ej. <code>application.xml</code>,
+<code>ejb-jar.xml</code>, <code>jboss.xml</code>) mediante el uso de <a href="https://gnome.pages.gitlab.gnome.org/libxml2/xmllint.html">xmllint</a> con expresiones
+<a href="https://en.wikipedia.org/wiki/XPath">xpath</a>.</p>
+<p>Para extraer los archivos se utiliza el script <a href="./unpack-apps.sh">unpack-apps.sh</a> que
+descomprime los artefactos recursivamente:</p>
+<ul>
+<li>se comienza a descomprimir los archivos <a href="https://en.wikipedia.org/wiki/EAR_(file_format)">ear</a></li>
+<li>luego se descomprimen los archivos <a href="https://en.wikipedia.org/wiki/WAR_(file_format)">war</a></li>
+<li>se escanean los archivos <a href="https://en.wikipedia.org/wiki/JAR_(file_format)">jar</a> para determinar mediante una
+<a href="https://dle.rae.es/heur%C3%ADstico">heurística</a> si estos deben descomprimirse o no; esto continúa hasta que
+no queden archivos que se considere que deben descomprimirse</li>
+<li>por último se convierten todos los archivos de configuración al <a href="https://dos2unix.sourceforge.io/">formato de
+archivo unix</a> para asegurarse que en etapas posteriores de procesamiento
+no habrá problemas</li>
+</ul>
+<p>Aquí vale la pena notar que la heurística utilizada para saber si hay que
+descomprimir o no un jar es si algún archivo concuerda con <code>/mycompany/</code> o
+<code> mycompany/</code> (hay una clase o recurso bajo el paquete <code>mycompany</code>).</p>
+<p>Una vez que se tienen los archivos de configuración se utiliza el script
+<a href="./create-graph.sh">create-graph.sh</a> el cual extrae de los archivos:</p>
+<ul>
+<li>application.xml</li>
+<li>ejb-jar.xml</li>
+<li>jboss.xml</li>
+</ul>
+<p>informción utilizando <code>xmllint</code> y a partir de ella genera un archivo <code>.dot</code> que
+contendrá el grafo de dependencias entre las aplicaciones.</p>
+<p>Para tener una idea de como se ve el grafo utilizando <a href="https://github.com/jrfonseca/xdot.py">xdot</a>:
+<img src="./ejemplo-grafo.png" alt="ejemplo de grafo de dependencias" /></p>
+<p>Esto es bastante intratable, independientemente de la utilidad de la
+información.</p>
+<p>Una alternativa es utilizar <a href="https://graphviz.org/docs/cli/gvpr/">gvpr</a> para obtener las dependencias a partir de
+un artefacto dado (nodo del grafo).
+Esto lo podemos hacer utilizando el script <a href="./prune-graph.sh">prune-graph.sh</a> utilizando como
+parámetro uno de los nodos del grafo.</p>
+<p>Un ejemplo de como se ve el grafo:
+<img src="./ejemplo-grafo-filtrado.png" alt="ejemplo de grafo de dependencias filtrado" />.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+
