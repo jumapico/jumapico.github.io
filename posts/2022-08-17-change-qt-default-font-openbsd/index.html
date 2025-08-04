@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cambiar fuente por defecto de QT en OpenBSD | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Cambiar fuente por defecto de QT en OpenBSD</h1>
+        <h2 class="date">2022-08-17</h2>
+      </div>
+<p>Estoy utilizando <a href="https://mate-desktop.org/">mate-desktop</a> en
+<a href="https://www.openbsd.org/">OpenBSD</a> el cual está basado en
+<a href="https://gtk.org/">GTK</a>.</p>
+<p>Para poder cambiar las fuentes utilizadas por programas que utilicen la
+librería <a href="https://www.qt.io/">Qt</a>:</p>
+<ol>
+<li>
+<p>Instalar el paquete <code>qt5ct</code>:</p>
+<pre><code>$ doas pkg_add qt5ct
+</code></pre>
+</li>
+<li>
+<p>Agregar la variable de entorno <code>QT_QPA_PLATFORMTHEME=qt5ct</code> al comienzo de
+<code>~/.xsession</code> como indica la descripción del paquete:</p>
+<pre><code>$ pkg_info -d qt5ct
+...
+Set QT_QPA_PLATFORMTHEME=qt5ct in the environment to use it.
+...
+</code></pre>
+</li>
+<li>
+<p>Configurar las fuentes ejecutando <code>qt5ct</code> (pestaña <em>Fonts</em>).</p>
+</li>
+</ol>
+<p>Referencias:</p>
+<ul>
+<li><a href="https://wiki.archlinux.org/title/Qt#Configuration_of_Qt_5_applications_under_environments_other_than_KDE_Plasma">Configuration of Qt 5 applications under environments other than KDE Plasma</a></li>
+</ul>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

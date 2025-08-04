@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Configurando NOOBS para raspberry pi 3B | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Configurando NOOBS para raspberry pi 3B</h1>
+        <h2 class="date">2020-03-12</h2>
+      </div>
+<h2>Contexto</h2>
+<p>Hoy me hice un tiempo para desempolvar la <a href="https://www.raspberrypi.org/products/raspberry-pi-3-model-b/">raspberry pi 3B</a> que tenía
+guardada y actualizar el sistema a <a href="https://www.debian.org/">debian</a> estable (buster) con
+<a href="https://mate-desktop.org/">mate</a> para que mi hijo empiece a aprender a usar la computadora.</p>
+<p>Si bien <a href="https://www.raspberrypi.org/downloads/noobs/">NOOBS</a> permite descargar imagenes por red, al parecer
+tuvo problemas para utilizar la red wifi de casa, por lo que quise aprovechar la
+oportunidad para actualizar la sdcard ([ya había instalado algún otro sistema
+previamente][!A! post webos]) y la imagen que trae por defecto.</p>
+<p><strong>Advertencia: Leer lo siguiente dos veces, la primera para entender que se hizo
+y la segunda para hacerlo efectivamente</strong>.</p>
+<h2>Obteniendo NOOBS</h2>
+<p>Lo primero a destacar es que al parecer <a href="https://www.raspberrypi.org/downloads/noobs/">NOOBS</a> ya está
+quedando algo viejo...  De la <a href="https://web.archive.org/web/20200312011309/https://www.raspberrypi.org/downloads/">página de descargas</a> del sitio de
+raspberry se indica que la forma <em>preferida</em> ahora es utilizando <a href="https://web.archive.org/web/20200312011309/https://www.raspberrypi.org/downloads/">Raspberry Pi
+Imager</a>.</p>
+<p>Debido a que no me gusta instalar cosas en mi PC (aunque a raspberry.org le
+podemos tener algo de confianza) y que me gusta <a href="https://en.wiktionary.org/wiki/yak_shaving">afeitar yaks</a>
+vamos por el camino de NOOBS.</p>
+<p>Lo primero es descargar la <em>versión lite</em>, que está pesando alrededor de los
+<em>38MB</em>, en lugar de la versión común que está en los <em>2.3GB</em>.  Por supuesto que
+esta última ya trae <a href="https://www.raspberrypi.org/downloads/raspbian/">Raspbian</a> y <a href="https://libreelec.tv/">LibreELEC</a>, de ahí que se
+explique el peso del archivo.  Ya que nosotros queremos tener la libertad de
+agregar otra imagen confirmamos que la versión lite es la adecuada.</p>
+<p>Empezamos por crear el directorio de trabajo, ir a este y empezar a descargar:</p>
+<pre><code>$ mkdir -p ~/workspace/raspberry
+$ cd ~/workspace/raspberry
+$ wget --content-disposition 'https://downloads.raspberrypi.org/NOOBS_lite_latest'
+</code></pre>
+<p>Y bueno... hasta ahí se llega con la ayuda dada en la página web.  Pero ya que
+somos persistentes vamos a buscar un poco más de documentación.  Lo bueno del
+software libre es que siempre podemos ir... al código :)</p>
+<p>De ahí que en la sección <em>Setup</em> del archivo <a href="https://github.com/raspberrypi/noobs/blob/master/README.md">README</a> encontramos
+un poco más de detalles respecto a que hacer.  Resumiendo los pasos a seguir
+son:</p>
+<ol>
+<li>
+<p>Formatear la sdcard como FAT32 con una partición llamada <code>RECOVERY</code>:</p>
+<ul>
+<li>
+<p>Obtener dispositivo en que se encuentra la sdcard:</p>
+<pre><code>$ lsblk -d
+NAME  MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
+...
+sdb     8:16   1  29.3G  0 disk
+</code></pre>
+<p>Como es esperable (ya que tengo solo un disco duro en la laptop y ningún
+otro dispositivo de almacenamiento usb) la partición de la sdcard es
+<code>/dev/sdb</code></p>
+</li>
+<li>
+<p>Formatear la sdcard con una sola partición FAT32 de nombre <code>RECOVERY</code>.
+Para ello se utilizará el programa <code>parted</code>:</p>
+<pre><code>$ sudo parted /dev/sdb mktable msdos
+$ sudo parted /dev/sdb mkpart primary fat32 0% 100%
+$ sudo mkfs.vfat -n RECOVERY /dev/sdb1
+</code></pre>
+</li>
+</ul>
+</li>
+<li>
+<p>Extraer los archivos de NOOBS a la partición anterior:</p>
+<ul>
+<li>
+<p>Montar la partición creada:</p>
+<pre><code>$ mkdir ~/workspace/raspberry/RECOVERY
+$ sudo mount -o umask=000 /dev/sdb1 ~/workspace/raspberry/RECOVERY
+</code></pre>
+</li>
+<li>
+<p>Extraer los archivos</p>
+<pre><code>$ unzip -d ~/workspace/raspberry/RECOVERY/ NOOBS_lite_v3_3.zip
+</code></pre>
+</li>
+</ul>
+</li>
+</ol>
+<p>Realizamos los pasos anteriores ya que al final de la sección <em>Setup</em> se indica
+que <em>en el primer boot, la partición fat RECOVERY será redimensionada a un
+mínimo</em>, por lo que podemos crear una sola partición en la tarjeta sdcard que la
+ocupe completamente sin preocuparnos de conocer previamente el tamaño que
+utilizará la imagen que deseamos precargar.</p>
+<p>Lo que nos falta: precargar las imagenes en la sdcard.</p>
+<h2>Obteniendo imagen(es)</h2>
+<p>Y bueno..., ahora empieza lo divertido.</p>
+<p>De las imagenes que aparecen disponibles en el <a href="https://www.raspberrypi.org/downloads/raspbian/">sitio de raspberry</a>,
+nos interesa <em>Raspbian Buster Lite - Minimal image based on Debian Buster</em>, ya
+que se desea una imagen mínima para luego poder customizar instalandole
+<a href="https://mate-desktop.org/">mate</a>.</p>
+<p>La documentación de NOOBS que indica como agregar una imagen se encuentra en la
+sección <em>How to create a custom OS version</em>, nuevamente en el archivo
+<a href="https://github.com/raspberrypi/noobs/blob/master/README.md">README</a> en github.</p>
+<p>Allí más que dar detalles de como crear una imagen el enfoque es <em>descargar una
+imagen e ir modificandola</em>.  Desconforme con las instrucciones, ya que no deseo
+generar una imagen sinó utilizar alguna de las ya disponibles para descargar si
+se utilizara NOOBS mediante la red, opto por buscar en el código fuente desde
+donde se descarga la información utilizada al momento de presentar las imagenes
+disponibles:</p>
+<pre><code>$ git clone --depth=1 git@github.com:raspberrypi/noobs.git
+$ grep -r http noobs/recovery/ noobs/sdcontent/
+...
+noobs/recovery/config.h:#define DEFAULT_REPO_SERVER &quot;http://downloads.raspberrypi.org/os_list_v3.json&quot;
+...
+</code></pre>
+<p>En los pasos anteriores se buscaron url's en el código ya que supuse (por suerte
+correctamente) que la lista debía obtenerse de un servidor.</p>
+<p>Descargando el archivo anterior y luego de inspeccionar su contenido pasamos a
+utilizando el comando <a href="https://stedolan.github.io/jq/">jq</a> para acceder a la información que contiene de
+forma ordenada, con la idea de realizar un script para descargar la información:</p>
+<pre><code>$ wget -P /tmp/ &quot;http://downloads.raspberrypi.org/os_list_v3.json&quot;
+$ jq '.os_list[].os_name' /tmp/os_list_v3.json | grep -i raspbian
+&quot;Raspbian Full&quot;
+&quot;Raspbian Lite&quot;
+&quot;Raspbian&quot;
+</code></pre>
+<p>Como se esperaba, está disponible la imagen <em>Raspbian Lite</em> para descargar, por
+lo que ahora pasamos a descargarla en el directorio <em>os</em> de noobs.</p>
+<p>Para obtener los distintos archivos a descargar se creará un script al que le
+pasaremos por parámetro la imagen a descargar.  Para crearlo comencemos primero
+probando unos fragmentos de código:</p>
+<ul>
+<li>
+<p>Descarga del archivo (por supuesto con wget):</p>
+<pre><code>DEFAULT_REPO_SERVER=&quot;http://downloads.raspberrypi.org/os_list_v3.json&quot;
+wget -O os_list.json &quot;$DEFAULT_REPO_SERVER&quot;
+</code></pre>
+</li>
+<li>
+<p>Listar las versiones disponibles:</p>
+<pre><code>jq '.os_list[].os_name' os_list.json | LC_ALL=C sort
+</code></pre>
+</li>
+<li>
+<p>Determinar si está disponible la imagen buscada.  La variable <code>OS_NAME</code>
+contiene el nombre de la imagen:</p>
+<pre><code>FILTER='.os_list[] | select(.os_name == &quot;'&quot;$OS_NAME&quot;'&quot;)'
+set +e
+jq -e &quot;$FILTER&quot; os_list.json &gt; /dev/null
+status=$?
+set -e
+</code></pre>
+<p>En el fragmento anterior, un valor de <code>status</code> en <code>0</code> indica que se encontró
+el nombre.  Por otro lado, un valor de <code>4</code> indica que este no fué
+encontrado.</p>
+</li>
+<li>
+<p>Escapar el nombre de la imagen (reemplazando espacios) para crear
+directorio:</p>
+<pre><code>OS_DIR=&quot;$(echo &quot;$OS_NAME&quot; | tr ' ' _)&quot;
+</code></pre>
+<p><strong>Advertencia: si el directorio de una imagen (<em>custom OS version</em>) tiene
+espacios ocurrirá un error al momento de descomprimir la imagen en NOOBS</strong>.</p>
+</li>
+<li>
+<p>Por último, para obtener un campo cualquiera del diccionario correspondiente
+a la imagen definimos una función:</p>
+<pre><code>value() {
+    jq -r &quot;$FILTER | .$1&quot; os_list.json
+}
+</code></pre>
+<p>Como ejemplo de uso, para obtener la descripción de la imagen se utiliza:</p>
+<pre><code>value description
+</code></pre>
+</li>
+</ul>
+<p>Ahora que es posible manipular sin problemas la información del archivo json con
+la información de las imagenes disponibles se debe saber que archivos descargar.</p>
+<p>Para ello se utilizará la información contenida en la sección <em>How to create a
+custom OS version</em> del <a href="https://github.com/raspberrypi/noobs/blob/master/README.md">README</a> de NOOBS y la lista de archivos de
+que se encuentran actualmente en la sdcard:</p>
+<p><strong>Aquí es donde cobra relevancia el aviso de leer primero y hacer la segunda
+vez</strong></p>
+<pre><code>$ sudo mkdir /media/jmpc/RECOVERY
+$ sudo mount /dev/sdb1 /media/jmpc/RECOVERY
+$ find /media/jmpc/RECOVERY/os -printf '%P\n' | LC_ALL=C sort
+
+Raspbian
+Raspbian/Raspbian.png
+Raspbian/boot.tar.xz
+Raspbian/os.json
+Raspbian/partition_setup.sh
+Raspbian/partitions.json
+Raspbian/release_notes.txt
+Raspbian/root.tar.xz
+Raspbian/slides_vga
+Raspbian/slides_vga/A.png
+Raspbian/slides_vga/B.png
+Raspbian/slides_vga/C.png
+Raspbian/slides_vga/D.png
+Raspbian/slides_vga/E.png
+Raspbian/slides_vga/F.png
+Raspbian/slides_vga/G.png
+$ sudo umount /dev/sdb1
+</code></pre>
+<p>Los archivos a descargar se encuentran en las siguientes entradas del json:</p>
+<ul>
+<li>icon (Raspbian.png)</li>
+<li>marketing_info (tar que contiene el directorio <code>slides_vga</code>)</li>
+<li>os_info (os.json)</li>
+<li>partitions_info (partitions.json)</li>
+<li>partition_setup (partition_setup.sh)</li>
+<li>tarballs (boot.tar.xz y root.tar.xz; podría haber más)</li>
+</ul>
+<p>Con toda la información anterior se crea el script <a href="./get-os.sh">get-os.sh</a>
+que nos ayudará a realizar la descarga de archivos.</p>
+<p>Suponiendo que el script fué descargado en el directorio <code>~/workspace/raspberry</code>
+hacer:</p>
+<pre><code>$ cd ~/workspace/raspberry/RECOVERY/os
+$ ~/workspace/raspberry/get-os.sh 'Raspbian Lite'
+</code></pre>
+<p>Por último desmontamos la sdcard:</p>
+<pre><code>$ cd ~/workspace/raspberry/
+$ sync
+$ sync
+$ sudo umount ~/workspace/raspberry/RECOVERY
+</code></pre>
+<p>Utilizando la sdcard en una raspberry pi 3 vemos que la instalación de NOOBS y
+el agregado del <em>custom OS</em> funciona sin problemas:</p>
+<ul>
+<li>
+<p>Iniciando NOOBS
+<img src="./01-settings-partition.jpg" alt="settings partition" /></p>
+</li>
+<li>
+<p>Montando la partición <code>RECOVERY</code>
+<img src="./02-mounting-fat.jpg" alt="mounting fat partition" /></p>
+</li>
+<li>
+<p>Haciendo resize de la partición <code>RECOVERY</code>
+<img src="./03-resizing-fat.jpg" alt="resizing fat partition" /></p>
+</li>
+<li>
+<p>Selección de los sistemas operativos disponibles en la sdcard
+<img src="./04-select-os.jpg" alt="select custom os" /></p>
+</li>
+<li>
+<p>Instalación exitosa!
+<img src="./05-success.jpg" alt="success install" /></p>
+</li>
+</ul>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

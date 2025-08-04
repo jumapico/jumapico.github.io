@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Conectandose a un certificado autofirmado en debian | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Conectandose a un certificado autofirmado en debian</h1>
+        <h2 class="date">2019-08-06</h2>
+      </div>
+<p><strong>TL;DR</strong>: Descargar el certificado en <code>/usr/local/share/ca-certificates/</code> y
+ejecutar <code>update-ca-certificates</code>.</p>
+<h2>Descripción del problema</h2>
+<p>Se intenta la conexión a un servidor web utilizando <a href="https://en.wikipedia.org/wiki/HTTPS">https</a> el cual
+posee un <a href="https://en.wikipedia.org/wiki/Self-signed_certificate">certificado auto firmado</a> (<em>self signed
+certificate</em>).</p>
+<p>Al intentar la conexión suelen obtenerse mensajes similares a los siguientes:</p>
+<ul>
+<li>
+<p><code>wget</code>:</p>
+<pre><code>--2019-08-06 16:02:30--  https://my-hostname:8443/
+Resolving my-hostname (my-hostname)... 127.0.1.1
+Connecting to my-hostname (my-hostname)|127.0.1.1|:8443... connected.
+ERROR: The certificate of ‘my-hostname’ is not trusted.
+ERROR: The certificate of ‘my-hostname’ doesn't have a known issuer.
+</code></pre>
+</li>
+<li>
+<p><code>curl</code>:</p>
+<pre><code>curl: (60) SSL certificate problem: self signed certificate
+More details here: https://curl.haxx.se/docs/sslcerts.html
+
+curl failed to verify the legitimacy of the server and therefore could not
+establish a secure connection to it. To learn more about this situation and
+how to fix it, please visit the web page mentioned above.
+</code></pre>
+</li>
+<li>
+<p><code>java</code>:</p>
+<pre><code>javax.net.ssl.SSLHandshakeException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
+</code></pre>
+</li>
+</ul>
+<h2>Objetivos</h2>
+<p>Interesa encontrar la forma de aceptar el certificado auto firmado a nivel del
+sistema operativo, sin tener que estar modificando las invocaciones al utilizar
+<code>wget</code> (<code>--no-check-certificate</code>), <code>curl</code> (<code>--insecure</code>) o <code>java</code> (por ejemplo
+<a href="https://stackoverflow.com/questions/9619030/resolving-javax-net-ssl-sslhandshakeexception-sun-security-validator-validatore">stackoverflow</a>).</p>
+<h2>Setup de servidor con certificado auto firmado</h2>
+<p>Para replicar los mensajes anteriores se creará un certificado autofirmado para
+el <a href="https://en.wikipedia.org/wiki/Hostname">hostname</a> del equipo (<a href="./generate-cert.sh">generate-cert.sh</a>).
+Este será utilizado con un servidor https (<a href="./web-server.py">web-server.py</a>)
+cuyo hostname será el del equipo y como puerto se utilizará el <em>8443</em> ya que no
+precisan permisos de <em>root</em>.
+Por último, se realizarán pruebas (<a href="./try-connect.sh">try-connect.sh</a>)
+utilizando <code>wget</code>, <code>curl</code> y una clase <code>java</code> que realice una conexión https
+(<a href="./HttpsClient.java">HttpsClient.java</a>).</p>
+<h3>Certificado autofirmado</h3>
+<p>Para la creación del certificado se utilizará el comando <code>openssl</code>:</p>
+<pre><code>openssl req \
+    -new -x509 \
+    -keyout &quot;$outfile&quot; -out &quot;$outfile&quot; \
+    -subj &quot;/C=${country}/ST=${state}/L=${locality}/O=${organization}/OU=${organizationalunit}/CN=${commonname}/emailAddress=${email}&quot; \
+    -days 365 \
+    -nodes
+</code></pre>
+<p>En el script <a href="./generate-cert.sh">generate-cert.sh</a> se establecen los valores
+de las variables utilizadas anteriormente.  Notar que el <em>commonname</em> es el
+<em>hostname</em> del equipo.</p>
+<h3>Servidor https</h3>
+<p>El certificado anterior se utilizará con un servidor https escrito en <code>python</code>.
+Se utiliza <code>python</code> ya que es sencillo crear un servidor y no se necesita
+instalar o configurar ningún programa extra.
+El servidor https se encuentra en el script <a href="./web-server.py">web-server.py</a>
+y utiliza <a href="https://docs.python.org/3/library/http.server.html#http.server.SimpleHTTPRequestHandler">SimpleHTTPRequestHandler</a> para servir
+los archivos del directorio en que es ejecutado:</p>
+<pre><code>httpd = HTTPServer((socket.gethostname(), 8443), SimpleHTTPRequestHandler)
+httpd.socket = ssl.wrap_socket(httpd.socket, certfile='/tmp/cert-and-key.pem', server_side=True)
+httpd.serve_forever()
+</code></pre>
+<p>El servidor anterior escucha en el puerto de usuario <em>8443</em>.</p>
+<h3>Conexión al servidor.</h3>
+<p>El script <a href="./try-connect.sh">try-connect.sh</a> se utiliza para realizar las
+pruebas de conexión al servidor web con certificado autosignado establecido en
+los apartados anteriores:</p>
+<pre><code>...
+wget &quot;$URL&quot;
+curl &quot;$URL&quot;
+...
+java HttpsClient &quot;$URL&quot;
+...
+</code></pre>
+<p><em>Nota</em>: Se debe descargar el archivo <a href="./HttpsClient.java">HttpsClient.java</a>
+si se quiere probar de realizar una conexión https desde <code>java</code>.</p>
+<h2>Solución en debian</h2>
+<p>La solución consta de dos partes:</p>
+<ol>
+<li>Conseguir el certificado autofirmado (<a href="./generate-cert.sh">obtain-cert.sh</a>)</li>
+<li>Agregar el certificado como válido en el sistema.</li>
+</ol>
+<h3>Conseguir el certificado autofirmado</h3>
+<p>Primeramente se debe obtener el certificado autofirmado del servidor.
+Como ejemplo, varias formas de obtener el certificado se encuentran listadas en
+<a href="https://www.shellhacks.com/get-ssl-certificate-from-server-site-url-export-download/">shellhacks</a>.
+En este caso se utilizará, mediante el script [obtain-cert.sh][file
+obtain-cert.sh] el comando <code>openssl</code> cuya explicación se encuentra en
+<a href="https://serverfault.com/questions/139728/how-to-download-the-ssl-certificate-from-a-website">stackoverflow</a>:</p>
+<pre><code>echo -n \
+    | openssl s_client -connect ${HOSTNAME}:8443 \
+    | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' &gt; /tmp/$HOSTNAME.crt
+</code></pre>
+<p><em>Nota</em>: de la información devuelta por el comando <code>s_client</code> nos interesa solo
+el certificado.</p>
+<h3>Agregar el certificado como válido al sistema</h3>
+<p>En debian, el paquete <a href="https://packages.debian.org/testing/ca-certificates">ca-certificates</a> es el que
+permite a las aplicaciones verificar la autenticación de las conexiones SSL
+(TLS).
+En el archivo <a href="https://sources.debian.org/src/ca-certificates/20190110/debian/README.Debian/">README.Debian</a> se indica:</p>
+<blockquote>
+<p>If you want to install local certificate authorities to be implicitly
+trusted, please put the certificate files as single files ending with
+&quot;.crt&quot; into /usr/local/share/ca-certificates/ and re-run
+'update-ca-certificates'.</p>
+</blockquote>
+<p>Por lo que alcanza copiar el archivo previamente obtenido en el directorio
+<code>/usr/local/share/ca-certificates/</code> y ejecutar <a href="https://manpages.debian.org/testing/ca-certificates/update-ca-certificates.8.en.html">update-ca-certificates</a>:</p>
+<pre><code>$ sudo install --mode 644 --owner=root --group=root \
+    /tmp/$(hostname).crt /usr/local/share/ca-certificates/
+$ sudo update-ca-certificates
+...
+Importing into legacy system store:
+I already trust 128, your new list has 129
+Certificate added: C=uy, S=Montevideo, L=Montevideo, O=My Home, OU=My Room, CN=my-hostname, E=&quot;My Email &lt;my.email@my-hostname&gt;&quot;
+1 new root certificates were added to your trust store.
+Import process completed.
+
+Importing into BTLS system store:
+I already trust 128, your new list has 129
+Certificate added: C=uy, S=Montevideo, L=Montevideo, O=My Home, OU=My Room, CN=my-hostname, E=&quot;My Email &lt;my.email@my-hostname&gt;&quot;
+1 new root certificates were added to your trust store.
+Import process completed.
+...
+</code></pre>
+<h3>Confirmación de la solución</h3>
+<p>Para confirmar que lo anterior solucionó el problema hay que volver a ejecutar
+el script <a href="./try-connect.sh">try-connect.sh</a>:</p>
+<pre><code>$ ./try-connect.sh
++ wget https://my-hostname:8443
+--2019-08-06 18:06:44--  https://my-hostname:8443/
+Resolving my-hostname (my-hostname)... 127.0.1.1
+Connecting to my-hostname (my-hostname)|127.0.1.1|:8443... connected.
+HTTP request sent, awaiting response... 200 OK
+...
++ curl https://my-hostname:8443
+&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.01//EN&quot; &quot;http://www.w3.org/TR/html4/strict.dtd&quot;&gt;
+&lt;html&gt;
+...
++ java HttpsClient https://my-hostname:8443
+&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.01//EN&quot; &quot;http://www.w3.org/TR/html4/strict.dtd&quot;&gt;
+&lt;html&gt;
+...
+</code></pre>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

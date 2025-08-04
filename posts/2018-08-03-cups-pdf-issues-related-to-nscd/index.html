@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Issues en cups-pdf relacionados con nscd | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Issues en cups-pdf relacionados con nscd</h1>
+        <h2 class="date">2018-08-03</h2>
+      </div>
+<h2>Descripción del problema</h2>
+<p>En <strong>Ubuntu 14.04</strong> se encontraron problemas al imprimir a la <strong>Impresora PDF</strong>
+(<em>PDF Writer</em>, provista por el paquete <code>cups-pdf</code>).</p>
+<p>El problema es que <em>de un momento a otro</em> dejan de generarse los PDF's en la
+carpeta <code>$HOME/PDF</code> sin ningún mensaje de error.</p>
+<p>Se puede imprimir en otras impresoras (en papel) sin problemas.</p>
+<blockquote>
+<p>Esto ocurre en un sistema con autenticación por LDAP y utilizando nscd</p>
+</blockquote>
+<blockquote>
+<p>Para que los PDF's se almacenen en <code>$HOME/PDF</code> en lugar de su ubicación por
+defecto, <code>/var/spool/cups-pdf/${USER}</code>, se configura <code>cups-pdf</code>
+agregando en el archivo <code>/etc/cups/cups-pdf.conf</code> la linea <code>Out ${HOME}/PDF</code></p>
+</blockquote>
+<h2>Diagnóstico</h2>
+<p>Se envía una página de prueba utilizando la interfaz web,
+<a href="http://127.0.0.1:631">http://127.0.0.1:631</a>.</p>
+<p>Se revisan los logs de <strong>CUPS</strong> disponibles en <code>/var/log/cups</code> y documentados en
+la página del manual de
+<a href="http://manpages.ubuntu.com/manpages/trusty/en/man5/cupsd-logs.5.html">cupsd</a>:</p>
+<ul>
+<li>
+<p><code>/var/log/cups/access_log</code>:</p>
+<pre><code>localhost - - [01/Aug/2018:11:29:15 -0300] &quot;POST / HTTP/1.1&quot; 200 152 Cancel-Subscription successful-ok
+localhost - - [01/Aug/2018:11:29:23 -0300] &quot;POST / HTTP/1.1&quot; 200 257 Create-Printer-Subscriptions successful-ok
+localhost - - [01/Aug/2018:11:29:29 -0300] &quot;POST /printers/PDF HTTP/1.1&quot; 200 409 Print-Job successful-ok
+</code></pre>
+<p>Lo anterior corresponde al envío de la impresión de prueba a la <strong>Impresora
+PDF</strong>, con estado <code>successful</code>.</p>
+</li>
+<li>
+<p><code>/var/log/cups/error_log</code>: sin cambios.</p>
+</li>
+<li>
+<p><code>/var/log/cups/page_log</code>:</p>
+<pre><code>PDF joe 437 [01/Aug/2018:11:29:30 -0300] 1 1 - localhost Test Page - -
+</code></pre>
+<p>El log indica que fué impresa la página <strong>Test Page</strong> enviada por el usuario
+<strong>joe</strong>.</p>
+</li>
+</ul>
+<p>La pista del diagnóstico viene del archivo <code>/var/log/cups/cups-pdf_log</code>,
+generado por <code>cups-pdf</code>:</p>
+<pre><code>Wed Aug  1 11:29:30 2018  [STATUS] ***Experimental Option: DecodeHexStrings
+Wed Aug  1 11:29:30 2018  [STATUS] PDF creation successfully finished (nobody)
+</code></pre>
+<p>Aquí el texto <strong>nobody</strong> hace referecia al nombre de usuario dado a <strong>CUPS-PDF</strong>
+que debería ser el mismo que envió la página, <strong>joe</strong>.</p>
+<p>Leyendo las opciones en <code>/etc/cups/cups-pdf.conf</code>, <strong>nobody</strong> corresponde al
+valor por defecto de la opción <strong>AnonUser</strong>:</p>
+<pre><code>### Key: AnonUser
+##  uid for anonymous PDF creation (this might be a security issue)
+##  this setting has no influence on AnonDirName (see there)
+##  set this to an empty value to disable anonymous
+### Default: nobody
+</code></pre>
+<p>Esto es, por algún motivo no se <em>pasó</em> correctamente el nombre de usuario al
+backend <code>cups-pdf</code>.</p>
+<p>Para confirmar que el archivo PDF se está generando se puede ver el directorio
+<code>/var/spool/cups-pdf/ANONYMOUS</code>, que es donde se envian (por defecto) los
+PDF's creados anonimamente.</p>
+<p>Para confirmar que el problema está dado por una falla de <code>nscd</code>, se corrobora
+que el demonio está bajo ejecutando <code>service nscd status</code> y se debe obtener
+como salida:</p>
+<pre><code> * Status of Name Service Cache Daemon service:
+ * not running.
+</code></pre>
+<h2>Solución</h2>
+<p>Levantar el demonio <code>nscd</code> utilizando <code>service nscd start</code>.</p>
+<p>Se debe comprobar que el demonio quede ejecutando utilizando nuevamente
+<code>service nscd status</code>.</p>
+<p>Si el demonio no está levantado esto suele deberse a que los archivos utilizados
+por <code>nscd</code> (el caché) están corruptos.</p>
+<p>Para solucionar lo anterior borrar los archivos del caché de <code>nscd</code>, levantar
+el demonio y comprobar que ahora si está funcionando:</p>
+<pre><code>$ sudo rm -fr /var/cache/nscd/*
+$ sudo service nscd start
+$ sudo service nscd status
+</code></pre>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Configurar mirror local de maven | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Configurar mirror local de maven</h1>
+        <h2 class="date">2021-10-04</h2>
+      </div>
+<p>Para configurar un mirror local se utilizará <a href="https://www.sonatype.com/products/repository-oss">nexus repository oss</a>, más
+específicamente la imagen de contenedores que se encuentra en <a href="https://hub.docker.com/">dockerhub</a>:
+<a href="https://hub.docker.com/r/sonatype/nexus3/">https://hub.docker.com/r/sonatype/nexus3/</a>.</p>
+<p>Para ejecutar la imagen se realizarán los siguientes pasos:</p>
+<ol>
+<li>
+<p>Agregar entrada en <code>/etc/hosts</code> para agregar nombre de host a usar y
+asociarla a la IP del equipo (no localhost):</p>
+<ul>
+<li>
+<p>Obtener ip físico del equipo:</p>
+<pre><code>$ ip -o -4 a | grep -o -P '\sinet\s\K[^/]*' | grep -v 127.0.0.1
+192.168.1.106
+</code></pre>
+<p>En este caso se obtuvo solo una IP.  En caso de que se obtenga más de
+una hay que elegir cual utilizar.</p>
+</li>
+<li>
+<p>Agregar la ip a <code>/etc/hosts</code>:</p>
+<pre><code>$ grep -q mvn-mirror.example.com /etc/hosts \
+    || echo '192.168.1.106 mvn-mirror.example.com' | sudo tee -a /etc/hosts
+</code></pre>
+</li>
+</ul>
+</li>
+<li>
+<p>Ejecutar la imagen de contenedores <code>sonatype/nexus3</code> de dockerhub.  Ya que es
+deseable que se mantenga el caché de artefactos entre ejecuciones en lugar
+de tener que descargar los artefactos cada vez es que se ejecutará la imagen
+utilizando un volumen creado previamente como se indica en la <a href="https://hub.docker.com/r/sonatype/nexus3/">página de la
+imagen</a>:</p>
+<pre><code>$ podman volume create nexus-data
+$ podman run -d -p 192.168.1.106:8081:8081 -v nexus-data:/nexus-data \
+    --name nexus docker.io/sonatype/nexus3:3.34.1
+</code></pre>
+<p><em>Nota</em>: tomar en cuenta que según la documentación de la imagen, el
+contenedor demora unos dos~tres minutos en estar listo y lo mismo al detener
+la imagen.</p>
+</li>
+<li>
+<p>Obtener las credenciales de la imagen creada.  De la documentación se tiene
+que el usuario es <code>admin</code> y el password se obtiene de la imagen:</p>
+<pre><code>$ podman exec nexus cat /nexus-data/admin.password
+4b0efdbf-d4c4-4b45-a479-8cadf0b06690
+</code></pre>
+</li>
+<li>
+<p>Realizar el setup de la aplicación.  Para ello hay que loguearse abriendo la
+página de nexus: <a href="http://mvn-mirror.example.com:8081">http://mvn-mirror.example.com:8081</a>.</p>
+<p>Se elige como nueva password <code>password</code> y se habilitan los accesos anonimos.</p>
+</li>
+</ol>
+<p>Por defecto está configurado el repositorio <code>maven-central</code> bajo la url
+<a href="http://mvn-mirror.example.com:8081/repository/maven-central/">http://mvn-mirror.example.com:8081/repository/maven-central/</a> que es un proxy a
+<a href="https://repo1.maven.org/maven2/">https://repo1.maven.org/maven2/</a>.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+
