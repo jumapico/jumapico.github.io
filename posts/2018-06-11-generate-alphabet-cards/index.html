@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Generación de tarjetas alfabéticas | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Generación de tarjetas alfabéticas</h1>
+        <h2 class="date">2018-06-11</h2>
+      </div>
+<p>Los otros días pensé en hacerle a mi hijo de tres años y medio unas tarjetas de
+papel con las letras y números para jugar juntos y ayudarlo con el armado de
+palabras.</p>
+<p>En retrospectiva, mejor haber buscado antes en internet y haber encontrado por
+ejemplo <a href="https://mrprintables.com/printable-alphabets.html">Alphabets &amp; Words</a> de <a href="https://mrprintables.com/">Mr
+Printables</a>.</p>
+<p>Objetivo:
+<img src="./idea.png" alt="Idea de tarjeta" /></p>
+<h2>Software evaluado</h2>
+<p>El objetivo es realizar la tarea de la forma más sencilla posible.</p>
+<p>Ya que son 27 letras (alfabeto español) y 10 números, totalizando 37 hojas con
+seis carácteres cada una, <strong>la idea es hacerlo mediante scripts</strong>.</p>
+<p>Sobre el tipo de archivo a generar, ya que el contenido es solo una fuente, y
+eventualmente un reborde, se prefiere utilizar un <a href="https://en.wikipedia.org/wiki/Vector_graphics">formato vectorial</a> sobre un <a href="https://en.wikipedia.org/wiki/Raster_graphics">formato de mapa de bits</a>.
+Vale la pena mencionar que el estandar para archivos de formato vectorial es
+<a href="https://en.wikipedia.org/wiki/Scalable_Vector_Graphics">svg</a>.</p>
+<p>Los programas evaluados (algunos conocidos, otro encontrados buscando en
+internet) fueron:</p>
+<ul>
+<li>
+<p><a href="https://www.gimp.org/">gimp</a>: mapas de bits, para generar la imagen se debe <a href="https://docs.gimp.org/en/gimp-scripting.html">crear y
+registrar un script</a> (script-fu) o plug-in (generalmente
+<a href="https://www.gimp.org/docs/python/index.html">python-fu</a>). Luego debe llamarse desde la <a href="https://www.gimp.org/tutorials/Basic_Batch/">linea de
+comandos en batch</a></p>
+<p>Se descartó <em>gimp</em> por sentirlo en primera instancia complicado y por
+trabajar con mapas de bits.</p>
+</li>
+<li>
+<p><a href="https://inkscape.org/en/">inkscape</a>: gráficos vectoriales, tiene un scripting muy
+pobre en la forma de <a href="http://wiki.inkscape.org/wiki/index.php/Using_xverbs"><em>(x)verbs</em> por linea de comandos</a> que
+no permiten seleccionar opciones de las herramientas y necesitan de la
+interfaz gráfica para ejecutarse.</p>
+<p>Inicialmente se descartó, pero a raíz de la <a href="https://stackoverflow.com/questions/26572397/how-to-process-20k-svg-files-with-inkscape-cli-mode-align-and-merge-objects">pregunta en stackoverflow
+relativa al uso de inkscape para procesar svg's</a> se terminó utilizando para centrar los carácteres en cada
+tarjeta.</p>
+</li>
+<li>
+<p><a href="https://github.com/mozman/svgwrite">svgwrite</a>: librería python para generar archivos de tipo
+<a href="https://en.wikipedia.org/wiki/Scalable_Vector_Graphics">svg</a>, se utilizó para generar las hojas. El problema
+radica en que <a href="https://stackoverflow.com/questions/5546346/how-to-place-and-center-text-in-an-svg-rectangle">el formato <em>svg</em> no permite centrar un carácter en un
+rectángulo</a>, debiendose calcular
+manualmente.</p>
+<p>Al principio descartada, esta librería fué la que finalmente se utilizó
+luego de encontrar la forma de <strong>ajustar</strong> los carácteres utilizando
+<em>inkscape</em>.</p>
+</li>
+<li>
+<p><a href="https://www.imagemagick.org/">imagemagick</a>: programa que puede utilizarse para
+generar imagenes de mapas de bits y puede llamarse desde el <em>shell</em>.</p>
+<p>Se leyó de forma rápida durante una media hora como generar la letra
+centrada y no se encontró, por lo que se decidió descartarlo.</p>
+</li>
+<li>
+<p><a href="https://python-pillow.org/">pillow</a>: librería para <em>python</em> para generar imágenes de
+mapa de bits.</p>
+<p>Similar a <em>imagemagick</em>, se descartó luego de otra media hora de lectura de
+la documentación y no encontrar como centrar texto de forma sencilla.
+Vale la pena mencionar que no se pueden generar <a href="https://en.wikipedia.org/wiki/Grayscale">imágenes en escalas de
+grises</a>.</p>
+</li>
+</ul>
+<h2>Generación de hojas</h2>
+<p>La creación de las hojas se dividió en las siguientes etapas:</p>
+<ol>
+<li>
+<p>Generar una hoja base utilizando <a href="https://github.com/mozman/svgwrite">svgwrite</a>.</p>
+<p>Ya que el formato devuelto es <em>svg</em>, que es <em>xml</em>, se crea la imagen con
+el texto <strong>PLACEHOLDER</strong> para luego reemplazarlo.</p>
+</li>
+<li>
+<p>Se generan las hojas deseadas reemplazando el texto <strong>PLACEHOLDER</strong> con el
+carácter deseado utilizando <code>sed</code>. Como se mencionó anteriormente esto es
+posible debido a que el formato <em>svg</em> es <em>xml</em>, el cual es texto legible.</p>
+</li>
+<li>
+<p>Se centran los carácteres de cada hoja obtenidas en el paso anterior
+utilizando las funcionalidades de scripting de <em>inkscape</em>.</p>
+</li>
+<li>
+<p>Se convierten los archivos a <em>pdf</em> y se concatenan.</p>
+</li>
+</ol>
+<p>Las etapas siguientes se realizan mediante dos scripts:</p>
+<ul>
+<li>
+<p><code>create-base.py</code>: script en python el cual genera un <em>svg</em> base que consta
+de seis rectángulos que dividen una hoja A4 y seis carácteres iguales que se
+solaparán con los rectángulos anteriores.</p>
+<p>Se agregarán identificadores a cada elemento, para despues poder realizar el
+centrado de elementos utilizando <em>inkscape</em>.</p>
+<p>Sobre las fuentes a utilizar, se pueden descargar de internet y guardar en
+el directorio <code>$HOME/.local/share/fonts</code> o <code>$HOME/.fonts</code> (ruta deprecada),
+como se indica en la documentación de las distintas distribuciones:
+<a href="https://wiki.debian.org/Fonts#Manually">debian</a>,
+<a href="https://docs.fedoraproject.org/quick-docs/en-US/adding-new-fonts-fedora.html#adding-new-local-fonts-manually">fedora</a>
+o
+<a href="https://wiki.archlinux.org/index.php/fonts#Manual_installation">arch</a> por
+ejemplo.</p>
+<p>Para utilizar la librería <em>svgwrite</em> sin necesidad de instalarla a nivel de
+sistema se utiliza <a href="https://docs.python.org/3/library/venv.html">virtualenv</a>:</p>
+<pre><code>$ python3 -m venv ENV
+$ source ENV/bin/activate
+$ pip install svgwrite
+$ ./create-base.py
+</code></pre>
+<p><a href="./create-base.py">En este link se puede descargar el script <code>create-base.py</code>.</a>
+cuyo contenido es el siguiente:</p>
+<pre><code>#!/usr/bin/env python3
+#
+# https://svgwrite.readthedocs.io/en/master/classes/shapes.html#basic-shapes-examples
+#
+import svgwrite
+
+# A4
+WIDTH = 210.0
+HEIGHT = 297.0
+
+SIZE_X = WIDTH / 2.0
+SIZE_Y = HEIGHT / 3.0
+
+positions = (
+    (0, 0),
+    (SIZE_X, 0),
+
+    (0, SIZE_Y),
+    (SIZE_X, SIZE_Y),
+
+    (0, 2*SIZE_Y),
+    (SIZE_X, 2*SIZE_Y),
+)
+
+dwg = svgwrite.Drawing('base.svg', size=(WIDTH, HEIGHT), profile='tiny')
+
+i = 1
+for x, y in positions:
+    dwg.add(
+        dwg.rect(
+            insert=(x, y),
+            size=(SIZE_X, SIZE_Y),
+            id='r%d' % i,
+            fill='white',
+            stroke='black',
+            stroke_width=1
+            )
+        )
+    dwg.add(
+        dwg.text(
+            'PLACEHOLDER',
+            insert=(x, y + SIZE_Y),
+            id='t%d' % i,
+            fill='black',
+            font_size='25mm',
+            font_family='Arialic Hollow',
+            text_align='center'
+        )
+    )
+    i += 1
+
+dwg.save()
+</code></pre>
+<p>Como puede verse es un script muy simple con la mayoría de los parámetros
+hardcodeados (lo cual no está muy bueno).</p>
+<p><strong>Nota</strong>: la fuente <em>Arialic Hollow</em> se descargó del sitio
+<a href="https://www.1001freefonts.com/es/arialic-hollow.font">https://www.1001freefonts.com/es/arialic-hollow.font</a></p>
+</li>
+<li>
+<p><code>align-and-compaginate.sh</code>: shell script que genera una página por carácter
+en base al archivo generado en el paso anterior, lo alinea, convierte a
+<em>pdf</em> y luego compagina todas las hojas en un solo archivo <code>output.pdf</code>.</p>
+<p>Lo más relevante es, como ya se mencionó, el uso de <code>sed</code> para generar el
+carácter y el uso de <em>inkscape</em> para la alineación de elementos.</p>
+<p><a href="./align-and-compaginate.sh">En este link se puede descargar el script <code>align-and-compaginate.sh</code>.</a>
+cuyo contenido es el siguiente:</p>
+<pre><code>#!/bin/bash
+set -e
+
+# generate inkscape command
+cmd=&quot;&quot;
+for i in {1..6}; do
+    cmd=&quot; $cmd --select=r$i --select=t$i&quot;
+    cmd=&quot; $cmd --verb=AlignVerticalCenter&quot;
+    cmd=&quot; $cmd --verb=AlignHorizontalCenter&quot;
+    cmd=&quot; $cmd --verb=EditDeselect&quot;
+done
+cmd=&quot; $cmd --verb=FileSave&quot;
+cmd=&quot; $cmd --verb=FileQuit&quot;
+
+# generate al pages (pdf)
+for character in {A..Z} Ñ {0..9}; do
+    cat base.svg | sed -e 's#&gt;PLACEHOLDER&lt;/text&gt;#&gt;'$character'&lt;/text&gt;#g' &gt; page-$character.svg
+    inkscape -f page-$character.svg $cmd
+    rsvg-convert -f pdf -o page-$character.pdf page-$character.svg
+done
+
+# concatenate
+pdfunite page-*.pdf output.pdf
+</code></pre>
+<p><strong>Nota</strong>: se necesita tener instalado el paquete <em>librsvg2-bin</em> y
+<em>poppler-utils</em> en debian (ni que hablar de inkscape):</p>
+<pre><code>$ sudo apt-get install -qVy librsvg2-bin poppler-utils inkscape
+</code></pre>
+</li>
+</ul>
+<p><a href="./output.pdf">El resultado de ejemplo puede descargarse de este link</a>.</p>
+<h2>Extras</h2>
+<h3>Alternativas</h3>
+<p>En <a href="https://web.archive.org/web/20200401050441/https://2018.pass-the-salt.org/files/talks/rump09-story-behind-our-goodies.pdf">Story behind our goodies by Philippe Teuwen</a>
+(<a href="https://2018.pass-the-salt.org/">Past the SALT 2018</a>) se puede encontrar una alternativa al método
+planteado en este post.  Las diferencias que aprecié:</p>
+<ol>
+<li>En las diapositivas se muestra que tienen una <em>hoja</em> (plantilla con
+placeholders) hecha y a partir de esta reemplazan los textos; yo por otro
+lado intenté hacer la plantilla mediante código, lo que me consumió mucho
+tiempo y no tan pragmático como la solución de Philippe.</li>
+<li>Yo intento compaginar un pdf y Philippe simplemente crea archivos svg.  Otra
+vez mi enfoque es más complicado, ya que si se manda a imprimir varios
+archivos al final es lo mismo que compaginar un pdf: pierdo tiempo y no
+agrega un valor apreciable.</li>
+</ol>
+<h3>Sobre el uso</h3>
+<p>Aprovecho para comentar que las letras fueron un éxito en casa.
+Lo que no recomiendo es imprimir más de un juego de letras, ya que yo imprimí
+cuatro para formar palabras sencillas pero resultó muy incomodo estar buscando
+las letras, además de ser difíciles de manipular debido a que las hojas son muy
+finas.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

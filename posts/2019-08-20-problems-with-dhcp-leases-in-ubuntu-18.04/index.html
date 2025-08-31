@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Problemas con dhcp leases en Ubuntu 18.04 | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Problemas con dhcp leases en Ubuntu 18.04</h1>
+        <h2 class="date">2019-08-20</h2>
+      </div>
+<p><strong>TL;DR: netplan en Ubuntu 18.04 no utiliza por defecto la mac al interactuar
+con el servidor dhcp</strong>.</p>
+<h2>Contexto</h2>
+<p>Varios PC's, los cuales se instalaron a partir de una misma imagen de disco
+basada en <a href="http://releases.ubuntu.com/18.04/">Ubuntu 18.04</a>, presentan problemas con la IP asignada mediante
+<a href="https://en.wikipedia.org/wiki/Dynamic_Host_Configuration_Protocol">dhcp</a>.
+Por como está configurado el <a href="https://manpages.debian.org/stable/isc-dhcp-server/dhcpd.conf.5.en.html">lease time (default-lease-time/max-lease-time)</a>
+en el servidor dhcp, las IP's deberían reservarse por varios días, pero se
+observa que en realidad estas cambian de forma esporádica.</p>
+<h2>Problema</h2>
+<p>A partir de Ubuntu 18.04 se <a href="https://wiki.ubuntu.com/BionicBeaver/ReleaseNotes#Network_configuration">depreca ifupdown en favor de netplan.io</a> para
+realizar la configuración de la red.</p>
+<p>Una configuración típica de la red con netplan se realiza mediante archivos
+<a href="https://en.wikipedia.org/wiki/YAML">yaml</a> en el directorio <code>/etc/netplan/</code>.</p>
+<p>Por ejemplo, en el archivo <code>/etc/netplan/use-dhcp.yaml</code>:</p>
+<pre><code>network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    all-ethernets:
+      match:
+        name: en*
+      dhcp4: true
+</code></pre>
+<p>La configuración anterior indica que se utilizará <a href="https://manpages.ubuntu.com/manpages/bionic/man8/systemd-networkd.8.html">systemd-networkd</a> para
+manejar y configurar las interfaces de red cableadas (prefijo <em>en</em>), y que la IP
+se obtendrá utilizando dhcp.</p>
+<p>El problema radica en que <em>por defecto</em> <code>systemd-networkd</code>, el <em>renderer</em>
+elegido, no utiliza el <a href="https://en.wikipedia.org/wiki/MAC_address">mac address</a> como identificador del PC (como se
+espera), sinó que en su lugar utiliza como tipo de identificador el <a href="https://manpages.ubuntu.com/manpages/bionic/man5/systemd.network.5.html">valor por
+defecto de <code>ClientIdentifier</code> cuyo valor es <code>duid</code></a>.
+El <em>tipo de duid</em> a utilizar se indica en la <a href="https://manpages.ubuntu.com/manpages/bionic/man5/networkd.conf.5.html">configuración de <code>networkd</code></a> y
+corresponde por defecto a <code>vendor</code>, cuyo valor se genera de la siguiente forma:</p>
+<blockquote>
+<p>the DUID value will be generated using &quot;43793&quot; as the vendor identifier
+(systemd) and hashed contents of machine-id.</p>
+</blockquote>
+<p>Dado que los PC's se instalaron a partir de una misma imagen utilizando
+<a href="https://clonezilla.org/">clonezilla</a>, todos poseen el mismo archivo <a href="https://manpages.ubuntu.com/manpages/bionic/man5/machine-id.5.html"><code>/etc/machine-id</code>, el cual
+es establecido durante la instalación</a> y debería contener el <em>unique machine
+ID</em> del sistema local.</p>
+<p>Por lo anterior, se entiende el porqué del comportamiento erratico de los leases
+de dhcp: cada vez que se pide una IP para un PC, se le está enviando al servidor
+el mismo identificador.</p>
+<h2>Solución</h2>
+<p>Según la <a href="https://manpages.ubuntu.com/manpages/bionic/man5/netplan.5.html">página del manual de netplan</a>, alcanza con agregar la opción
+<code>dhcp-identifier: mac</code> para que se le indique a <code>systemd-networkd</code> que utilice
+la mac de la tarjeta de red como id del cliente al solicitarle una IP al
+servidor dhcp con lo que se soluciona el problema.</p>
+<p>El archivo de configuración de netplan pasa a quedar como sigue:</p>
+<pre><code>network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    all-ethernets:
+      match:
+        name: en*
+      dhcp4: true
+      dhcp-identifier: mac
+</code></pre>
+<h2>Observaciones</h2>
+<p>Se <em>siente</em> como una complejidad adicional el agregado de netplan por defecto
+en ubuntu.</p>
+<p>También se puede considerar <em>una mala elección</em> por parte de systemd
+(convengamos que críticas no le faltan a systemd), el uso de un identificador
+que no sea la mac para identificar al PC.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+
