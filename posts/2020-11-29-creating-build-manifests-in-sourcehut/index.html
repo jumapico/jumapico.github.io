@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Creando builds manifests en sourcehut | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Creando builds manifests en sourcehut</h1>
+        <h2 class="date">2020-11-29</h2>
+      </div>
+<h2>Contexto</h2>
+<p>En un post anterior comenté que elegí migrar mis repositorios personales a
+<a href="https://sourcehut.org/">sourcehut</a>.  Ya que todavía no tienen un servicio similar al de <a href="https://pages.github.com/">github pages</a>
+-donde tengo hosteado este blog a la fecha-, decidí mantener el repositorio
+<a href="https://github.com/jumapico/jumapico.github.io/">jumapico.github.io</a> en github, pero realizando los siguientes cambios:</p>
+<ul>
+<li>El repositorio <a href="https://git.sr.ht/~jumapico/jumapico.ws/">jumapico.ws</a> que contiene las fuentes del blog fué migrado a
+<a href="https://sourcehut.org/">sourcehut</a>.</li>
+<li>Se pasó del uso de <a href="https://travis-ci.org/">Travis CI</a> a utilizar el mecanismo brindado por
+<a href="https://sourcehut.org/">sourcehut</a>: <a href="https://builds.sr.ht/">builds.sr.ht</a></li>
+</ul>
+<p>A pesar de la sencillez de la página principal, esta brinda toda la información
+necesaria:</p>
+<blockquote>
+<p>Welcome to builds.sr.ht! This provides continuous integration services for
+sourcehut, the hacker's forge. Features of this service include:</p>
+<p>Runs fully virtualised builds on various Linux distros and BSDs
+Run anonymous jobs that aren't tied to a repository
+Post-build triggers for email, webhooks, etc
+Powerful API for complex build scenarios</p>
+</blockquote>
+<p>Si se está logueado al servicio se obtiene simplemente un link a la
+documentación:</p>
+<blockquote>
+<p>Welcome back, jumapico! This is the sourcehut build service. Documentation
+for its use is <a href="https://man.sr.ht/builds.sr.ht/">available here</a>.</p>
+</blockquote>
+<p>A continuación se describirá cual fué el proceso que utilicé para utilizar
+<a href="https://builds.sr.ht/">builds.sr.ht</a> en reemplazo de <a href="https://travis-ci.org/">Travis CI</a> para la generación del blog.</p>
+<h2>Explorando builds.sr.ht</h2>
+<p>Lo primero a tener en cuenta es que builds.sr.ht tiene varias formas de
+generar trabajos descriptas en <a href="https://man.sr.ht/builds.sr.ht/">la documentación</a>.
+A nosotros nos interesarán dos:</p>
+<ol>
+<li>La integración con <a href="https://git.sr.ht/">git.sr.ht</a> mediante la existencia de un archivo
+<code>.build.yml</code> en la base del repositorio.</li>
+<li>Via web, mediante la url <a href="https://builds.sr.ht/submit">https://builds.sr.ht/submit</a>.</li>
+</ol>
+<p>El primer caso será utilizado para generar el sitio y contiene la configuración
+a la que deseamos llegar.</p>
+<p>El segundo caso será utilizado para ir <em>explorando</em> como elegir las opciones
+disponibles en el archivo <code>.build.yml</code> descriptas en el
+<a href="https://man.sr.ht/builds.sr.ht/manifest.md">Build manifest reference</a>.</p>
+<p>Se comienza eligiendo una de las <a href="https://man.sr.ht/builds.sr.ht/compatibility.md">imágenes disponibles</a>.  Ya que personalmente utilizo <a href="https://www.debian.org/">debian</a> voy a elegir esa
+distribución.  La versión será <em>buster</em>, que al día de hoy es la rama estable,
+y como architectura <em>amd64</em> (la única al día de hoy y la que está marcada como
+estable, pero ya que <em>explicito es mejor que implicito</em>...).  De esa forma la
+elección de la imagen queda como:</p>
+<pre><code>image: debian/buster
+arch: amd64
+</code></pre>
+<p>Ya que se desean realizar pruebas en la máquina virtual provista por
+builds.sr.ht se habilitará el acceso mediante ssh estableciendo la opción
+<code>shell</code> a <code>true</code></p>
+<pre><code>shell: true
+</code></pre>
+<p>Como repositorio a clonar dentro de la máquina virtual se elige el del blog
+utilizando git sobre http:</p>
+<pre><code>sources:
+  - https://git.sr.ht/~jumapico/jumapico.ws
+</code></pre>
+<p>Hay que tener en cuenta que en caso de ser un repositorio privado o utilizar git
+como transporte se require <a href="https://man.sr.ht/builds.sr.ht/private-repos.md">configurar una clave ssh</a>.</p>
+<p>Por último como tarea a realizar utilizaremos simplemente una llamada a
+<code>sleep 60</code>, que nos dará un minuto de tiempo luego de comenzada la tarea para
+conectarnos por ssh.  Si la tarea termina muy rápido (por ejemplo, si imprimimos
+un <code>echo</code>) cuando intentemos conectarnos a la máquina virtual esta ya habrá sido
+terminada ya que la tarea terminó:</p>
+<pre><code>tasks:
+- wait-for-ssh: |
+    sleep 60
+</code></pre>
+<p>El archivo final, <a href="./build-tests.yml">build-tests.yml</a>, queda como:</p>
+<pre><code>image: debian/buster
+arch: amd64
+shell: true
+sources:
+  - https://git.sr.ht/~jumapico/jumapico.ws
+tasks:
+- wait-for-ssh: |
+    sleep 60
+</code></pre>
+<p>Para generar un trabajo (<code>job</code>) vamos a la url <a href="https://builds.sr.ht/submit">https://builds.sr.ht/submit</a>,
+copiamos el manifiesto y presionamos el botón <em>Submit</em>.</p>
+<p><img src="./submit-manifest.png" alt="Submit Manifest" /></p>
+<p>Allí somos reenviados a la página correspondiente al trabajo creado, en nuestro
+caso <a href="https://builds.sr.ht/~jumapico/job/354813">https://builds.sr.ht/~jumapico/job/354813</a>.</p>
+<p><img src="./job-info.png" alt="Job Info" /></p>
+<p>Si prestamos atención, en el paso de <em>setup</em>, aparece el mensaje:</p>
+<pre><code>[#354813] 2020/11/29 16:21:55 Shell access for this build was requested.
+[#354813] 2020/11/29 16:21:55 To log in with SSH, use the following command:
+[#354813] 2020/11/29 16:21:55
+[#354813] 2020/11/29 16:21:55 	ssh -t builds@azusa.runners.sr.ht connect 354813
+</code></pre>
+<h2>Generando el archivo .build.yml</h2>
+<p>Una vez que tenemos el acceso ssh a la máquina virtual nos conectamos a esta:</p>
+<pre><code>$ ssh -t builds@azusa.runners.sr.ht connect 354813
+Connected to build job #354813 (running): https://builds.sr.ht/~jumapico/job/354813
+[#354813] 2020/11/29 16:21:55
+[#354813] 2020/11/29 16:21:55 	ssh -t builds@azusa.runners.sr.ht connect 354813
+[#354813] 2020/11/29 16:21:55
+[#354813] 2020/11/29 16:21:55 Sending tasks
+[#354813] 2020/11/29 16:21:55 Sending build environment
+[#354813] 2020/11/29 16:21:56 Cloning repositories
+Cloning into 'jumapico.ws'...
++ cd jumapico.ws
++ git submodule update --init
+[#354813] 2020/11/29 16:21:56 Running task wait-for-ssh
+[wait-for-ssh] + sleep 60
+
+
+Your VM will be terminated 4 hours from now, or when you log out.
+
+Linux build 4.19.0-11-amd64 #1 SMP Debian 4.19.146-1 (2020-09-17) x86_64
+
+The programs included with the Debian GNU/Linux system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.
+Last login: Sun Nov 29 16:21:57 2020 from 172.17.0.1
+$
+</code></pre>
+<p>Por lo que podemos apreciar del mensaje anterior, tenemos cuatro horas máximo
+para realizar pruebas.</p>
+<p>Comenzamos por algunas pruebas básicas:</p>
+<pre><code>$ who
+build    pts/0        Nov 29 16:21 (172.17.0.1)
+$ sudo echo Yes!
+Yes!
+$ ls
+jumapico.ws
+</code></pre>
+<p>O sea:</p>
+<ul>
+<li>Somos el usuario <code>build</code></li>
+<li>Tenemos permiso de <code>sudo</code></li>
+<li>Nuestro repositorio ya está descargado</li>
+</ul>
+<p>A partir de aquí se irán realizando pruebas hasta poder crear el archivo
+<code>build.yml</code> que generará el blog.</p>
+<p>Este archivo comenzará con la misma imagen y repositorio que el anterior, pero
+ya que suponemos que será definitivo no estamos interesados en que se tenga
+acceso de shell:</p>
+<pre><code>image: debian/buster
+arch: amd64
+sources:
+  - https://git.sr.ht/~jumapico/jumapico.ws
+</code></pre>
+<p>Sobre los comandos que realizará la tarea de generación del blog, si bien estos
+se encuentran en el archivo <code>Makefile</code>, basicamente consiste en:</p>
+<ol>
+<li>Instalar el generador del blog: <a href="https://nanoc.ws/">nanoc</a> y sus dependencias.</li>
+<li>Generar el blog.</li>
+<li>Subirlo a github pages.</li>
+</ol>
+<p>Para instalar el generador y sus dependencias se utiliza el programa <code>bundle</code>
+que según el <code>Makefile</code> se instala utilizando el comando <code>gem</code>.  Ejecutandolo en
+la máquina virtual:</p>
+<pre><code>$ cd jumapico.ws
+$ gem install --user-install bundler:2.1.4
+-sh: 14: gem: not found
+</code></pre>
+<p>Lo cual es razonable, ya que <code>gem</code> es parte de <a href="https://www.ruby-lang.org/">ruby</a>, el cual no está instalado
+por defecto en la VM.  Ya que tenemos permisos de <code>sudo</code>, en lugar de crear otro
+manifiesto que indique la instalación del paquete <code>ruby</code> lo instalaremos en esta
+instancia, teniendo el cuidado de agregarlo en el manifest que estamos creando
+en el archivo <code>build.yml</code>.</p>
+<p>La versión de ruby en debian buster es la 2.5, por lo que instalamos el paquete
+utilizando:</p>
+<pre><code>$ sudo apt-get install -V ruby2.5
+</code></pre>
+<p>Se instala rápido, sin problemas, y ahora probamos nuevamente de instalar
+bundler:</p>
+<pre><code>$ gem install --user-install bundler:2.1.4
+$ gem install --user-install bundler:2.1.4
+Fetching: bundler-2.1.4.gem (100%)
+WARNING:  You don't have /home/build/.gem/ruby/2.5.0/bin in your PATH,
+	  gem executables will not run.
+Successfully installed bundler-2.1.4
+Parsing documentation for bundler-2.1.4
+Installing ri documentation for bundler-2.1.4
+Done installing documentation for bundler after 4 seconds
+1 gem installed
+</code></pre>
+<p>Instala sin problemas, pero hay que tener en cuenta el mensaje que indica que
+se debe agregar al <code>PATH</code> la ruta <code>$HOME/.gem/ruby/2.5.0/bin</code>.</p>
+<p>Hacemos esto y continuamos instalando las dependencias agregando la ruta
+anterior al <code>PATH</code>:</p>
+<pre><code>$ export PATH=$PATH:$HOME/.gem/ruby/2.5.0/bin
+$ bundle install --path vendor
+Installing commonmarker 0.21.0 with native extensions
+Gem::Ext::BuildError: ERROR: Failed to build gem native extension.
+
+    current directory: /home/build/jumapico.ws/vendor/ruby/2.5.0/gems/commonmarker-0.21.0/ext/commonmarker
+/usr/bin/ruby2.5 -r ./siteconf20201129-685-sw4fux.rb extconf.rb
+mkmf.rb can't find header files for ruby at /usr/lib/ruby/include/ruby.h
+
+extconf failed, exit code 1
+
+Gem files will remain installed in /home/build/jumapico.ws/vendor/ruby/2.5.0/gems/commonmarker-0.21.0 for inspection.
+Results logged to /home/build/jumapico.ws/vendor/ruby/2.5.0/extensions/x86_64-linux/2.5.0/commonmarker-0.21.0/gem_make.out
+
+An error occurred while installing commonmarker (0.21.0), and Bundler cannot continue.
+Make sure that `gem install commonmarker -v '0.21.0' --source 'https://rubygems.org/'` succeeds before bundling.
+
+In Gemfile:
+  commonmarker
+</code></pre>
+<p>Otro error.  Esta vez porque no se encuentra el archivo
+<code>/usr/lib/ruby/include/ruby.h</code> necesario para compilar extensiones nativas de
+ruby.  La solución es fácil: se instala el paquete <code>ruby2.5-dev</code> que como indica
+su descripción:</p>
+<blockquote>
+<p>Header files for compiling extension modules for the Ruby 2.5</p>
+</blockquote>
+<p>y se vuelven a instalar las dependencias:</p>
+<pre><code>$ sudo apt-get install -Vy ruby2.5-dev
+$ bundle install --path vendor
+...
+Installing nokogiri 1.10.9 with native extensions
+Gem::Ext::BuildError: ERROR: Failed to build gem native extension.
+
+    current directory: /home/build/jumapico.ws/vendor/ruby/2.5.0/gems/nokogiri-1.10.9/ext/nokogiri
+/usr/bin/ruby2.5 -r ./siteconf20201129-811-eydcqn.rb extconf.rb
+checking if the C compiler accepts ... yes
+Building nokogiri using packaged libraries.
+Using mini_portile version 2.4.0
+checking for gzdopen() in -lz... no
+zlib is missing; necessary for building libxml2
+*** extconf.rb failed ***
+Could not create Makefile due to some reason, probably lack of necessary
+libraries and/or headers.  Check the mkmf.log file for more details.  You may
+need configuration options.
+...
+</code></pre>
+<p>Otro error.  Esta vez por falta de la librería <code>zlib</code>.  Se instalan los archivos
+necesarios para el desarrolo mediante el paquete <code>zlib1g-dev</code> y se vuelve a
+probar:</p>
+<pre><code>$ sudo apt-get install -Vy zlib1g-dev
+$ bundle install --path vendor
+...
+Bundle complete! 10 Gemfile dependencies, 55 gems now installed.
+Bundled gems are installed into `./vendor`
+</code></pre>
+<p>y esta vez ya se instalan las dependencias sin problemas.</p>
+<p>Escribiendo la informacion anterior como parte del archivo <code>build.yml</code> tenemos:</p>
+<pre><code>packages:
+- ruby2.5
+- ruby2.5-dev         # for native extensions
+- zlib1g-dev          # for nokogiri
+</code></pre>
+<p>y</p>
+<pre><code>tasks:
+  - build: |
+      export PATH=$PATH:$HOME/.gem/ruby/2.5.0/bin
+      cd jumapico.ws
+      bundle install --path vendor
+</code></pre>
+<p>Siguendo en la consola con la generación del sitio:</p>
+<pre><code>$ bundle exec nanoc
+...
+
+Site compiled in 0.80s.
+</code></pre>
+<p>Resta subir los archivos al repositorio <a href="https://github.com/jumapico/jumapico.github.io/">jumapico.github.io</a>.</p>
+<h2>Manejo de secretos - variables de entorno</h2>
+<p>El envió del sitio generado a github pages se realiza igual que con Travis CI:</p>
+<ul>
+<li>Se agregan los archivos generados a un repositorio git.</li>
+<li>Se hace un push <code>forzado</code> (que sobreescribe el contenido del repositorio de
+remoto) utilizando la url
+<a href="https://$%7BGITHUB_TOKEN%7D@github.com/jumapico/jumapico.github.io">https://${GITHUB_TOKEN}@github.com/jumapico/jumapico.github.io</a> la cual debe
+utilizar un <a href="https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token">Personal Access Token</a> de github con permisos para escribir en el
+repositorio.</li>
+</ul>
+<p>Ya que git está instalado en la máquina virtual (es necesario para clonar
+nuestro repositorio) no es necesario ninguna acción, extra para el primer paso:</p>
+<pre><code>$ cd output
+$ git init
+Initialized empty Git repository in /home/build/jumapico.ws/output/.git/
+$ git config user.name &quot;Build SourceHut&quot;
+$ git config user.email &quot;build@sr.ht&quot;
+$ git add .
+$ git commit -m &quot;Deployed '$(cd ..; git rev-parse --short HEAD)' to Github pages&quot;
+[master (root-commit) d201e38] Deployed '2d5dc77' to Github pages
+ 204 files changed, 25611 insertions(+)
+...
+</code></pre>
+<p>La nueva dificultad que aparece es como disponibilizar la variable de entorno
+<code>GITHUB_TOKEN</code> con el token obtenido de github.</p>
+<p>Para ello se utilizará <a href="https://todo.sr.ht/~sircmpwn/builds.sr.ht/221">la incidencia #221 de builds.sr.ht</a>
+que da una pista de como solucionar el problema: se agregan las variables de
+entorno en un archivo de secretos y se cargan en el shell.  Ya que por defecto
+las tareas del shell se ejecutan utilizando <code>-x</code>, debe deshabilitarse
+temporalmente la impresión de comandos ejecutados, para que no aparezcan los
+secretos en el log cuando son cargados:</p>
+<pre><code>set +x
+. ~/.buildsecrets
+set -x
+</code></pre>
+<p>El archivo <code>~/.buildsecrets</code> es creado en la web accediendo a la página
+<a href="https://builds.sr.ht/secrets">builds.sr.ht secret management dashboard</a> y agregando como contenido del archivo</p>
+<pre><code>export GITHUB_TOKEN=XXXXX
+</code></pre>
+<p>El tipo de secreto <em>File</em>, la ruta <code>~/.buildsecrets</code> y modo <code>600</code>.  Al presionar
+el botón <em>Add secret</em> se nos muestra el mensaje:</p>
+<blockquote>
+<p>Successfully added secret b714e84b-1f5e-46fd-9aa1-737e0e5fe881.</p>
+</blockquote>
+<p>Y recargando la página vemos todos nuestros secretos:</p>
+<p><img src="./secrets-dashboard.png" alt="Secrets Dashboard" /></p>
+<p>que ahora puede ser utilizando agregando en el manifiesto:</p>
+<pre><code>secrets:
+  - b714e84b-1f5e-46fd-9aa1-737e0e5fe881
+</code></pre>
+<h2>Pasando en limpio</h2>
+<p>De lo anterior tenemos que el manifiesto escrito en el <a href="./build.yml">archivo build.yml</a>
+nos estaría quedando como:</p>
+<pre><code>image: debian/buster
+arch: amd64
+packages:
+  - ruby2.5
+  - ruby2.5-dev
+  - zlib1g-dev
+sources:
+  - https://git.sr.ht/~jumapico/jumapico.ws
+secrets:
+  - b714e84b-1f5e-46fd-9aa1-737e0e5fe881
+tasks:
+  - build: |
+      set +x
+      . ~/.buildsecrets
+      set -x
+      export PATH=$PATH:$HOME/.gem/ruby/2.5.0/bin
+      cd jumapico.ws
+      make publish-from-sourcehut
+</code></pre>
+<p>Como puede verse los comandos utilizados para generar y pushear el blog a
+github pages fueron puestos en el archivo <code>Makefile</code>, en lugar de agregarlos en
+la tarea.</p>
+<h2>Conclusion</h2>
+<p>Como puede verse de los pasos anteriores, es sencillo lanzar trabajos de prueba
+desde la web y conectarse por ssh a la máquina virtual para realizar pruebas que
+nos permitan escribir el manifiesto.</p>
+<p>Realmente quedé impresionado por la interacción con la UI y la facilidad de uso
+que tiene, además de la posibilidad de conexión por ssh.</p>
+<p>Recuerdo que en su momento configurar Travis CI me llevó mucho más tiempo y fué
+más engorroso, ya que la única forma de trabajo era modificar el manifiesto
+(<code>.travis.yml</code>) hacer un commit, push y ver si funcionaba o no.</p>
+<p>Lo único que le faltaría a la interfaz web es que la página
+<a href="https://builds.sr.ht/">https://builds.sr.ht/</a> que muestra los trabajos permita ocultarlos.</p>
+<p>Para más información conviene ver la documentación de sourcehut y manifiestos de
+ejemplo:</p>
+<ul>
+<li><a href="https://man.sr.ht/builds.sr.ht/">builds.sr.ht docs</a></li>
+<li><a href="https://man.sr.ht/tutorials/getting-started-with-builds.md">Getting started with builds.sr.ht</a></li>
+<li><a href="https://man.sr.ht/builds.sr.ht/manifest.md">Build manifest reference</a></li>
+<li><a href="https://man.sr.ht/tutorials/builds.sr.ht/">builds.sr.ht tutorials</a></li>
+</ul>
+<h2>Extra - envío de email</h2>
+<p>Para que nos envíen un email cada vez que se realiza un build agregar al
+manifiesto:</p>
+<pre><code>triggers:
+  - action: email
+    condition: always
+    to: Juan Picca &lt;jumapico@gmail.com&gt;
+</code></pre>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

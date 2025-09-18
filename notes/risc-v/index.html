@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>RISC-V | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">RISC-V</h1>
+        <h2 class="date">2020-07-22</h2>
+      </div>
+<h2>Materiales</h2>
+<ul>
+<li><a href="http://riscvbook.com/spanish/">Guía Práctica de RISC-V: El Atlas de una Arquitectura Abierta</a>.
+Libro para empezar, por ahora la mejor referencia que he leído.  Hace una muy
+buena introducción de la arquitectura.  De lo mejor que tiene son las
+secciones con comentarios al respecto de las decisiones de diseño, las que
+hacen más amena la lectura y ayudan a entender mejor el ISA. Hay que tener en
+cuenta que el libro es de fines del 2017 y ya existen algunos cambios en las
+especificaciones.</li>
+<li>The RISC-V Instruction Set Manual:
+<a href="https://riscv.org/specifications/isa-spec-pdf/">Volume I: Unprivileged ISA</a> y
+<a href="https://riscv.org/specifications/privileged-isa/">Volume II: Privileged Architecture</a>.
+La palabra última en cuanto a la especificación del ISA pero bastante tedioso
+y aburrido de leer.  Indispensable como referencia, no es de los primeros
+lugares para aprender sobre RISC-V.</li>
+<li><a href="https://www.elsevier.com/books/computer-organization-and-design-risc-v-edition/patterson/978-0-12-812275-4">Computer Organization and Design RISC-V Edition: The Hardware Software
+Interface</a>.
+Un libro ameno para aprender o repasar arquitectura de computadores en versión
+RISC-V (nivel principiante).  También cuenta con comparaciones entre distintos
+ISA's para explicar decisiones de diseño.  Si bien es <em>innecesario para
+aprender el ISA</em> vale la pena repasar el Capítulo 2, Instructions:
+Language of the Computer.</li>
+<li><a href="https://github.com/riscv/riscv-opcodes">RISC-V opcodes</a>.
+Contiene los opcodes de la arquitectura.  Es una buena referencia.  <em>El
+archivo <code>parse_opcode</code> contienen los valores numéricos de los CSR's.</em></li>
+<li><a href="https://github.com/riscv/riscv-elf-psabi-doc/blob/master/riscv-elf.md">RISC-V ELF psABI specification</a>.
+Entre otros se describen los diferentes tipos de convenciones de llamadas
+(aquí es donde se explica la diferencia entre <code>ilp32</code> y <code>lp64</code> utilizados en
+la opción <code>-mabi</code> de <em>gnu as</em>).</li>
+<li><a href="https://github.com/riscv/riscv-asm-manual/blob/master/riscv-asm.md">RISC-V Assembly Programmer's Manual</a>.
+Realmente le queda enorme el nombre.  Una decepción si lo que se estaba
+buscando es aprender ensamblador de RISC-V.  Lo único a destacar: <em>directivas
+de gnu as</em> y <em>Assembler Relocation Functions</em>.</li>
+<li><a href="https://godbolt.org/">Compiler Explorer</a>.
+Una herramienta extremadamente útil para inspeccionar el código generado
+(ensamblador) por distintos compiladores a partir de trozos de código.</li>
+</ul>
+<h2>Varios</h2>
+<p><a href="https://www.reddit.com/r/RISCV/comments/h0ipnl/does_riscv_read_and_write_little_endian_as_well/">Ejemplo de Endianess en RISC-V</a></p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+
