@@ -1,0 +1,2 @@
+FROM docker.io/jboss/wildfly:25.0.0.Final
+COPY --chown=jboss: ./target/*.war /opt/jboss/wildfly/standalone/deployments/

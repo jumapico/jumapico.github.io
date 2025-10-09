@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Medir velocidad de red | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Medir velocidad de red</h1>
+        <h2 class="date">2018-06-01</h2>
+      </div>
+<p>Medir velocidad (aproximada) de red entre PC's utilizando <code>netcat</code> y <code>nload</code></p>
+<p>PC servidor:</p>
+<pre><code>$ nc -l port &gt; /tmp/test.out
+</code></pre>
+<p>PC cliente, consola 1:</p>
+<pre><code>$ sudo nload interface
+</code></pre>
+<p>PC cliente, consola 2:</p>
+<pre><code>$ nc server-ip port &lt; /path/to/file
+</code></pre>
+<p><strong>NOTA</strong>: Tener en cuenta que según las políticas de red algunos puertos
+pueden estar filtrados. Si ese es el caso y es posible utilizar el puerto
+<strong>80</strong> este puede ser una opción.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

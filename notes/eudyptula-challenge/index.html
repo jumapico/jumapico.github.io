@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Eudyptula challenge | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Eudyptula challenge</h1>
+        <h2 class="date">2017-04-25</h2>
+      </div>
+<h1>Task 01</h1>
+<hr />
+<p>Enlaces a la documentación del kernel:</p>
+<ul>
+<li><a href="https://www.kernel.org/doc/html/latest/">https://www.kernel.org/doc/html/latest/</a></li>
+<li><a href="https://www.kernel.org/doc/Documentation/">https://www.kernel.org/doc/Documentation/</a></li>
+</ul>
+<p>Documentación general para desarrollo:
+<a href="https://www.kernel.org/doc/html/latest/process/index.html">https://www.kernel.org/doc/html/latest/process/index.html</a></p>
+<hr />
+<p>Descripción de como funciona la comunidad de desarrollo del kernel:
+<a href="https://www.kernel.org/doc/html/latest/process/howto.html">https://www.kernel.org/doc/html/latest/process/howto.html</a></p>
+<ul>
+<li>El kernel usa <strong>ISO C89 con extensiones no estandar</strong></li>
+<li>No se utiliza la <em>standard C library</em></li>
+<li>Requerimientos para compilar y ejecutar el kernel:
+<a href="https://www.kernel.org/doc/html/latest/process/changes.html">https://www.kernel.org/doc/html/latest/process/changes.html</a></li>
+<li>Estilo de código:
+<a href="https://www.kernel.org/doc/html/latest/process/coding-style.html">https://www.kernel.org/doc/html/latest/process/coding-style.html</a></li>
+<li>Información de como generar parches y que estilo debe utilizarse:
+<a href="https://www.kernel.org/doc/html/latest/process/submitting-patches.html">https://www.kernel.org/doc/html/latest/process/submitting-patches.html</a></li>
+<li>Documentación para entender el kernel:
+<a href="https://www.kernel.org/doc/html/latest/process/kernel-docs.html">https://www.kernel.org/doc/html/latest/process/kernel-docs.html</a></li>
+<li>Página con documentación para programar (no parece muy completa):
+<a href="https://kernelnewbies.org/">https://kernelnewbies.org/</a>
+<ul>
+<li>Creación de parches: <a href="https://kernelnewbies.org/FirstKernelPatch">https://kernelnewbies.org/FirstKernelPatch</a></li>
+</ul>
+</li>
+<li><a href="http://www.ozlabs.org/~akpm/stuff/tpp.txt">The perfect patch</a></li>
+</ul>
+<pre><code>“Think of a teacher grading homework from a math student. The teacher does
+not want to see the student’s trials and errors before they came up with the
+solution. They want to see the cleanest, most elegant answer. A good student
+knows this, and would never submit her intermediate work before the final
+solution.
+
+The same is true of kernel development. The maintainers and reviewers do
+not want to see the thought process behind the solution to the problem
+one is solving. They want to see a simple and elegant solution.”
+</code></pre>
+<hr />
+<p>De: <a href="https://www.kernel.org/doc/html/latest/process/submitting-patches.html">https://www.kernel.org/doc/html/latest/process/submitting-patches.html</a></p>
+<ul>
+<li>
+<p>Obtener el <em>current source tree</em> del kernel:</p>
+<pre><code>$ git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+</code></pre>
+</li>
+<li>
+<p>Style-check your changes:</p>
+<pre><code>Check your patches with the patch style checker prior to submission
+(scripts/checkpatch.pl)
+</code></pre>
+</li>
+</ul>
+<hr />
+<p>De: <a href="https://www.kernel.org/doc/html/latest/process/coding-style.html">https://www.kernel.org/doc/html/latest/process/coding-style.html</a></p>
+<ul>
+<li>
+<p>La indentación son <strong>8 espacios</strong>.
+<strong>NOTA: NO ESTÁ ACLARADO, PERO LA INDENTACIÓN ES CON UN TABULADOR</strong>.</p>
+</li>
+<li>
+<p>El limite de linea son <strong>80 caracteres</strong>.</p>
+</li>
+<li>
+<p><strong>No más de 3 niveles de indentación</strong>.</p>
+</li>
+<li>
+<p>La apertura de una función se realiza en la linea siguiente a su definición:</p>
+<pre><code>int function(int x)
+{
+        body of function
+}
+</code></pre>
+</li>
+<li>
+<p><strong>No usar <code>braces</code> en if's de una sola linea</strong>:</p>
+<pre><code>if (condition)
+        action();
+</code></pre>
+</li>
+<li>
+<pre><code>NEVER try to explain HOW your code works in a comment: it’s much better to
+write the code so that the working is obvious, and it’s a waste of time to
+explain badly written code.
+</code></pre>
+</li>
+</ul>
+<p>Se puede utilizar el script <code>scripts/checkpatch.pl</code> para verificar la
+sintaxis de un archivo (esto no está documentado en el enlace anterior):</p>
+<pre><code>$ /path/to/checkpatch.pl -f file
+</code></pre>
+<hr />
+<p>La lista de los requerimientos minimos para compilar y ejecutar el kernel se
+encuentran en: <a href="https://www.kernel.org/doc/html/latest/process/changes.html">https://www.kernel.org/doc/html/latest/process/changes.html</a></p>
+<p>Los paquetes en <code>debian</code> que se corresponden son los siguientes:</p>
+<ul>
+<li>build-essential: Instala gcc, make, binutils, patch, etc.</li>
+<li>linux-headers-amd64: <em>Include files</em> necesarios para compilar el módulo del
+kernel</li>
+</ul>
+<p><strong>FIXME: COMPLETAR LA LISTA Y EL COMANDO</strong></p>
+<p>Estos se instalan utilizando la siguiente linea:</p>
+<pre><code>$ sudo apt-get update
+$ sudo apt-get install -qVy build-essential linux-headers-amd64
+</code></pre>
+<hr />
+<p>Para crear un módulo del kernel fuera del arbol se necesita:</p>
+<ul>
+<li>
+<p>Un archivo <em>Kbuild Makefile</em></p>
+<p>Este archivo indica los fuentes del módulo a compilar utilizando la variable
+<em>obj-m</em>. Ver el apartado <em>3.1 Goal definitions</em> en la <a href="https://www.kernel.org/doc/Documentation/kbuild/makefiles.txt">documentación del
+kernel sobre <em>Kbuild</em></a>.</p>
+</li>
+<li>
+<p>Un archivo <em>stand-alone Makefile</em></p>
+<p>Para este caso que el módulo es sencillo se utiliza el makefile propuesto en
+la <a href="https://www.kernel.org/doc/Documentation/kbuild/modules.txt">documentación sobre construcción de módulos</a>, en el
+apartado <em>3.2 Separate Kbuild file and Makefile</em>.</p>
+<p>En este archivo se indica utilizando la variable <strong>KDIR</strong> cual es la ruta a
+los headers del kernel.</p>
+</li>
+<li>
+<p>Los archivos fuente del módulo.</p>
+<p>En nuestro caso es el archivo <em>hello.c</em>.</p>
+</li>
+</ul>
+<p>Por más información leer los enlaces previos.</p>
+<hr />
+<p>En el libro <code>Linux Kernel Development</code> en el capítulo <em>17 - Devices and
+Modules</em> se explica como crear un módulo <strong>Hello World!</strong>.</p>
+<hr />
+<p>Para compilar el módulo y probar que este es correctamente instalado y
+desinstalado:</p>
+<pre><code>$ make clean \
+    &amp;&amp; make \
+    &amp;&amp; sudo -s -- sh -c &quot;dmesg --clear \
+        &amp;&amp; insmod hello.ko \
+        &amp;&amp; echo \&quot;==== After insmod\&quot; \
+        &amp;&amp; dmesg \
+        &amp;&amp; echo \&quot;==== After rmmod\&quot; \
+        &amp;&amp; rmmod hello \
+        &amp;&amp; dmesg&quot;
+</code></pre>
+<p>La salida de este comando es la prueba al problema.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Backport de drivers de impresora en ubuntu | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Backport de drivers de impresora en ubuntu</h1>
+        <h2 class="date">2018-03-12</h2>
+      </div>
+<p>Se necesita imprimir a una impresora <a href="https://www.barcodesinc.com/datamax-o-neil/e-4205a.htm">Datamax-O'Neil E-4205A</a>
+desde ubuntu 14.04.</p>
+<p>El problema es que el soporte para esta impresora recién está agregado a partir
+de la <a href="https://sourceforge.net/p/gimp-print/mailman/message/35615769/">release 5.2.12 de Gutenprint</a>
+y en ubuntu 14.04, de la página correspondiente al <a href="https://packages.ubuntu.com/source/trusty/gutenprint">paquete gutenprint</a>
+se obtiene que la versión disponible es la <em>5.2.10~pre2-0ubuntu2</em>.</p>
+<p>De lo anterior se ve que es necesario <a href="https://help.ubuntu.com/community/UbuntuBackports"><strong>realizar un
+backport</strong></a> del paquete.</p>
+<p>Navegando en la página del paquete de ubuntu,
+<a href="https://packages.ubuntu.com/source/trusty/gutenprint">https://packages.ubuntu.com/source/trusty/gutenprint</a> se encuentra que recién
+para <a href="https://packages.ubuntu.com/source/artful/gutenprint">artful</a> la versión
+es la <em>5.2.13-1</em>, la cual utilizaremos como base para realizar el backport.</p>
+<h2>Setup del ambiente de trabajo</h2>
+<p>Como ambiente de trabajo se utilizará <a href="http://vagrantup.com/">vagrant</a> con una
+imagen de <a href="https://app.vagrantup.com/ubuntu/boxes/trusty32">ubuntu trusty 32bits</a>
+a la que se le instalarán los paquetes necesarios para realizar el backport.</p>
+<p>A continuación el contenido de los archivos utilizados con vagrant:</p>
+<h3><a href="./Vagrantfile">Vagrantfile</a></h3>
+<pre><code>Vagrant.configure(2) do |config|
+  config.vm.box = &quot;ubuntu/trusty32&quot;
+  config.vm.define &quot;backport-gutenprint&quot;
+  config.vm.synced_folder &quot;.&quot;, &quot;/vagrant&quot;, type: &quot;sshfs&quot;
+
+  config.vm.provider :virtualbox do |v|
+    v.customize [&quot;modifyvm&quot;, :id, &quot;--memory&quot;, 2048]
+    v.customize [&quot;modifyvm&quot;, :id, &quot;--cpus&quot;, 2]
+  end
+
+  config.vm.provision &quot;shell&quot;, path: &quot;provision.sh&quot;
+end
+</code></pre>
+<h3><a href="./_vagrantplugins">.vagrantplugins</a></h3>
+<pre><code># See: https://github.com/hashicorp/vagrant/issues/4347
+
+required_plugins = {
+  'vagrant-sshfs' =&gt; '~&gt;1.3.0',
+}
+
+needs_restart = false
+required_plugins.each do |name, version|
+  unless Vagrant.has_plugin? name, version
+    system &quot;vagrant plugin install #{name} --plugin-version=\&quot;#{version}\&quot;&quot;
+    needs_restart = true
+  end
+end
+
+if needs_restart
+  exec &quot;vagrant #{ARGV.join' '}&quot;
+end
+</code></pre>
+<h3><a href="./provision.sh">provision.sh</a></h3>
+<pre><code>#!/bin/bash -x
+set -e
+
+# install packages needed for create the backports
+export DEBIAN_FRONTEND=noninteractive
+apt-get update
+apt-get install -qVy packaging-dev devscripts equivs
+</code></pre>
+<h3>Creación del entorno (vm) y conexión a este</h3>
+<p>Con los archivos anteriores en el mismo directorio creamos la vm con vagrant
+utilizando <code>vagrant up</code>. Para conectarnos luego de creada la vm se utiliza
+<code>vagrant ssh</code>.</p>
+<p>Ya en la vm, nos aseguramos de que estamos en el directorio <code>$HOME</code>, y que están
+definidas las variables de entorno <code>DEBFULLNAME</code> y <code>DEBEMAIL</code>:</p>
+<pre><code>$ cd ~
+$ export DEBFULLNAME=&quot;Juan Picca&quot;
+$ export DEBEMAIL=&quot;jumapico@gmail.com&quot;
+</code></pre>
+<hr />
+<p>NOTA:</p>
+<p>Como directorio de trabajo no puede elegirse el directorio <code>/vagrant</code>, ya que
+este está montado mediante <code>sshfs</code>, y ello impide cambiar al dueño de los
+archivos a partir del punto de montaje, operación necesaria para la construcción
+de paquetes.</p>
+<p>Por ejemplo, en caso de utilizar <code>mk-build-deps</code> en el directorio <code>/vagrant</code> se
+obtiene el siguiente error:</p>
+<pre><code>/vagrant$ mk-build-deps gutenprint
+Use of uninitialized value $fullname in concatenation (.) or string at /usr/bin/equivs-build line 210.
+dh_testdir
+dh_testroot
+dh_prep
+dh_testdir
+dh_testroot
+dh_install
+dh_installdocs
+install: cannot change ownership of ‘debian/gutenprint-build-deps/usr/share/doc/gutenprint-build-deps/README.Debian’: Permission denied
+dh_installdocs: install -g 0 -o 0 -m 644 -p debian/README.Debian debian/gutenprint-build-deps/usr/share/doc/gutenprint-build-deps/README.Debian returned exit code 1
+make: *** [binary-indep] Error 2
+Error in the build process: exit status 2
+</code></pre>
+<h2>Preparación del backport</h2>
+<h3>Instalación de dependencias</h3>
+<p>Para realizar el backport se utilizarán como base las indicaciones dadas en
+<a href="https://wiki.debian.org/SimpleBackportCreation">https://wiki.debian.org/SimpleBackportCreation</a>.</p>
+<p>Primeramente se obtiene el fuente del paquete <em>gutenprint</em> utilizando el enlace
+al archivo <code>dsc</code> de la <a href="https://packages.ubuntu.com/source/artful/gutenprint">página del paquete
+(source)</a></p>
+<pre><code>$ dget -x http://archive.ubuntu.com/ubuntu/pool/main/g/gutenprint/gutenprint_5.2.13-1.dsc
+</code></pre>
+<p>Luego se utiliza <a href="https://www.guyrutenberg.com/2017/09/23/use-mk-build-deps-instead-of-apt-get-build-dep/">mk-build-deps</a>
+para crear un paquete trivial de nombre <code>gutenprint-build-deps</code> con las
+dependencias necesarias para construir el paquete <em>gutenprint</em>. La ventaja de
+instalar el paquete respecto a utilizar <code>apt-get build-deps</code> es que al
+eliminarlo todas las dependencias que fueron instaladas quedan marcadas para
+autoremover en lugar de quedar marcadas como instaladas automáticamente.</p>
+<p><em>Nota: Esto no es estrictamente necesario ya que se está utilizando una máquina
+virtual, pero se realiza ya que se ve como una buena práctica</em></p>
+<pre><code>$ sudo mk-build-deps --install --remove gutenprint_5.2.13-1.dsc
+</code></pre>
+<h3>Actualización del número de versión</h3>
+<p>Se crea una nueva versión para el backport:</p>
+<pre><code>$ cd ~/gutenprint-5.2.13
+$ dch --local ~ubuntu14.04. --distribution trusty-backports &quot;Rebuild for trusty-backports.&quot;
+</code></pre>
+<p>Como formato de versión del backport se utiliza el indicado en la <a href="http://manpages.ubuntu.com/manpages/trusty/man1/backportpackage.1.html">página del
+manual del programa backportpackage</a>:</p>
+<pre><code>backportpackage  will  always append ~ubuntuDESTINATION.1 to the
+original version number
+</code></pre>
+<p>NOTAS:</p>
+<ol>
+<li>En la guía de empaquetado de ubuntu
+<a href="http://packaging.ubuntu.com/html/ubuntu-dev-tools.html#backporting-packages">http://packaging.ubuntu.com/html/ubuntu-dev-tools.html#backporting-packages</a>
+se menciona el programa <code>backportpackage</code> para realizar backports.</li>
+<li>Se pueden ver las versiones de los paquetes en el repositorio
+<em>trusty-backports</em>: <a href="https://packages.ubuntu.com/trusty-backports/allpackages">https://packages.ubuntu.com/trusty-backports/allpackages</a>.
+De allí se deduce que se utiliza el formato de versión mencionado en la
+página del manual de <code>backportspackage</code>.</li>
+<li>Los detalles del formato de un backport para un paquete en debian se
+encuentran mucho más facilmente en el sitio
+<a href="https://backports.debian.org/Contribute/">https://backports.debian.org/Contribute/</a>, sección <em>Basic Rules</em>.</li>
+</ol>
+<h2>Generación del paquete</h2>
+<p>Para generar el paquete se utiliza el comando <code>dpkg-buildpackage</code>:</p>
+<pre><code>$ dpkg-buildpackage -us -uc
+dpkg-buildpackage: source package gutenprint
+dpkg-buildpackage: source version 5.2.13-1~ubuntu14.04.1
+dpkg-buildpackage: source distribution trusty-backports
+dpkg-buildpackage: source changed by Juan Picca &lt;jumapico@gmail.com&gt;
+dpkg-buildpackage: host architecture i386
+ dpkg-source --before-build gutenprint-5.2.13
+dpkg-checkbuilddeps: Unmet build dependencies: debhelper (&gt;= 10.2.5~)
+dpkg-buildpackage: warning: build dependencies/conflicts unsatisfied; aborting
+dpkg-buildpackage: warning: (Use -d flag to override.)
+</code></pre>
+<p>El error es debido a que la versión de <code>debhelper</code> disponible en ubuntu 14.04 es
+la 9 (se puede utilizar <code>apt show debhelper</code> para una descripción del paquete
+instalado).</p>
+<p>Para evitar el problema se prueba de editar el archivo <code>debian/control</code> y bajar
+la versión de debhelper, de 10 a 9 y se vuelve a intentar:</p>
+<pre><code>$ cat debian/control | grep debhelper
+ debhelper (&gt;= 10.2.5~),
+$ sed -i 's/ debhelper.*$/ debhelper (&gt;= 9),/' debian/control
+$ dpkg-buildpackage -us -uc
+</code></pre>
+<p>Esta vez se logró generar los paquetes sin problemas.</p>
+<p>Para obtener los paquetes del entorno de trabajo al host se pueden copiar los
+archivos generados al directorio <code>/vagrant</code>, que está montado al host mediante
+<code>sshfs</code>.</p>
+<pre><code>$ cd ~
+$ dcmd cp gutenprint_5.2.13-1~ubuntu14.04.1_i386.changes /vagrant/
+</code></pre>
+<hr />
+<h1>Uso de backportpackage</h1>
+<p>Previamente se siguieron los pasos indicados en <a href="https://wiki.debian.org/SimpleBackportCreation">https://wiki.debian.org/SimpleBackportCreation</a>
+para crear el backport, pero en <a href="http://packaging.ubuntu.com/html/ubuntu-dev-tools.html#backporting-packages">http://packaging.ubuntu.com/html/ubuntu-dev-tools.html#backporting-packages</a>,
+se sugiere utilizar el programa <code>backportpackage</code>.</p>
+<p>A continuación se probará utilizar dicho método.</p>
+<h2>Creación del entorno</h2>
+<p>Este paso es idéntico al precedente, ya que en ubuntu el paquete <code>packaging-dev</code>
+instala como recomendado el paquete <code>ubuntu-dev-tools</code>, el cual contiene el
+script <code>backportpackage</code>. Se deben definir las variables de entorno
+<code>DEBFULLNAME</code> y <code>DEBEMAIL</code> como fué hecho anteriormente.</p>
+<h2>Configuración de pbuilder</h2>
+<p>El comando <code>backportpackage</code> requiere tener configurado <code>pbuilder</code> para crear el
+backport del paquete:</p>
+<pre><code>$ cat &lt;&lt;'END' | sudo tee /etc/pbuilderrc
+MIRRORSITE=http://archive.ubuntu.com/ubuntu
+DISTRIBUTION=trusty
+export DEBIAN_FRONTEND=&quot;noninteractive&quot;
+END
+$ sudo pbuilder create
+</code></pre>
+<p>Lo anterior configura la distribución utilizada por pbuilder, y crea el archivo
+<em>base.tgz</em>.</p>
+<h2>Creación del backport</h2>
+<p>Siguiendo las indicaciones de la <a href="http://manpages.ubuntu.com/manpages/trusty/man1/backportpackage.1.html">página del manual de
+backportpackage</a>:</p>
+<pre><code>$ backportpackage --build --source artful --destination trusty -w . gutenprint
+...
+dpkg: pbuilder-satisfydepends-dummy: dependency problems, but configuring anyway as you requested:
+ pbuilder-satisfydepends-dummy depends on debhelper (&gt;= 10.2.5~); however:
+  Package debhelper is not installed.
+...
+</code></pre>
+<p>Y como nos pasó anteriormente encontramos el problema de que la versión de
+<code>debhelper</code> disponible en el sistema no cumple con las dependencias del
+paquete. En este caso, a diferencia de realizar los pasos manualmente no hay
+forma de modificar la versión de <code>debhelper</code> a utilizar, por lo que la
+alternativa que queda sería realizar un backport de <code>debhelper</code>, y de las
+dependencias de este a medida que sea necesario, lo cual no es una opción.</p>
+<p>De lo anterior, <code>backportpackage</code> es útil en el caso de que pueda realizarse un
+backport del paquete sin ningún cambio. Si algún cambio es requerido se debe
+modificar manualmente el paquete.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

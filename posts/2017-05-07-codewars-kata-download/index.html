@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Descarga de katas de codewars | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Descarga de katas de codewars</h1>
+        <h2 class="date">2017-05-07</h2>
+      </div>
+<p>Se busca crear un script para descargar los <em>katas</em> del sitio
+<a href="https://codewars.com">codewars</a>.</p>
+<p>La información a descargar será la siguiente que se visualiza cuando se realiza
+un <em>kata</em>:</p>
+<ol>
+<li>Instrucciones.</li>
+<li>Código de ejemplo. Suele ser el encabezado de la función a implementar.</li>
+<li>Tests de ejemplo. Suelen ser los test iniciales para probar la función.</li>
+</ol>
+<p>Para descargar la información probaremos utilizar la
+<a href="https://dev.codewars.com/#api-reference">API</a> brindada por <em>codewars</em>,
+especificamente <a href="https://dev.codewars.com/#post-train-code-challenge">https://dev.codewars.com/#post-train-code-challenge</a>.</p>
+<p>Como ejemplo realizamos una prueba de invocación a la api utilizando el shell:</p>
+<pre><code>$ accesstoken=&quot;xxx&quot; # Ver &quot;API Access Token&quot; en &quot;https://www.codewars.com/users/edit&quot;
+$ slug=&quot;a-rule-of-divisibility-by-13&quot;
+$ language=&quot;c&quot;
+$ output=$(curl &quot;https://www.codewars.com/api/v1/code-challenges/${slug}/${language}/train&quot; -X POST -H &quot;Authorization: $accesstoken&quot;)
+$ echo $output | jq -r '.description'
+$ echo $output | jq -r '.session.setup'
+$ echo $output | jq -r '.session.exampleFixture'
+</code></pre>
+<p>Para el script se busca que los archivos se descarguen en un directorio con
+nombre <code>slug_language</code>. Se agrega el sufijo <code>_language</code> ya que un mismo kata
+puede realizarse en varios lenguajes.</p>
+<p>Al codificar el script se debió tener en cuenta:</p>
+<ol>
+<li>
+<p>La extensión de los archivos se debe obtener a partir del nombre del
+lenguaje. Esto se realiza mediante una función <code>language2extension</code> que
+utiliza un <code>case</code> para transladar el nombre del lenguaje a la extensión de
+archivos utilizada por este.</p>
+</li>
+<li>
+<p>Se encontró que en caso de utilizar un <code>slug</code> o <code>language</code> inválido la api de
+codewars devuelve un código HTTP <code>500</code> y el mensaje con <em>content-type
+text/html</em>. Por esto se modifica la invocación de <code>curl</code> para que agregue
+los cabezales HTTP del response mediante el parámetro <code>--include</code>.</p>
+<p>Para verificar el código de error se utiliza: <code>[ 200 != &quot;$(echo &quot;$output&quot; | head -n +1 | cut -d' ' -f2)&quot; ]</code>.</p>
+<p>Para extraer el body se utiliza <code>sed</code>: <code>echo &quot;$output&quot; | sed '1,/^\r$/d'</code>.</p>
+</li>
+<li>
+<p>La descripción devuelta para los katas no tienen el nombre del problema, por
+lo que en el archivo <code>description.md</code> se agrega al principio un cabezal con
+el nombre del kata, el slug utilizado en negritas y una linea horizontal:</p>
+<pre><code>cat &lt;&lt;END
+# $(echo &quot;$body&quot; | jq -r '.name')
+
+**($slug)**
+
+---
+
+END
+</code></pre>
+</li>
+<li>
+<p>Se genera el script <code>run.sh</code> para ejecutar el kata, basado en el post [Uso de
+codewars offline][!a!post-codeswars-offline]:</p>
+<pre><code>$ mkdir -p ~/src
+$ (cd ~/src; git clone git@github.com:Codewars/codewars-runner-cli.git)
+$ docker-compose -f ~/src/codewars-runner-cli/docker-compose.yml \
+    run --rm $language -c &quot;$(cat solution.$extension)&quot; -f &quot;$(cat tests.$extension)&quot;
+</code></pre>
+</li>
+</ol>
+<p>El script completo está disponible en el archivo
+<a href="./codewars-kata-download">codewars-kata-download</a>.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

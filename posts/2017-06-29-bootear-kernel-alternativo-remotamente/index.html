@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootear kernel alternativo remotamente | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Bootear kernel alternativo remotamente</h1>
+        <h2 class="date">2017-06-29</h2>
+      </div>
+<p>El presente artículo busca responder la pregunta: <em>¿como se hace para iniciar un
+PC de usuario con un kernel distinto al por defecto de forma remota en debian o
+derivados?</em>.</p>
+<p>O sea, si estamos frente al PC nos alcanza con presionar la tecla <em>shift</em> cuando
+la PC bootea y elegir en el menú de <em>grub</em> el kernel deseado, ¿pero como lo
+hacemos remotamente?</p>
+<p>Una vez logueados al sistema de forma remota (utilizando <em>ssh</em>) lo que se debe
+hacerse es modificar las opciones de <em>grub</em> para que al reiniciar el sistema
+la PC se utilice el kernel deseado.</p>
+<p>Para elegir el kernel a utilizar vale la pena mirar la
+<a href="https://help.ubuntu.com/community/Grub2/Submenus#Submenu_Designation_Examples">wiki de ubuntu</a>
+para entender como se debe modificar el parámetro <code>GRUB_DEFAULT</code> en el archivo
+<code>/etc/default/grub</code>.</p>
+<p>Puede ser útil el siguiente comando que muestra las entradas y submenues de
+grub:</p>
+<pre><code>$ grep -P 'menuentry |submenu ' /boot/grub/grub.cfg | cut -d\' -f-2
+</code></pre>
+<p>Como ejemplo, si en una PC el comando devuelve la siguiente salida:</p>
+<pre><code>menuentry 'Ubuntu
+submenu 'Opciones avanzadas para Ubuntu
+	menuentry 'Ubuntu, con Linux 4.4.0-59-generic
+	menuentry 'Ubuntu, with Linux 4.4.0-59-generic (recovery mode)
+	menuentry 'Ubuntu, con Linux 3.13.0-107-generic
+	menuentry 'Ubuntu, with Linux 3.13.0-107-generic (recovery mode)
+	menuentry 'Ubuntu, con Linux 3.13.0-76-generic
+	menuentry 'Ubuntu, with Linux 3.13.0-76-generic (recovery mode)
+	menuentry 'Ubuntu, con Linux 3.13.0-74-generic
+	menuentry 'Ubuntu, with Linux 3.13.0-74-generic (recovery mode)
+menuentry 'Memory test (memtest86+)
+menuentry 'Memory test (memtest86+, serial console 115200)
+</code></pre>
+<p>y deseamos loguearnos con el kernel <code>3.13.0-107-generic</code> (la tercer entrada del
+segundo menú) se debe establecer el valor de la variable <code>GRUB_DEFAULT</code> a <code>1&gt;2</code>:</p>
+<pre><code>$ sudo sed -i.bak-$(date -uIs) 's/GRUB_DEFAULT=.*/GRUB_DEFAULT=&quot;1&gt;2&quot;/' /etc/default/grub
+</code></pre>
+<p><strong>Se prefiere el uso de números en lugar de strings para indicar el kernel a
+utilizar ya que el cambio del kernel por defecto será una medida temporal que
+luego será revertida. En caso de que sea un cambio permanente se sugiere
+utilizar strings.</strong></p>
+<p>Luego de haber actualizado la opción por defecto de <em>grub</em> se debe actualizar la
+configuración.</p>
+<pre><code>$ sudo update-grub
+</code></pre>
+<p>Resta reiniciar y ya nos podremos conectar remotamente al sistema utilizando el
+kernel elegido.</p>
+<hr />
+<p>Si se quiere bootear otro kernel <strong>solo la siguente vez que reinicie el PC</strong>, se
+puede utilizar el comando <code>grub-reboot</code> utilizando como parámetro la entrada del
+menú deseada. En el caso de ejemplo anterior se utilizaría:</p>
+<pre><code>$ sudo grub-reboot '1&gt;2'
+</code></pre>
+<p>para loguearnos con el kernel <code>3.13.0-107-generic</code>.</p>
+<p>El script anterior por defecto modifica el archivo <code>/boot/grub/grubenv</code>,
+agregando la variable <code>next_entry</code> que luego será leída por <em>grub</em> al iniciar el
+sistema. Los detalles se encuentran en el archivo <code>/etc/grub.d/00_header</code>.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

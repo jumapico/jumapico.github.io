@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lugar correcto para scripts rc.d | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Lugar correcto para scripts rc.d</h1>
+        <h2 class="date">2020-08-24</h2>
+      </div>
+<p>Una anécdota interesante.</p>
+<p>Estos días leyendo el libro <a href="https://mwl.io/nonfiction/os#ao2e">Absolute OpenBSD</a>
+de <a href="https://mwl.io/">Michael W. Lucas</a> y viendo la sección relativa a los
+<em>scripts de inicialización del sistema</em> (<em>Startup System Scripts</em>), me pregunté
+el porqué estaban bajo <code>/etc</code> ya que deberían ser scripts de sistema y no de
+configuración -que de por sí es un directorio utilizado para archivos
+modificados por el administrador-.</p>
+<p>Una grata sorpresa ver que unos días despues <em>Julio Merino</em> en su blog
+<a href="https://jmmv.dev/">https://jmmv.dev/</a> realiza un post sobre el mismo tema titulado
+<a href="https://jmmv.dev/2020/08/rcd-libexec-etc.html">rc.d belongs in libexec, not etc</a>
+en el que expone la misma inquietud, dando una interesante perspectiva
+histórica de como se llegó a la situación actual.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

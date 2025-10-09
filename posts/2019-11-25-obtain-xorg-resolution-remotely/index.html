@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Obtener resolución de Xorg remotamente | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Obtener resolución de Xorg remotamente</h1>
+        <h2 class="date">2019-11-25</h2>
+      </div>
+<p>Se desea obtener la resolución de una instancia del servidor <a href="https://en.wikipedia.org/wiki/X.Org_Server">Xorg</a> de
+forma remota utilizando <a href="https://en.wikipedia.org/wiki/Secure_Shell">ssh</a> para lo cual se utilizará el programa
+<a href="https://wiki.archlinux.org/index.php/Xrandr">xrandr</a>.</p>
+<p>Para ello, luego de conectarnos al pc utilizando <em>ssh</em> se listarán los procesos
+correspondientes al <em>servidor Xorg</em>:</p>
+<pre><code>$ pgrep -a Xorg
+1894 /usr/lib/xorg/Xorg -core :0 -seat seat0 -auth /var/run/lightdm/root/:0 -nolisten tcp vt7 -novtswitch
+3005 /usr/lib/xorg/Xorg -core :1 -seat seat0 -auth /var/run/lightdm/root/:1 -nolisten tcp vt8 -novtswitch
+</code></pre>
+<p>De estos se deberá elegir uno de los procesos anteriores, al cual se le
+consultará, mediante el programa <code>xrandr</code> por la resolución utilizada.
+En lo que sigue y como ejemplo se elegirá el correspondiente al display <code>0</code>.</p>
+<p>Para poder conectarnos al <em>servidor Xorg</em> se necesitará establecer dos variables
+de entorno:</p>
+<ol>
+<li><code>DISPLAY</code>, correspondiente a <a href="https://manpages.debian.org/testing/xorg-docs-core/X.7.en.html#DISPLAY_NAMES">display name</a>, que indica a las
+aplicaciones como deben conectarse al <em>servidor Xorg</em>.</li>
+<li><code>XAUTHORITY</code>, relativa al <a href="https://manpages.debian.org/testing/xorg-docs-core/X.7.en.html#ACCESS_CONTROL">control de acceso</a>, indica la
+ruta del <a href="https://manpages.debian.org/testing/xorg-docs-core/Xsecurity.7.en.html#THE_AUTHORIZATION_FILE">archivo de autorización</a>, que contiene la
+información necesaria para obtener acceso al <em>servidor Xorg</em>.</li>
+</ol>
+<p>Ya que es probable que no pueda tenerse acceso con un usuario normal a las rutas
+en las que se encuentre el <em>archivo de authorización</em>, se utilizará [sudo][sudo]
+para ejecutar el comando <code>xrandr</code>.
+Tomando de la salida anterior los valores del <em>display name</em> y la ruta del
+<em>authorization file</em> se tiene:</p>
+<pre><code>$ sudo DISPLAY=:0 XAUTHORITY=/var/run/lightdm/root/:0 xrandr
+</code></pre>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

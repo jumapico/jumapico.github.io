@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Virtualizar servidor centos | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Virtualizar servidor centos</h1>
+        <h2 class="date">2017-08-16</h2>
+      </div>
+<p>A continuación se detalla la experiencia obtenida al virtualizar un servidor
+CentOS 5.7 que utiliza LVM.
+La vm correspondiente a dicho servidor será creada en un servidor de vm's con CentOS
+6.4 utilizando libvirt y virt-manager.</p>
+<h2>Dump del disco físico</h2>
+<p>Para comenzar la virtualización copiamos el contenido del disco al servidor de
+vm's.</p>
+<p>En el servidor de vm's (al que se desea enviar la imagen) se ejecuta para
+recibir la imagen de disco:</p>
+<pre><code class="language-console">(mintaka) # nc -l 12345 | bzip2 -d | dd of=/var/lib/libvirt/images/alnitak-disk1.img bs=16M
+</code></pre>
+<p>Se bootea el servidor que se desea virtualizar con una imagen live y se ejecuta para
+enviar la imagen de disco:</p>
+<pre><code class="language-console">(alnitak-live) # dd if=/dev/sda bs=16M | bzip2 -c | nc 10.11.12.13 12345
+</code></pre>
+<h2>Limpiar bloques no utilizados del disco</h2>
+<p>Al realizar una copia física del disco es probable que se haya leído <em>basura</em> en
+los sectores no utilizados por el filesystem.
+Luego, si se intenta convertir el disco a un formato que soporte la creación de
+imagenes dispersas (<em>sparse images</em>), la información <em>basura</em> evitará que pueda
+compactarse correctamente la nueva imagen de disco durante su conversión.
+Una técnica para evitar lo anterior es crear en el filesystem un archivo que
+ocupe todo el tamaño disponible y cuyo contenido sea una repetición del valor nulo, <code>\0</code>.
+Luego de que se obtenga un error, ya que no queda espacio en el dispositivo, se
+borra el archivo.</p>
+<h3>Crear vm para escribir disco</h3>
+<p>Para realizar lo anterior se debe crear una vm utilizando la imagen de disco.
+Para ello utilizamos la interfaz gráfica virt-manager.</p>
+<p>Como detalle relevante de la configuración:</p>
+<p><em>NOTA:</em> En el último paso de la creación de la vm elegir la opción <strong>Customize
+configuration before install</strong>.</p>
+<ol>
+<li>
+<p>Se elige como versión del OS <em>CentOS 6.0</em>, ya que la 5.7 no está disponible</p>
+</li>
+<li>
+<p>Se utiliza como configuración de red <strong>Host device: eth0: macvtap</strong> y como
+<strong>Source mode</strong> el valor <strong>Bridge</strong> para conectarnos remotamente.</p>
+</li>
+<li>
+<p>Se cambia la dirección MAC del dispositivo <strong>NIC</strong>.</p>
+<p>Esto es necesario para que al iniciar la vm no sea sobreescrito el archivo
+<code>/etc/sysconfig/network-scripts/ifcfg-eth0</code> con la configuración de red
+actual.</p>
+<p>Para obtener la dirección MAC utilizamos el comando <code>ip</code> en la imagen live:</p>
+<pre><code class="language-console">(alnitak-live) # ip link show
+1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: enp2s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc pfifo_fast state UP mode DEFAULT group default qlen 1000
+    link/ether 01:23:45:67:89:ab brd ff:ff:ff:ff:ff:ff
+</code></pre>
+<p>La diferencia en los nombres de interfaz es debido a que en versiones
+recientes de linux se utilizan
+<a href="https://en.wikipedia.org/wiki/Consistent_Network_Device_Naming">nombres consistentes para interfaces de red</a>.</p>
+</li>
+<li>
+<p>Se debe cambiar el valor de <strong>Disk bus</strong> que por defecto es <strong>VirtIO</strong>, ya
+que utilizando este obtenemos el siguiente error al iniciar la vm:</p>
+<p><img src="./error-diskbus-virtio.png" alt="error al inicio" /></p>
+<p>Esto es debido a que en la <a href="http://wiki.libvirt.org/page/Virtio">wiki de
+libvirt sobre virtio</a> se indica que
+para utilizar <strong>VirtIO</strong> hay que tener un <em>kernel &gt;= 2.6.25</em>, y el <em>CentOS
+5.7</em> a virtualizar tiene instalada la versión del kernel <em>2.6.18</em>.</p>
+<p>En el caso de utilizar para <strong>Disk bus</strong> el valor <strong>SATA</strong> se obtiene el
+siguiente error en virt-manager (versión 0.10.2):</p>
+<pre><code>Error starting domain: unsupported
+configuration: SATA is not
+supported with this QEMU binary
+</code></pre>
+<p><em>NOTA:</em>  eliminar el controlador SATA si se obtuvo el mensaje de error
+previo.</p>
+<p>Debido a los problemas anteriores encontrados terminamos utilizando <strong>IDE</strong>
+como valor para <strong>Disk bus</strong>.</p>
+<p><em>NOTA:</em> según <a href="https://www.linux-kvm.org/page/Tuning_KVM">el sitio de kvm</a>,
+usar <strong>IDE</strong> como <em>storage interface</em> es lento.
+En caso de ser posible es recomendable cambiar el SO a uno que pueda
+utilizar <strong>VirtIO</strong> (menor riesgo) o actualizar el servidor de
+virtualización para que pueda utilizarse <strong>SATA</strong> en las vm's.</p>
+</li>
+</ol>
+<h3>Actualización del kernel</h3>
+<h3>Limpieza de disco</h3>
+<p>Una vez que se inició la vm pasamos a escribir todo el espacio libre del disco
+con el carácter <code>\0</code>.</p>
+<p>Aquí hay que tener en cuenta que hay varias particiones y se está utilizando
+<strong>LVM</strong>, por lo que debe crearse un archivo lleno de nulos que ocupe todo el
+filesystem para cada filesystem y para los volúmenes libres.</p>
+<p>Primero vemos que particiones existen utilizando <code>parted</code></p>
+<pre><code class="language-console">(alnitak-vm) # parted /dev/hda print
+
+Model: QEMU HARDDISK (ide)
+Disk /dev/hda: 160GB
+Sector size (logical/physical): 512B/512B
+Partition Table: msdos
+
+Number  Start   End    Size   Type     File system  Flags
+ 1      32.3kB  107MB  107MB  primary  ext3         boot
+ 2      107MB   160GB  160GB  primary               lvm
+
+Information: Don't forget to update /etc/fstab, if necessary.
+</code></pre>
+<p>Luego para la invormación relativa a <strong>LVM</strong> utilizamos los comandos <code>pvs</code>,
+<code>vgs</code> y <code>lvs</code>:</p>
+<pre><code class="language-console">(alnitak-vm) # pvs
+  PV         VG         Fmt  Attr PSize   PFree
+  /dev/hda2  VolGroup00 lvm2 a-   148.94G    0
+(alnitak-vm) # vgs
+  VG         #PV #LV #SN Attr   VSize   VFree
+  VolGroup00   1   2   0 wz--n- 148.94G    0
+(alnitak-vm) # lvs
+  LV       VG         Attr   LSize   Origin Snap%  Move Log Copy%  Convert
+  LogVol00 VolGroup00 -wi-ao 143.16G
+  LogVol01 VolGroup00 -wi-ao   5.78G
+</code></pre>
+<p>Verificamos si ya están montadas las particiones en el sistema (en caso
+contrario necesitaremos montarlas) o están en uso como swap:</p>
+<pre><code class="language-console">(alnitak-vm) # mount | grep -P '/dev/hda1|VolGroup'
+/dev/mapper/VolGroup00-LogVol00 on / type ext3 (rw)
+/dev/hda1 on /boot type ext3 (rw)
+(alnitak-vm) # swapon -s | grep 'VolGroup'
+/dev/mapper/VolGroup00-LogVol01         partition	6062072	0	-1
+</code></pre>
+<p>De lo anterior se deduce que:</p>
+<ol>
+<li>El disco está siendo totalmente utilizado por las particiónes <code>boot</code> y <code>lvm</code></li>
+<li>La partición <code>lvm</code> consta de un solo <em>volume group</em>, <code>VolGroup00</code> y este está
+dividido en dos <code>logical volumes</code>: <code>LogVol00</code> y <code>LogVol01</code> que utilizan todo
+el espacio del volumen.</li>
+<li>La partición <code>boot</code> (<code>/dev/hda1</code>) está montada en <code>/boot</code>.</li>
+<li>El volumen lógico <code>LogVol00</code> está montado en <code>/</code></li>
+<li>El volumen lógico <code>LogVol01</code> está funcionando como partición swap (activa).</li>
+</ol>
+<p>Para limpiar las particiones anteriores se utiliza:</p>
+<p><em>NOTA:</em> conviene ejecutar los siguientes comandos dentro de un script,
+y en caso de realizarlos mediante <code>ssh</code>  utilizando <code>screen</code>.
+En caso contrario utilizar la consola desde
+<code>virt-manager</code> ya que puede llevar un buen rato que el comando se complete.</p>
+<pre><code class="language-console">(alnitak-vm) # dd if=/dev/zero of=/EMPTY bs=16M
+(alnitak-vm) # rm /EMPTY
+(alnitak-vm) # dd if=/dev/zero of=/boot/EMPTY bs=16M
+(alnitak-vm) # rm /boot/EMPTY
+(alnitak-vm) # swapoff /dev/mapper/VolGroup00-LogVol01
+(alnitak-vm) # dd if=/dev/zero of=/dev/mapper/VolGroup00-LogVol01 bs=16M
+(alnitak-vm) # mkswap /dev/mapper/VolGroup00-LogVol01
+(alnitak-vm) # sync
+</code></pre>
+<p>Luego apagamos y eliminamos la vm, ya que no tenemos más necesidad de
+utilizarla, teniendo cuidado de <strong>NO ELIMINAR LA IMAGEN DE DISCO</strong>.</p>
+<h2>Convertir disco para uso con virtualizador</h2>
+<p>Una vez que se haya <em>limpiado</em> la imagen del servidor que queremos virtualizar
+generamos una imagen dispersa (<em>sparse image</em>):</p>
+<pre><code class="language-console">(mintaka) # qemu-img convert -f raw -O qcow2 \
+    /var/lib/libvirt/images/alnitak-disk1.img \
+    /var/lib/libvirt/images/alnitak-disk1.qcow2
+</code></pre>
+<p>Al comando anterior se le puede agregar el flag <code>-p</code> para tener un indicador de
+progreso ya que la conversión puede ser una operación lenta.</p>
+<h2>Notas</h2>
+<h3>Elección del formato de imagen a utilizar</h3>
+<p>Se eligió el formato <code>qcow2</code> siguiendo la sugerencia en la <a href="https://docs.openstack.org/image-guide/obtain-images.html">documentación de
+openstack sobre
+imagenes</a>:</p>
+<pre><code>If your deployment uses QEMU or KVM, we recommend using the images in qcow2
+format
+</code></pre>
+<p>Entre las ventajas del formato <code>qcow2</code> se destacan:</p>
+<ul>
+<li>la capacidad de realizar <em>snapshots</em></li>
+<li>la capacidad de usar <em>sparse files</em> (se consume solo el espacio utilizado, no
+el espacio físico reservado para la imagen)</li>
+</ul>
+<h2>TODO's</h2>
+<ol>
+<li>
+<p><strong>buscar una comparativa entre distintos <a href="https://docs.openstack.org/image-guide/introduction.html">formatos de
+imagen</a> a utilizar;
+una búsqueda rápida en internet no dió resultado satisfactorio.</strong></p>
+</li>
+<li>
+<p><strong>En varios sitios se menciona la fragilidad de qcow2, detallar.</strong></p>
+</li>
+</ol>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+
