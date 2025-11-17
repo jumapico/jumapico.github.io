@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Encriptar archivos con gpg | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Encriptar archivos con gpg</h1>
+        <h2 class="date">2018-07-27</h2>
+      </div>
+<h1>Encriptar archivos con gpg</h1>
+<p>Para encriptar varios archivos:</p>
+<pre><code>$ tar --sort=name -Jcv file_1 file_2 ... file_N | gpg -c -o secrets.tar.xz.gpg
+</code></pre>
+<p>Para desencriptarlos (¡CUIDADO, SE SOBREESCRIBIRÁN LOS ARCHIVOS!):</p>
+<pre><code>$ gpg -d secrets.tar.xz.gpg | tar -Jx
+</code></pre>
+<p>Notas:</p>
+<ul>
+<li>Asegurarse de que los archivos a mantener en secreto están excluidos del
+repositorio.</li>
+</ul>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<settings>
+    <mirrors>
+        <mirror>
+            <id>mirror-central</id>
+            <name>Local mirror repository for central</name>
+            <url>http://mvn-mirror.example.com:8081/repository/maven-central/</url>
+            <mirrorOf>central</mirrorOf>
+        </mirror>
+    </mirrors>
+</settings>

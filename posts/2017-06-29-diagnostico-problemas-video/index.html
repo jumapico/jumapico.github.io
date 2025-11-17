@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Diagnostico de problemas de video | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Diagnostico de problemas de video</h1>
+        <h2 class="date">2017-06-29</h2>
+      </div>
+<p>A continuación se listan algunos comandos que he utilizado para diagnosticar
+problemas de video en <strong>Ubuntu 14.04</strong> (obviamente pueden utilizarse en
+cualquier derivado de <strong>debian</strong>).</p>
+<ul>
+<li>
+<p>Versión del sistema operativo con el problema</p>
+<pre><code>$ cat /etc/os-release
+</code></pre>
+</li>
+<li>
+<p>Versión del kernel con el problema</p>
+<pre><code>$ uname -a
+</code></pre>
+</li>
+<li>
+<p>Linea de comando del kernel</p>
+<p>¿Se está utilizando algún parámetro que incida sobre el video?</p>
+<pre><code>$ cat /proc/cmdline
+</code></pre>
+<p>Los parámetros sospechosos pueden ser cualquiera que contenga <code>video</code>, <code>vga</code>
+o <code>modeset</code>.</p>
+</li>
+<li>
+<p>Parámetros a módulos del kernel</p>
+<pre><code>grep 'modeset' /etc/modprobe.d/*.conf
+</code></pre>
+<p>El comportamiento de los módulos del kernel puede verse afectado por
+parámetros que fueron establecidos previamente.</p>
+</li>
+<li>
+<p>Listado del hardware</p>
+<p>¿Está siendo reconocido el hardware?</p>
+<pre><code>$ lspci -s 00:02.0 -v | grep -i kernel
+</code></pre>
+<p>Si no aparece ningún resultado a este comando el kernel no está
+reconociendo el hardware.</p>
+<p>Para solucionar que el hardware no está siendo reconocido suele ser
+necesario cambiar a un kernel más nuevo que se encuentre en el repositorio
+de paquetes. Se puede tener que agregar repositorios de <code>backports</code> para
+tener un kernel lo suficientemente actual que detecte el hardware.</p>
+</li>
+<li>
+<p>Conexión del video</p>
+<p>¿Que adaptador se está utilizando para conectar el monitor?</p>
+<pre><code>$ for i in $(ls /sys/class/drm/*/status 2&gt;/dev/null); do
+    echo &quot;$(basename $(dirname $i)): $(cat $i)&quot;; done
+</code></pre>
+<p>El comando anterior puede no devolver nada si no se está reconociendo el
+hardware y en su lugar está siendo utilizado el <em>framebuffer</em>.</p>
+<p>Si el hardware está siendo reconocido y el comando anterior no devuelve nada
+es probable que no se esté mostrando ninguna salida en el monitor (la
+pantalla está negra), ya que el kernel no detecta que el monitor está
+conectado.
+Esto me ha ocurrido con algunos de los <em>kernel 4.4.X</em> de ubuntu (no todos)
+y siempre se ha debido a que estaba utilizando un adaptador
+<a href="https://en.wikipedia.org/wiki/DisplayPort">Display Port</a> cambiando el
+adaptador por uno <a href="https://en.wikipedia.org/wiki/HDMI">HDMI</a> se ha
+solucionado el problema. La otra alternativa es buscar otro kernel del
+repositorio que no de el problema.</p>
+</li>
+<li>
+<p>Información de EDID</p>
+<p>¿El PC está recibiendo correctamente la información
+<a href="https://en.wikipedia.org/wiki/Extended_Display_Identification_Data">EDID</a>
+del monitor?</p>
+<p>Para obtener la información se debe instalar el paquete <code>read-edid</code>:</p>
+<pre><code>$ sudo apt-get install -qVy read-edid
+$ sudo get-edid 2&gt;/dev/null | parse-edid
+</code></pre>
+<p>Hay que prestar especial atención al valor devuelto del <em>checksum</em>, ya que
+hay veces que se devuelve información de configuración del monitor pero el
+checksum es inválido, por lo que luego el kernel no lo toma en cuenta y es lo
+mismo que no se obtuviera ninguna información <em>EDID</em>.</p>
+<p>Como solucionar el problema en caso de que no se pueda obtener la
+información <em>EDID</em> del monitor se verá en otro post.</p>
+</li>
+<li>
+<p>Información del servidor Xorg</p>
+<p>A continuación suponemos que el log de <em>xorg</em> se encuentra en <code>/var/log</code>
+(*Ubuntu 14.04).
+Hay que recordar que en versiones más nuevas el log se encuentra por
+usuario.</p>
+<ul>
+<li>
+<p>¿Que configuración se está utilizando?</p>
+<pre><code>$ grep -i 'config directory' /var/log/Xorg.0.log
+</code></pre>
+<p>Si no se devuelve algo como <code>(==) Using system config directory &quot;/usr/share/X11/xorg.conf.d&quot;</code> es probable que se haya modificado la
+configuración de <em>xorg</em> y debe investigarse en que consistió el cambio
+y si puede tener un impacto en el problema, por ejemplo, una
+configuración realizada para un hardware anterior.</p>
+</li>
+<li>
+<p>¿Que driver de video está en uso?:</p>
+<pre><code>$ grep -iP 'fbdev|intel' /var/log/Xorg.0.log
+</code></pre>
+<p>El comando anterior supone que el hardware de video es intel. Si por
+ejemplo fuera nvidia habría que utilizar <code>fbdev|nvidia|nouveau</code>.</p>
+<p>Si el driver utilizado no se corresponde con la tarjeta de video
+seguramente se tenga un problema con la configuración del hardware.</p>
+</li>
+<li>
+<p>¿Se están detectando los modos de video?</p>
+<pre><code>$ grep -i modeline /var/log/Xorg.0.log
+</code></pre>
+<p>Si no aparece salida lo más probable es que el <em>EDID</em> no este
+devolviendose correctamente por el monitor.</p>
+</li>
+</ul>
+</li>
+</ul>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

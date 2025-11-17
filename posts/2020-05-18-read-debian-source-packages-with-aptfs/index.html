@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Leyendo paquetes fuente de debian con aptfs | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Leyendo paquetes fuente de debian con aptfs</h1>
+        <h2 class="date">2020-05-18</h2>
+      </div>
+<p>Para poder utilizar <a href="https://chris-lamb.co.uk/projects/aptfs">aptfs</a> en debian <strong>es necesario tener agregado por lo menos
+un repositorio de <a href="https://wiki.debian.org/Packaging/SourcePackage">paquetes fuente</a></strong>, sinó luego de montar aptfs el directorio
+se verá vacío.</p>
+<p>Para instalar <a href="https://chris-lamb.co.uk/projects/aptfs">aptfs</a> y configurar los fuentes de <a href="https://www.debian.org/devel/testing">debian testing</a> (suponiendo
+que no están ya agregados a apt):</p>
+<pre><code>$ sudo apt-get install -Vy aptfs
+$ echo 'deb-src http://deb.debian.org/debian testing main contrib non-free' \
+   | sudo tee /etc/apt/sources.list.d/testing-src.list &gt; /dev/null
+$ sudo apt-get update
+</code></pre>
+<p>Para montar <a href="https://chris-lamb.co.uk/projects/aptfs">aptfs</a> (usando un máximo de 10 paquetes fuentes desempaquetados a
+la vez):</p>
+<pre><code>$ mkdir -p ~/workspace-debian-sources
+$ mount.aptfs -o max_unpacked_packages=10 ~/workspace-debian-sources
+</code></pre>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

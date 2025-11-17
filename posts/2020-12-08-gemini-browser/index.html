@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Navegador para sitios gemini | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Navegador para sitios gemini</h1>
+        <h2 class="date">2020-12-08</h2>
+      </div>
+<p>Desde <a href="https://jfm.carcosa.net/blog/computing/re-project-gemini/">mediados de 2019</a> se liberó la
+<a href="https://gemini.circumlunar.space/docs/specification.html">especificación</a> de <a href="https://gemini.circumlunar.space/">Project Gemini</a>, el cual define un
+protocolo alternativo a <a href="https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol">HTTP</a> junto a un formato para documentos alternativo a
+<a href="https://en.wikipedia.org/wiki/HTML">HTML</a> llamado <a href="https://proxy.vulpes.one/gemini/gemini.circumlunar.space/docs/gemtext.gmi">gemtext</a>.</p>
+<p>El fin último que se busca es eliminar la complejidad que implica desarrollar
+hoy en día un <a href="https://en.wikipedia.org/wiki/Web_browser">navegador web</a> y crear un protocolo que sea sencillo de
+implementar por los desarrolladores, de forma tal de volver a &quot;democratizar&quot; la
+web -o por lo menos una alternativa a esta-.</p>
+<p>Si bien hoy día puede utilizarse un proxy para acceder a sitios gemini, como por
+ejemplo <a href="https://proxy.vulpes.one/">vulpes</a>, mi idea fué probar que alternativas a clientes hay
+actualmente.  Luego de probar varios terminé eligiendo el cliente gráfico
+<a href="https://gmi.skyjake.fi/lagrange/">lagrange</a>, que cuenta con paquetes para debian de forma no oficial -provistos
+por el desarrollador-:</p>
+<pre><code>$ wget -P /tmp/ 'https://git.skyjake.fi/skyjake/lagrange/releases/download/v0.12.1/lagrange_debian-buster.zip'
+$ unzip -d /tmp/ /tmp/lagrange_debian-buster.zip
+$ sudo dpkg -i /tmp/lagrange_0.12.1-1_amd64.deb
+</code></pre>
+<p>Algo bueno respecto a otros clientes gráficos es la poca cantidad de
+dependencias:</p>
+<pre><code>$ apt-cache show lagrange | grep -oP '^Depends:\K.*' | tr ',' '\n'
+ libc6 (&gt;= 2.28)
+ libmpg123-0 (&gt;= 1.6.2)
+ libpcre3
+ libsdl2-2.0-0 (&gt;= 2.0.9)
+ libssl1.1 (&gt;= 1.1.1)
+ libunistring2 (&gt;= 0.9.7)
+ zlib1g (&gt;= 1:1.1.4)
+</code></pre>
+<p>y por defecto el estilo para mostrar las páginas es bastante bueno.</p>
+<p>A continuación la captura del sitio <a href="gemini://skyjake.fi/lagrange/">Lagrange (gemini)</a>:</p>
+<p><img src="./lagrange-1.png" alt="página de lagrange" /></p>
+<p>Y el mismo sitio luego de hacer click en el link de una imagen, la cual el
+navegador embebe en la misma página:</p>
+<p><img src="./lagrange-2.png" alt="página de lagrange descargando imagen" /></p>
+<p>Volviando a gemini, si bien la idea es interesante hay un par de aspectos que
+aún no me convencen del todo:</p>
+<ul>
+<li>
+<p>En general <em>la idea</em> de una página en <em>gemtext</em> es que no se precarguen las
+imagenes, lo que al día de hoy considero que es una restricción bastante
+fuerte.  Por supuesto, esto puede configurarse en los clientes que lo permitan
+como se sugiere en la <a href="https://lists.orbitalfox.eu/listinfo/gemini">gemini mailing list</a>: <a href="https://lists.orbitalfox.eu/archives/gemini/2020/002151.html">What's the status of gemini
+browsers and image handling?</a>,
+aunque allí se vuelve a mencionar que:</p>
+<blockquote>
+<p>text/gemini is intentionally text-y and pretty opinionated about that</p>
+</blockquote>
+</li>
+<li>
+<p><a href="https://lists.orbitalfox.eu/archives/gemini/2020/000760.html">No es posible realizar un equivalente a un POST de
+HTTP</a>, o sea,
+enviar información al servidor.</p>
+</li>
+<li>
+<p>Actualmente falta un <a href="https://en.wikipedia.org/wiki/Search_engine">buscador para gemini</a>, lo cual debería
+ser eventualmente abordado por la comunidad.</p>
+</li>
+</ul>
+<p>Haciendo predicciones sobre gemini y esperando equivocarme: interesante si,
+usable por la mayoría no.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+
