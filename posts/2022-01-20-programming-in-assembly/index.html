@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Programando en ensamblador | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Programando en ensamblador</h1>
+        <h2 class="date">2022-01-20</h2>
+      </div>
+<p>La última fué la semana de refrescar <a href="https://en.wikipedia.org/wiki/Assembly_language">ensamblador</a> revisando
+<a href="https://asmtutor.com/">https://asmtutor.com/</a> luego de llegar allí mediante los posts
+<a href="https://8bitnews.io/archive/2022-01-14/z80-graphical-os#headline-learn-assembly">Learn Assembly</a> y <a href="https://ratfactor.com/assembly-nights">Assembly Nights</a>.</p>
+<p>Sobre el sitio <a href="https://asmtutor.com/">https://asmtutor.com/</a>:</p>
+<blockquote>
+<p>Learn Assembly Language</p>
+<p>This project was put together to teach myself NASM x86 assembly language on
+linux.</p>
+</blockquote>
+<p>Leyendo <em>por arriba</em>, dos detalles:</p>
+<ol>
+<li>
+<p>El sitio es sobre <a href="https://en.wikipedia.org/wiki/X86">(la arquitectura) x86</a> y allí se utiliza la <code>int 80h</code> para
+llamar a las funciones del kernel linux.</p>
+<p>Si se está más interesado en la <a href="https://en.wikipedia.org/wiki/X86-64">arquitectura amd64</a> se encuentra que
+existen varias <a href="https://www.kernel.org/doc/html/latest/x86/entry_64.html">formas para llamar al código del kernel</a>, siendo la
+<em>preferida</em> el uso de la instrucción <code>syscall</code> (<a href="https://man7.org/linux/man-pages/man2/syscall.2.html">man2 syscall</a>).</p>
+<p>Teniendo esto en cuentra, el código de ejemplo <a href="./helloworld64.asm">helloworld64.asm</a> (adaptado
+de <a href="./helloworld.asm">helloworld.asm</a>) nos quedaría como sigue:</p>
+<pre><code>_start:
+    mov     rax, 1      ; invoke SYS_WRITE
+    mov     rdi, 1      ; write to the STDOUT file (file descriptor)
+    mov     rsi, msg    ; move the memory address of our message string into ecx
+    mov     rdx, 13     ; number of bytes to write - one for each letter plus 0Ah (line feed character)
+    syscall
+</code></pre>
+<p>Los números de las llamadas al sistema cambian respecto de x86.
+Los <a href="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/arch/x86/entry/syscalls/syscall_64.tbl">números de cada syscall para amd64</a> se pueden encontrar en
+el código del kernel y hay posts como <a href="https://blog.rchapman.org/posts/Linux_System_Call_Table_for_x86_64/">Linux System Call Table for x86 64</a>
+en los que se muestra una tabla con las <em>system calls</em> y la utilización que
+se le da a los registros.</p>
+</li>
+<li>
+<p>Si bien hay ejemplos en los que se <a href="https://asmtutor.com/#lesson3">utilizan loops</a> y se
+<a href="https://asmtutor.com/#lesson4">introducen subrutinas</a> no se indica como pasar construcciones de
+<a href="https://en.wikipedia.org/wiki/Pseudocode">pseudo-código</a> tales como <a href="https://en.wikipedia.org/wiki/Expression_(computer_science)">expresiones</a> o <a href="https://en.wikipedia.org/wiki/Control_flow">control de flujo</a> a ensamblador.
+Esto solo indica que el autor da por sentado cierta familiaridad con
+ensamblador x86.</p>
+<p>Si no se tiene familiaridad con ensamblador sugiero leer los capítulos de
+generación de código de libros de diseño de compiladores tales como
+<a href="https://www.elsevier.com/books/engineering-a-compiler/cooper/978-0-12-088478-0">Engineering a Compiler</a> o <a href="https://www.pearson.com/us/higher-education/program/Aho-Compilers-Principles-Techniques-and-Tools-2nd-Edition/PGM167067.html">Compilers: Principles, Techniques, and Tools</a> ya
+que la mayoría de los libros de ensamblador que he visto no tratan en
+profundidad como transformar sentencias condicionales o de bucle escritas en
+pseudo-código a código ensamblador.</p>
+<p>Como complemento a lo anterior está el sitio <a href="https://godbolt.org/">Compiler Explorer</a>, que
+permite introducir código en C o C++ y convertirlo en código ensamblador
+utilizando distintos compiladores.</p>
+</li>
+<li>
+<p>Se utiliza la <a href="https://en.wikipedia.org/wiki/X86_assembly_language#Syntax">sintaxis de intel</a> (<a href="https://nasm.us/">nasm</a>).  Para un buen comentario de
+porqué conviene utilizar la sintaxis de intel sobre la de at&amp;t se puede ver
+el artículo <a href="https://outerproduct.net/2021-02-13_att-asm.html">Why no one should use the AT&amp;T syntax ever, for any reason,
+under any circumstances</a>.</p>
+</li>
+</ol>
+<h2>Redoblando la apuesta - ensamblador de risc-v</h2>
+<p>Ya que la mayoría de las lecciones implican utilizar llamadas al kernel, ¿porqué
+no intentar hacer un programa de <a href="https://riscv.org/">risc-v</a> y dejar que <a href="https://www.qemu.org/">qemu</a> realice la
+<a href="https://www.qemu.org/docs/master/user/main.html">emulación en modo usuario</a>?.</p>
+<p>Nuevamente, vuelve a cambiar la forma de llamar al kernel como se indica en la
+<a href="https://man7.org/linux/man-pages/man2/syscall.2.html">página del manual (2) syscall</a>:</p>
+<pre><code>Arch/ABI    Instruction           System  Ret  Ret  Error    Notes
+                                  call #  val  val2
+───────────────────────────────────────────────────────────────────
+riscv       ecall                 a7      a0   a1   -
+
+Arch/ABI      arg1  arg2  arg3  arg4  arg5  arg6  arg7  Notes
+──────────────────────────────────────────────────────────────
+riscv         a0    a1    a2    a3    a4    a5    -
+</code></pre>
+<p>El número de instrucción a utilizar se debe obtener del archivo
+<a href="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/include/uapi/asm-generic/unistd.h">include/uapi/asm-generic/unistd.h</a> como se indica en <a href="https://www.kernel.org/doc/html/latest/process/adding-syscalls.html">Adding a New System
+Call</a>:</p>
+<blockquote>
+<p>Some architectures (e.g. x86) have their own architecture-specific syscall
+tables, but several other architectures share a generic syscall table. Add
+your new system call to the generic list by adding an entry to the list in
+include/uapi/asm-generic/unistd.h</p>
+</blockquote>
+<p>Para ver un programa de ejemplo se implementa el programa <a href="./helloworldrv64.s">helloworldrv64.s</a>
+pero ahora en <a href="https://riscv.org/">risc-v</a>:</p>
+<pre><code># Hello World Program
+# Compile with: riscv64-linux-gnu-as helloworldrv64.s -o helloworldrv64.o
+# Link with:    riscv64-linux-gnu-ld helloworldrv64.o -o helloworldrv64
+# Run with:     qemu-riscv64-static ./helloworldrv64
+
+        .data
+msg:    .asciz  &quot;Hello World!\n&quot;        # assign msg variable with your message string
+
+        .text
+        .global _start
+
+_start:
+        li        a7, 64        # invoke SYS_WRITE
+        li        a0, 1         # write to the STDOUT file (file descriptor)
+        la        a1, msg       # move the memory address of our message string
+        li        a2, 13        # number of bytes to write - one for each character
+        ecall
+
+        li        a7, 93        # invoke SYS_EXIT
+        li        a0, 0         # return 0 status on exit - 'No Errors'
+        ecall
+
+end:
+        j end
+</code></pre>
+<p>Algunos links sobre ensamblador de risc-v:</p>
+<ul>
+<li><a href="https://github.com/riscv-non-isa/riscv-asm-manual/blob/master/riscv-asm.md">https://github.com/riscv-non-isa/riscv-asm-manual/blob/master/riscv-asm.md</a></li>
+<li><a href="https://mcyoung.xyz/2021/11/29/assembly-1/">https://mcyoung.xyz/2021/11/29/assembly-1/</a></li>
+<li><a href="https://smist08.wordpress.com/2019/09/07/risc-v-assembly-language-hello-world/">https://smist08.wordpress.com/2019/09/07/risc-v-assembly-language-hello-world/</a></li>
+<li><a href="https://shakti.org.in/docs/risc-v-asm-manual.pdf">https://shakti.org.in/docs/risc-v-asm-manual.pdf</a></li>
+</ul>
+<p>Para una alternativa a utilizar modo de usuario realizando la emulación del
+hardware puede verse <a href="https://mth.st/blog/riscv-qemu/">https://mth.st/blog/riscv-qemu/</a>.</p>
+<h2>Conclusiones</h2>
+<ul>
+<li>Muchos tutoriales en linea que muestran como utilizar ensamblador en linux
+son para la arquitectura <code>x86</code> y utilizan la <code>int 0x80</code> lo cual no es
+reciente.</li>
+<li>A mi criterio, es mejor utilizar la sintaxis de intel que la de at&amp;t.</li>
+<li>La mayoría de los libros de ensamblador que vi hacen incapié en la convención
+de llamadas de C, lo cual es correcto, pero apenas muestran como convertir las
+estructuras <code>if-then-else</code>, <code>while-do-end</code>, <code>do-while</code>, <code>for</code>, <code>case</code> a
+ensamblador.  Se suele mencionar dando un ejemplo y ningún libro de los que
+pude ver (y vi <em>VARIOS</em>) muestran una definición formal.</li>
+<li>Con qemu se pueden ejecutar programas simples que utilicen la especificación
+Unprivileged (<a href="https://riscv.org/technical/specifications/">Volume 1, Unprivileged Spec</a>).</li>
+<li>La sintaxis del ensamblador de risc-v se parece (si no es) intel.</li>
+<li><a href="https://godbolt.org/">Compiler Explorer</a> es extremadamente útil para verificar como se puede
+convertir un pseudo-código (trozo de función en C) en ensamblador de risc-v.</li>
+</ul>
+<p>¿Porqué ensamblador risc-v?  Creo que es simple, limpio, tiene muy pocas
+instrucciones y seguro va a ser cada vez más relevante.  Utilizar intel o arm no
+me estimula por la cantidad de instrucciones que tienen (intel) o lo denso del
+conjunto de instrucciones (arm).</p>
+<p>Tampoco me convence el realizar <em>como hobbie</em> programas en <a href="https://en.wikipedia.org/wiki/Zilog_Z80">Z80</a>, <a href="https://en.wikipedia.org/wiki/MOS_Technology_6502">6502</a> u otra
+arquitectura que está volviendo de a ser de moda (¿retro?) porque no creo que
+sea un conocimiento que pueda capitalizar a futuro o quizás estar pensando en
+como programar una <a href="https://en.wikipedia.org/wiki/Picture_Processing_Unit">PPU</a> de nintendo o los gráficos de <a href="https://en.wikipedia.org/wiki/Amiga">amiga</a>.</p>
+<h2>Apéndice - Instalación de programas</h2>
+<p>Para instalar los programas utilizados en este post, en <a href="https://www.debian.org/">debian</a>, se puede
+utilizar:</p>
+<pre><code>$ doas apt-get install -Vy nasm binutils-riscv64-linux-gnu qemu-user-static
+</code></pre>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

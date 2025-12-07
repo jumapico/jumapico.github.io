@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Setup de navegadores web 2/2 - Chromium | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Setup de navegadores web 2/2 - Chromium</h1>
+        <h2 class="date">2018-12-24</h2>
+      </div>
+<p>A continuación se describen los pasos para configurar <a href="https://www.chromium.org/Home">Chromium</a> utilizando
+<a href="https://www.dyne.org/software/tomb/">tomb</a> para almacenar los datos de forma privada.</p>
+<p>Este post está relacionado al post <a href="/posts/2018-12-24-browsers-setup-firefox/">Setup de navegadores web 1/2 - Firefox</a>.</p>
+<h2>Creación de archivo tomb</h2>
+<p>Se utilizará el mismo archivo tomb para los navegadores <em>Firefox</em> y <em>Chromium</em>.
+Ver post [Setup de navegadores web 1/2 - Firefox][3].</p>
+<h2>Copia del profile (user data) de <em>Chromium</em></h2>
+<p>A continuación se copiarán los archivos utilizados por <em>Chromium</em> dentro del
+archivo tomb. Esto se hará en el directorio <code>chromium-private</code>.</p>
+<p><em>Nota: en esta etapa debe cerrarse el navegador para no tener problemas al
+mover los archivos.</em></p>
+<p>La copia es sencilla, ya que simplemente se moverá el directorio
+<code>~/.config/chromium</code>:</p>
+<pre><code>$ mv ~/.config/chromium /run/media/$USER/browsers/chromium-private
+</code></pre>
+<p>También se borra el caché que se encuentra en <code>~/.cache/chromium</code> y corresponde
+al profile por defecto que será recreado nuevamente:</p>
+<pre><code>$ rm -fr ~/.cache/chromium
+</code></pre>
+<p><strong>Nota: a pesar de mover el profile del navegador al archivo tomb y
+borrar el directorio caché la información puede quedar en el disco, por lo que
+si esta desea borrarse definitivamente deberán seguirse otros pasos no
+detallados aquí.</strong></p>
+<h2>Creación de <code>bind-hooks</code> en archivo tomb</h2>
+<p>Para independizarse del punto de montaje del archivo tomb, se agregará un
+<code>bind-hook</code> para montar el directorios del profile en <code>~/.chromium-private</code>:</p>
+<pre><code>$ cat &gt;&gt; /run/media/$USER/browsers/bind-hooks &lt;&lt;'END'
+chromium-private    .chromium-private
+END
+</code></pre>
+<p><em>Nota: aquí se está agregando el bind-hook al archivo tomb que ya posee el
+profile de Firefox.</em></p>
+<p>Tambien nos aseguramos de que exista el punto de montaje:</p>
+<pre><code>$ mkdir -p ~/.chromium-private
+</code></pre>
+<p>Para probar que los <code>bind-hooks</code> funcionan correctamente cerrar y volver a abrir
+el archivo tomb:</p>
+<pre><code>$ tomb close browsers
+$ tomb open -f -k ~/browsers.tomb.key ~/graveyard/browsers.tomb /run/media/$USER/browsers
+$ mount | grep browsers
+/dev/mapper/tomb.browsers.1545659868.loop0 on /run/media/jmpc/browsers type ext4 (rw,nodev,noatime)
+/dev/mapper/tomb.browsers.1545659868.loop0 on /home/jmpc/.chromium-private type ext4 (rw,nodev,noatime)
+/dev/mapper/tomb.browsers.1545659868.loop0 on /home/jmpc/.firefox-private type ext4 (rw,nodev,noatime)
+</code></pre>
+<h2>Creación de script y archivo .desktop para utilizar el profile privado</h2>
+<p>En los pasos anteriores se movió el profile de <em>Chromium</em> al archivo tomb.
+Resta crear scripts para utilizar dichos profiles junto a los archivos .desktop
+para que sean agregados al menú del sistema.</p>
+<p><em>Nota: en lo que sigue se almacenará el script en el directorio <code>~/bin</code> (se
+supone que dicho directorio se encuentra en <code>$PATH</code>) y el
+archivo .desktop en el directorio <code>~/.local/share/applications</code>. Como
+alternativa podrían utilizarse los directorios de sistema <code>/usr/local/bin</code> y
+<code>/usr/local/share/applications</code> para que el uso de la configuración esté
+disponible para todos los usuarios.</em></p>
+<h3>Uso del profile privado de Chromium</h3>
+<p>El script y el archivo .desktop de <em>Chromium</em> son similares a los de <em>Firefox</em>
+descriptos en el post [Setup de navegadores web 1/2 - Firefox][3].</p>
+<p>La opción para especificar el profile es <code>--user-data-dir</code>. También se agregará
+la opción <code>--incognito</code>, ya que por defecto se desea utilizar <em>Chromium</em> para
+navegar en modo incógnito. Por último se realizarán chequeos similares a los
+realizados en el script de <em>Firefox</em>.</p>
+<p>A continuación el archivo <code>~/bin/chromium-private</code> que puede descargarse
+[aquí][script chromium-private]:</p>
+<pre><code>#!/bin/bash
+set -e
+show_error() {
+    if [[ $(readlink -f /proc/$(ps -o ppid:1= -p $$)/exe) = $(readlink -f &quot;$SHELL&quot;) ]]; then
+        echo -e &quot;$1&quot;
+    elif [ -x /usr/bin/zenity ]; then
+        zenity --warning --width=500 --text &quot;$1&quot;
+    fi
+}
+
+if [ ! -d &quot;$HOME/.chromium-private&quot; ]; then
+    show_error &quot;Directory $HOME/.chromium-private don't exist\nCreate it and reopen tomb file\n&quot;
+    exit 1
+elif ! mountpoint -q &quot;$HOME/.chromium-private&quot;; then
+    show_error &quot;Directory $HOME/.chromium-private is not a mount point\nTry open tomb file\n&quot;
+    exit 1
+elif [ ! -x /usr/bin/chromium ]; then
+    show_error &quot;Missing binary /usr/bin/chromium\nTry installing chromium package\n&quot;
+    exit 1
+fi
+/usr/bin/chromium --incognito --user-data-dir=&quot;$HOME/.chromium-private&quot; &quot;$@&quot;
+</code></pre>
+<p>El archivo <code>~/.local/share/applications/chromium-private.desktop</code> se copia a
+continuación y puede descargarse [aquí][desktop chromium-private]:</p>
+<pre><code>[Desktop Entry]
+Version=1.0
+Name=Chromium private
+GenericName=Web Browser
+Comment=Access the Internet
+Exec=bin/chromium-private %U
+Terminal=false
+X-MultipleArgs=false
+Type=Application
+Icon=chromium
+Categories=Network;WebBrowser;
+MimeType=text/html;text/xml;application/xhtml_xml;application/x-mimearchive;x-scheme-handler/http;x-scheme-handler/https;
+StartupWMClass=chromium-private
+StartupNotify=true
+</code></pre>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tips para creación de shell scripts | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Tips para creación de shell scripts</h1>
+        <h2 class="date">2020-03-30</h2>
+      </div>
+<p>A continuación algunos tips a utilizar durante la creación de scripts en
+<strong>bash</strong>.</p>
+<h2>Cabecera</h2>
+<pre><code>#!/bin/bash
+#-------------------------------------------------------------------------------
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021, Juan Picca &lt;juan.picca@jumapico.uy&gt;
+#
+# Script documentation
+#
+#-------------------------------------------------------------------------------
+[ -n &quot;$DEBUG&quot; ] &amp;&amp; { export PS4='+ [${BASH_SOURCE##*/}:${LINENO}] '; set -x; }
+set -euo pipefail
+</code></pre>
+<p>Esta consta de:</p>
+<ul>
+<li>
+<p>Licencia.</p>
+<p>Si un archivo no indica licencia (y tampoco el proyecto que lo contiene) se
+debe suponer que este archivo es privado y no puede utilizarse.</p>
+<p>Para especificar la licencia, evitar tener que incluir el texto de la licencia
+y para que sea fácilmente escaneable por un programa (<em>machine-readable</em>) es
+que se utilizan los <a href="https://spdx.org/licenses/">identificadores de licencia</a> sugeridos por
+el proyecto <a href="https://spdx.org/">spdx</a>, el cual también indica la forma de comentar la
+licencia de un archivo, utilizando el string <code>SPDX-License-Identifier:</code> dentro
+de un comentario, seguido de la licencia elegida.</p>
+<p>Sobre el porqué de utilizar la licencia GPL, me remito a un post de <a href="https://drewdevault.com/">Drew
+DeVault</a>,
+<a href="https://drewdevault.com/2019/06/13/My-journey-from-MIT-to-GPL.html">https://drewdevault.com/2019/06/13/My-journey-from-MIT-to-GPL.html</a>, ya que
+coincido con la idea de que es bueno exigir a quien se beneficia del esfuerzo
+de uno que también sea capaz de esforzarse por los demás.</p>
+</li>
+<li>
+<p>Autor.</p>
+<p>Quizás por falta de modestia, por deseo de atribución de obra o simplemente
+por responsabilidad ante el trabajo realizado, considero que hay que reconocer
+al autor de un trabajo.  Nuevamente, el proyecto <a href="https://spdx.org/">spdx</a> utiliza el string
+<code>SPDX-FileCopyrightText</code> para indicar el año o período de realización del
+trabajo y <em>Nombre y/o email</em> del autor.</p>
+</li>
+<li>
+<p>Documentación del script.</p>
+<p>Luego de la licencia y el autor, imprescindible indicar el motivo del script,
+que problema se busca resolver o alguna aclaración de uso.  Sobre el
+contenido, cualquier indicación es mejor que ninguna y sobre el formato
+preferiblemente simplemente texto.</p>
+</li>
+<li>
+<p>Decoración del encabezado.</p>
+<p>Para diferenciar claramente el encabezado del script, y aunque parezca de hace
+20 años, se completa la linea a la columna 80 con el carácter <code>-</code>.  Se
+utilizan <a href="https://en.wikipedia.org/wiki/Characters_per_line">80 carácteres por linea</a> ya que es el límite al que me he
+acostumbrado naturalmente, aparte de ser una buena práctica y la facilidad de
+lectura que tiene.  Ni que mencionar que no soy el único que piensa lo
+anterior.</p>
+</li>
+<li>
+<p>Opciones de traza de ejecución del script.</p>
+<p>La linea</p>
+<pre><code>[ -n &quot;$DEBUG&quot; ] &amp;&amp; { export PS4='+ [${BASH_SOURCE##*/}:${LINENO}] '; set -x; }
+</code></pre>
+<p>habilita la impresión del comando que va a ser ejecutado en <a href="https://www.gnu.org/software/bash/manual/bash.html">bash</a> si se define la variable <code>DEBUG</code> (sin importar su valor).</p>
+<p>Lo anterior es mucho más comodo que estar ejecutando el script utilizando
+<code>/bin/bash -x script</code>.  El truco de cambio del prompt <code>PS4</code> lo tomé de
+<a href="https://github.com/tokuhirom/plenv/blob/master/libexec/plenv">plenv</a>.</p>
+<p>Otros <a href="https://wiki.bash-hackers.org/scripting/debuggingtips">tips de debugging</a> se puede encontrar en
+el sitio <a href="https://wiki.bash-hackers.org/">bash-hackers</a>.</p>
+</li>
+<li>
+<p>Opciones para detección de errores.</p>
+<p>Para aumentar la detección temprana de errores durante la escritura y
+depuración de los scripts se utiliza</p>
+<pre><code>set -euo pipefail
+</code></pre>
+<p>Las ventajas del setting anterior se pueden encontrar en distintos posts como
+el titulado <a href="https://vaneyckt.io/posts/safer_bash_scripts_with_set_euxo_pipefail/">Safer bash scripts with 'set -euxo pipefail'</a>.</p>
+</li>
+</ul>
+<h2>Herramientas</h2>
+<ul>
+<li>
+<p><a href="https://en.wikipedia.org/wiki/Lint_(software)">Linter</a>: <a href="https://www.shellcheck.net/">shellcheck</a></p>
+<p>Hasta donde se no hay otro linter que se le compare así que no habría mucho
+para elegir, pero shellcheck está catalogado como una muy buena herramienta.</p>
+</li>
+</ul>
+<p>Vale la pena mencionar que por completitud se deberían agregar</p>
+<ul>
+<li>Testing framework</li>
+<li>Formateador de código</li>
+</ul>
+<p>pero ya que no utilizo ninguna de los dos herramientas anteriores no conozco
+cual podría recomendarse.</p>
+<h2>Referencias</h2>
+<ul>
+<li><a href="https://wiki.bash-hackers.org/">Bash Hackers Wiki</a></li>
+<li><a href="https://sipb.mit.edu/doc/safe-shell/">Writing Safe Shell Scripts</a></li>
+<li><a href="https://betterdev.blog/minimal-safe-bash-script-template/">Minimal safe Bash script template</a></li>
+<li><a href="https://github.com/dylanaraps/pure-sh-bible">pure sh bible</a></li>
+</ul>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

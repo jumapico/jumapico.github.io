@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Problemas en repositorio apt de qgis | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Problemas en repositorio apt de qgis</h1>
+        <h2 class="date">2018-01-05</h2>
+      </div>
+<h2>Descripción del problema</h2>
+<p>Se desea instalar <a href="https://qgis.org">qgis</a> versión <em>2.14</em> en un <em>ubuntu 14.04</em>.</p>
+<p>Para ello se siguen las instrucciones indicadas en
+<a href="https://qgis.org/en/site/forusers/alldownloads.html#debian-ubuntu">https://qgis.org/en/site/forusers/alldownloads.html#debian-ubuntu</a> (como root):</p>
+<ol>
+<li>
+<p>Se agrega el repositorio de <em>qgis</em> a la lista de repositorios de <em>apt</em>:</p>
+<pre><code class="language-console"># cat &gt; /etc/apt/sources.list.d/qgis.list &lt;&lt;'END'
+deb https://qgis.org/ubuntugis-ltr trusty main
+deb http://ppa.launchpad.net/ubuntugis/ubuntugis-unstable/ubuntu trusty main
+END
+</code></pre>
+</li>
+<li>
+<p>Se instalan los certificados de los repositorios:</p>
+<p>Para <em>qgis</em>:</p>
+<pre><code class="language-console"># apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key CAEB3DC3BDF7FB45
+Executing: gpg --ignore-time-conflict --no-options --no-default-keyring --homedir /tmp/tmp.2ITtsBKJDp --no-auto-check-trustdb --trust-model always --keyring /etc/apt/trusted.gpg --primary-keyring /etc/apt/trusted.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-key CAEB3DC3BDF7FB45
+gpg: solicitando clave BDF7FB45 de hkp servidor keyserver.ubuntu.com
+gpg: clave BDF7FB45: clave pública &quot;QGIS Archive Automatic Signing Key (2017) &lt;qgis-developer@lists.osgeo.org&gt;&quot; importada
+gpg: Cantidad total procesada: 1
+gpg:               importadas: 1  (RSA: 1)
+</code></pre>
+<p>Para <em>ppa ubuntu</em>:</p>
+<pre><code class="language-console"># apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key 089EBE08314DF160
+Executing: gpg --ignore-time-conflict --no-options --no-default-keyring --homedir /tmp/tmp.fDrFUqJgJ8 --no-auto-check-trustdb --trust-model always --keyring /etc/apt/trusted.gpg --primary-keyring /etc/apt/trusted.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-key 089EBE08314DF160
+gpg: requesting key 314DF160 from hkp server keyserver.ubuntu.com
+gpg: key 314DF160: public key &quot;Launchpad ubuntugis-stable&quot; imported
+gpg: Total number processed: 1
+gpg:               imported: 1  (RSA: 1)
+</code></pre>
+</li>
+<li>
+<p>Se actualiza la información de los paquetes del nuevo repositorio:</p>
+<pre><code class="language-console"># apt-get update
+...
+Err https://qgis.org trusty/main i386 Packages
+  gnutls_handshake() failed: Handshake failed
+...
+W: Failed to fetch https://qgis.org/ubuntugis-ltr/dists/trusty/main/binary-i386/Packages  gnutls_handshake() failed: Handshake failed
+
+E: Some index files failed to download. They have been ignored, or old ones used instead.
+</code></pre>
+</li>
+</ol>
+<p>El problema anterior suele darse debido a que la versión de <code>gnutls</code> instalada
+en el sistema no soporta los algoritmos de cifrado <em>TLS</em> disponibles en el
+servidor.</p>
+<p>A continuación se lista el script completo para instalar <em>qgis</em>:</p>
+<pre><code class="language-bash">#!/bin/bash
+#
+# Install qgis
+#
+# See:
+# * http://www.qgis.org/en/site/forusers/alldownloads.html#debian-ubuntu
+#
+set -e
+
+# only run in ubuntu 14.04
+if [ &quot;$(lsb_release -si)&quot; != &quot;Ubuntu&quot; -o &quot;$(lsb_release -sr)&quot; != &quot;14.04&quot; ]; then
+    echo &quot;This scripts only works in 'Ubuntu 14.04'&quot; &gt;&amp;2
+    exit 1
+fi
+
+# check that is run with sudo
+if [ -z $SUDO_USER ]; then
+    echo &quot;Run using 'sudo'&quot; &gt;&amp;2
+    exit 1
+fi
+
+#
+# install qgis
+#
+export DEBIAN_FRONTEND=noninteractive
+
+# add qgis repositories
+cat &gt; /etc/apt/sources.list.d/qgis.list &lt;&lt;'END'
+deb https://qgis.org/ubuntugis-ltr trusty main
+deb http://ppa.launchpad.net/ubuntugis/ppa/ubuntu trusty main
+END
+
+# add certificates for repositories
+# NOTE: get qgis repository key from keyserver - 2017
+# NOTE: the key change every year!
+# NOTE: See: https://qgis.org/en/site/forusers/alldownloads.html#debian-ubuntu
+apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key CAEB3DC3BDF7FB45
+apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key 089EBE08314DF160
+
+# update repository and install packages
+apt-get update
+apt-get install -qVy qgis python-qgis qgis-plugin-grass
+</code></pre>
+<h2>Confirmación del problema</h2>
+<p>Para confirmar lo anterior se puede utilizar el comando <code>gnutls-cli</code> disponible
+en el paquete <code>gnutls-bin</code> y el sitio
+<a href="https://www.ssllabs.com/ssltest">https://www.ssllabs.com/ssltest</a>:</p>
+<ol>
+<li>
+<p>Instalación del paquete <code>gnutls-bin</code>:</p>
+<pre><code class="language-console">$ sudo apt-get install -qVy gnutls-bin
+</code></pre>
+</li>
+<li>
+<p>Intentar establecer una conexión <em>TLS</em> con el servidor (se espera que falle):</p>
+<pre><code class="language-console">$ gnutls-cli --verbose --port 443 qgis.org
+Resolving 'qgis.org'...
+Connecting to '104.27.139.220:443'...
+*** Fatal error: A TLS fatal alert has been received.
+*** Received alert [40]: Handshake failed
+*** Handshake has failed
+GnuTLS error: A TLS fatal alert has been received.
+</code></pre>
+</li>
+<li>
+<p>Obtener los algoritmos soportados por la versión de <code>gnutls</code> del sistema:</p>
+<pre><code class="language-console">$ gnutls-cli --list
+</code></pre>
+</li>
+<li>
+<p>Obtener los algoritmos utilizados por el servidor de la página
+<a href="https://www.ssllabs.com/ssltest/analyze.html?d=qgis.org">https://www.ssllabs.com/ssltest/analyze.html?d=qgis.org</a></p>
+</li>
+</ol>
+<p>Comparando los algoritmos listados en el paso 3. y los del paso 4., vemos que no
+hay coincidencias, de ahí que ocurra el error al intentar realizar el handshake.</p>
+<h2>Solucion propuesta - crear mirror</h2>
+<p>Se intentó actualizar las versiones de <code>gnutls</code>, de los repositorios de ubuntu,
+pero esto no solucionó el problema.</p>
+<p>Como alternativa se creará un mirror local del repositorio utilizando
+<code>apt-mirror</code> (paquete <code>apt-mirror</code>), ya que se buscará instalar <em>qgis</em> en varios
+PC's y se aprovechará para realizar la configuración de forma que deban
+utilizarse solamente servidores de la red interna sin acceso a internet.</p>
+<p>Para ello se crea una configuración de <code>apt-mirror</code> para realizar un mirror de
+los repositorios de <em>qgis</em> y <em>ppa ubuntugis</em>, que contienen los paquetes para
+<em>ubuntu trusty (14.04)</em>:</p>
+<p><em>NOTA:</em> los siguientes comandos se ejecutan en el servidor en el que se desea
+crear los mirror locales.</p>
+<pre><code class="language-console">$ cat &lt;&lt;'END' | sudo tee /etc/apt/mirror-qgis-trusty.list &gt; /dev/null
+set base_path /srv/mirror/apt-mirror-qgis-trusty
+set run_postmirror 0
+set nthreads 20
+set _tilde 0
+deb-i386 https://qgis.org/ubuntugis-ltr trusty main
+deb-i386 http://ppa.launchpad.net/ubuntugis/ubuntugis-unstable/ubuntu trusty main
+clean https://qgis.org/ubuntugis-ltr
+clean http://ppa.launchpad.net/ubuntugis/ubuntugis-unstable/ubuntu
+END
+</code></pre>
+<p>Luego se crea el directorio en que se descargarán los archivos y se ejecuta el
+programa con la configuración previamente creada:</p>
+<pre><code class="language-console">$ sudo mkdir -p /srv/mirror/apt-mirror-qgis-trusty
+$ sudo chown apt-mirror:apt-mirror /srv/mirror/apt-mirror-qgis-trusty
+$ sudo su -c 'apt-mirror /etc/apt/mirror-qgis-trusty.list' -l apt-mirror
+</code></pre>
+<p>Ya que se busca evitar la conexión a internet, se elige el directorio
+<code>/srv/mirror/apt-mirror-qgis-trusty</code> para almacenar los certificados de los
+repositorios:</p>
+<pre><code class="language-console">$ sudo wget -q -P /srv/mirror/apt-mirror-qgis-trusty 'https://qgis.org/downloads/qgis-2017.gpg.key'
+$ gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-key 089EBE08314DF160
+$ gpg --export --armor 089EBE08314DF160 | sudo tee /srv/mirror/apt-mirror-qgis-trusty/ubuntugis.gpg.key &gt; /dev/null
+</code></pre>
+<p>Ahora resta servir los repositorios descargados en
+<code>/srv/mirror/apt-mirror-qgis-trusty/mirror/qgis.org</code> mediante un
+servidor web.</p>
+<p>Configurando un servidor web que sirva el contenido de <code>/var/www</code>, se crean los
+links simbólicos:</p>
+<pre><code>$ sudo mkdir -p /var/www/mirrors/qgis-trusty
+$ sudo ln -s -t /var/www/mirrors/qgis-trusty /srv/mirror/apt-mirror-qgis-trusty/mirror/qgis.org
+$ sudo ln -s -t /var/www/mirrors/qgis-trusty /srv/mirror/apt-mirror-qgis-trusty/mirror/ppa.launchpad.net
+$ sudo ln -s -t /var/www/mirrors/qgis-trusty /srv/mirror/apt-mirror-qgis-trusty/qgis-2017.gpg.key
+$ sudo ln -s -t /var/www/mirrors/qgis-trusty /srv/mirror/apt-mirror-qgis-trusty/ubuntugis.gpg.key
+</code></pre>
+<p>Ahora, suponiendo que se acceda al mirror utilizando el hostname
+<code>mirror.example.com</code>, se modifica el script anterior para instalar <em>qgis</em>:</p>
+<pre><code class="language-bash">#!/bin/bash
+#
+# Install qgis
+#
+# See:
+# * http://www.qgis.org/en/site/forusers/alldownloads.html#debian-ubuntu
+#
+set -e
+
+# only run in ubuntu 14.04
+if [ &quot;$(lsb_release -si)&quot; != &quot;Ubuntu&quot; -o &quot;$(lsb_release -sr)&quot; != &quot;14.04&quot; ]; then
+    echo &quot;This scripts only works in 'Ubuntu 14.04'&quot; &gt;&amp;2
+    exit 1
+fi
+
+# check that is run with sudo
+if [ -z $SUDO_USER ]; then
+    echo &quot;Run using 'sudo'&quot; &gt;&amp;2
+    exit 1
+fi
+
+#
+# install qgis
+#
+export DEBIAN_FRONTEND=noninteractive
+
+# add qgis repositories
+cat &gt; /etc/apt/sources.list.d/qgis.list &lt;&lt;'END'
+deb http://mirror.example.com/qgis-trusty/qgis.org/ubuntugis-ltr trusty main
+deb http://mirror.example.com/qgis-trusty/ppa.launchpad.net/ubuntugis/ubuntugis-unstable/ubuntu trusty main
+END
+
+# add certificates for repositories in mirror
+wget -q -O- 'http://mirror.example.com/qgis-trusty/qgis-2017.gpg.key' | apt-key add -
+wget -q -O- 'http://mirror.example.com/qgis-trusty/ubuntugis.gpg.key' | apt-key add -
+
+# update repository and install packages
+apt-get update
+apt-get install -qVy qgis python-qgis qgis-plugin-grass
+</code></pre>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+
