@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Usando mate-terminal con 256 colores | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Usando mate-terminal con 256 colores</h1>
+        <h2 class="date">2018-06-25</h2>
+      </div>
+<h1>Usando mate-terminal con 256 colores</h1>
+<p>Actualmente debido al <a href="https://github.com/mate-desktop/mate-terminal/issues/209">bug 209</a> en <a href="https://github.com/mate-desktop/mate-terminal">mate terminal</a>
+(abierto al 25 de Junio de 2018) tengo problemas para utilizar el <a href="https://github.com/vim-airline/vim-airline/wiki/Screenshots#luna">tema
+luna</a> del <a href="https://github.com/vim-airline/vim-airline">plugin de vim airline</a>.</p>
+<p>Como se indica en el <a href="https://github.com/mate-desktop/mate-terminal/issues/209">bug</a>, se puede utilizar</p>
+<pre><code>$ TERM=xterm-256color vim
+</code></pre>
+<p>para corroborar que estableciendo correctamente la variable de entorno <code>TERM</code> el
+problema se soluciona.</p>
+<p>Ahora, no encontre como determinar que el shell está utilizando <code>mate-terminal</code>
+y no deseo setear la variable <code>TERM</code> en <code>~/.bashrc</code> ya que podría tener
+problemas con otros terminales.</p>
+<p>Como alternativa se elige ejecutar un comando customizado en lugar del shell. A
+la opción se accede haciendo <em>Click derecho &gt; Profiles &gt; Profile Preferences</em>.
+Allí se va a la tab <em>Title and Command</em>, se marca la opción <em>Run a custom
+command instead of my shell</em> y en <em>Custom command</em> se agrega: <code>/usr/bin/env TERM=xterm-256color /bin/bash</code>.</p>
+<p><img src="./custom-command-settings.png" alt="custom command settings" /></p>
+<p>El <em>comando personalizado</em> utiliza <a href="http://man7.org/linux/man-pages/man1/env.1.html">env</a> para ejecutar <code>bash</code> en un
+entorno al que se le agrega la variable (valga la redundancia, de entorno)
+<code>TERM=xterm-256color</code>.</p>
+<p>Para hacer lo anterior desde consola se puede utilizar el programa <code>dconf</code>.</p>
+<p>Primero se listan los profiles en uso (en mi caso solo esta el profile por
+defecto):</p>
+<pre><code>$ dconf list /org/mate/terminal/profiles/
+default/
+</code></pre>
+<p>Luego asignarle el comando customizado al profile, en este caso el <em>por
+defecto</em>:</p>
+<pre><code>$ dconf write /org/mate/terminal/profiles/default/custom-command \
+    &quot;'/usr/bin/env TERM=xterm-256color /bin/bash'&quot;
+</code></pre>
+<p>Para corroborar que el cambio fué aplicado correctamente se puede utilizar:</p>
+<pre><code>$ dconf read /org/mate/terminal/profiles/default/custom-command
+'/usr/bin/env TERM=xterm-256color /bin/bash'
+</code></pre>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

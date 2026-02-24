@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Corrigiendo Google Earth Pro 7.3.3.7786-r0 | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Corrigiendo Google Earth Pro 7.3.3.7786-r0</h1>
+        <h2 class="date">2020-11-24</h2>
+      </div>
+<p><em><a href="https://www.google.com/earth/versions/#earth-pro">Google Earth Pro</a> 7.3.3.7786-r0</em> crea un link simbólico
+<code>$HOME/.googleearth/instance-running-lock</code> apuntando al directorio <code>/proc/&lt;pid&gt;</code>
+(siendo <code>pid</code> el <a href="https://en.wikipedia.org/wiki/Process_identifier">process id</a> de la instancia de google earth).</p>
+<p>El problema que ocurre es que al reiniciar la computadora el <code>pid</code> puede haber
+sido asignado a un proceso que se encuentre en ejecución, en cuyo caso <a href="https://www.google.com/earth/versions/#earth-pro">Google
+Earth Pro</a> <em>solo indica el problema al ser ejecutado desde la consola</em>.</p>
+<p>Una solución al problema anterior puede ser el <a href="./fix-instance-link-issue.patch">siguiente parche</a>
+que elimina el enlace si este existe y no corresponde a una instancia de
+<code>googleearth-bin</code>:</p>
+<pre><code>--- opt/google/earth/pro/googleearth.orig	2020-11-24 15:44:50.476392680 -0300
++++ opt/google/earth/pro/googleearth	2020-11-24 15:44:07.937099724 -0300
+@@ -2,6 +2,10 @@
+ # This script configures any environment prerequisites needed by Google Earth.
+ # Start Google Earth using this script rather than googleearth-bin directly.
+
++if ! grep -q googleearth-bin &quot;$HOME&quot;/.googleearth/instance-running-lock/cmdline 2&gt;/dev/null; then
++  rm -f &quot;$HOME&quot;/.googleearth/instance-running-lock
++fi
++
+ # If you want to use an external copy of GPSBabel, you can specify it here.
+ # if [[ -z &quot;$GPSBABEL&quot; ]]; then export GPSBABEL=&quot;$(which gpsbabel)&quot;; fi
+
+@@ -18,4 +22,4 @@
+   fi
+ fi
+
+-&quot;$(dirname &quot;$(readlink -f &quot;$0&quot;)&quot;)/googleearth-bin&quot; &quot;$@&quot;
++exec &quot;$(dirname &quot;$(readlink -f &quot;$0&quot;)&quot;)/googleearth-bin&quot; &quot;$@&quot;
+</code></pre>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

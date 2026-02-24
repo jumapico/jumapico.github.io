@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Testeando scripts del mantenedor de un paquete | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Testeando scripts del mantenedor de un paquete</h1>
+        <h2 class="date">2019-08-02</h2>
+      </div>
+<p>En debian los paquetes poseen <a href="https://www.debian.org/doc/debian-policy/ch-binary.html#maintainer-scripts">maintainer scripts</a> (o scripts del mantenedor
+de un paquete) utilizados durante las etapas de instalación y borrado de
+paquetes.  Hay que tener en cuenta que los paquetes pueden estar en uno de
+varios estados y las transiciones de estos se detallan gráficamente en los
+<a href="https://www.debian.org/doc/debian-policy/ap-flowcharts.html">diagramas de flujo de los maintainer scripts</a> en el manual de políticas de
+debian.</p>
+<p>Hay veces que durante la creación de paquetes se debe hacer un script, y al
+momento de instalar se obtiene un error como el siguiente:</p>
+<pre><code>$ dpkg -i my-package_1_amd64.deb
+...
+dpkg: error processing package my-package (--install):
+ installed my-package post-installation script subprocess returned error exit status 10
+...
+</code></pre>
+<p>En ese caso una forma <strong>rápida y sucia</strong> de probar el script es editando
+directamente el script correspondiente (<em>{pre,post}{inst,rm}</em>) en el directorio
+<code>/var/lib/dpkg/info</code> respaldando previamente:</p>
+<pre><code>$ sudo cp /var/lib/dpkg/info/my-package.postinst{,.bak}
+$ sudo vi /var/lib/dpkg/info/my-package.postinst
+</code></pre>
+<p>Para shell conviene agregar <code>set -x</code> para obtener mayor información sobre los
+errores.</p>
+<p>Luego de realizar cambios se utiliza <code>dpkg</code> para corroborar que los scripts no
+devuelvan errores al ser invocados:</p>
+<pre><code>$ sudo dpgk --configure my-package
+</code></pre>
+<p><em>NOTA: en caso de seguir este tip se recomienda utilizar una máquina virtual
+para instalar el paquete</em></p>
+<p>Tener en cuenta que para probar los maintainer scripts conviene utilizar
+<a href="https://wiki.debian.org/piuparts">piuparts</a>.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

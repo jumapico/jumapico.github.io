@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Failed to load module 'canberra-gtk-module' | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Failed to load module 'canberra-gtk-module'</h1>
+        <h2 class="date">2019-08-07</h2>
+      </div>
+<p>Al ejecutar <a href="https://www.gimp.org/">gimp</a> desde consola en debian buster (10) aparece el siguiente
+mensaje:</p>
+<pre><code>$ gimp
+Gtk-Message: 01:00:51.060: Failed to load module &quot;canberra-gtk-module&quot;
+</code></pre>
+<p>Esto es debido a que falta instalar el paquete <code>libcanberra-gtk-module</code>.
+Para corregir el mensaje de error ejecutar:</p>
+<pre><code>$ sudo apt-get install -V libcanberra-gtk-module
+...
+The following NEW packages will be installed:
+   libcanberra-gtk-module (0.30-7)
+   libcanberra-gtk0 (0.30-7)
+0 upgraded, 2 newly installed, 0 to remove and 0 not upgraded.
+...
+</code></pre>
+<h2>Notas</h2>
+<p>De la descripción del paquete <code>libcanberra0</code> (<code>apt show libcanberra0</code>):</p>
+<blockquote>
+<p><a href="http://0pointer.de/lennart/projects/libcanberra/">libcanberra</a> defines a simple abstract interface for playing event sounds.</p>
+</blockquote>
+<p>El sistema por defecto tiene instalado el paquete para <code>gtk-3</code>
+(<code>libcanberra-gtk3-module</code>) pero <code>gimp</code> aún utiliza <code>gtk-2</code> por lo que el
+mensaje es debido a que falta para dicha versión de gtk
+(<code>libcanberra-gtk-module</code>).</p>
+<p>Los paquetes instalados relacionados a <code>libcanberra</code> se obtienen mediante:</p>
+<pre><code>$ dpkg -l libcanberra* | grep ^ii
+ii  libcanberra-dev:amd64         0.30-7       amd64        simple interface for playing event sounds (development files)
+ii  libcanberra-gtk-common-dev    0.30-7       all          simple interface for playing event sounds (GTK+ shared development files)
+ii  libcanberra-gtk-module:amd64  0.30-7       amd64        translates GTK+ widgets signals to event sounds
+ii  libcanberra-gtk0:amd64        0.30-7       amd64        GTK+ helper for playing widget event sounds with libcanberra
+ii  libcanberra-gtk3-0:amd64      0.30-7       amd64        GTK+ 3.0 helper for playing widget event sounds with libcanberra
+ii  libcanberra-gtk3-dev:amd64    0.30-7       amd64        simple interface for playing event sounds (GTK+ 3 development files)
+ii  libcanberra-gtk3-module:amd64 0.30-7       amd64        translates GTK3 widgets signals to event sounds
+ii  libcanberra-pulse:amd64       0.30-7       amd64        PulseAudio backend for libcanberra
+ii  libcanberra0:amd64            0.30-7       amd64        simple abstract interface for playing event sounds
+</code></pre>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

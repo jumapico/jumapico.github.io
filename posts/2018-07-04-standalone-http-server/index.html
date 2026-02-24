@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Servidor HTTP standalone | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Servidor HTTP standalone</h1>
+        <h2 class="date">2018-07-04</h2>
+      </div>
+<p>Se pueden servir los archivos de un directorio utilizando la clase
+<a href="https://docs.python.org/3/library/http.server.html#http.server.SimpleHTTPRequestHandler">SimpleHTTPRequestHandler</a> de la librería <a href="https://docs.python.org/3/library/http.server.html">http.server</a> de <a href="https://www.python.org/">python3</a> desde la
+linea de comandos:</p>
+<pre><code>$ python3 -m http.server
+</code></pre>
+<h2>Otros</h2>
+<ul>
+<li>
+<p><a href="https://busybox.net/">busybox</a>:</p>
+<pre><code>$ busybox httpd -f -p 8000
+</code></pre>
+</li>
+<li>
+<p><a href="https://www.php.net/">php</a>:</p>
+<pre><code>$ php -S localhost:8000
+</code></pre>
+</li>
+<li>
+<p><a href="https://www.ruby-lang.org/">ruby</a> (lista directorios):</p>
+<pre><code>$ ruby -run -ehttpd . -p8000
+</code></pre>
+</li>
+</ul>
+<!-- References -->
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Usando wildfly con overlayfs | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Usando wildfly con overlayfs</h1>
+        <h2 class="date">2023-02-23</h2>
+      </div>
+<p>Estos días estoy teniendo que probar varias <a href="https://en.wikipedia.org/wiki/Jakarta_EE">aplicaciones JEE</a> en los
+<a href="https://en.wikipedia.org/wiki/Application_server#Java_application_servers">servidores de aplicaciones java</a> <a href="https://www.wildfly.org/">wildfly</a> y <a href="https://www.payara.fish/">payara</a>.</p>
+<p>No solo estoy teniendo que probar aplicaciones, sinó también cerciorarme de que
+la customización realizada a los application servers (<em>as</em>) <a href="https://en.wikipedia.org/wiki/Vanilla_software">vanilla</a> sean
+correctas.</p>
+<p>Para facilitarme lo anterior, encontré que una forma <em>relativamente sencilla</em> de
+realizar pruebas y ver que cambios se realizan en un <em>as</em> es utilizar
+<a href="https://en.wikipedia.org/wiki/OverlayFS">overlayfs</a> (<a href="https://manpages.debian.org/testing/mount/mount.8.en.html#Mount_options_for_overlay">manpage</a>) para dejar incambiados los archivos del as
+(directorio <code>lowerdir</code>) y poder inspeccionar fácilmente los cambios realizados
+(directorio <code>upperdir</code>).</p>
+<p>Si bien el comando central es, para el caso de <code>wildfly-26.1.3.Final</code>:</p>
+<pre><code>$ doas mount -t overlay overlay \
+    -o lowerdir=wildfly-26.1.3.Final_base,upperdir=wildfly-26.1.3.Final_upper,workdir=wildfly-26.1.3.Final_work \
+    wildfly-26.1.3.Final
+</code></pre>
+<p>hay que estar asegurandose que existan los directorios, que no esté ya montado,
+y en mi caso para versiones distintas del <em>as</em>.</p>
+<p>De ahí el script <a href="./mount-application-server.sh">mount-application-server.sh</a> que debe ser renombrado con el
+nombre del archivo comprimido del <em>as</em>.  Para el caso anterior:</p>
+<pre><code>$ ln mount-application-server.sh mount-wildfly-26.1.3.Final.tar.gz.sh
+</code></pre>
+<p>El script se encarga de extraer del nombre de archivo del script el <em>as</em> (de ahí
+el uso de <a href="https://manpages.debian.org/testing/coreutils/ln.1.en.html">ln</a>), la versión y la extensión utilizada.</p>
+<p>A partir de allí:</p>
+<ul>
+<li>si no se encuentra el directorio base (<code>lower</code>) falla con instrucciones para
+crearlo</li>
+<li>si no existen los directorios los crea (directorios <code>upper</code>, <code>work</code>, <code>target</code>)</li>
+<li>si ya está montado el directorio <code>target</code> falla</li>
+</ul>
+<p>Por ahora solo funciona para <a href="https://www.wildfly.org/">wildfly</a> y <a href="https://www.payara.fish/">payara</a>.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

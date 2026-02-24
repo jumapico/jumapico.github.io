@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Problemas con features al montar partición ext4 | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Problemas con features al montar partición ext4</h1>
+        <h2 class="date">2017-11-20</h2>
+      </div>
+<p>Por segunda o tercera vez me ocurre el problema que al crear una partición
+<code>ext4</code> en un pendrive con mi PC, al intentar utilizarlo en otro PC con un SO
+distinto no puedo montar la partición.</p>
+<p>El mensaje que aparece en <code>dmesg</code> es el siguiente:</p>
+<pre><code>[12317.658982] sd 113:0:0:0: Attached scsi generic sg2 type 0
+[12317.659600] sd 113:0:0:0: [sdc] 7864320 512-byte logical blocks: (4.02 GB/3.75 GiB)
+[12317.660054] sd 113:0:0:0: [sdc] Write Protect is off
+[12317.660063] sd 113:0:0:0: [sdc] Mode Sense: 43 00 00 00
+[12317.660071] sd 113:0:0:0: [sdc] Assuming drive cache: write through
+[12317.684195] sd 113:0:0:0: [sdc] Assuming drive cache: write through
+[12317.694281]  sdc: sdc1
+[12317.697375] sd 113:0:0:0: [sdc] Assuming drive cache: write through
+[12317.705220] sd 113:0:0:0: [sdc] Attached SCSI removable disk
+[12317.815980] EXT4-fs (sdc1): couldn't mount RDWR because of unsupported optional features (400)
+</code></pre>
+<p>Utilizando <code>fsck</code> para intentar corregir el problema se obtiene:</p>
+<pre><code>fsck from util-linux-ng 2.17.2
+/dev/sdc1 has unsupported feature(s): 64bit FEATURE_R10
+e2fsck: Get a newer version of e2fsck!
+</code></pre>
+<p>Obviamente el problema es una versión <em>vieja</em> del paquete <code>e2fsprogs</code>, pero
+¿como conseguir que el pendrive formateado en mi SO funcione en otro con una
+versión más vieja de <code>e2fsprogs</code>?</p>
+<p>Según el manual de <code>mkfs.ext4</code> (<code>man mkfs.ext4</code>), los parámetros y features, que
+son las que nos dan el problema actual, se toman por defecto del archivo
+<code>/etc/mke2fs.conf</code>. La descripción de las features se puede encontrar en el
+manual de <code>ext4</code> (<code>man ext4</code>).</p>
+<p>El problema en concreto se debe a que a partir de la versión <em>1.43</em> se agregaron
+las features <em>metadata_csum</em> y <em>64bit</em>.
+De <a href="http://e2fsprogs.sourceforge.net/e2fsprogs-release.html">http://e2fsprogs.sourceforge.net/e2fsprogs-release.html</a>:</p>
+<pre><code>E2fsprogs 1.43 (May 17, 2016)
+...
+Mke2fs will now create file systems with the metadata_csum and 64bit features enabled by default.
+</code></pre>
+<p>Para confirmar que la feature <code>FEATURE_R10</code> del mensaje de <code>fsck</code> es
+<code>metadata_csum</code> se puede ver el código fuente del paquete <code>e2fsprogs</code>.
+Para ver el código se utiliza el sitio <a href="http://sources.debian.org">http://sources.debian.org</a>, que contiene
+los fuentes de debian (mi SO):</p>
+<ul>
+<li>
+<p><a href="http://sources.debian.net/src/e2fsprogs/1.43.5-1/lib/e2p/feature.c/#L67">http://sources.debian.net/src/e2fsprogs/1.43.5-1/lib/e2p/feature.c/#L67</a>:
+aquí se listan las distintas features. La que nos interesa es la entrada
+correspondiente a <code>metadata_csum</code>, ya que es la feature que sospechamos que
+no está soportada aún:
+<code>{	E2P_FEATURE_RO_INCOMPAT, EXT4_FEATURE_RO_COMPAT_METADATA_CSUM, &quot;metadata_csum&quot;}</code>.</p>
+</li>
+<li>
+<p><a href="http://sources.debian.net/src/e2fsprogs/1.43.5-1/lib/e2p/feature.c/#L128">http://sources.debian.net/src/e2fsprogs/1.43.5-1/lib/e2p/feature.c/#L128</a>: la
+función <code>e2p_feature2string</code> es la que se encarga de imprimir las features y
+allí es donde se genera el string <code>FEATURE_R10</code>. Se puede ver que la <code>R</code>
+corresponde a los features de tipo <code>E2P_FEATURE_RO_INCOMPAT</code>. Para confirmar
+el número de feature se debe calcular: <code>for (fnum = 0; mask &gt;&gt;= 1; fnum++);</code></p>
+</li>
+<li>
+<p><a href="http://sources.debian.net/src/e2fsprogs/1.43.5-1/lib/ext2fs/ext2_fs.h/#L811">http://sources.debian.net/src/e2fsprogs/1.43.5-1/lib/ext2fs/ext2_fs.h/#L811</a>:
+aquí se define la constante <code>EXT4_FEATURE_RO_COMPAT_METADATA_CSUM</code> utilizada
+como valor para la mascara. Dicho valor es <code>0x0400</code> y haciendo el cálculo
+anterior confirmamos que el número de feature es el <code>10</code>.</p>
+</li>
+</ul>
+<p>Para formatear una partición <code>ext4</code> sin las features anteriores se puede
+utilizar (suponiendo que la partición a formatear es <code>/dev/sdb1</code>):</p>
+<pre><code># mkfs.ext4 -F -L &quot;mylabel&quot; -O ^64bit,^metadata_csum /dev/sdb1
+</code></pre>
+<p>Como alternativa, si ya existe la partición puede utilizarse el comando
+<code>tune2fs</code> para modificar los features de la partición:</p>
+<pre><code># tune2fs -O ^64bit,^metadata_csum /dev/sdb1  # remover features
+# tune2fs -l /dev/sdb1 | grep features  # listar features
+</code></pre>
+<p>Al utilizar el comando <code>tune2fs</code> para modificar los features este suele imprimir
+en consola si se necesita ejecutar un comando adicional.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Problemas con filtros (drivers) de impresora | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Problemas con filtros (drivers) de impresora</h1>
+        <h2 class="date">2019-07-17</h2>
+      </div>
+<h2>Problema</h2>
+<p>No se puede imprimir utilizando una impresora <a href="https://duckduckgo.com?q=epson+l606">Epson L606</a>.</p>
+<p>Información:</p>
+<ul>
+<li>La impresora funciona con <em>Ubuntu 14.04 (i386)</em>.</li>
+<li>No funciona <em>Ubuntu 18.04 (amd64)</em>.</li>
+<li>La PC ya tiene instalados los drivers para la impresora, pero no sabe si la
+instalación fué realizada mediante un paquete deb -privativo, descargado de
+epson- o directamente utilizando un script.</li>
+</ul>
+<h2>Suposición</h2>
+<p>Se supone que quien instaló el driver para la impresora utilizó el driver de
+<em>Ubuntu 14.04 (i386)</em> y que el problema se da por la diferencia de arquitectura
+con <em>Ubuntu 18.04 (amd64)</em>.</p>
+<p>Si lo anterior es correcto el problema puede estar en el <a href="https://www.cups.org/doc/spec-design.html">filtro</a> utilizado
+por la impresora.</p>
+<h2>Diagnóstico</h2>
+<p>La impresora ya fué creada en el sistema, por lo que se busca en el <a href="https://en.wikipedia.org/wiki/PostScript_Printer_Description">archivo
+ppd</a> cual es el filtro que está utilizando, ya que se sospecha que ahí está el
+problema.</p>
+<p>Se buscan filtros de las impresoras instaladas:</p>
+<pre><code>$ sudo grep cupsFilter /etc/cups/ppd/*.ppd
+/etc/cups/ppd/Brother-HL5350DN.ppd:*cupsFilter: &quot;application/vnd.cups-postscript 0 brlpdwrapperHL5350DN&quot;
+/etc/cups/ppd/Epson-L606.ppd:*cupsFilter: &quot;application/vnd.cups-raster 0 /opt/epson-inkjet-printer-escpr/cups/lib/filter/epson-escpr-wrapper&quot;
+</code></pre>
+<p>De lo anterior encontramos que el sistema tiene por lo menos instalada otra
+impresora (una Brother HL5350DN si nos guiamos por el nombre, la cual no nos
+interesa) y que la impresora <em>Epson L606</em> (la que estamos interesados) utiliza
+como filtro el archivo
+<code>/opt/epson-inkjet-printer-escpr/cups/lib/filter/epson-escpr-wrapper</code>.</p>
+<p>Según el <a href="https://refspecs.linuxfoundation.org/FHS_3.0/fhs/index.html">FHS</a> el directorio en que esta instalado el filtro es utilizado
+para <a href="https://refspecs.linuxfoundation.org/FHS_3.0/fhs/ch03s13.html">instalación de paquetes adicionales</a>, por lo que se puede asegurar que
+no se está usando un paquete del repositorio sinó posiblemente un driver
+privativo obtenido de epson.</p>
+<p>Se pasa a determinar el tipo de archivo del filtro:</p>
+<pre><code>$ file /opt/epson-inkjet-printer-escpr/cups/lib/filter/epson-escpr-wrapper
+/opt/epson-inkjet-printer-escpr/cups/lib/filter/epson-escpr-wrapper: ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), dynamically linked, interpreter /lib/ld-lsb.so.3, for GNU/Linux 2.6.15, BuildID[sha1]=bbbbd0675f310135f7c34a8eaa6fe1e63b2de4f1, stripped
+</code></pre>
+<p>Se intenta ejecutar el filtro, ya que es lo que hace <a href="https://www.cups.org/">CUPS</a> cuando se envía
+un trabajo a la impresora para imprimir:</p>
+<pre><code>$ /opt/epson-inkjet-printer-escpr/cups/lib/filter/epson-escpr-wrapper
+/opt/epson-inkjet-printer-escpr/cups/lib/filter/epson-escpr-wrapper: error while loading shared libraries: libcupsimage.so.2: cannot open shared object file: No such file or directory
+</code></pre>
+<p>Aquí se obtiene un error debido a la falta de la librería <code>libcupsimage.so.2</code>,
+que se puede suponer es el motivo por el cual no es posible imprimir con la
+impresora.</p>
+<p><em>NOTA: El filtro se puede ejecutar ya que el sistema tiene instalado el paquete
+{libc6-i386}, en caso contrario se obtendría un error de que el archivo no es
+ejecutable.</em></p>
+<p>Para probar un poco más se busca la librería <code>libcupsimage.so.2</code>:</p>
+<pre><code>$ sudo find /lib* /usr/lib* /usr/local/lib* -name 'libcupsimage.so*'
+/usr/lib/x86_64-linux-gnu/libcupsimage.so.2
+$ file /usr/lib/x86_64-linux-gnu/libcupsimage.so.2
+/usr/lib/x86_64-linux-gnu/libcupsimage.so.2: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, BuildID[sha1]=9a4ec090cf3f4ad8ba754cc696e3dbc39997d072, stripped
+</code></pre>
+<p>Y se encuentra que el filtro (un programa ejecutable) es de 32 bits y la
+librería instalada en el sistema es de 64 bits, ya que se indica en la salida
+del programa file y se encuentra bajo el directorio <code>/usr/lib/x86_64-linux-gnu</code>
+reservado para las librerías de 64 bits.</p>
+<p>Si se intenta ejecutar el filtro forzando el uso de la librería de 64 bits se
+obtiene:</p>
+<pre><code>$ LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu /opt/epson-inkjet-printer-escpr/cups/lib/filter/epson-escpr-wrapper
+/opt/epson-inkjet-printer-escpr/cups/lib/filter/epson-escpr-wrapper: error while loading shared libraries: libcupsimage.so.2: wrong ELF class: ELFCLASS64
+</code></pre>
+<h2>Solución</h2>
+<p>Las soluciones pasan por:</p>
+<ol>
+<li>Instalar el driver en su versión de 64 bits, si esta existe.</li>
+<li>Lograr la ejecución del filtro.</li>
+</ol>
+<p>Sin duda la primera opción es la <em>correcta</em>, pero vamos a ir por la 2.,
+suponiendo que el driver de 64 bits no está disponible, no puede o <strong>no
+quiere</strong> instalarse.</p>
+<p><em>Aviso: existe un driver de 64 bits para la impresora Epson L606 disponible en la
+página del fabricante.</em></p>
+<p>Para lograr la ejecución del filtro debe instalarse el paquete que contiene la
+librería <code>libcupsimage.so.2</code> en 32 bits.</p>
+<p>Para ello primero se obtiene el paquete a instalar:</p>
+<pre><code>$ dpkg -S /usr/lib/x86_64-linux-gnu/libcupsimage.so.2
+libcupsimage2:amd64: /usr/lib/x86_64-linux-gnu/libcupsimage.so.2
+</code></pre>
+<p>Luego se agrega la arquitectura <em>i386</em> al sistema.  Esto es posible dado que
+debian y sus derivativos tiene <a href="https://wiki.debian.org/Multiarch">soporte para multiarquitecturas</a>:</p>
+<pre><code>$ sudo dpkg --add-architecture i386
+$ sudo apt-get update
+</code></pre>
+<p><em>Asegurarse que se esten descargando la información correspondiente a la
+arquitectura i386</em>.</p>
+<p>Para instalar el paquete libcupsimage2 para dicha arquitectura hacer:</p>
+<pre><code>$ sudo apt-get install -V libcupsimage2:i386
+...
+The following NEW packages will be installed:
+   gcc-8-base:i386 (8.3.0-6ubuntu1~18.04.1)
+   libavahi-client3:i386 (0.7-3.1ubuntu1.2)
+   libavahi-common-data:i386 (0.7-3.1ubuntu1.2)
+   libavahi-common3:i386 (0.7-3.1ubuntu1.2)
+   libc6:i386 (2.27-3ubuntu1)
+   libcom-err2:i386 (1.44.1-1ubuntu1.1)
+   libcups2:i386 (2.2.7-1ubuntu2.6)
+   libcupsfilters1:i386 (1.20.2-0ubuntu3.1)
+   libcupsimage2:i386 (2.2.7-1ubuntu2.6)
+   libdbus-1-3:i386 (1.12.2-1ubuntu1.1)
+   libffi6:i386 (3.2.1-8)
+   libgcc1:i386 (1:8.3.0-6ubuntu1~18.04.1)
+   libgcrypt20:i386 (1.8.1-4ubuntu1.1)
+   libgmp10:i386 (2:6.1.2+dfsg-2)
+   libgnutls30:i386 (3.5.18-1ubuntu1.1)
+   libgpg-error0:i386 (1.27-6)
+   libgssapi-krb5-2:i386 (1.16-2ubuntu0.1)
+   libhogweed4:i386 (3.4-1)
+   libidn2-0:i386 (2.0.4-1.1build2)
+   libjbig0:i386 (2.1-3.1build1)
+   libjpeg-turbo8:i386 (1.5.2-0ubuntu5.18.04.1)
+   libjpeg8:i386 (8c-2ubuntu8)
+   libk5crypto3:i386 (1.16-2ubuntu0.1)
+   libkeyutils1:i386 (1.5.9-9.2ubuntu2)
+   libkrb5-3:i386 (1.16-2ubuntu0.1)
+   libkrb5support0:i386 (1.16-2ubuntu0.1)
+   liblz4-1:i386 (0.0~r131-2ubuntu3)
+   liblzma5:i386 (5.2.2-1.3)
+   libnettle6:i386 (3.4-1)
+   libp11-kit0:i386 (0.23.9-2)
+   libpng16-16:i386 (1.6.34-1ubuntu0.18.04.2)
+   libsystemd0:i386 (237-3ubuntu10.24)
+   libtasn1-6:i386 (4.13-2)
+   libtiff5:i386 (4.0.9-5ubuntu0.2)
+   libunistring2:i386 (0.9.9-0ubuntu2)
+   zlib1g:i386 (1:1.2.11.dfsg-0ubuntu2)
+The following packages will be upgraded:
+...
+Unpacking libcups2:i386 (2.2.7-1ubuntu2.6) ...
+dpkg: error processing archive /tmp/apt-dpkg-install-PBbfvl/12-libcups2_2.2.7-1ubuntu2.6_i386.deb (--unpack):
+ trying to overwrite shared '/usr/share/doc/libcups2/changelog.Debian.gz', which is different from other instances of package libcups2:i386
+...
+Errors were encountered while processing:
+ /tmp/apt-dpkg-install-PBbfvl/12-libcups2_2.2.7-1ubuntu2.6_i386.deb
+</code></pre>
+<p>De la salida anterior se ven dos cosas:</p>
+<ol>
+<li>No es viable descargar manualmente el paquete <code>libcupsimage2</code> y sus
+dependencias para la arquitectura i386 dada la cantidad que son y la
+dificultad de realizar el cálculo siguiendo los links de la <a href="https://packages.ubuntu.com/bionic/libcupsimage2">página web de
+ubuntu para el paquete libcupsimage2</a></li>
+<li>Hay un error al instalar la versión de 32 bits del paquete <code>libcups2</code> que
+impide que se complete la instalación.</li>
+</ol>
+<p>Se revisan las versiones instaladas del paquete <code>libcups2</code> y disponibles en las
+distintas arquitecturas:</p>
+<pre><code>$ apt-cache policy libcups2:amd64 libcups2:i386
+libcups2:
+  Installed: 2.2.7-1ubuntu2.6
+  Candidate: 2.2.7-1ubuntu2.6
+  Version table:
+ *** 2.2.7-1ubuntu2.6 500
+        500 http://uy.archive.ubuntu.com/ubuntu bionic-updates/main amd64 Packages
+        100 /var/lib/dpkg/status
+     2.2.7-1ubuntu2.2 500
+        500 http://uy.archive.ubuntu.com/ubuntu bionic-security/main amd64 Packages
+     2.2.7-1ubuntu2 500
+        500 http://uy.archive.ubuntu.com/ubuntu bionic/main amd64 Packages
+libcups2:i386:
+  Installed: (none)
+  Candidate: 2.2.7-1ubuntu2.6
+  Version table:
+     2.2.7-1ubuntu2.6 500
+        500 http://uy.archive.ubuntu.com/ubuntu bionic-updates/main i386 Packages
+     2.2.7-1ubuntu2.2 500
+        500 http://uy.archive.ubuntu.com/ubuntu bionic-security/main i386 Packages
+     2.2.7-1ubuntu2 500
+        500 http://uy.archive.ubuntu.com/ubuntu bionic/main i386 Packages
+</code></pre>
+<p>De lo anterior conicidirían la versión del paquete instalado en la arquitectura
+amd64 con la versión del paquete a instalar en la arquitectura i386 por lo cual
+no debería haber ocurrido el problema anterior.</p>
+<p>Se verifica si los archivos instalados por el paquete <code>libcups2</code> son correctos
+utilizando los checksums (<a href="https://en.wikipedia.org/wiki/MD5">md5</a>) incluidos en el el paquete:</p>
+<pre><code>$ (cd /; cat /var/lib/dpkg/info/libcups2\:amd64.md5sums | md5sum --check)
+usr/lib/x86_64-linux-gnu/libcups.so.2: OK
+usr/share/doc/libcups2/README.Debian.gz: OK
+usr/share/doc/libcups2/changelog.Debian.gz: FAILED
+usr/share/doc/libcups2/copyright: OK
+usr/share/doc/libcups2/examples/client.conf: OK
+md5sum: WARNING: 1 computed checksum did NOT match
+</code></pre>
+<p>Revisando el contenido del archivo <code>usr/share/doc/libcups2/changelog.Debian.gz</code>:</p>
+<pre><code>$ (cd /; zcat usr/share/doc/libcups2/changelog.Debian.gz | head )
+cups (2.2.7-1ubuntu2.2) bionic-security; urgency=medium
+
+  * SECURITY UPDATE: predictable session cookies
+    - debian/patches/CVE-2018-4700.patch: use better seed in cgi-bin/var.c.
+    - CVE-2018-4700
+
+ -- Marc Deslauriers &lt;marc.deslauriers@ubuntu.com&gt;  Fri, 16 Nov 2018 14:05:42 -0500
+
+cups (2.2.7-1ubuntu2.1) bionic-security; urgency=medium
+</code></pre>
+<p>Por lo cual hay una inconsistencia entre el archivo instalado y la versión del
+paquete que da como instalado el sistema: la versión del archivo parace
+corresponder a la <em>2.2.7-1ubuntu2.2</em>.</p>
+<p>Para corregir el problema anterior se reinstala el paquete <code>libcups</code> para la
+arquitectura amd64 y se instala el mismo paquete para la arquitectura i386.
+Luego se verifican los paquetes instalados:</p>
+<pre><code>$ sudo apt-get install --reinstall libcups2 libcups2:i386
+...
+$ dpkg -l libcups2
+Desired=Unknown/Install/Remove/Purge/Hold
+| Status=Not/Inst/Conf-files/Unpacked/halF-conf/Half-inst/trig-aWait/Trig-pend
+|/ Err?=(none)/Reinst-required (Status,Err: uppercase=bad)
+||/ Name                                      Version                   Architecture              Description
++++-=========================================-=========================-=========================-========================================================================================
+ii  libcups2:amd64                            2.2.7-1ubuntu2.6          amd64                     Common UNIX Printing System(tm) - Core library
+ii  libcups2:i386                             2.2.7-1ubuntu2.6          i386                      Common UNIX Printing System(tm) - Core library
+</code></pre>
+<p>Por último, se vuelve a ejecutar el filtro, y ahora parace funcionar:</p>
+<pre><code>$ /opt/epson-inkjet-printer-escpr/cups/lib/filter/epson-escpr-wrapper
+Insufficient options.
+</code></pre>
+<p>Lo anterior se confirma imprimiendo un documento a dicha impresora mediante la
+interfaz gráfica.</p>
+<h2>Lecciones aprendidas</h2>
+<p>Hay veces que las instalaciones están corruptas, en este caso la versión del
+paquete indicada por dpkg no era correcta o tenía un archivo de una versión
+anterior.</p>
+<p>Cuando se instalan los mismos paquetes para distintas arquitecturas estos deben
+tener la misma versión para que los archivos independientes de la arquitectura:</p>
+<ul>
+<li>archivos de configuración</li>
+<li>archivos de documentación (/usr/share/doc/<em>package</em>/{copyright,changelog} )</li>
+<li>archivos de datos</li>
+</ul>
+<p>coincidan y puedan sobreescribirse sin problemas.</p>
+<p>Por más detalles sobre el tema ver:</p>
+<ul>
+<li><a href="https://wiki.ubuntu.com/MultiarchSpec#Architecture-independent_files_in_multiarch_packages">https://wiki.ubuntu.com/MultiarchSpec#Architecture-independent_files_in_multiarch_packages</a></li>
+<li><a href="https://bugs.debian.org/758616">https://bugs.debian.org/758616</a></li>
+</ul>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Expectativas erroneas con login.conf | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Expectativas erroneas con login.conf</h1>
+        <h2 class="date">2023-04-23</h2>
+      </div>
+<p><strong>TL;DR</strong>: no modificar el archivo <code>/etc/login.conf</code></p>
+<h2>Auditoría de seguridad</h2>
+<p>A partir de un blog que leí hace unos cuantos días me enteré de la existencia
+del paquete <a href="https://cisofy.com/lynis/">lynis</a> disponible para openbsd.</p>
+<p>De la descripción del paquete:</p>
+<blockquote>
+<p>Security auditing tool for Linux, Mac and Unix based systems. Scan your
+systems in a matter of minutes and know what can be improved.</p>
+</blockquote>
+<p>Así que pensé ¿porqué no probarlo?</p>
+<p>Luego de instalarlo (<code>doas pkg_add lynis</code>) y realizar un escaneo, uno de los
+detalles que obtengo es:</p>
+<pre><code>2023-04-01 01:41:58 Result: file /etc/login.conf exists
+2023-04-01 01:41:58 Hardening: assigned partial number of hardening points (0 of 2). Currently having 3 points (out of 8)
+2023-04-01 01:41:58 Result: found umask value 022, which can be more strict
+2023-04-01 01:41:58 Suggestion: Umask in /etc/login.conf could be more strict like 027 [test:AUTH-9328] [details:-] [solution:-]
+</code></pre>
+<p>Por supuesto, cualquier resultado obtenido por una herramienta de auditoría debe
+evaluarse y no aceptarse ciegamente, pero en este caso parece razonable la
+sugerencia.</p>
+<p>Revisando el archivo <code>/etc/login.conf</code> para ver el valor de umask tenemos que
+solo se define en un lugar, la clase <code>default</code>:</p>
+<pre><code>$ grep -C3 umask /etc/login.conf
+#
+default:\
+	:path=/usr/bin /bin /usr/sbin /sbin /usr/X11R6/bin /usr/local/bin /usr/local/sbin:\
+	:umask=022:\
+	:datasize-max=1024M:\
+	:datasize-cur=1024M:\
+	:maxproc-max=256:\
+</code></pre>
+<p>Para modificarla nada más sencillo que hacer:</p>
+<pre><code>$ doas sed -i.orig 's/umask=022/umask=027/' /etc/login.conf
+</code></pre>
+<p><strong>Nota</strong>: siempre que se modifique un archivo de configuración tener abierta una
+terminal con el usuario <code>root</code> y no cerrarla hasta corroborar que el cambio haya
+sido satisfactorio.</p>
+<p>Y con ello ya <em>aumentamos</em> la seguridad del sistema.</p>
+<h2>Problemas de permisos en /etc/resolv.conf</h2>
+<p>A los días y sin darme cuenta que el fué debido al aumento del <em>hardening</em> del
+sistema, empiezo a tener problemas para conectarme a internet del tipo:</p>
+<pre><code>$ ping www.openbsd.org
+ping: no address associated with name
+</code></pre>
+<p>Luego de buscar un poco en internet, encuentro que el problema se debe a los
+permisos del archivo <code>/etc/resolv.conf</code>:</p>
+<pre><code>$ ls -lh /etc/resolv.conf
+-rw-r----- 1 root wheel 98 Apr  9 21:35 /etc/resolv.conf
+</code></pre>
+<p>Lo cual se corrige fácilmente utilizando:</p>
+<pre><code>$ doas chmod 644 /etc/resolv.conf
+</code></pre>
+<p>Lo malo es que periódicamente se resetean los permisos del archivo a <code>0640</code>.</p>
+<h2>¿Quien modifica los permisos de /etc/resolv.conf?</h2>
+<p>Lo cierto es que luego de cansarme de estar utilizando <code>chmod</code> y viendo que no
+es algo puntual, me embarco en buscar <em>quien</em> está modificando los permisos de
+<code>/etc/resolv.conf</code>.</p>
+<p>Luego de un tiempo buscando en internet, me pongo a hacer grep en el código de
+openbsd, con lo cual encuentro a quien creo el culpable:
+<code>./sbin/resolvd/resolvd.c</code>.  Inspeccionando el código en el archivo encuentro
+que <code>resolvd</code> crea un nuevo archivo cada vez que me conecto/desconecto a la
+wifi con permiso <code>0640</code>.  Esto es razonable, ya que el <em>hardening</em> configurado
+previamente indica que el <code>umask</code> debe ser <code>027</code> en lugar de <code>022</code>.</p>
+<p>¿Mi primer idea de solución?</p>
+<pre><code>diff --git sbin/resolvd/resolvd.c sbin/resolvd/resolvd.c
+index 2ffdfc6ddb4..133559819f6 100644
+--- sbin/resolvd/resolvd.c
++++ sbin/resolvd/resolvd.c
+@@ -192,6 +192,8 @@ main(int argc, char *argv[])
+ 	if (geteuid())
+ 		errx(1, &quot;need root privileges&quot;);
+
++	umask(0022);
++
+ 	lockfd = open(_PATH_LOCKFILE, O_CREAT|O_RDWR|O_EXLOCK|O_NONBLOCK, 0600);
+ 	if (lockfd == -1) {
+ 		if (errno == EAGAIN)
+</code></pre>
+<p>Esto basado en la modificación de <code>usr.sbin/pkg_add/OpenBSD/AddDelete.pm</code>:</p>
+<pre><code>sub do_the_main_work
+{
+	my ($self, $state) = @_;
+
+	if ($state-&gt;{bad}) {
+		return;
+	}
+
+	umask 0022;
+</code></pre>
+<p>Y ya que estamos, <a href="https://marc.info/?l=openbsd-tech&amp;m=168205502121918&amp;w=2">¿porqué no compartir el
+cambio?</a></p>
+<p>Haciendo corto el intercambio de emails, el parche no tiene sentido
+conceptualmente.  En lugar de modificar el código de unos 20 demonios tendría
+más sentido resetear el valor de umask en la clase <code>daemon</code>:</p>
+<pre><code>--- /etc/login.conf.orig
++++ /etc/login.conf
+@@ -58,6 +58,7 @@
+ # Be sure to reset these values to system defaults in the default class!
+ #
+ daemon:\
++	:umask=022:\
+ 	:ignorenologin:\
+ 	:datasize=4096M:\
+ 	:maxproc=infinity:\
+</code></pre>
+<p>pero ya que al parecer fuí el único (digamos mejor <em>de los pocos</em>) que rompió su
+sistema por modificar el archivo <code>/etc/login.conf</code> no tiene sentido <em>sellar</em> la
+clase <code>daemon</code> de cambios en la clase <code>default</code>.</p>
+<h2>Forma correcta de asignar umask</h2>
+<p>Ya que aprendí (ver más adelante) que <strong>mejor no estar tocando el archivo
+<code>/etc/login.conf</code></strong>, una buena solución (¿la correcta?) es agregar el archivo
+<code>/etc/login.conf.d/staff</code> con el contenido:</p>
+<pre><code>#
+# Staff have fewer restrictions and can login even when nologins are set.
+#
+staff:\
+        :umask=027:\
+        :datasize-cur=1536M:\
+        :datasize-max=infinity:\
+        :maxproc-max=512:\
+        :maxproc-cur=256:\
+        :ignorenologin:\
+        :requirehome@:\
+        :tc=default:
+</code></pre>
+<p>el cual es una copia de la definición que se encuentra en <code>/etc/login.conf</code> pero
+agregando el valor <code>umask=027</code>.</p>
+<p>¿Porqué <code>staff</code>?  Porque cuando se crea un usuario sería la clase que habría que
+agregar por defecto.  El <code>login class</code> del usuario que es creado por el
+instalador también se encuentra en dicha clase:</p>
+<pre><code>$ doas grep &quot;:$(id -u):&quot; /etc/master.passwd
+jmpc:XXX:1000:1000:staff:0:0:JMPC:/home/jmpc:/usr/local/bin/bash
+</code></pre>
+<p>(el formato del archivo se describe en <a href="https://man.openbsd.org/man5/passwd.5">man 5 passwd</a>).</p>
+<h2>Problemas con comentarios y continuación de linea en getent</h2>
+<p>Durante la realización de pruebas modificando el archivo <code>/etc/login.conf</code> para
+corroborar que usando <code>umask=027</code> en la clase <code>default</code> y <code>umask=022</code> en la
+clase <code>daemon</code> resetea el cambio de umask en la clase default y <code>resolvd</code>
+funciona de la forma esperada, escribí:</p>
+<pre><code>--- /etc/login.conf.orig
++++ /etc/login.conf
+@@ -57,6 +57,7 @@
+ # This must be set properly for daemons started as root by inetd as well.
+ # Be sure to reset these values to system defaults in the default class!
+ #
++#:umask=022:\
+ daemon:\
+ 	:ignorenologin:\
+ 	:datasize=4096M:\
+</code></pre>
+<p>Esto es, comenté la linea y la moví arriba de la definición de la clase
+<code>daemon</code>.</p>
+<p>A partir de esto al querer editar el archivo como root utilizando <code>doas</code> obtuve:</p>
+<pre><code>$ doas vim /etc/login.conf
+doas: failed to set user context for target
+</code></pre>
+<p>Tampoco me fué posible utilizar <code>su -l</code>.</p>
+<p>¿Que pasó?</p>
+<p>Bueno, la primera hipótesis (que resultó acertada) es que en el archivo
+<code>/etc/login.conf</code> la continuación de linea (el <code>\</code> al final) se interpreta en
+las lineas de comentarios.</p>
+<p>Una de las ventajas de openbsd es que el kernel y el código del sistema base se
+encuentran en el mismo repositorio, por lo cual es bastante sencillo seguir el
+código que se está ejecutando.  También en los archivos <code>.c</code> los nombres de las
+funciones comienzan en el primer carácter.</p>
+<p>Partiendo del mensaje dado por <code>doas</code>:</p>
+<ol>
+<li>
+<p>El mensaje anterior se encuentra en la función <code>main</code>, en el archivo
+<a href="https://cvsweb.openbsd.org/cgi-bin/cvsweb/~checkout~/src/usr.bin/doas/doas.c?rev=1.98&amp;content-type=text/plain&amp;only_with_tag=OPENBSD_7_3">usr.bin/doas/doas.c</a>
+Este ocurre en caso de un error en <code>setusercontext</code>.</p>
+<p>Aquí ya se puede utilizar el manual para obtener información sobre la
+función y confirmar que ese es el camino correcto.  De <a href="https://man.openbsd.org/OpenBSD-7.3/setusercontext">man setusercontext</a>:</p>
+<blockquote>
+<p>login_getclass, login_getstyle, login_getcapbool, login_getcapnum, login_getcapsize,
+login_getcapstr, login_getcaptime, login_close, setclasscontext, setusercontext — query login.conf
+database about a user class</p>
+</blockquote>
+</li>
+<li>
+<p>La definición de <code>setusercontext</code> se encuentra en
+<a href="https://cvsweb.openbsd.org/cgi-bin/cvsweb/~checkout~/src/lib/libc/gen/login_cap.c?rev=1.46&amp;content-type=text/plain&amp;only_with_tag=OPENBSD_7_3">lib/libc/gen/login_cap.c</a>
+Allí vemos que se invoca a <code>login_getclass</code> que se encuentra en el mismo
+archivo.</p>
+</li>
+<li>
+<p>A su vez, <code>login_getclass</code> invoca a <code>cgetent</code>.</p>
+<p>Buscando en el manual por <code>cgetent</code> se tiene (<a href="https://man.openbsd.org/OpenBSD-7.3/cgetent">man
+cgetent</a>):</p>
+<blockquote>
+<p>cgetent, cgetset, cgetmatch, cgetcap, cgetnum, cgetstr, cgetustr, cgetfirst, cgetnext, cgetclose,
+cgetusedb — capability database access routines</p>
+</blockquote>
+<p>Y lo más importante:</p>
+<blockquote>
+<p>Capability database syntax</p>
+<p>Capability databases are normally ASCII and may be edited with standard text editors. Blank lines
+and lines beginning with a ‘#’ are comments and are ignored. Lines ending with a ‘\’ indicate that
+the next line is a continuation of the current line; the ‘\’ and following newline are ignored.
+Long lines are usually continued onto several physical lines by ending each line except the last
+with a ‘\’.</p>
+</blockquote>
+<p>Sin duda mi interpretación de lo anterior es que primero se ignoran los
+comentarios y luego se interpretan las lineas que terminan con <code>\</code> indicando
+que la siguiente linea es la continuación de la siguiente, lo que no está
+ocurriendo.</p>
+</li>
+<li>
+<p>El código de <code>cgetent</code> se encuentra en <a href="https://cvsweb.openbsd.org/cgi-bin/cvsweb/~checkout~/src/lib/libc/gen/getcap.c?rev=1.36&amp;content-type=text/plain&amp;only_with_tag=OPENBSD_7_3">lib/libc/gen/getcap.c</a>
+donde llama a <code>getent</code>.</p>
+</li>
+<li>
+<p>La función <code>getent</code> se encuentra en el mismo archivo que <code>cgetent</code> y allí es
+donde finalmente se realiza el análisis del archivo.  A primera vista se ve
+que primero se lee una linea completa (interpretando primero el <code>\</code> al final
+de la linea) y recién después si la linea es vacía o comienza con <code>#</code> se
+ignora.</p>
+</li>
+</ol>
+<p>La definición de <code>getent</code> explica el error que obtuve dejando por error el
+carácter <code>\</code> encima de la definición de <code>daemon</code>.</p>
+<p>También del código entiendo que no se ignora un comentario si el carácter <code>#</code> no
+es el primero de la linea.  Esto no lo tenía tan presente, ya que otros
+programas permiten blancos antes del comentario en su archivo de configuración.</p>
+<h2>¿Conclusiones?</h2>
+<ul>
+<li>Evitar modificar el archivo <code>/etc/login.conf</code>.</li>
+<li>Siempre que se edite un archivo de configuración del sistema tener abierta una
+terminal en la cual se esté logueado como <code>root</code> para poder revertir el
+cambio.</li>
+<li>En los archivos de configuración, tener cuidado con las continuaciones de
+linea y los comentarios:
+<ul>
+<li>no usar continuación de linea en comentarios o en caso de utilizarlas
+asegurarse que la siguiente linea también sea un comentario.</li>
+<li>siempre comenzar los comentarios en la primer columna (sin espacios al
+principio).</li>
+</ul>
+</li>
+<li>Es sencillo <em>navegar</em> por el código de openbsd.</li>
+</ul>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

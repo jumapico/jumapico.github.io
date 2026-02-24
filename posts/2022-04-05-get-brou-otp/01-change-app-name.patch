@@ -1,0 +1,20 @@
+diff -urN uy.jumapico.brou.token.orig/AndroidManifest.xml uy.jumapico.brou.token/AndroidManifest.xml
+--- uy.jumapico.brou.token.orig/AndroidManifest.xml	2022-04-12 02:42:14.801878250 -0300
++++ uy.jumapico.brou.token/AndroidManifest.xml	2022-04-12 02:44:16.844062955 -0300
+@@ -1,4 +1,4 @@
+-<?xml version="1.0" encoding="utf-8" standalone="no"?><manifest xmlns:android="http://schemas.android.com/apk/res/android" android:compileSdkVersion="28" android:compileSdkVersionCodename="9" android:hardwareAccelerated="true" package="uy.com.brou.token" platformBuildVersionCode="17" platformBuildVersionName="1.2.1">
++<?xml version="1.0" encoding="utf-8" standalone="no"?><manifest xmlns:android="http://schemas.android.com/apk/res/android" android:compileSdkVersion="28" android:compileSdkVersionCodename="9" android:hardwareAccelerated="true" package="uy.jumapico.brou.token" android:debuggable="true" platformBuildVersionCode="17" platformBuildVersionName="1.2.1">
+     <supports-screens android:anyDensity="true" android:largeScreens="true" android:normalScreens="true" android:resizeable="true" android:smallScreens="true" android:xlargeScreens="true"/>
+     <uses-permission android:name="android.permission.INTERNET"/>
+     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+diff -urN uy.jumapico.brou.token.orig/res/values/strings.xml uy.jumapico.brou.token/res/values/strings.xml
+--- uy.jumapico.brou.token.orig/res/values/strings.xml	2022-04-12 02:42:14.825877860 -0300
++++ uy.jumapico.brou.token/res/values/strings.xml	2022-04-12 02:44:29.495892138 -0300
+@@ -1,6 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <resources>
+     <string name="activity_name">@string/launcher_name</string>
+-    <string name="app_name">BROU Llave Digital</string>
++    <string name="app_name">DEBUG - BROU Llave Digital</string>
+     <string name="launcher_name">@string/app_name</string>
+ </resources>

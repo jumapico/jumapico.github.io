@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Creando winepak para evoland | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Creando winepak para evoland</h1>
+        <h2 class="date">2018-09-04</h2>
+      </div>
+<h2>Objetivo</h2>
+<p>Luego de enterarme de la existencia de <a href="https://winepak.org/">winepak</a>, pensé en
+empaquetar una aplicación de windows para probar como funciona.</p>
+<p>Para dar un contexto, <em>winepak</em> es un
+<a href="http://docs.flatpak.org/en/latest/basic-concepts.html#runtimes">runtime para flatpak</a> que como su nombre lo indica
+incluye a <a href="https://www.winehq.org/">wine</a> y puede utilizarse para ejecutar aplicaciones
+windows, instalandolas mediante <a href="https://flatpak.org/">flatpak</a>.</p>
+<h3>PlayOnLinux</h3>
+<p>Una alternativa a crear un flatpak podría ser utilizar
+<a href="https://www.playonlinux.com/">playonlinux</a>.</p>
+<p>La <em>ventaja de flatpak</em> es que se puede tener
+instalado a nivel de sistema los runtime con las diferentes versiones de wine,
+mientras que en playonlinux estas instalaciones se deben hacer por usuario.</p>
+<p>Por otro lado, la <em>ventaja de playonlinux</em> es que tiene muchas más versiones de
+wine disponibles.</p>
+<h3>Evoland</h3>
+<p>Como ejemplo de aplicación a probar utilizaré el juego
+<a href="http://evoland.shirogames.com/">evoland</a>, comprado en <a href="https://www.gog.com/game/evoland">gog</a> y que según la
+<a href="https://appdb.winehq.org/">base de datos de aplicaciones de wine</a> <a href="https://appdb.winehq.org/objectManager.php?sClass=application&amp;iId=15274">tiene un rating de
+platino para la versión de gog.com</a>, lo que permite
+suponer que funcionará sin problemas emulandose mediante wine.</p>
+<p>Vale la pena mencionar que la ventaja de
+haber realizado la compra en <a href="https://www.gog.com/">gog</a> es que el juego está <a href="https://en.wikipedia.org/wiki/Digital_rights_management#DRM-free_works">libre de
+DRM</a>, lo que debería hacer la tarea de empaquetación de la
+aplicación más fácil.</p>
+<h2>Instalación de dependencias</h2>
+<h3>flatpak</h3>
+<p>A continuación las dependencias necesarias para comenzar a trabajar:</p>
+<ol>
+<li>
+<p><strong>flatpak-builder</strong>: necesario para realizar el empaquetado y que no tiene
+por que estar necesariamente instalado ya que usualmente se utiliza el
+paquete <strong>flatpak</strong> para ejecutar las aplicaciones. En debian basta con
+hacer:</p>
+<pre><code>$ sudo apt-get install -V flatpak-builder
+</code></pre>
+<p>Si se está utilizando <em>debian stretch</em> (estable), con backports habilitados
+conviene instalarlo haciendo</p>
+<pre><code>$ sudo apt-get install -V -t stretch-backports flatpak-builder
+</code></pre>
+<p>para obtener la última versión disponible.</p>
+</li>
+<li>
+<p><strong>runtime winepak</strong>: según consta en la <a href="https://github.com/winepak/winepak-sdk-images">documentación de desarrollo de
+winepak</a>, hay que instalar el
+<a href="http://docs.flatpak.org/en/latest/basic-concepts.html#runtimes">runtime</a> y el <a href="http://docs.flatpak.org/en/latest/building-introduction.html#software-development-kits-sdks">sdk</a> de <em>winepak</em>,
+junto con sus dependencias:</p>
+<p>Primero se agrega el <em>sdk</em> y <em>runtime</em> de <em>freedesktop</em> del cual depende
+<em>winepak</em>:</p>
+<pre><code>$ flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+$ flatpak install --user flathub org.freedesktop.Sdk
+$ flatpak install --user flathub org.freedesktop.Platform
+</code></pre>
+<p>Luego se agrega el <em>sdk</em> y el <em>runtime</em> de <em>winepak</em>:</p>
+<pre><code>$ flatpak remote-add --user --if-not-exists winepak https://dl.winepak.org/repo/winepak.flatpakrepo
+$ flatpak install --user winepak org.winepak.Sdk/x86_64/3.0
+$ flatpak install --user winepak org.winepak.Platform/x86_64/3.0
+$ flatpak install --user winepak org.winepak.Platform.Compat32/x86_64/3.0
+</code></pre>
+<p>Nota: solo se instala la última version estable de wine (no las staging)
+de 64bits. Se agrega <em>Compat32</em> para poder utilizar versiones de
+aplicaciones de 32bits con wine. Para determinar la última versión estable
+se utiliza:</p>
+<pre><code>$ flatpak remote-ls --show-details winepak | grep -i sdk
+runtime/org.winepak.Sdk/x86_64/3.0      9ffce8874289    2.5 GB  994.2 MB
+</code></pre>
+</li>
+<li>
+<p><strong>evoland</strong>: el programa evoland, que se descargará del <a href="https://www.gog.com/">sitio de
+gog</a> como se indicó más arriba.
+A continuacion el <em>sha256</em> del archivo descargado:</p>
+<pre><code>a478ca738c312a6b8a2f289f309efa7c893efe3b06ff1753a6bea88864b62ce7  setup_evoland_1.1.2490_(20677).exe
+</code></pre>
+<p>Se comprueba que es una aplicación <em>windows</em> de 32bits utilizando el
+comando <code>file</code>:</p>
+<pre><code>$ file &quot;setup_evoland_1.1.2490_(20677).exe&quot;
+/home/jmpc/Downloads/setup_evoland_1.1.2490_(20677).exe: PE32 executable (GUI) Intel 80386, for MS Windows
+</code></pre>
+<p>por lo que va a tener sentido utilizar la extensión
+<em>Compat32</em> de <em>winepak</em></p>
+</li>
+</ol>
+<h2>Creación de paquete genérico para pruebas de instalación</h2>
+<p>Ya que se está explorando el uso de <em>winepak</em>, no se pretenderá crear el
+flatpak final, sinó que se creara un paquete <em>genérico</em> que nos permita realizar
+pruebas como se detalla en la sección <a href="http://docs.flatpak.org/en/latest/debugging.html">Debugging</a> de la
+documentación de flatpak.</p>
+<p>De <a href="http://docs.flatpak.org/en/latest/first-build.html">Building your first Flatpak</a> se obtiene la
+descripción de como construir un flatpak <em>Hello world</em>.</p>
+<p>Por otro lado de las <a href="https://github.com/winepak/applications">aplicaciones en el repositorio de
+winepak</a> se toma como ejemplo la forma de agregar
+<em>winepak</em> como dependencia y ejemplos de como crear el <a href="https://wiki.winehq.org/FAQ#Can_I_store_the_virtual_Windows_installation_somewhere_other_than_.7E.2F.wine.3F">entorno de
+wine</a> e instalar la aplicación si esta no está instalada.</p>
+<p>Se comenzará creando el directorio de trabajo:</p>
+<pre><code>$ mkdir -p ~/workspace/my-winepak-apps/evoland
+$ cd ~/workspace/my-winepak-apps/evoland
+</code></pre>
+<p>y en este se agregarán los siguientes archivos que se mencionan a continuación.</p>
+<h3><a href="./1-generic-wine-stable/entrypoint.sh">entrypoint.sh</a></h3>
+<p>Script de ejemplo que luego será sustituido por un script que realiza el
+setup y ejecución de la aplicación en wine (tomando como ejemplo las
+<a href="https://github.com/winepak/applications">aplicaciones de winepak</a>). Muestra el mensaje de <em>Hello
+world</em> estandar y por conveniencia las variables de entorno:</p>
+<pre><code class="language-bash">#!/bin/sh
+echo &quot;Hello world, from a sandbox&quot;
+printenv | LC_ALL=C sort
+</code></pre>
+<h3><a href="./1-generic-wine-stable/org.winepak.Generic.yaml">org.winepak.Generic.yaml</a></h3>
+<p>Manifiesto de la aplicación genérica de pruebas. Aquí se definirá el uso de
+<em>winepak</em>.</p>
+<p>Como se puede ver el manifiesto utiliza <a href="http://yaml.org/">yaml</a> en lugar de
+<a href="https://www.json.org/">json</a> ya que lo considero más comodo para escribir y lo más
+importante, se pueden utilizar comentarios.</p>
+<p>A continuación algunas explicaciones:</p>
+<ol>
+<li>
+<pre><code class="language-yaml">app-id: org.winepak.Generic
+</code></pre>
+<p><a href="http://docs.flatpak.org/en/latest/conventions.html#application-ids">Identificador único</a> de la aplicación.</p>
+</li>
+<li>
+<pre><code class="language-yaml">runtime: org.winepak.Platform
+runtime-version: 3.0
+sdk: org.winepak.Sdk
+
+add-extensions:
+  org.winepak.Platform.Compat32:
+    directory: lib/32bit
+    version: 3.0
+    add-ld-path: lib
+    no-autodownload: false
+</code></pre>
+<p>Definición de las versiones del runtime y del sdk utilizados, así como las
+<a href="http://docs.flatpak.org/en/latest/flatpak-command-reference.html">extensiones (apartado [Extension NAME])</a>
+necesarias.</p>
+<p>Notar que a diferencia de las aplicaciones en el <a href="https://github.com/winepak/applications">repositorio de
+winepak</a> que utilizan una versión <em>staging</em> de wine,
+aquí se utilizará la versión estable como se sugiere en la <a href="https://github.com/winepak/winepak-sdk-images">documentación de
+winepak</a>.</p>
+</li>
+<li>
+<pre><code class="language-yaml">command: entrypoint.sh
+
+finish-args:
+  - --socket=x11
+  - --share=ipc
+  - --socket=pulseaudio
+  - --device=dri
+  - --allow=multiarch
+  - --filesystem=xdg-download:ro
+  - --env=WINEDEBUG=-all
+</code></pre>
+<p>Se agrega, obviamente, el script <code>entrypoint.sh</code> como comando a ejecutar
+cuando se desea ejecutar el flatpak.</p>
+<p>Por otro lado, con <a href="http://docs.flatpak.org/en/latest/sandbox-permissions-reference.html">finish-args</a> se dan los
+permisos para:</p>
+<ol>
+<li>Conectarse al <em>X server</em> para ver salida gráfica del programa
+(<code>--socket=x11</code> y <code>--share=ipc</code>) y utilizar aceleración gráfica
+(<code>--device=dri</code>).</li>
+<li>Utilizar <em>pulseaudio</em> para escuchar el audio del programa
+(<code>--socket=pulseaudio</code>).</li>
+<li>Poder ejecutar programas compilados para un ABI distinto al soportado
+nativamente (<code>--allow=multiarch</code>, buscar el texto <em>multiarch</em> en la
+<a href="http://docs.flatpak.org/en/latest/flatpak-command-reference.html">documentación</a> ya que puede llegar a
+utilizarse la versión de wine de 32bits mediante la extensión
+<em>Compat32</em>.</li>
+<li>Tener acceso <em>de solo lectura</em> a los archivos de la carpeta de
+descargas del usuario (<code>--filesystem=xdg-download:ro</code>).
+Este acceso es necesario ya que no se
+puede distribuir el instalador de <em>Evoland</em> junto al flatpak y no se
+desea que en la etapa de setup se descargue el archivo, sinó que se
+buscará por este en el directorio de descargas mostrando un diálogo de
+error en caso de que no se encuentre.
+Se limita el acceso a solo lectura para dar el menor acceso posible.</li>
+<li>Evitar los mensajes de wine en la consola; para ello se utilizan
+variables de entorno (<code>--env=WINEDEBUG=-all</code>).</li>
+</ol>
+</li>
+<li>
+<pre><code class="language-yaml">  - name: setup-compat32
+    buildsystem: simple
+    build-commands:
+      - mkdir -p /app/lib/32bit
+      - ln -s /app/lib/32bit/lib/ld-linux.so.2 /app/lib/ld-linux.so.2
+</code></pre>
+<p>Copiado de las aplicaciones de winepak.
+De la página del <a href="https://manpages.debian.org/stretch/manpages/ld-linux.so.8.en.html">manual de ld-linux</a> el archivo
+<code>ld-linux.so</code> es el <em>dynamic linker</em>, y lo que se está haciendo aquí es
+utilizar un linker de 32bits.</p>
+</li>
+<li>
+<pre><code class="language-yaml">  - name: generic
+    buildsystem: simple
+    no-make-install: true
+    build-commands:
+      - install -d /app/bin
+      - install -m555 entrypoint.sh /app/bin/entrypoint.sh
+    sources:
+      - type: file
+        path: entrypoint.sh
+</code></pre>
+<p>Por último, se copia el script a utilizar como entrypoint y se dan permisos
+de ejecución.</p>
+</li>
+</ol>
+<h3>Archivos faltantes</h3>
+<p>Ya que se va a realizar una aplicación para realizar pruebas que se ejecutará
+directamente desde consola y no tendrá integración con el sistema, se omiten los
+siguientes archivos esperados por flatpak si se desean seguir las <a href="http://docs.flatpak.org/en/latest/conventions.html">convenciones
+de escritorio de linux</a>:</p>
+<ul>
+<li><a href="http://docs.flatpak.org/en/latest/conventions.html#appdata-files">Archivo AppData</a></li>
+<li><a href="http://docs.flatpak.org/en/latest/conventions.html#application-icons">Íconos de aplicación</a></li>
+<li><a href="http://docs.flatpak.org/en/latest/conventions.html#desktop-files">Archivos Desktop</a></li>
+</ul>
+<h3>Construcción y ejecución del flatpak genérico de pruebas</h3>
+<p>Según la documentación de flatpak, hay que utilizar el comando
+<a href="http://docs.flatpak.org/en/latest/flatpak-builder-command-reference.html">flatpak-builder</a> para la construcción
+del flatpak.</p>
+<p>Particularmente, ya que se están realizando pruebas se instalará directamente la
+aplicación al repositorio de usuario:</p>
+<pre><code>$ flatpak-builder --user --install --force-clean build org.winepak.Generic.yaml
+</code></pre>
+<p>Para ejecutar el flatpak y ver que fué instalado sin problemas:</p>
+<pre><code>$ flatpak run org.winepak.Generic
+</code></pre>
+<h3>Pruebas con el flatpak genérico</h3>
+<p>Para realizar pruebas con el flatpak se seguirán las <a href="http://docs.flatpak.org/en/latest/debugging.html">indicaciones de
+debug</a> encontradas en la documentación de flatpak:</p>
+<pre><code>$ flatpak run --command=bash org.winepak.Generic
+</code></pre>
+<p>Notar que no se utilizó la opción <code>--devel</code> ya que según se vió en el
+<a href="https://github.com/winepak/applications">repositorio de aplicaciones de winepak</a> las aplicaciones
+deben instalarse en el prefijo de wine que se crea al ejecutar por primera vez
+la aplicación.
+El prefijo de wine queda almacenado localmente, en el caso de la aplicación
+genérica en <code>$HOME/.var/app/org.winepak.Generic</code>.</p>
+<p>Nos interesarán las siguientes pruebas:</p>
+<ol>
+<li>
+<p>Verificar el acceso al directorio de descargas del usuario y comprobar que
+puede leerse el instalador:</p>
+<pre><code class="language-bash">bash-4.3$ XDG_DOWNLOAD_DIR=&quot;$(xdg-user-dir DOWNLOAD)&quot;
+bash-4.3$ sha256sum &quot;$XDG_DOWNLOAD_DIR/setup_evoland_1.1.2490_(20677).exe&quot;
+a478ca738c312a6b8a2f289f309efa7c893efe3b06ff1753a6bea88864b62ce7  /home/jmpc/Downloads/setup_evoland_1.1.2490_(20677).exe
+</code></pre>
+<p>Primero se obtiene la ruta del directorio de <em>Downloads</em>.
+Para ello se utiliza el ejecutable <code>xdg-user-dir</code> del programa
+<a href="https://www.freedesktop.org/wiki/Software/xdg-user-dirs/">xdg-user-dirs</a>.</p>
+<p>Luego se realiza el checksum del archivo, comprobando que se tiene acceso de
+lectura al archivo y que el contenido de este es el esperado.</p>
+</li>
+<li>
+<p>Creación del prefijo wine, instalación y ejecución de <em>Evoland</em>:</p>
+<p>Para poder utilizar wine es necesario que se cree un prefijo. Se puede hacer
+manualmente utilizando el comando <code>wineboot</code> o automáticamente: al ejecutar
+un programa de <em>wine</em>, si no existe el prefijo este se crea.</p>
+<p>Se dejará que la creación del wineprefix se realize de forma automática en
+el directorio <code>$WINEPREFIX</code> (o si dicha variable no esta definida en
+<code>$HOME/.wine</code>), al instalar <em>Evoland</em>:</p>
+<pre><code>bash-4.3$ wine64 &quot;$XDG_DOWNLOAD_DIR/setup_evoland_1.1.2490_(20677).exe&quot;
+</code></pre>
+<p>Luego se siguen los pasos de instalación, obteniendo los siguiente errores:</p>
+<p><img src="./error-1.jpg" alt="Error en instalador" /></p>
+<p><img src="./error-2.jpg" alt="Error en instalador" /></p>
+<p><img src="./error-3.jpg" alt="Error en instalador" /></p>
+<p>Por último, se sale del instalador sin lanzar la aplicación.
+Para ejecutar la aplicación se utiliza:</p>
+<pre><code>bash-4.3$ wine64 &quot;$WINEPREFIX/drive_c/GOG Games/Evoland/Evoland.exe&quot;
+</code></pre>
+<p>obteniendose el siguiente error:</p>
+<p><img src="./error-4.png" alt="Error en programa" /></p>
+</li>
+</ol>
+<h2>Segunda versión del flatpak genérico</h2>
+<p>En este punto se busca nuevamente en internet por el problema,
+encontrandose en el <a href="https://bugs.winehq.org/show_bug.cgi?id=35345">bug 35345 de wine</a> (referenciado en <a href="https://appdb.winehq.org/objectManager.php?sClass=version&amp;iId=28453">la
+versión de evoland para gog.com en appdb</a>) la
+descripción del problema ocurrido.
+Allí se hace referencia a que el problema estaría corregido en la <em>versión
+de staging 3.15</em>.</p>
+<p>Utilizando el comando <code>wine64 --version</code> se obtiene que la versión de
+<em>wine</em> utilizada es la <code>wine-3.0.1</code>, por lo que se buscará instalar una
+versión de <em>wine staging</em>.</p>
+<p>Para ver las versiones disponibles en el repositorio se utiliza <code>flatpack remote-ls</code>:</p>
+<pre><code>$ flatpak remote-ls --user --show-details winepak | grep staging
+runtime/org.winepak.Platform.Wine.Compat32/x86_64/3.10-staging        cd29ac1fe713        406.9 MB        133.7 MB
+runtime/org.winepak.Platform.Wine.Compat32/x86_64/3.8-staging        d8c5b995813b        405.4 MB        133.2 MB
+runtime/org.winepak.Platform.Wine.Compat32/x86_64/3.9-staging        2fe64ef3a987        406.1 MB        133.5 MB
+runtime/org.winepak.Platform.Wine/x86_64/3.10-staging        4413574e3d51        509.7 MB        142.9 MB
+runtime/org.winepak.Platform.Wine/x86_64/3.8-staging        ace7dd340813        507.4 MB        142.4 MB
+runtime/org.winepak.Platform.Wine/x86_64/3.9-staging        823a7359fa8c        508.8 MB        142.7 MB
+</code></pre>
+<p>De lo anterior, se modificará el archivo <code>org.winepak.Generic.yaml</code> para
+instalar la versión de wine <em>3.10-staging</em> como una extensión.</p>
+<p>Se utilizará como ejemplo de uso de una versión de staging en winepak los
+archivos [com.blizzard.StarCraft2.yml][winepack-apps-starcraftmanifest] y
+<a href="https://github.com/winepak/applications/blob/master/com.blizzard.BattleNet.BaseApp/com.blizzard.BattleNet.BaseApp.yml">com.blizzard.BattleNet.BaseApp.yml</a> del
+<a href="https://github.com/winepak/applications">repositorio de aplicaciones de winepak</a>.</p>
+<p>El archivo <a href="./2-generic-wine-staging/org.winepak.Generic.yaml">org.winepak.Generic.yaml</a>
+queda ahora de la siguiente forma:</p>
+<pre><code>app-id: org.winepak.Generic
+
+runtime: org.winepak.Platform
+runtime-version: 3.0
+sdk: org.winepak.Sdk
+
+add-extensions:
+  org.winepak.Platform.Compat32:
+    directory: lib/32bit
+    version: 3.0
+    add-ld-path: lib
+    no-autodownload: false
+
+  org.winepak.Platform.Wine:
+    directory: lib/wine
+    version: 3.10-staging
+    add-ld-path: lib
+    no-autodownload: false
+
+  org.winepak.Platform.Wine.Compat32:
+    directory: lib/wine-32bit
+    version: 3.10-staging
+    add-ld-path: lib
+    no-autodownload: false
+
+tags:
+  - generic app
+
+command: entrypoint.sh
+
+finish-args:
+  - --socket=x11
+  - --share=ipc
+  - --socket=pulseaudio
+  - --device=dri
+  - --allow=multiarch
+  - --filesystem=xdg-download:ro
+  - --env=WINEDEBUG=-all
+
+modules:
+  - name: setup-compat32
+    buildsystem: simple
+    build-commands:
+      - mkdir -p /app/lib/32bit
+      - ln -s /app/lib/32bit/lib/ld-linux.so.2 /app/lib/ld-linux.so.2
+
+  - name: setup-wine
+    buildsystem: simple
+    build-commands:
+      - mkdir -p /app/lib/wine
+
+  - name: setup-wine-compat32
+    buildsystem: simple
+    build-commands:
+      - mkdir -p /app/lib/wine-32bit
+
+  - name: generic
+    buildsystem: simple
+    no-make-install: true
+    build-commands:
+      - install -d /app/bin
+      - install -m555 entrypoint.sh /app/bin
+    sources:
+      - type: file
+        path: entrypoint.sh
+</code></pre>
+<p>Aquí se agregó la versión <em>3.10-staging</em> como está indicado en
+<a href="https://github.com/winepak/winepak-sdk-images#structure">https://github.com/winepak/winepak-sdk-images#structure</a>.
+Luego, se agregaron los módulos <code>setup-wine</code> y <code>setup-wine-compat32</code> para que
+se creen los directorios en los que se montarán las extensiones.</p>
+<p>Ya modificado el archivo:</p>
+<ol>
+<li>
+<p>Se instala la extensión <em>3.10-staging</em> del repositorio <em>winepak</em> como se
+indica en
+<a href="https://github.com/winepak/winepak-sdk-images#install-the-runtime">https://github.com/winepak/winepak-sdk-images#install-the-runtime</a>:</p>
+<pre><code>$ flatpak install --user winepak org.winepak.Platform.Wine/x86_64/3.10-staging
+$ flatpak install --user winepak org.winepak.Platform.Wine.Compat32/x86_64/3.10-staging
+</code></pre>
+</li>
+<li>
+<p>Se vuelven a construir e instalar el flatpak:</p>
+<pre><code>$ flatpak-builder --user --install --force-clean build org.winepak.Generic.yaml
+</code></pre>
+</li>
+<li>
+<p>Se instala nuevamente <em>Evoland</em>, asegurandonos de borrar el <em>wineprefix</em> que
+quedó de pruebas anteriores.</p>
+<p>Se ingresa al entorno del flatpak:</p>
+<pre><code>$ flatpak run --command=bash org.winepak.Generic
+</code></pre>
+<p>Se comprueban las versiones de <em>wine</em> en el sistema (la de 32 y 64 bits):</p>
+<pre><code>bash-4.3$ which wine64
+/app/lib/wine/bin/wine64
+bash-4.3$ wine64 --version
+wine-3.10 (Staging)
+bash-4.3$ which wine
+/app/lib/wine-32bit/bin/wine
+bash-4.3$ wine --version
+wine-3.10 (Staging)
+</code></pre>
+<p>Se borra el <em>wineprefix</em> anterior:</p>
+<pre><code>bash-4.3$ rm -fr $WINEPREFIX
+</code></pre>
+<p>Se realiza nuevamente la instalación:</p>
+<pre><code>bash-4.3$ XDG_DOWNLOAD_DIR=&quot;$(xdg-user-dir DOWNLOAD)&quot;
+bash-4.3$ wine64 &quot;$XDG_DOWNLOAD_DIR/setup_evoland_1.1.2490_(20677).exe&quot;
+</code></pre>
+<p>(siguen apareciendo los mensajes de error al finalizar la instalación).</p>
+<p>Se ejecuta <em>Evoland</em>:</p>
+<pre><code>bash-4.3$ wine64 &quot;$WINEPREFIX/drive_c/GOG Games/Evoland/Evoland.exe&quot;
+</code></pre>
+<p><strong>¡Y esta vez se logra que funcione!</strong></p>
+</li>
+</ol>
+<h2>Creación de aplicación flatpak com.gog.Evoland</h2>
+<p>Hasta ahora se consiguió:</p>
+<ul>
+<li>Crear un <a href="http://docs.flatpak.org/en/latest/first-build.html#add-a-manifest">manifiesto</a> que permite ejecutar <em>Evoland</em>.</li>
+<li>Determinar los pasos necesarios para instalar y ejecutar <em>Evoland</em>.</li>
+</ul>
+<p>Ahora se pasará a crear el flatpak específico para <em>Evoland</em>:</p>
+<ol>
+<li>
+<p>Se copiarán los archivos utilizados renombrando <code>org.winepack.Generic.yaml</code>
+a <code>com.gog.Evoland.yaml</code>.</p>
+<p>Se modificará el archivo <code>com.gog.Evoland.yaml</code>:</p>
+<ol>
+<li>Se cambia el valor de <code>app-id</code> a <code>com.gog.Evoland</code></li>
+<li>Se reemplazan los <code>tags</code> por <code>gog</code> y <code>evoland</code>.</li>
+<li>En <code>modules</code>, se renombra en <code>name</code> <code>generic</code> por <code>evoland</code>.</li>
+</ol>
+</li>
+<li>
+<p>Se modificará el script <code>entrypoint.sh</code> para ejecutar <em>Evoland</em> si se
+encuentra y en caso contrario instalarlo. Si al momento de instalar no
+existe el instalador se mostrará un mensaje de error acorde utilizando
+<a href="https://help.gnome.org/users/zenity/">zenity</a>.</p>
+<p>A continuación el código del archivo
+<a href="./3-evoland/entrypoint.sh">entrypoint.sh</a>:</p>
+<pre><code class="language-bash">#!/bin/sh
+set -e
+
+# Variables
+PROGRAM_NAME=&quot;Evoland&quot;
+PROGRAM_URL=&quot;https://www.gog.com/game/evoland&quot;
+PROGRAM_PATH=&quot;GOG Games/Evoland/Evoland.exe&quot;
+INSTALLER_FILE=&quot;setup_evoland_1.1.2490_(20677).exe&quot;
+INSTALLER_CHECKSUM=a478ca738c312a6b8a2f289f309efa7c893efe3b06ff1753a6bea88864b62ce7
+DIALOG_WIDTH=400
+
+if [ ! -f &quot;$WINEPREFIX/drive_c/$PROGRAM_PATH&quot; ]; then
+    # install
+    XDG_DOWNLOAD_DIR=&quot;$(xdg-user-dir DOWNLOAD)&quot;
+
+    if [ ! -f &quot;$XDG_DOWNLOAD_DIR/$INSTALLER_FILE&quot; ]; then
+        zenity --error --no-markup --width=$DIALOG_WIDTH --text=&quot;$(cat &lt;&lt;END
+Can't found the file \`${INSTALLER_FILE}\`
+in the *Downloads* directory.
+
+Please, download it from &lt;${PROGRAM_URL}&gt;
+and run again.
+END
+            )&quot;
+        exit 1
+    fi
+
+    if ! echo &quot;$INSTALLER_CHECKSUM  $XDG_DOWNLOAD_DIR/$INSTALLER_FILE&quot; | sha256sum -c --quiet; then
+        zenity --error --no-markup --width=$DIALOG_WIDTH --text=&quot;$(cat &lt;&lt;END
+The file \`${INSTALLER_FILE}\` in *Downloads* directory
+has an unexpected sha256 sum.
+
+Please, download it again from &lt;${PROGRAM_URL}&gt;
+and check that the sha256sum of the file is
+\`${INSTALLER_CHECKSUM}\` and run again.
+END
+            )&quot;
+        exit 1
+    fi
+
+    zenity --info --no-markup --width=$DIALOG_WIDTH --text=&quot;$(cat &lt;&lt;END
+Running ${PROGRAM_NAME} installer.
+
+* Only accept the EULA (don't change installation directory)
+* Ignore error messages at the end of installation
+* Exit the installer - Don't press Launch button!
+END
+        )&quot;
+    wine64 &quot;$XDG_DOWNLOAD_DIR/$INSTALLER_FILE&quot; '/LANG=English'
+fi
+
+# run program
+wine64 &quot;$WINEPREFIX/drive_c/$PROGRAM_PATH&quot;
+</code></pre>
+<p>Comentarios:</p>
+<ul>
+<li>Se utilizan variables para la ruta del programa y el archivo del
+instalador ya que puede darse el caso de crear otro flatpak en que el
+script de instalación sea similar.</li>
+<li>Se utiliza la opción <code>--width=</code> ya que sin esta la ventana de dialogo
+queda muy angosta y resulta ilegible.</li>
+<li>Si bien se pudo determinar que el instalador fué creado con <a href="http://www.jrsoftware.org/isinfo.php">inno
+setup</a> (comentado en <a href="https://www.gog.com/forum/general_archive/command_line_install_options_to_automate_installs">el foro</a> <a href="https://www.gog.com/forum/general_archive/installer_command_line_options">de
+gog</a>) no se encontraron opciones de linea de comando para
+evitar tener que aceptar el EULA.</li>
+</ul>
+</li>
+<li>
+<p>Quedan agregar, según las <a href="http://docs.flatpak.org/en/latest/conventions.html">convenciones de escritorio de linux</a>:</p>
+<ol>
+<li>
+<p>Archivo <a href="http://docs.flatpak.org/en/latest/conventions.html#desktop-files">com.gog.Evoland.desktop</a>:</p>
+<pre><code>[Desktop Entry]
+Name=Evoland
+Comment=Evoland is a journey through the history of action/adventure gaming.
+Exec=/app/bin/entrypoint.sh
+Type=Application
+Icon=com.gog.Evoland
+Categories=Game;ArcadeGame;
+MimeType=application/x-ms-dos-executable;application/x-msi;application/x-ms-shortcut;
+StartupNotify=true
+Terminal=false
+</code></pre>
+<p>Dicho archivo puede encontrarse <a href="./3-evoland/com.gog.Evoland.desktop">aquí</a>.</p>
+<p>Para que sea agregado se debe modificar el manifiesto
+<a href="./3-evoland/entrypoint.sh">com.gog.Evoland.yaml</a> agregando en
+<code>modules</code> para <code>evoland</code>:</p>
+<pre><code class="language-yaml">  - name: evoland
+    ...
+    build-commands:
+      ...
+      - install -Dm644 com.gog.Evoland.desktop /app/share/applications/com.gog.Evoland.desktop
+    sources:
+      ...
+      - type: file
+        path: com.gog.Evoland.desktop
+</code></pre>
+</li>
+<li>
+<p>Íconos de la aplicación. Estos se pueden obtener de la instalación de
+<em>Evoland</em> en el flatpak genérico.</p>
+<p>Primero se copian al directorio de trabajo:</p>
+<pre><code>$ grep Icon $(find ~/.var/app/org.winepak.Generic/ -name Evoland.desktop)
+Icon=D357_goggame-1207659200.0
+$ find ~/.var/app/org.winepak.Generic/ -name 'D357_goggame-1207659200.0*'
+/home/jmpc/.var/app/org.winepak.Generic/data/icons/hicolor/256x256/apps/D357_goggame-1207659200.0.png
+/home/jmpc/.var/app/org.winepak.Generic/data/icons/hicolor/48x48/apps/D357_goggame-1207659200.0.png
+/home/jmpc/.var/app/org.winepak.Generic/data/icons/hicolor/32x32/apps/D357_goggame-1207659200.0.png
+/home/jmpc/.var/app/org.winepak.Generic/data/icons/hicolor/16x16/apps/D357_goggame-1207659200.0.png
+$ cd ~/workspace/my-winepak-apps/evoland
+$ ICONPREFIX=/home/jmpc/.var/app/org.winepak.Generic/data/icons/hicolor
+$ ICONSUFFIX=apps/D357_goggame-1207659200.0.png
+$ for size in 16x16 32x32 48x48 256x256; do
+    cp $ICONPREFIX/$size/$ICONSUFFIX com.gog.Evoland-$size.png
+done
+</code></pre>
+<p>Luego se vuelve a modificar el manifiesto para realizar la instalación:</p>
+<pre><code>  - name: evoland
+    ...
+    build-commands:
+      ...
+      - install -Dm664 com.gog.Evoland-16x16.png /app/share/icons/hicolor/16x16/apps/com.gog.Evoland.png
+      - install -Dm664 com.gog.Evoland-32x32.png /app/share/icons/hicolor/32x32/apps/com.gog.Evoland.png
+      - install -Dm664 com.gog.Evoland-48x48.png /app/share/icons/hicolor/48x48/apps/com.gog.Evoland.png
+      - install -Dm664 com.gog.Evoland-256x256.png /app/share/icons/hicolor/256x256/apps/com.gog.Evoland.png
+    sources:
+      ...
+      - type: file
+        path: com.gog.Evoland-16x16.png
+      - type: file
+        path: com.gog.Evoland-32x32.png
+      - type: file
+        path: com.gog.Evoland-48x48.png
+      - type: file
+        path: com.gog.Evoland-256x256.png
+</code></pre>
+</li>
+<li>
+<p>Queda por crear el archivo <code>com.gog.Evoland.appdata.xml</code>. La
+documentación de como crear el archivo puede encontrarse en la
+<a href="https://www.freedesktop.org/software/appstream/docs/chap-Quickstart.html">documentación de appstream</a>.</p>
+<p>En este caso no se creará el archivo, ya que no es necesario y no
+aporta.</p>
+</li>
+</ol>
+</li>
+</ol>
+<p>La versión final del manifiesto se encuentra <a href="./3-evoland/com.gog.Evoland.yaml_">aquí</a>.</p>
+<p>Paso seguido se crea el flatpak y se instala a nivel de usuario:</p>
+<pre><code>$ flatpak-builder --user --install --force-clean build com.gog.Evoland.yaml
+</code></pre>
+<p>Se ejecuta el flatpak (recordar que el instalador ya fué descargado en el
+directoro de descargas):</p>
+<pre><code>$ flatpak run com.gog.Evoland
+</code></pre>
+<p>Y ahora si quedó funcionando.</p>
+<p><img src="./success.jpg" alt="Funcionando" /></p>
+<p>Todos los archivos para construir el flatpak se pueden descargar de
+<a href="./evoland-files.tar.xz">aquí</a>.</p>
+<h2>Conclusiones</h2>
+<ul>
+<li>
+<p>Se vió como crear un flatpak sencillo.</p>
+</li>
+<li>
+<p>No se utilizaron soluciones <em>mágicas</em>, sinó que se mostró una forma de
+realizar pruebas previamente a crear el flatpak final.</p>
+</li>
+<li>
+<p>La documentación de <em>winepak</em> es inexistente. Lo único útil fueron las
+aplicaciones de ejemplo que se utilizaron como base para realizar el
+flatpak.</p>
+</li>
+<li>
+<p>Respecto a playonlinux:</p>
+<ul>
+<li>Se gana en cuanto a que los runtime con las distintas versiones de
+wine se pueden almacenar a nivel de sistema, pero los <em>wineprefix</em>
+siguen siendo por usuario y ocupan alrededor de 400MB cada uno.</li>
+<li>playonlinux tiene muchas más versiones disponibles de wine.</li>
+</ul>
+</li>
+</ul>
+<h3>Pendientes</h3>
+<ul>
+<li>Profundizar más sobre el uso de extensiones en flatpak.</li>
+<li>Entender porqué al utilizar la extensión <em>Compat32</em> de <em>winepak</em> se debe
+crear el enlace simbólico a <code>ld-linux.so.2</code></li>
+</ul>
+<h2>Referencias</h2>
+<ul>
+<li><a href="https://ramsdenj.com/2018/03/26/packaging-pathofexile-with-flatpak.html">Packaging Wine Application 'Path of Exile' With Flatpak</a></li>
+</ul>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

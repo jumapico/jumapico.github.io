@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Trucos para plantillas de packer | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Trucos para plantillas de packer</h1>
+        <h2 class="date">2019-07-03</h2>
+      </div>
+<p><a href="http://packer.io/">Packer</a> es un programa utilizado para automatizar la creación de
+<a href="https://searchservervirtualization.techtarget.com/definition/golden-image">golden images</a> o <em>machine images</em>.</p>
+<p>El objetivo de este post es enumerar algunos trucos para facilitar la creación
+de los scripts utilizados para generar las imagenes.</p>
+<h2>Casos de ejemplos</h2>
+<p>Hay veces que conviene comenzar con un template funcionando y ajustarlo que
+tener que realizar el template de cero.</p>
+<p>Como ejemplo de buenos repositorios de template se tiene</p>
+<ul>
+<li><a href="https://github.com/chef/bento">bento</a>: contiene varias distribuciones y versiones de estas, lo
+que lo convierte en un buen punto de partida.</li>
+</ul>
+<p>Hay que notar que varias veces las imagenes de los cd's de instalación contienen
+errores y deben utilizarse hacks para poder crear las imagenes con packer.  Un
+ejemplo de esto es el <a href="https://github.com/hashicorp/packer/issues/3521">issue 3521: Preseed and Bypass Try/Install screen in ubuntu 14.04,
+16.04</a></p>
+<h2>Uso de yaml</h2>
+<p>Por defecto <em>packer</em> utiliza archivos <a href="https://en.wikipedia.org/wiki/JSON">json</a> para los archivos de configuración
+(templates).  La contra más grande del formato <em>json</em> es que no permite realizar
+comentarios mientras se está creando la plantilla o comentar varias lineas
+mientras es necesario realizar una depuración en la configuración.</p>
+<p>Una alternativa a utilizar <em>json</em> es utilizar el formato <a href="https://en.wikipedia.org/wiki/YAML">yaml</a>,
+convirtiendo luego el template a formato <em>json</em> para su uso por <em>packer</em>.
+Para ello se puede utilizar el siguiente snippet en debian, instalando
+previamente el paquete <code>python3-yaml</code> (<code>sudo apt-get install -Vy python3-yaml</code>):</p>
+<pre><code>def convert(in_, out):
+    json.dump(yaml.load(in_), out, sort_keys=True, indent=4)
+</code></pre>
+<p>El script completo se puede encontrar en el archivo <a href="./yaml2json">yaml2json</a>.</p>
+<p>Nota: el soporte de <em>yaml</em> para templates en packer <a href="https://github.com/hashicorp/packer/pull/1047">ya fué rechazado</a>.</p>
+<h2>Separación en etapas</h2>
+<p>Dado que crear una imagen <em>de una vez</em> no es sencillo, conviene separar la
+creación en varias etapas.</p>
+<h3>Creación del sistema base vs Customización</h3>
+<p>La separación que me ha resultado más útil es entre la instalación del sistema
+base (mínimo) utilizando el cd de instalación y la posterior customización del
+sistema.  Para ello la primer etapa utiliza un archivo <em>.iso</em> (el instalador) y
+en la segunda se utiliza la imagen de la vm exportada.  En el caso de utilizar
+<a href="https://www.virtualbox.org/">VirtualBox</a>:</p>
+<ul>
+<li>
+<p>etapa 1:</p>
+<pre><code>builders:
+  - type: virtualbox-iso
+    format: ova
+    iso_urls:
+      - ./debian-9.9.0-amd64-netinst.iso
+      - https://cdimage.debian.org/mirror/cdimage/release/9.9.0/amd64/iso-cd/debian-9.9.0-amd64-netinst.iso
+      - https://cdimage.debian.org/mirror/cdimage/archive/9.9.0/amd64/iso-cd/debian-9.9.0-amd64-netinst.iso
+    iso_checksum_type: sha512
+    iso_checksum: 42d9818abc4a08681dc0638f07e7aeb35d0c44646ab1e5b05a31a71d76c99da52b6192db9a3e852171ac78c2ba6b110b337c0b562c7be3d32e86a105023a6a0c
+    vm_name: debian-base
+    output_directory : output/stage1
+</code></pre>
+<p><strong>NOTA</strong>: este paso debe instalar el servidor <a href="https://en.wikipedia.org/wiki/Secure_Shell">ssh</a> para que sea
+posible conectarse luego a la máquina virtual y continuar su configuración.</p>
+</li>
+<li>
+<p>etapa 2:</p>
+<pre><code>builders:
+  - type: virtualbox-ovf
+    format: ovf
+    source_path: output/stage1/debian-base.ova
+    vm_name: debian-customized
+    output_directory : output/stage2
+</code></pre>
+</li>
+</ul>
+<h3>Instalación de paquetes vs Customización de paquetes</h3>
+<p>Otra separación que me ha dado resultado es cuando se debe configurar un paquete
+cuya instalación posee muchas dependencias que deben ser instaladas.  En estos
+casos la descarga e instalación de paquetes insume un tiempo importante y es
+posible que ocurran fallas al momento de realizar la configuración mediante
+scripts, por lo cual conviene separar la instalación del paquete de su
+configuración.  Como ejemplo se puede tener la instalación y configuración del
+<a href="https://wiki.archlinux.org/index.php/Display_manager">display manager</a>:</p>
+<ul>
+<li>
+<p>etapa instalación:</p>
+<pre><code>provisioners:
+  - type: shell
+    script: scripts/install-lightdm.sh
+</code></pre>
+</li>
+<li>
+<p>etapa configuración:</p>
+<pre><code>provisioners:
+  - type: shell
+    script: scripts/configure-lightdm.sh
+</code></pre>
+</li>
+</ul>
+<p>Luego, cuando ya esté funcionando el script de configuración se
+pueden unir las etapas anteriores:</p>
+<pre><code>provisioners:
+  - type: shell
+    scripts:
+      - scripts/install-lightdm.sh
+      - scripts/configure-lightdm.sh
+</code></pre>
+<h2>Uso de makefiles</h2>
+<p>Para evitar crear la imagen de cero cuando hay algún paso en una etapa
+intermedia es útil utilizar <code>make</code> para calcular las dependencias.</p>
+<p>Un ejemplo del contenido del archivo <code>Makefile</code> es el siguiente:</p>
+<pre><code>all: stage2
+
+# aliases
+stage1: output/stage1/debian-base.ova
+stage2: output/stage2/debian-customized-disk001.vmdk
+
+# dependencies
+output/stage1/debian-base.ova: $(shell ./calculate-dependencies stage1.yaml)
+output/stage2/debian-customized-disk001.vmdk: $(shell ./calculate-dependencies stage2.yaml)
+
+# rules
+output/stage1/debian-base.ova:
+output/stage2/debian-customized-disk001.vmdk:
+        packer build -force $&lt;
+
+%.json: %.yaml
+        @./yaml2json &lt; $&lt; &gt; $@
+
+clean:
+        rm -fr stage?.json output
+
+.PHONY: clean
+</code></pre>
+<p>En el archivo anterior la pieza fundamental es el script
+<a href="./calculate-dependencies">calculate-dependencies</a>, el cual obtiene las
+dependencias del archivo yaml y las devuelve en la salida estandar, para ser
+utilizada por el makefile.  (Notar que el script anterior <em>debe devolver</em> como
+primer elemento el nombre del archivo pasado por parámetro con extensión
+<code>.json</code> para que se pueda utilizar correctamente la regla <code>packer build -force $&lt;</code>.)</p>
+<p>Dicho script funciona cargando el archivo yaml y obteniendo los archivos
+listados en los elementos (por ahora): virtualbox-iso, virtualbox-ovf, file,
+shell.  No se tiene en cuenta el borrado de archivos, pero es útil en caso de
+modificaciones.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

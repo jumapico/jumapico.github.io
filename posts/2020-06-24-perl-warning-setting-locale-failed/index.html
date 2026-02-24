@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Problemas con locales en debian | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Problemas con locales en debian</h1>
+        <h2 class="date">2020-06-24</h2>
+      </div>
+<p>Ante mensajes del tipo:</p>
+<pre><code>perl: warning: Setting locale failed.
+perl: warning: Please check that your locale settings:
+        LANGUAGE = (unset),
+        LC_ALL = (unset),
+perl: warning: Setting locale failed.
+        LC_MEASUREMENT = &quot;es_UY.UTF-8&quot;,
+perl: warning: Please check that your locale settings:
+        LC_PAPER = &quot;es_UY.UTF-8&quot;,
+        LANGUAGE = (unset),
+        LANG = &quot;en_US.UTF-8&quot;
+        LC_ALL = (unset),
+    are supported and installed on your system.
+        LC_MEASUREMENT = &quot;es_UY.UTF-8&quot;,
+        LC_PAPER = &quot;es_UY.UTF-8&quot;,
+perl: warning: Falling back to a fallback locale (&quot;en_US.UTF-8&quot;).
+        LANG = &quot;en_US.UTF-8&quot;
+    are supported and installed on your system.
+perl: warning: Falling back to a fallback locale (&quot;en_US.UTF-8&quot;).
+</code></pre>
+<p>hay que generar los archivos de localización faltantes en el sistema.
+En debian esto puede hacerse editando el archivo <code>/etc/locale.gen</code>.</p>
+<p>Primero se inspeccionan que locales están configurados para generar:</p>
+<pre><code>$ grep -v -e '^#' -e '^$' /etc/locale.gen
+en_US.UTF-8 UTF-8
+</code></pre>
+<p>Se edita el archivo para agregar los locales deseados (faltantes), en este caso
+<code>es_UY.UTF-8</code>:</p>
+<pre><code>$ sudo sed -i.bak-$(date -u +%Y%m%dT%H%M%SZ) 's/# \(es_UY.UTF-8 UTF-8\)/\1/' /etc/locale.gen
+</code></pre>
+<p>Y luego se generan:</p>
+<pre><code>$ sudo locale-gen
+</code></pre>
+<p>Ver:</p>
+<ul>
+<li><a href="https://wiki.debian.org/Locale">https://wiki.debian.org/Locale</a></li>
+</ul>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

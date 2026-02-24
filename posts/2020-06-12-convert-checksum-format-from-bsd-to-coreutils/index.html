@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Convertir formato de checksums de BSD a Coreutils | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Convertir formato de checksums de BSD a Coreutils</h1>
+        <h2 class="date">2020-06-12</h2>
+      </div>
+<p>Los checksum generados por <a href="https://man.openbsd.org/sha256">sha256</a> de BSD
+-particularmente de <a href="https://www.openbsd.org/">OpenBSD</a>-, aparte de utilizar la
+representación <a href="https://en.wikipedia.org/wiki/Hexadecimal">hexadecimales</a> igual
+a los generados por
+<a href="https://manpages.debian.org/testing/coreutils/sha256sum.1.en.html">sha256sum</a>
+de <a href="https://www.gnu.org/software/coreutils/">coreutils</a> permiten que su salida
+utilice la notación <a href="https://en.wikipedia.org/wiki/Base64">base64</a> que no es
+soportada por la versión de coreutils.</p>
+<p>Es posible convertir un archivo con checksums generados por la versión de BSD
+utilizando la representación de base64 a una representación hexadecimal (que
+pueda utilizarse con coreutils) utilizarse el siguiente programa
+<a href="https://en.wikipedia.org/wiki/AWK">awk</a>:</p>
+<pre><code>$ cat &gt; convert.awk &lt;&lt;'END'
+#!/bin/awk -f
+{
+    printf(&quot;%s %s %s &quot;, $1, $2, $3);
+    system(&quot;echo '&quot; $4 &quot;' | base64 -d | od -t x1 -An | tr -d ' \n'&quot;);
+    printf(&quot;\n&quot;)
+}
+END
+$ chmod +x convert.awk
+</code></pre>
+<p><em>Nota</em>: El programa anterior utiliza cuatro procesos por linea del archivo de
+entrada, por lo que no es muy eficiente y solo se recomienda utilizar con
+archivos de entrada pequeños.  Como ventaja, es una construcción en shell que
+requiere compilar o instalar librerías para poder ser utilizada.</p>
+<h2>Ejemplo de uso</h2>
+<p>Verificar con <code>sha256sum</code> de coreutils el archivo
+<a href="http://firmware.openbsd.org/firmware/6.7/SHA256">SHA256</a> creado con <code>sha256</code> de
+openbsd utilizando notación base64:</p>
+<pre><code>$ wget 'http://firmware.openbsd.org/firmware/6.7/SHA256'
+$ ./convert.awk &lt; SHA256 &gt; SHA256SUM
+</code></pre>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

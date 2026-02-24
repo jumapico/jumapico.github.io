@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Jugando Dome Keeper en OpenBSD | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Jugando Dome Keeper en OpenBSD</h1>
+        <h2 class="date">2023-10-24</h2>
+      </div>
+<p>Estos días he estado jugando al <a href="https://store.steampowered.com/app/1637320/Dome_Keeper/">Dome Keeper</a> de <a href="https://bippinbits.com/">bippinbits</a>,
+y viendo que estaba hecho con <a href="https://godotengine.org/">Godot Engine</a> aproveché a probar si funciona
+en <a href="https://www.openbsd.org/74.html">OpenBSD 7.4</a>.</p>
+<p><strong>TL;DR</strong>: ¡funciona la versión 1.5 con Godot Engine 3.5.3!</p>
+<p>Pasos a seguir:</p>
+<ol>
+<li>
+<p>Obtener una versión de <code>Dome Keeper</code>.</p>
+<p>En mi caso utilicé <em>para realizar pruebas</em> la versión
+<a href="https://freelinuxpcgames.com/dome-keeper/">Dome Keeper Deluxe Edition (1.5) [amd64][Multi][Steam][Godot]</a></p>
+<p>Este instalador es un <a href="https://en.wikipedia.org/wiki/Self-extracting_archive">Self-extracting</a> <a href="https://www.redhat.com/sysadmin/self-compressed-scripts">archive</a> que no funciona en
+OpenBSD pero ya que el <em>decompressor stub</em> (<em>header</em>) es un shell script
+podemos inspeccionar el código llegando a los pasos siguientes para extraer
+el archivo embebido (<em>payload</em>):</p>
+<pre><code>$ arcsz=`grep -m 1 -F 'arcsz=' dome_keeper_v1.5_1dlc.run | cut -d= -f2`
+$ tail -c $arcsz dome_keeper_v1.5_1dlc.run &gt; dome_keeper_v1.5_1dlc.rar
+</code></pre>
+<p>Luego utilizamos <code>unrar</code> (<code>doas pkg_add unrar</code>) para extraer el contenido:</p>
+<pre><code>$ unrar x dome_keeper_v1.5_1dlc.rar
+</code></pre>
+<p>Esto decomprime los archivos en el directorio <code>Dome Keeper</code>.</p>
+<p><strong>Nota 1</strong>: para inspeccionar con mayor comodidad el script que se encuentra
+en el header lo podemos extraer haciendo:</p>
+<pre><code>$ line=`grep -n -m 1 -F 'exit 0' dome_keeper_v1.5_1dlc.run | cut -d: -f1`
+$ head -n $line dome_keeper_v1.5_1dlc.run &gt; dome_keeper_v1.5_1dlc.header
+</code></pre>
+<p><strong>Nota 2</strong>: el uso de <code>arcsz</code> y <code>unrar</code> se deduce del extracto de código
+sigiuente que se encuentra en el header:</p>
+<pre><code># unpacking the embedded archive
+if \tail -c $arcsz &quot;$package&quot; | $pv -n -s $arcsz 2&gt;&quot;$progress_pipe&quot; | \
+$pv -f -e -s $arcsz 2&gt;&quot;$eta_cnt&quot; | &quot;$unrar&quot; x -idq -si -o+ arc -op&quot;$1&quot; \
+&amp; \echo $! &gt;&quot;$base_pid&quot;
+</code></pre>
+</li>
+<li>
+<p>Instalar el paquete <code>godot</code>:</p>
+<pre><code>$ doas pkg_add godot
+quirks-6.167 signed on 2023-10-24T09:47:43Z
+godot-3.5.3:libgdiplus-6.1p1: ok
+godot-3.5.3:mono-6.12.0.199p1: ok
+godot-3.5.3:enet-1.3.13p0: ok
+godot-3.5.3:mbedtls-2.28.0p0: ok
+godot-3.5.3:bullet-3.22: ok
+godot-3.5.3:godot-sharp-3.5.3: ok
+godot-3.5.3:goldberg_emulator-0.2.5pl3: ok
+godot-3.5.3:libcue-2.3.0: ok
+godot-3.5.3:musepack-475p5: ok
+godot-3.5.3: ok
+</code></pre>
+</li>
+<li>
+<p>Modificar el script <code>run.sh</code>:</p>
+<pre><code>$ cd Dome\ Keeper
+$ sed -i.bak 's/^exec.*$/exec godot -v --main-pack domekeeper.pck/' run.sh
+</code></pre>
+</li>
+<li>
+<p>¡Jugar!</p>
+<pre><code>$ ./run.sh
+</code></pre>
+</li>
+</ol>
+<hr />
+<h2>TODO</h2>
+<ol>
+<li>Crear <em>launcher</em> y <em>application menu</em> a partir de las plantillas en el header</li>
+<li>Probar una versión más reciente de Dome Keeper</li>
+</ol>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

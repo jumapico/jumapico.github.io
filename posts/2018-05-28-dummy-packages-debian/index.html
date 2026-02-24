@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Crear paquetes dummy en debian para satisfacer dependencias | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Crear paquetes dummy en debian para satisfacer dependencias</h1>
+        <h2 class="date">2018-05-28</h2>
+      </div>
+<p>Crear paquetes dummy en debian para satisfacer dependencias:</p>
+<ol>
+<li>
+<p>Instalar paquete <code>equivs</code> si no está instalado: <code>apt-get install -qVy equivs</code>.</p>
+</li>
+<li>
+<p>Crear archivo de control para generar el paquete dummy utilizando
+<a href="https://manpages.debian.org/unstable/equivs/equivs-control.1.en.html">equivs-control</a>.</p>
+<p>Ejemplo: <code>equivs-control my-stub-package</code>.</p>
+</li>
+<li>
+<p>Editar el archivo generado, en el caso de ejemplo <code>my-stub-package</code>.
+Los campos que deben editarse generalmente para cumplir una dependencia
+son: <em>Package</em>, <em>Version</em> y <em>Architecture</em>.</p>
+</li>
+<li>
+<p>Generar el paquete dummy utilizando
+<a href="https://manpages.debian.org/unstable/equivs/equivs-build.1.en.html">equivs-build</a>.</p>
+<p>Siguiendo el ejemplo anterior, <code>equivs-control my-stub-package</code>.</p>
+<p><strong>NOTA</strong>: Conviene definir las variables de entorno <code>DEBEMAIL</code> y
+<code>DEBFULLNAME</code> para que en el <em>archivo de control</em> del paquete y en el
+<em>archivo changelog</em> se utilicen dichos valores y no el nombre de usuario
+y el host.</p>
+<p><strong>NOTA</strong>: Si la arquitectura del paquete a generar no coincide con la
+del host, por ejemplo, el host es <em>amd64</em> y se desea generar un paquete
+para <em>i386</em> se debe utilizar la opción <code>--arch=i386</code>.</p>
+</li>
+<li>
+<p>El paquete se instala de forma normal utilizando <code>dpkg -i &lt;filename&gt;</code> o
+si fué subido a un repositorio <code>apt-get install &lt;package&gt;</code>.</p>
+</li>
+</ol>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

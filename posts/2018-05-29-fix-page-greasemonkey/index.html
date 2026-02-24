@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Corregir páginas web con greasemonkey | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Corregir páginas web con greasemonkey</h1>
+        <h2 class="date">2018-05-29</h2>
+      </div>
+<h1>Corregir páginas web con greasemonkey</h1>
+<h2>Problema</h2>
+<p>Debo escribir un email utilizando un cliente <a href="https://en.wikipedia.org/wiki/Webmail">webmail</a> desde
+<em>Firefox</em>.</p>
+<p>Como una imagen dice más que mil palabras:</p>
+<p><img src="./webmail-problem.png" alt="Problema con webmail" /></p>
+<p>Como puede verse el area del mensaje se superpone a la linea del asunto del
+email.</p>
+<p>El cliente webmail es <a href="https://roundcube.net/">roundcube</a> (en el fuente de la página
+aparece el javascript <code>var rcmail = new rcube_webmail();</code>), desconozco la
+versión y no pude obtenerla de las páginas del roundcube.</p>
+<p>La instalación de <em>Firefox</em> que estoy usando es la 60.0.1, 64-bit linux, pero el
+problema lo he tenido antes con versiones anteriores.</p>
+<h2>Solución manual</h2>
+<p>Presionando <code>F12</code> para abrir las <em>Web development tools</em> en la ventana del
+email, se utiliza el <a href="https://developer.mozilla.org/en-US/docs/Tools/Page_Inspector/How_to/Select_an_element#With_the_node_picker">node picker</a> para seleccionar el area del
+mensaje, encontrandose que tiene el id <code>compose-body</code>. Editando el css y
+agregando <code>margin-top: 5em;</code> encontramos que se evita el solapamiento.</p>
+<p><img src="./webtools-fix.png" alt="Corrección con web development tools" /></p>
+<p>Ahora interesa no tener que estar realizando la misma acción cada vez que se va
+a escribir un email.</p>
+<h2>Solución automática con Greasemonkey</h2>
+<p>Para solucionar el problema se utilizará
+<a href="https://www.greasespot.net/">greasemonkey</a>, que permite administrar
+<a href="https://en.wikipedia.org/wiki/Userscript">userscripts</a>: scripts (usualmente en javascript) que
+permiten modificar las páginas web al ser cargadas.</p>
+<p>La documentación (escasa), se puede encontrar en <a href="https://wiki.greasespot.net/Main_Page">la wiki de
+greasemonkey</a>.</p>
+<p>Una mejor fuente es el libro <a href="http://shop.oreilly.com/product/9780596101657.do">Greasemonkey Hacks</a>,
+que puede verse en <a href="https://archive.org/details/greasemonkeyhack00pilg">archive.org</a>.
+Conviene tener en cuenta el <a href="https://www.greasespot.net/2017/09/greasemonkey-4-for-script-authors.html">post relativo a las incompatibilidades introducidas
+en la versión 4</a>.</p>
+<p>Se pasa a crear el script.</p>
+<p>Como nombre de archivo se utiliza <code>fix-roundcube-compose-overlap.user.js</code>. Notar
+que la extensión <code>.user.js</code> es necesaria para que el <a href="https://wiki.greasespot.net/Greasemonkey_Manual:Installing_Scripts">script sea instalado por
+greasemonkey</a>.</p>
+<p>A continuación se debe escribir la <a href="https://wiki.greasespot.net/Metadata_Block">metadata del
+script</a>:</p>
+<pre><code>// ==UserScript==
+// @name        fix-roundcube-compose-overlap
+// @namespace   jumapico.uy/greasemonkey
+// @version     1
+// @grant       none
+// @match       *://*/webmail/?*_task=mail*_action=compose*
+// @description Fix overlapping issue when compose email in roundcube webmail
+// ==/UserScript==
+</code></pre>
+<p>Para más detalles sobre el elemento <code>@match</code> ver la documentación de <a href="https://developer.chrome.com/extensions/match_patterns">Match
+Patterns de google</a>.</p>
+<p>El cuerpo del script es simple: una función javascript para insertar un nodo de
+tipo <code>style</code> cuyo contenido es el encontrado previamente al hacer el arreglo
+manual:</p>
+<pre><code>function insert_style(css) {
+    var head = document.getElementsByTagName('head')[0],
+        style = document.createElement('style');
+    style.type = 'text/css';
+    style.appendChild(document.createTextNode(css));
+    head.appendChild(style);
+}
+
+insert_style('#compose-body { margin-top: 3em; }');
+</code></pre>
+<p>La referencia utilizada para javascript es <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript">MDN web docs</a>.</p>
+<p>El archivo completo se encuentra en
+<a href="./fix-roundcube-compose-overlap.user.js">fix-roundcube-compose-overlap.user.js</a>
+(recordar desactivar greasemonkey para descargar el archivo).</p>
+<p>Para instalarlo (y también hacer pruebas durante el desarrollo), se utiliza el
+<a href="https://docs.python.org/3/library/http.server.html">servidor web standalone de python3</a> ejecutando
+<code>python3 -m http.server 8000</code> en el mismo directorio en que se encuentra el
+script y abriendo en el navegador web la url
+<code>http://127.0.0.1:8000/fix-roundcube-compose-overlap.user.js</code>.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

@@ -1,0 +1,171 @@
+#!/bin/bash
+# ----------------------------------------
+# codewars-kata-download
+#
+# Download kata from codewars using the codewars site api.
+#
+# This generate a directory with the following files:
+#
+# * description.md: description for the kata.
+# * solution.xx: template file for the solution.
+# * tests.xx: template file with some tests.
+#
+# Copyright 2017, Juan Picca <jumapico@gmail.com>
+#
+# LICENSE: MIT
+# ----------------------------------------
+
+set -e
+
+
+#
+# Show usage
+#
+usage() {
+    cat >&2 <<'END'
+
+Usage: codewars-download-kata access-token slug language
+
+    access-token:
+        Value under "API ACCESS TOKEN" in the "Account Settings" page, url
+        <https://www.codewars.com/users/edit>.
+
+    slug:
+        Value taken from the url of the kata.
+        Example: correct-the-time-string in the url
+        <https://www.codewars.com/kata/correct-the-time-string/train/cpp>.
+
+    language:
+        Language for a given kata.
+        The available languages for a kata are displayed in the "language" combo
+        box of the kata. This parameter is the same of the url.
+        Example: cpp in the url
+        <https://www.codewars.com/kata/correct-the-time-string/train/cpp>.
+
+END
+}
+
+
+#
+# Return in the global variable LANGUAGE_EXTENSION the extension file from a
+# given language.
+# Aborts if no conversion exists.
+#
+# Params:
+# * language
+#
+language2extension() {
+    local language="$1"
+
+    case $language in
+        c)
+            LANGUAGE_EXTENSION="c"
+            ;;
+        cpp)
+            LANGUAGE_EXTENSION="cpp"
+            ;;
+        csharp)
+            LANGUAGE_EXTENSION="cs"
+            ;;
+        *)
+            echo "Unknown language '$language' - aborting." >&2
+            exit 1
+    esac
+}
+
+
+#
+# Write to stdout a script to test the kata in the given language.
+#
+# Params:
+# * language
+# * extension
+#
+generate_run_script() {
+    local language="$1"
+    local extension="$2"
+
+    cat <<'END'
+#!/bin/sh
+CACHEDIR="$HOME/.cache/codewars-runner-cli"
+if [ ! -d "$CACHEDIR" ]; then
+    (cd "$(dirname "$CACHEDIR")"; git clone --depth=1 "https://github.com/Codewars/codewars-runner-cli.git")
+else
+    (cd "$CACHEDIR"; git pull)
+fi
+END
+    cat <<END
+docker-compose -f "\$CACHEDIR/docker-compose.yml" \
+    run --rm $language -c "\$(cat solution.$extension)" -f "\$(cat tests.$extension)"
+END
+}
+
+#
+# Download files related to the kata referenced by the slug in codewars.
+# Abort if found errors.
+#
+# Params:
+# * access-token
+# * slug
+# * language
+#
+download_kata() {
+    local accesstoken="$1"
+    local slug="$2"
+    local language="$3"
+
+    local extension dir output body
+
+    language2extension "$language"
+    extension="$LANGUAGE_EXTENSION"
+    dir="${slug}_${extension}"
+
+    if [ -d "$dir" ]; then
+        echo "The directory '$dir' already exist - aborting." >&2
+        exit 1
+    fi
+    output="$(curl --silent --include --location \
+        --request POST \
+        --header "Authorization: $accesstoken" \
+        "https://www.codewars.com/api/v1/code-challenges/${slug}/${language}/train")"
+    if [ 200 != "$(echo "$output" | head -n +1 | cut -d' ' -f2)" ]; then
+        cat >&2 <<END
+Unexpected response from codewars - aborting.
+
+Check using:
+
+    curl --silent --include --location --request POST --header "Authorization: $accesstoken" "https://www.codewars.com/api/v1/code-challenges/${slug}/${language}/train"
+END
+        exit 1
+    fi
+    body="$(echo "$output" | sed '1,/^\r$/d')"
+
+    mkdir "$dir"
+    cat > "$dir/description.md" <<END
+# $(echo "$body" | jq -r '.name')
+
+**($slug)**
+
+---
+
+END
+    echo "$body" | jq -r '.description' >> "$dir/description.md"
+    echo "$body" | jq -r '.session.setup' > "$dir/solution.$extension"
+    echo "$body" | jq -r '.session.exampleFixture' > "$dir/tests.$extension"
+
+    generate_run_script $language $extension > "$dir/run.sh"
+    chmod +x "$dir/run.sh"
+}
+
+#
+# Entry point
+#
+main() {
+    if [ $# -ne 3 ]; then
+        usage
+        exit 1
+    fi
+    download_kata "$@"
+}
+
+main "$@"

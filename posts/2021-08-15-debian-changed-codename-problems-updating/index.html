@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Debian cambió el codename - problemas al actualizar | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Debian cambió el codename - problemas al actualizar</h1>
+        <h2 class="date">2021-08-15</h2>
+      </div>
+<p><strong>TL;DR</strong>:</p>
+<pre><code>$ sudo apt-get update --allow-releaseinfo-change
+</code></pre>
+<hr />
+<p>Debian acaba de <a href="https://www.debian.org/News/2021/20210814">liberar bullseye</a>.  En mi caso particular utilizo
+<a href="https://www.debian.org/devel/testing">testing</a>, lo cual no me afecta mucho aparte de que se
+<a href="https://release.debian.org/bullseye/freeze_policy.html">termina el período de <code>freezing</code></a>.</p>
+<p>Lo que me tomó por sorpresa fué que al actualizar los repositorios obtuviera el
+siguiente mensaje:</p>
+<pre><code>$ sudo apt-get update
+Get:1 http://deb.debian.org/debian testing InRelease [81.6 kB]
+Get:2 http://security.debian.org/debian-security testing-security InRelease [35.6 kB]
+Get:3 http://deb.debian.org/debian testing-updates InRelease [36.8 kB]
+Hit:4 https://download.virtualbox.org/virtualbox/debian buster InRelease
+Reading package lists... Done
+E: Repository 'http://deb.debian.org/debian testing InRelease' changed its 'Codename' value from 'bullseye' to 'bookworm'
+N: This must be accepted explicitly before updates for this repository can be applied. See apt-secure(8) manpage for details.
+E: Repository 'http://security.debian.org/debian-security testing-security InRelease' changed its 'Codename' value from 'bullseye-security' to 'bookworm-security'
+N: This must be accepted explicitly before updates for this repository can be applied. See apt-secure(8) manpage for details.
+E: Repository 'http://deb.debian.org/debian testing-updates InRelease' changed its 'Codename' value from 'bullseye-updates' to 'bookworm-updates'
+N: This must be accepted explicitly before updates for this repository can be applied. See apt-secure(8) manpage for details.
+</code></pre>
+<p>Leyendo la <a href="https://manpages.debian.org/testing/apt/apt-secure.8.en.html#INFORMATION_CHANGES">página del manual de <code>apt-secure</code></a>, se indica que</p>
+<blockquote>
+<p>the user must therefore explicitly confirm changes to signal that the user is
+sufficiently prepared e.g. for the new major release of the distribution
+shipped in the repository (as e.g. indicated by the codename).</p>
+</blockquote>
+<p>Pero por otro lado no hay indicación de como hacer esto.</p>
+<p>El tip se encuentra en las <a href="https://www.debian.org/releases/stable/amd64/release-notes/ch-upgrading.en.html#updating-lists">Release Notes for Debian 11 (bullseye)</a>:</p>
+<blockquote>
+<p>Users of apt-secure may find issues when using <code>aptitude</code> or <code>apt-get</code>.
+For apt-get, you can use <code>apt-get update --allow-releaseinfo-change</code>.</p>
+</blockquote>
+<p>Confirmando en la <a href="https://manpages.debian.org/testing/apt/apt-get.8.en.html">página del manual de <code>apt-get</code></a>:</p>
+<blockquote>
+<p><strong>--allow-releaseinfo-change</strong>
+Allow the update command to continue downloading data from a repository
+which changed its information of the release contained in the repository
+indicating e.g a new major release. APT will fail at the update command
+for such repositories until the change is confirmed to ensure the user is
+prepared for the change</p>
+</blockquote>
+<p>Por lo que, <em>luego de haber entendido todo lo anterior</em>, ejecutamos:</p>
+<pre><code>$ sudo apt-get update --allow-releaseinfo-change
+</code></pre>
+<p>(Luego de esta actualización no es necesario volver a utilizar el parámetro
+<code>--allow-releaseinfo-change</code>.)</p>
+<p>Realmente no recordaba este paso, aunque creo que es entendible ya que debe
+realizarse solo <a href="https://wiki.debian.org/DebianReleases#Production_Releases">una vez cada dos años</a>...
+Espero recordar este post para 2024 cuando se libere <a href="https://wiki.debian.org/DebianBookworm">bookworm</a> :)</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

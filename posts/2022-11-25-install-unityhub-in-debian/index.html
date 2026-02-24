@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Instalando unityhub en debian | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Instalando unityhub en debian</h1>
+        <h2 class="date">2022-11-25</h2>
+      </div>
+<p>Se busca instalar unityhub pero en <a href="https://docs.unity3d.com/hub/manual/InstallHub.html#install-hub-linux">la documentación</a> se utiliza
+<code>apt-key add</code>, el cual según el <a href="https://manpages.debian.org/bookworm/apt/apt-key.8.en.html">manual de apt-key</a> no se recomienda:</p>
+<blockquote>
+<p>Note: Instead of using this command a keyring should be placed directly in the
+/etc/apt/trusted.gpg.d/ directory with a descriptive name and either &quot;gpg&quot; or
+&quot;asc&quot; as file extension.</p>
+</blockquote>
+<p>Por lo cual se sustituye el uso de</p>
+<pre><code>$ wget -qO - https://hub.unity3d.com/linux/keys/public | sudo apt-key add -
+</code></pre>
+<p>por</p>
+<pre><code>$ wget -qO - 'https://hub.unity3d.com/linux/keys/public' | gpg --dearmor | doas tee /etc/apt/trusted.gpg.d/Unity_Technologies_ApS.gpg
+$ doas chmod 644 /etc/apt/trusted.gpg.d/Unity_Technologies_ApS.gpg
+</code></pre>
+<p><em>Nota</em>: el nombre se obtuvo al provar previamente hacer
+<code>wget --content-disposition 'https://hub.unity3d.com/linux/keys/public'</code>
+para inspeccionar el certificado.</p>
+<p>Para instalar unityhub se sigue la guía:</p>
+<pre><code>$ doas apt-get install -V unityhub
+</code></pre>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Montar samba con gio en escritorio mate | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Montar samba con gio en escritorio mate</h1>
+        <h2 class="date">2019-08-21</h2>
+      </div>
+<p>Para montar un servidor de archivos samba se puede utilizar el comando <a href="https://manpages.debian.org/testing/libglib2.0-bin/gio.1.en.html">gio</a>,
+particularmente:</p>
+<pre><code>$ gio mount &quot;smb://DOMAIN;user@server/folder&quot;
+</code></pre>
+<p>Al querer acceder a los archivos en una consola mediante el directorio
+<code>/run/user/$UID/gvfs</code> se encuentra que este está vacío.</p>
+<p>Buscando en internet (ver referencias) se encuentra que el problema es la falta
+del paquete <a href="https://packages.debian.org/buster/gvfs-fuse">gvfs-fuse</a> instalado que se corrige mediante</p>
+<pre><code>$ sudo apt-get install -Vy gvfs-fuse
+</code></pre>
+<p>Merece la pena mencionar que mediante las dependencias reversas del paquete</p>
+<pre><code>$ apt-cache rdepends gvfs-fuse
+gvfs-fuse
+Reverse Depends:
+  gnome-core
+  pcmanfm
+  pcmanfm-qt
+  pcmanfm
+  nemo
+  cinnamon-core
+</code></pre>
+<p>se encuentra que este no está siendo instalado automáticamente al instalarse el
+paquete <code>task-mate-desktop</code> o alguna de sus dependencias; solo se instala para
+los escritorios <a href="https://www.gnome.org/">gnome</a>, <a href="https://en.wikipedia.org/wiki/Cinnamon_(desktop_environment)">cinnamon</a>, <a href="https://lxde.org/">LXDE</a> (mediante la dependencia a
+<code>pcmanfm</code>) y <a href="https://lxqt.org/">LXQT</a> (mediante la dependencia a <code>pcmanfm-qt</code>).</p>
+<h2>Referencias</h2>
+<ul>
+<li><a href="https://superuser.com/questions/717893/how-do-i-navigate-to-a-samba-location-ive-mounted-in-nautilus-on-the-command-li">https://superuser.com/questions/717893/how-do-i-navigate-to-a-samba-location-ive-mounted-in-nautilus-on-the-command-li</a>
+Indica la instalación del paquete <code>gvfs-fuse</code> y también que la ruta para
+acceder a los archivos es <code>/run/user/$UID/gvfs</code>.  Es un post viejo y tiene
+varias imprecisiones.</li>
+<li><a href="https://blog.sleeplessbeastie.eu/2018/09/26/how-to-display-reverse-package-dependencies/">https://blog.sleeplessbeastie.eu/2018/09/26/how-to-display-reverse-package-dependencies/</a>
+Se indican varias opciones para obtener dependencias reversas de paquetes en
+debian.</li>
+</ul>
+<h2>Notas</h2>
+<p>A raíz del problema se creó el <a href="https://bugs.debian.org/935374">bug 935374</a> en debian.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

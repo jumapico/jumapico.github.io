@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Shaders de OpenGL en el emulador higan | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Shaders de OpenGL en el emulador higan</h1>
+        <h2 class="date">2020-05-20</h2>
+      </div>
+<p>Luego de instalar el emulador <a href="https://higan-emu.com/">higan</a> en <a href="https://www.debian.org/">debian</a>:</p>
+<pre><code>$ sudo apt-get install -Vy higan
+</code></pre>
+<p>lo primero que se nota es la pobre calidad gráfica al querer utilizar una rom.
+Para solucionar el problema una opción que se indica en la documentación es
+<a href="https://higan.readthedocs.io/en/stable/guides/shaders/#how-to-install-custom-shaders">instalar shaders custom</a>, siendo el repositorio <a href="https://github.com/hizzlekizzle/quark-shaders">quark-shaders</a> el recomendado.
+Para esto se descarga el repositorio, se instala en el sistema y se corrigen los
+permisos:</p>
+<pre><code>$ wget -P /tmp --content-disposition \
+    https://github.com/hizzlekizzle/quark-shaders/archive/master.tar.gz
+$ sudo tar xf /tmp/quark-shaders-master.tar.gz \
+    --transform='s/quark-shaders-master/Video Shaders/' --no-same-owner \
+    -C /usr/share/higan/
+$ sudo chmod -R -x,+X,go-w '/usr/share/higan/Video Shaders'
+</code></pre>
+<p>Luego para poder utilizar los shaders se ejecuta <code>higan</code>, se va a la opción
+<strong>Settings &gt; Advanced...</strong> y allí como driver de video se elige la opción
+<strong>OpenGL</strong>.  Se cierra el programa y se vuelve a ejecutar para que los cambios
+sean aplicados.  Para elegir un shader ahora se va a la opción <strong>Settings &gt;
+Video Shader &gt;</strong> y ahora ya se puede elegir entre una buena lista de opciones.
+El shader <strong>2xBR-2pass</strong> me dió un buen resultado.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

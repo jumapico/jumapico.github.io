@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Setup del nuevo método de pruebas para paquetes reproducibles en debian | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Setup del nuevo método de pruebas para paquetes reproducibles en debian</h1>
+        <h2 class="date">2018-11-16</h2>
+      </div>
+<h2>Objetivos</h2>
+<ol>
+<li>Crear entorno de trabajo para <a href="https://reproducible-builds.org/">builds reproducibles</a> en
+<a href="https://tests.reproducible-builds.org">debian <em>buster</em> (testing)</a>.</li>
+<li>Probar el entorno con el paquete <a href="https://tests.reproducible-builds.org/debian/rb-pkg/buster/amd64/supercat.html">supercat</a> que aparece
+como <em>no reproducible</em> a la fecha.</li>
+</ol>
+<p>El sistema en el cual se trabajará es <strong>debian testing (buster) amd64</strong>.</p>
+<p><strong>NOTA</strong>: A raíz del artículo se modificó la wiki de debian (<a href="https://wiki.debian.org/ReproducibleBuilds/Howto?action=diff&amp;rev2=79&amp;rev1=78">revisión
+79</a>).</p>
+<h2>Preparación del entorno</h2>
+<p>La <a href="https://wiki.debian.org/ReproducibleBuilds/Howto#Newer_method">guía para preparar el entorno se puede encontrar en la wiki de
+debian</a>.</p>
+<p>El nuevo método requiere que se cree un schroot, lo cual se detalla en otra
+<a href="https://wiki.debian.org/sbuild#Create_the_chroot">página de la wiki</a>.
+Ya que utilizando este método se deben descargar una y otra vez los paquetes, se
+utilizará en su lugar el paquete <code>sbuild-debian-developer-setup</code> que cuenta con
+las siguientes ventajas:</p>
+<ol>
+<li>
+<p>Instala como dependencia <code>apt-cacher-ng</code>, de la <a href="https://manpages.debian.org/testing/apt-cacher-ng/apt-cacher-ng.8.en.html">página del
+manual</a>:</p>
+<blockquote>
+<p>Apt-Cacher  NG is a caching proxy for software packages which are down-
+loaded by Unix/Linux system distribution mechanisms from mirror servers
+accessible via HTTP.</p>
+</blockquote>
+<p>Con <code>apt-cacher-ng</code> se evita que los paquetes se descarguen más de una vez.</p>
+</li>
+<li>
+<p>Agrega un script para actualizar los <code>schroot</code> que se ejecuta
+automáticamente mediante <code>cron</code>.</p>
+</li>
+</ol>
+<p><strong>NOTA</strong>: Para utilizar el caché de <code>apt-cacher-ng</code> hay que utilizar como
+repositorio: <code>http://localhost:3142/deb.debian.org/debian</code>.</p>
+<p>Respecto al uso de <code>reprotest</code>, este tiene problemas conocidos relativos a la
+<em>variación del dominio o host dentro de un virtual-server</em>, los cuales se
+detallan en la <a href="https://manpages.debian.org/testing/reprotest/reprotest.1.en.html">página del manual de reprotest</a>:</p>
+<blockquote>
+<p>The non-sudo method fails with &quot;Operation not permitted&quot;, even if you edited
+/proc/sys/kernel/unprivileged_userns_clone. The cause is currently unknown.
+The sudo method works only if you take measures to avoid sudo password
+prompts, since containers don't have a method to input this.</p>
+</blockquote>
+<p>Para probar la diferencia entre los paquetes generados se utiliza <code>diffoscope</code>,
+el cual es instalado como dependencia de <code>reprotest</code>.</p>
+<pre><code class="language-bash">$ sudo apt-get install -Vy sbuild-debian-developer-setup reprotest
+$ sudo sbuild-adduser $LOGNAME
+$ newgrp sbuild
+$ sudo sbuild-createchroot --include=eatmydata,ccache,gnupg buster \
+    /srv/chroot/buster-amd64-sbuild \
+    http://localhost:3142/deb.debian.org/debian
+</code></pre>
+<p>Luego se permite el uso de sudo sin password con el schroot para poder utilizar
+la <em>variación del dominio o host</em>:</p>
+<pre><code class="language-bash">$ reprotest --print-sudoers \
+    --variations=user_group.available+=guest-builder,domain_host.use_sudo=1 \
+    | sudo EDITOR=tee visudo -f /etc/sudoers.d/local-reprotest
+$ echo &quot;/etc/sudoers.d/local-reprotest /etc/sudoers.d/local-reprotest none bind 0 0&quot; \
+    | sudo tee -a /srv/chroot/buster-amd64-sbuild/etc/fstab
+</code></pre>
+<h2>Prueba del entorno</h2>
+<p>Para probar el entorno se utilizará el <a href="https://tests.reproducible-builds.org/debian/rb-pkg/buster/amd64/supercat.html">paquete supercat</a>
+como se indicó anteriormente.</p>
+<p>Para ello se agrega el repositorio de fuentes para testing (buster) a <code>apt</code> <strong>si
+este aún no fué agregado</strong>:</p>
+<pre><code class="language-bash">$ echo &quot;deb-src http://deb.debian.org/debian/ buster main&quot; | sudo tee /etc/apt/sources.list.d/buster-src.list
+$ sudo apt-get update
+</code></pre>
+<p>Se descarga el fuente del paquete:</p>
+<pre><code class="language-bash">$ mkdir -p ~/workspace-rb; cd ~/workspace-rb
+$ apt-get source supercat/buster
+</code></pre>
+<p>Luego para comprobar si el paquete es reproducible se utiliza <code>reprotest</code>.</p>
+<pre><code class="language-bash">$ time sudo reprotest \
+    --vary=-build_path,domain_host.use_sudo=1 \
+    --store-dir=output-$(date -u +%s) \
+    --auto-build supercat_0.5.5-4.3.dsc \
+    -- schroot buster-amd64-sbuild
+</code></pre>
+<p><strong>NOTAS</strong>:</p>
+<ol>
+<li>
+<p>Se debe configurar para la variación <em>domain_host</em> el parámetro
+<em>use_sudo=1</em>, en caso contrario se obtiene un error del tipo:</p>
+<pre><code>WARNING:reprotest.build:Not using sudo for domain_host; your build may fail. See man page for other options.
+WARNING:reprotest.build:Be sure to `echo 1 &gt; /proc/sys/kernel/unprivileged_userns_clone` if on a Debian system.
+Note, using file './supercat_0.5.5-4.3.dsc' to get the build dependencies
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+unshare: unshare failed: Opération non permise
+</code></pre>
+</li>
+<li>
+<p>Se agrega la opción <em>--store-dir</em> para salvar los artefactos generados por
+<code>reprotest</code>.</p>
+</li>
+<li>
+<p>La opción <em>--auto-build</em> es utilizada para realizar builds adicionales con
+difefentes variaciones para intentar determinar cuales pueden ser el origen
+del no determinismo si el paquete no es reproducible despues de dos builds.</p>
+</li>
+<li>
+<p>Se ejecuta utilizando <code>sudo</code> para evitar los errores del tipo:</p>
+<pre><code>Nous esp�rons que vous avez re�u de votre administrateur syst�me local les consignes traditionnelles. G�n�ralement, elles se concentrent sur ces trois �l�ments�:
+
+    #1) Respectez la vie priv�e des autres.
+    #2) R�fl�chissez avant d'utiliser le clavier.
+    #3) De grands pouvoirs conf�rent de grandes responsabilit�s.
+
+sudo: sin tty presente y no hay programa askpass especificado
+</code></pre>
+</li>
+</ol>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

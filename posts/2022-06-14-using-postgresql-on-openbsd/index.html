@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Uso de PostgreSQL en OpenBSD | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Uso de PostgreSQL en OpenBSD</h1>
+        <h2 class="date">2022-06-14</h2>
+      </div>
+<h2>Instalación de paquetes</h2>
+<p>Primero buscamos los paquetes a instalar y corroboramos la versión disponible:</p>
+<pre><code>$ pkg_info -Q postgresql
+...
+postgresql-client-14.3
+postgresql-contrib-14.3
+postgresql-docs-14.3
+postgresql-ip4r-2.4.1pl1
+postgresql-odbc-13.02.0000
+postgresql-pg_upgrade-14.3
+postgresql-pllua-2.0.10
+postgresql-plpython-14.3
+postgresql-plr-8.4.1
+postgresql-previous-13.5p0
+postgresql-server-14.3p1
+postgresql_autodoc-1.40p1
+...
+</code></pre>
+<p>Para instalar la versión 14.3 de postgresql se utiliza</p>
+<pre><code>$ doas pkg_add postgresql-server postgresql-client postgresql-contrib
+</code></pre>
+<p>y si se quiere tener la documentación localmente:</p>
+<pre><code>$ doas pkg_add postgresql-docs w3m
+</code></pre>
+<h2>Creación de base de datos</h2>
+<p>Comenzamos leyendo el <em>README</em> del paquete,
+<code>/usr/local/share/doc/pkg-readmes/postgresql-server</code>.</p>
+<p><strong>SIEMPRE LEER EL README DEL PAQUETE PRIMERO.</strong></p>
+<p>En este se indican los pasos para crear una base de datos por defecto:</p>
+<blockquote>
+<pre><code># su - _postgresql
+$ mkdir /var/postgresql/data
+$ initdb -D /var/postgresql/data -U postgres -A scram-sha-256 -E UTF8 -W
+</code></pre>
+</blockquote>
+<p>Desglosando las <a href="https://www.postgresql.org/docs/14/app-initdb.html">opciones de initdb</a> utilizadas se tiene:</p>
+<ul>
+<li><code>-D /var/postgresql/data</code>: directorio donde se creará el cluster de la base de
+datos</li>
+<li><code>-U postgres</code>: nombre de usuario del superusuario de la base de datos</li>
+<li><code>-A scram-sha-256</code>: método de autenticación por defecto para los usuarios
+locales utilizados en el archivo <code>pg_hba.conf</code>.</li>
+<li><code>-E UTF8</code>: encoding de la <em>template database</em> y encoding por defecto que será
+utilizado para cualquier base de datos que se cree luego.</li>
+<li><code>-W</code>: pedir password para el superusuario de la base de datos.</li>
+</ul>
+<p>Se utilizará una ligera variación del comando anterior:</p>
+<ol>
+<li>
+<p>Se cambiará el directorio del cluster de la base de datos.
+Estando acostumbrado a utilizar debian, creo que el <a href="https://wiki.debian.org/PostgreSql">esquema utilizado por
+debian</a> es superior.  A continuación se copia parte de la
+wiki donde se indican los archivos utilizados:</p>
+<blockquote>
+<p>File locations</p>
+<p>Debian splits the database configuration from the database files, opposed to generic PostgreSQL installation that puts everything under same directory. Note that Debian allows multiple clusters and even different versions of PostgreSQL to co-exist in same host.</p>
+<p>Configuration files: /etc/postgresql/[version]/[cluster]/
+Binaries: /usr/lib/postgresql/[version]
+Data files: /var/lib/postgresql/[version]/[cluster]</p>
+<p>Log files: Installing PostgreSQL creates log directory /var/log/postgresql/. Starting the database engine creates log file with name postgresql-[version]-[cluster].log.</p>
+</blockquote>
+<p>La ventaja de debian es explicita la versión utilizada de postgresql y está
+pensado para tener más de un cluster, siendo <code>main</code> el nombre del cluster
+por defecto.</p>
+<p>Por esto se utilizará como esquema del nombre de directorio para el cluster
+<code>/var/postgresql/data-[version]-[cluster]</code> y en este caso particular queda
+como <code>/var/postgresql/data-14-main</code>.</p>
+</li>
+<li>
+<p>Se agrega la opción <code>--locale=C</code> para explicitar la
+<a href="https://www.postgresql.org/docs/14/charset.html">localización</a> utilizada.</p>
+<p>Este es el mismo locale creado más arriba, ya que del
+<a href="https://man.openbsd.org/su">manual de su</a>:</p>
+<blockquote>
+<pre><code>-     Same as the -l option (deprecated).
+-l    Simulate a full login.  The shell of the target login is invoked
+      and the current working directory is changed to the home
+      directory of the target login.  HOME, SHELL, LOGNAME, and USER
+      are set to the default values for the target login.  PATH and the
+      umask(2) value are set according to login.conf(5).  Except for
+      preserving TERM, the rest of the environment is discarded.
+</code></pre>
+</blockquote>
+<p>y si no se explicita el locale en el entorno por defecto es <code>C</code> pero ya que
+<em>el locale es importante y a tener en cuenta</em> deseo explicitarlo.  En caso
+de que se requiera otra localización se debe reemplazar <code>--locale=C</code>
+por la opción <code>--locale=locale</code> o por las opciones <code>--lc-*=locale</code>.</p>
+</li>
+<li>
+<p>Se utilizará la opción <code>--pwfile=filename</code> en lugar de <code>-W</code>, para obtener el
+password desde un archivo.  Este password será aleatorio y no se utilizará a
+futuro, ya que en lugar de tener que recordar el password para el usuario
+<code>postgres</code> prefiero conectarme mediante el usuario <code>_postgresql</code> del sistema
+operativo.</p>
+<p>Esto se configurará más adelante.</p>
+</li>
+</ol>
+<p>De todo lo anterior, creamos el cluster utilizando:</p>
+<pre><code>$ doas su -l _postgresql
+$ pwfile=&quot;$(mktemp -p &quot;$HOME&quot;)&quot;
+$ cat /dev/urandom | tr -dc '[:print:]' | fold -w 64 | head -n 1 &gt; &quot;$pwfile&quot;
+$ mkdir /var/postgresql/data-14-main
+$ initdb -D /var/postgresql/data-14-main -U postgres -A scram-sha-256 -E UTF8 --locale=C --pwfile=&quot;$pwfile&quot;
+The files belonging to this database system will be owned by user &quot;_postgresql&quot;.
+This user must also own the server process.
+
+The database cluster will be initialized with locale &quot;C&quot;.
+The default text search configuration will be set to &quot;english&quot;.
+
+Data page checksums are disabled.
+
+fixing permissions on existing directory /var/postgresql/data-14-main ... ok
+creating subdirectories ... ok
+selecting dynamic shared memory implementation ... posix
+selecting default max_connections ... 20
+selecting default shared_buffers ... 128MB
+selecting default time zone ... America/Montevideo
+creating configuration files ... ok
+running bootstrap script ... ok
+performing post-bootstrap initialization ... ok
+syncing data to disk ... ok
+
+Success. You can now start the database server using:
+
+    pg_ctl -D /var/postgresql/data-14-main -l logfile start
+
+$ rm &quot;$pwfile&quot;
+</code></pre>
+<p>Para guardar los logs se utilizará también el esquema seguido en debian: como
+directorio <code>/var/log/postgresql/</code> y como nombre de archivo
+<code>postgresql-[version]-[cluster].log</code>:</p>
+<pre><code>$ doas mkdir /var/log/postgresql
+$ doas chown _postgresql:_postgresql /var/log/postgresql
+</code></pre>
+<h2>Configuración para autenticar al usuario postgres sin password</h2>
+<p>Como se mencionó previamente, es posible contectarse con el superusuario de la
+base de datos sin utilizar un password mediante
+<a href="https://www.postgresql.org/docs/14/auth-methods.html">la autenticación</a> de <a href="https://www.postgresql.org/docs/14/auth-peer.html">tipo Peer</a>.  En este
+tipo de autenticación utiliza el nombre de usuario del sistema operativo para
+validar el usuario y permite opcionalmente realizar un mapeo (usuario local,
+usuario db).</p>
+<p>Ya que el usuario en el sistema es <code>_postgresql</code> y el usuario en la base de
+datos es <code>postgres</code>, vamos a necesitar realizar el mapeo como se indica la
+<a href="https://www.postgresql.org/docs/14/auth-username-maps.html">documentación sobre el mapeo de usuarios</a> agregando al
+archivo <code>pg_ident.conf</code> la linea:</p>
+<pre><code># MAPNAME       SYSTEM-USERNAME         PG-USERNAME
+map-postgres    _postgresql             postgres
+</code></pre>
+<p>Notar que llamamos a dicho mapeo <code>map-postgres</code>.</p>
+<p>Ahora, pasamos a editar el archivo <code>pg_hba.conf</code> para agregar <em>al principio</em> la
+linea:</p>
+<pre><code># TYPE  DATABASE        USER            METHOD          OPTIONS
+local   postgres        postgres        peer            map=map-postgres
+</code></pre>
+<p>que habilita a realizar una conexión <em>local</em> a la base de datos <em>postgres</em> por
+el usuario <em>postgres</em> mediante el método <em>peer</em> usando el mapeo <em>map-postgres</em>.</p>
+<p><strong>TODO</strong>: Notar que al agregar dicha linea, cuando otros usuarios quieran
+autenticarse utilizando el usuario <code>postgres</code> se devuelve el mensaje:</p>
+<pre><code>$ psql -U postgres
+psql: error: connection to server on socket &quot;/tmp/.s.PGSQL.5432&quot; failed: FATAL:  Peer authentication failed for user &quot;postgres&quot;
+</code></pre>
+<p>Queda pendiente revisar si es posible evitar dar <em>la pista</em> de que está
+habilitada la autenticación <code>peer</code> para el usuario <code>postgres</code>.</p>
+<h2>Ejecución de la base de datos - v1</h2>
+<p>El paquete <code>postgresql-server</code> incluye el archivo <code>/etc/rc.d/postgresql</code>, el
+cual comienza con:</p>
+<pre><code>$ head /etc/rc.d/postgresql
+#!/bin/ksh
+
+daemon=&quot;/usr/local/bin/pg_ctl&quot;
+daemon_flags=&quot;-D /var/postgresql/data -w -l /var/postgresql/logfile&quot;
+daemon_user=&quot;_postgresql&quot;
+daemon_timeout=300
+
+. /etc/rc.d/rc.subr
+
+rc_usercheck=NO
+</code></pre>
+<p>Aquí se ve que los flags por defecto implican un directorio de datos y archivo
+de logs distintos a los elegidos.
+Para habilitar el servicio y cambiar los flags debe hacerse:</p>
+<pre><code>$ doas rcctl enable postgresql
+$ doas rcctl set postgresql flags -D /var/postgresql/data-14-main -w -l /var/log/postgresql/postgresql-14-main.log
+</code></pre>
+<p><em>NOTAS</em>:</p>
+<ul>
+<li>
+<p>Hay que habilitar primero el servicio, ya que en caso contrario no nos deja
+establecer las flags con el mensaje:</p>
+<pre><code>rcctl: postgresql is not enabled
+</code></pre>
+</li>
+<li>
+<p>Cuando se deshabilita el servicio se borran los flags y al volver a habilitar
+el servicio hay que recordar volver a modificar los flags cada vez.
+<em>Esto no está muy bueno...</em></p>
+<p>No alcanza con agregar la linea</p>
+<pre><code># postgresql_flags=-D /var/postgresql/data-14-main -w -l /var/log/postgresql/postgresql-14-main.log
+</code></pre>
+<p>en el archivo <code>/etc/rc.conf.local</code> como recordatorio, ya que el servicio
+también debe aparecer en <code>pkg_scripts=</code>.</p>
+</li>
+<li>
+<p>La mejor forma para ejecutar el servicio es mediante <a href="https://man.openbsd.org/rcctl">rcctl</a>, ya
+que de esta forma no tenemos que preocuparnos si el servicio está siendo
+ejecutado o no.</p>
+</li>
+</ul>
+<h2>Ejecución de la base de datos - v2</h2>
+<p>Una alternativa a habilitar y definir los flags utilizando <code>rcctl</code> es crear un
+nuevo <a href="https://man.openbsd.org/rc.d">daemon control script</a> que contenga los flags correctos, de
+forma que alcance con utilizar <code>rcctl disable|enable [daemon]</code>.</p>
+<p>Para ello se parte del archivo <code>/etc/rc.d/postgresql</code> instalado por el paquete
+<code>postgresql-server</code> (<code>pkg_info -E /etc/rc.d/postgresql</code>) y modificar la linea
+<code>daemon_flags</code>:</p>
+<pre><code>$ doas cp /etc/rc.d/postgresql /etc/rc.d/postgresql14_main
+$ doas sed -i 's#^daemon_flags=.*$#daemon_flags=&quot;-D /var/postgresql/data-14-main -w -l /var/log/postgresql/postgresql-14-main.log&quot;#' \
+    /etc/rc.d/postgresql14_main
+</code></pre>
+<p>La ventaja de esta opción es que no es necesario tener habilitado el demonio
+<code>postgresql</code> ni tener que recordar los flags.</p>
+<p>Otra ventaja es que podemos tener más de un cluster ya que se siguió la
+convención <code>postgresql[version]_[cluster]</code>.</p>
+<h2>Creación de usuario para conectarse a la base de datos</h2>
+<p>Se comienza creando un usuario de la base de datos.  En mi caso utilizaré como
+usuario de la base el mismo nombre de usuario del sistema.</p>
+<h3>Conectarse con el usuario de sistema sin utilizar password</h3>
+<p>Para volver a obviar el tener que ingresar un usuario/password para conectarme
+a la base de datos se volvera a modificar el archivo <code>pg_hba.conf</code>.  Esta vez
+para agregar el método de autenticación <code>peer</code> para todos los usuarios del
+sistema y que les permita conectarse a todas las bases de datos.</p>
+<pre><code># TYPE  DATABASE        USER            METHOD          OPTIONS
+local   postgres        postgres        peer            map=map-postgres
+local   all             jmpc            peer
+</code></pre>
+<p>Se reinicia la base:</p>
+<pre><code>$ doas rcctl reload postgresql14_main
+</code></pre>
+<p><em>NOTA</em>: ¿Porque se especifica el usuario directamente, <code>jmpc</code>, en lugar de
+utilizar <code>all</code>?.  Para evitar que sea creado un usuario de nombre <code>postgres</code> y
+que tenga permisos para conectarse a todas las bases de datos.
+Por supuesto, si <code>root</code> o un administrador pueden crear el usuario <code>postgres</code>
+también podrían modificar el archivo <code>pg_hba.conf</code> y lograr acceso al cluster...</p>
+<p>Ahora se crea el usuario en la base de datos:</p>
+<pre><code>$ doas su -l _postgresql
+$ createuser -U postgres -e --createdb --no-createrole --no-superuser --no-replication --login jmpc
+SELECT pg_catalog.set_config('search_path', '', false);
+CREATE ROLE jmpc NOSUPERUSER CREATEDB NOCREATEROLE INHERIT LOGIN NOREPLICATION;
+</code></pre>
+<p>No son necesarias todas las opciones anteriores ya que muchas estan por defecto,
+pero prefiero explicito sobre implícito.</p>
+<h3>Conectarse con el usuario de sistema utilizando password</h3>
+<p>Al crear el usuario se ingresa un password.
+Luego este es agregado en el <a href="https://www.postgresql.org/docs/14/libpq-pgpass.html">archivo <code>~/.pgpass</code></a>.</p>
+<pre><code>$ doas su -l _postgresql
+$ printf 'Password:\n%s\n\n' &quot;$(cat /dev/urandom | tr -dc '[:alpha:]' | fold -w 64 | head -n 1)&quot;
+Password:
+xbRgpOWqELkaiofWhIqFquoMxOmyuRkwThgBpptvaBijgWzIYfkQsGqHWAiQZUAm
+$ createuser -U postgres -e --createdb --no-createrole --no-superuser --no-replication --login --pwprompt jmpc
+Enter password for new role:
+Enter it again:
+SELECT pg_catalog.set_config('search_path', '', false);
+CREATE ROLE jmpc PASSWORD 'SCRAM-SHA-256$4096:VQ4QiExM+hVYtiFl2/XNsw==$YHeSB8L/8NAwjcFiu2YcGmzVWvZhFEteKEFE3h8W2fw=:S0q36nFJ/lrym0bPECJ0izBhgMPpZf5Zh5flIgg/ayg=' NOSUPERUSER CREATEDB NOCREATEROLE INHERIT LOGIN NOREPLICATION;
+</code></pre>
+<p>Y se agrega en <code>/home/jmpc/.pgpass</code> con el usuario <code>jmpc</code>:</p>
+<pre><code>$ echo 'localhost:*:*:jmpc:xbRgpOWqELkaiofWhIqFquoMxOmyuRkwThgBpptvaBijgWzIYfkQsGqHWAiQZUAm' &gt;&gt; ~/.pgpass
+$ chmod 600 ~/.pgpass
+</code></pre>
+<p><em>NOTA</em>: tener en cuenta que el formato del archivo ~/.pgpass es:</p>
+<pre><code># hostname:port:database:username:password
+</code></pre>
+<h2>Creación de base de datos para el usuario</h2>
+<p>Ya que le dimos al usuario <code>jmpc</code> permisos para crear bases de datos no es
+necesario crear la base utilizando el usuario <code>postgres</code>.</p>
+<p>Utilizando el comando <a href="https://www.postgresql.org/docs/14/app-createdb.html">createdb</a> tenemos:</p>
+<pre><code>$ createdb -e -T template1 -E UTF8 -l C -O jmpc firstdb 'First db created for testing'
+SELECT pg_catalog.set_config('search_path', '', false);
+CREATE DATABASE firstdb OWNER jmpc ENCODING 'UTF8' TEMPLATE template1 LC_COLLATE 'C' LC_CTYPE 'C';
+COMMENT ON DATABASE firstdb IS 'First db created for testing';
+</code></pre>
+<p>Nuevamente, se intenta explicitar las opciones utilizadas al crear la base de
+datos.
+¿Porqué <code>template1</code> como template?.  Según la <a href="https://www.postgresql.org/docs/14/sql-createdatabase.html">documentación de CREATE
+DATABASE</a>:</p>
+<blockquote>
+<p>By default, the new database will be created by cloning the standard system
+database template1.</p>
+</blockquote>
+<p>Y se verifica la creación y conexión a la base utilizando:</p>
+<pre><code>$ psql -d firstdb
+psql (14.3)
+Type &quot;help&quot; for help.
+
+firstdb=&gt;
+</code></pre>
+<h2>Conclusiones</h2>
+<ul>
+<li>Creo recordar que en debian era mucho más sencillo la creación del cluster de
+la base de datos, ya que este se realizaba automaticamente en los scripts de
+post instalación.  También, al corresponder el usuario del sistema operativo
+al superusuario del cluster de la base de datos no era necesario definir un
+mapeo de usuarios (<code>pg_ident.conf</code>).</li>
+<li>En debian los archivos de configuración de postgresql estaban bajo
+<code>/etc/postgresql</code> y no en el directorio del cluster de la base de datos.
+Igualmente esto es trivial.</li>
+<li>Es bastante duro utilizar OpenBSD, ya que este es un buen ejemplo de que hay
+que conocer el software que se está usando ya que los paquetes no suelen
+realizar una configuración automática.</li>
+<li><strong>Siempre hay que empezar leyendo los readme de los paquetes de OpenBSD</strong>.</li>
+<li>¿Vale la pena el esfuerzo? <strong>¡SIEMPRE!</strong>.
+No es raro tener que hacer un <em>troubleshooting</em> por problemas de conexión o
+permisos en bases de desarrollo o testing configuradas por uno mismo o por
+otros.  Sin duda este tipo de ejercicios ayuda a entender mejor el programa.</li>
+<li>La mayoría de las diferencias respecto a los pasos dados en el readme del
+paquete se debe a que se quisieron explicitar las opciones de los distintos
+comandos utilizados y que se eligió una ubicación no estandar (según el
+readme) para el cluster y el archivo de logs.</li>
+</ul>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

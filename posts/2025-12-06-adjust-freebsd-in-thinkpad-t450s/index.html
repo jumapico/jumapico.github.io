@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ajustando FreeBSD en Thinkpad T450s | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Ajustando FreeBSD en Thinkpad T450s</h1>
+        <h2 class="date">2025-12-06</h2>
+      </div>
+
+<p>Estoy utilizando <a href="https://www.freebsd.org/">FreeBSD</a> en una <a href="https://pcsupport.lenovo.com/us/en/products/laptops-and-netbooks/thinkpad-t-series-laptops/thinkpad-t450s">Thinkpad T450s</a>.
+A continuación la lista de ajustes que he tenido que ir realizando al sistema:</p>
+<section id="Suspend">
+<h2>Suspend</h2>
+<p>Uno de los problemas más molestos que he tenido es que utilizando el escritorio
+<a href="https://mate-desktop.org/">MATE</a>, al cerrar la tapa del laptop este entra en estado de suspensión
+(<a href="https://en.wikipedia.org/wiki/Sleep_mode">S3</a>).
+Luego, al levantar la tapa es imposible volver al estado de encendido, debiendo
+apagar el equipo presionando la tecla <code>power</code> por 10 segundos.</p>
+<p>La solución, sencilla (luego de encontrarla) se encuentra en los
+<a href="https://forums.freebsd.org/">foros de freebsd</a> o en blogs como el de <a href="https://vermaden.wordpress.com/">vermaden</a></p>
+<ul>
+<li>
+<p><a href="https://forums.freebsd.org/threads/acpi-entering-s3-cant-wake-up-anymore.76611/">Solved ACPI entering S3 - can’t wake up anymore</a></p>
+<blockquote>
+<p>Try disabling the TPM in the Bios. This has a few issues it seems.</p>
+</blockquote>
+</li>
+<li>
+<p><a href="https://forums.freebsd.org/threads/suspend-resume-to-disk-hibernation-iffs-irst-partition-intel-fast-flash-intel-rapid-start-technology.75860/">Suspend/Resume to Disk - Hibernation - iFFS/IRST Partition (Intel Fast
+Flash/Intel Rapid Start Technology)</a></p>
+<blockquote>
+<p>Optionally de-activate or disable the TRM/TTP security chip in the UEFI/BIOS.
+This applies to Lenovo (at least Thinkpad T450s, very likely other models as
+well) and probably other brands, too.</p>
+</blockquote>
+</li>
+<li>
+<p><a href="https://vermaden.wordpress.com/2018/11/28/the-power-to-serve-freebsd-power-management/">The Power to Serve – FreeBSD Power Management</a></p>
+<blockquote>
+<p>The biggest enemies of suspend/resume subsystem are bugs in the BIOS/UEFI
+firmware.</p>
+<p>Sometimes disabling the Bluetooth helps – that is the option for the Lenovo
+ThinkPad T420s for example. On the Lenovo ThinkPad X240 it is disabling the
+TPM (Trusted Platform Module).</p>
+</blockquote>
+</li>
+</ul>
+</section>
+<section id="Teclas-para-ajustar-brillo-de-pantalla-Backlight">
+<h2>Teclas para ajustar brillo de pantalla (Backlight)</h2>
+<p>Esta vez la solución la encontré en un <a href="https://bugs.freebsd.org/bugzilla/">reporte de bug de FreeBSD</a> aunque
+existen soluciones similares previas:</p>
+<ul>
+<li>
+<p><a href="https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=280553">Bug 280553 - acpi_ibm brightness adjust thinkpad x260 does not work</a></p>
+<p>Se crea el archivo <code>/etc/devd/thinkpad.conf</code> con el contenido:</p>
+<pre><code># https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=280553
+notify 100 {
+         match "system"                  "ACPI";
+         match "subsystem"               "IBM";
+         match "notify"                  "0x10";
+         action "/usr/bin/backlight +";
+};
+ 
+notify 100 {
+         match "system"                  "ACPI";
+         match "subsystem"               "IBM";
+         match "notify"                  "0x11";
+         action "/usr/bin/backlight -";
+};
+</code></pre>
+</li>
+<li>
+<p><a href="https://www.davidschlachter.com/misc/freebsd-acpi_video-thinkpad-display-brightness">Adjusting acpi_video brightness increments on FreeBSD</a></p>
+<p>Mencionada solo para dar crédito a su autor, es una idea similar a la
+encontrada en bugzilla de FreeBSD, pero más complicada ya que requiere
+utilizar un script en lugar del comando <code>backlight</code> y cargar los módulos
+<code>acpi_ibm</code> y <code>acpi_video</code>.</p>
+</li>
+</ul>
+</section>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

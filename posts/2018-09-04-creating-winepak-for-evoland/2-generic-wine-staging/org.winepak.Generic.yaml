@@ -1,0 +1,65 @@
+app-id: org.winepak.Generic
+
+runtime: org.winepak.Platform
+runtime-version: 3.0
+sdk: org.winepak.Sdk
+
+add-extensions:
+  org.winepak.Platform.Compat32:
+    directory: lib/32bit
+    version: 3.0
+    add-ld-path: lib
+    no-autodownload: false
+
+  org.winepak.Platform.Wine:
+    directory: lib/wine
+    version: 3.10-staging
+    add-ld-path: lib
+    no-autodownload: false
+
+  org.winepak.Platform.Wine.Compat32:
+    directory: lib/wine-32bit
+    version: 3.10-staging
+    add-ld-path: lib
+    no-autodownload: false
+
+tags:
+  - generic app
+
+command: entrypoint.sh
+
+finish-args:
+  - --socket=x11
+  - --share=ipc
+  - --socket=pulseaudio
+  - --device=dri
+  - --allow=multiarch
+  - --filesystem=xdg-download:ro
+  - --env=WINEDEBUG=-all
+
+modules:
+  - name: setup-compat32
+    buildsystem: simple
+    build-commands:
+      - mkdir -p /app/lib/32bit
+      - ln -s /app/lib/32bit/lib/ld-linux.so.2 /app/lib/ld-linux.so.2
+
+  - name: setup-wine
+    buildsystem: simple
+    build-commands:
+      - mkdir -p /app/lib/wine
+
+  - name: setup-wine-compat32
+    buildsystem: simple
+    build-commands:
+      - mkdir -p /app/lib/wine-32bit
+
+  - name: generic
+    buildsystem: simple
+    no-make-install: true
+    build-commands:
+      - install -d /app/bin
+      - install -m555 entrypoint.sh /app/bin
+    sources:
+      - type: file
+        path: entrypoint.sh

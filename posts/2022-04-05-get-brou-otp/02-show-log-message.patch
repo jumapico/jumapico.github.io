@@ -1,0 +1,11 @@
+--- uy.jumapico.brou.token.orig/assets/www/js/app/index.js	2022-04-04 20:29:09.732779462 -0300
++++ uy.jumapico.brou.token/assets/www/js/app/index.js	2022-04-04 20:31:44.662185020 -0300
+@@ -1,5 +1,8 @@
+ document.addEventListener('DOMContentLoaded', function () {
+   document.addEventListener("deviceready", function(){
++
++      console.log("MODIFIED!!!");
++
+ 		document.addEventListener("backbutton", function() {
+ 			//window.location.assign("index.html");
+

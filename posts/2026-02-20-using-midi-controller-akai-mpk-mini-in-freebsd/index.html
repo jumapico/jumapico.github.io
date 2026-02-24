@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Usando controlador MIDI AKAI MPK mini en FreeBSD | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Usando controlador MIDI AKAI MPK mini en FreeBSD</h1>
+        <h2 class="date">2026-02-20</h2>
+      </div>
+
+<p>Escuchando música en youtube me topé con un video sobre <a href="https://www.youtube.com/watch?v=aigOVV2S0y0">como tocar</a> el tema
+<a href="https://www.youtube.com/results?search_query=techno+syndrome">Techno Syndrome</a>.
+Así que fuí a buscar el <a href="https://en.wikipedia.org/wiki/MIDI_controller">controlador</a> <a href="https://en.wikipedia.org/wiki/MIDI">MIDI</a> que tengo juntando algo de
+polvo, un <a href="https://www.akaipro.com/mpk-mini-mk3/">AKAI MPK mini MK3</a>, y a probar de utilizarlo en <a href="https://www.freebsd.org/">FreeBSD</a>.</p>
+<p>Empezamos viendo el sistema para quien quiera probar la guía:</p>
+<pre><code class="language-shell">$ freebsd-version
+14.3-RELEASE-p8
+</code></pre>
+<p>Se conecta el controlador y se verifica que sea reconocido por FreeBSD:</p>
+<pre><code class="language-shell">$ doas dmesg
+...
+ugen1.2: &lt;vendor 0x8087 product 0x8001&gt; at usbus1
+uhub2 on uhub1
+uhub2: &lt;vendor 0x8087 product 0x8001, class 9/0, rev 2.00/0.03, addr 2&gt; on usbus1
+uhub2: 8 ports with 8 removable, self powered
+Limiting closed port RST response from 208 to 192 packets/sec
+ugen0.5: &lt;AKAI MPK mini 3&gt; at usbus0
+uhid0 on uhub0
+uhid0: &lt;AKAI MPK mini 3, class 0/0, rev 2.00/2.00, addr 4&gt; on usbus0
+uaudio0 on uhub0
+uaudio0: &lt;AKAI MPK mini 3, class 0/0, rev 2.00/2.00, addr 4&gt; on usbus0
+uaudio0: No playback.
+uaudio0: No recording.
+uaudio0: MIDI sequencer.
+uaudio0: No HID volume keys found.
+</code></pre>
+<p>El hardware es detectado por el sistema.
+Se verifica que el dispositivo correspondiente fue creado y sus permisos:</p>
+<pre><code class="language-shell">$ ls -l /dev/umidi*
+crw-rw-rw-  1 root operator 0x1a3 Feb 20 17:15 /dev/umidi0.0
+</code></pre>
+<p>Probamos de leer eventos MIDI enviados por el controlador para lo cual
+utilizamos el programa <a href="https://man.freebsd.org/cgi/man.cgi?query=mididump&amp;manpath=FreeBSD+14.3-RELEASE">mididump</a> incluido en el sistema base:</p>
+<pre><code class="language-shell">$ mididump /dev/umidi0.0
+Note on 		channel=4, note=53 (F3, 174.61Hz), velocity=8
+Note off		channel=4, note=53 (F3, 174.61Hz), velocity=0
+Note on 		channel=4, note=54 (F#3/Gb3, 185.00Hz), velocity=23
+Note off		channel=4, note=54 (F#3/Gb3, 185.00Hz), velocity=0
+Note on 		channel=10, note=54 (F#3/Gb3, 185.00Hz), velocity=64
+Note off		channel=10, note=54 (F#3/Gb3, 185.00Hz), velocity=0
+Note on 		channel=10, note=42 (F#2/Gb2, 92.50Hz), velocity=34
+Note off		channel=10, note=42 (F#2/Gb2, 92.50Hz), velocity=0
+Control/Mode change	channel=4, control=70 (Sound Controller 1), value=1
+Control/Mode change	channel=4, control=70 (Sound Controller 1), value=2
+Control/Mode change	channel=4, control=70 (Sound Controller 1), value=3
+Control/Mode change	channel=4, control=70 (Sound Controller 1), value=4
+Control/Mode change	channel=4, control=70 (Sound Controller 1), value=5
+Control/Mode change	channel=4, control=1 (Modulation Wheel), value=2
+Pitch bend		channel=4, change=8329
+Control/Mode change	channel=4, control=1 (Modulation Wheel), value=19
+Pitch bend		channel=4, change=8684
+Control/Mode change	channel=4, control=1 (Modulation Wheel), value=37
+Pitch bend		channel=4, change=9483
+Control/Mode change	channel=4, control=1 (Modulation Wheel), value=48
+Pitch bend		channel=4, change=10352
+Pitch bend		channel=4, change=10722
+Control/Mode change	channel=4, control=1 (Modulation Wheel), value=74
+Control/Mode change	channel=4, control=1 (Modulation Wheel), value=79
+Pitch bend		channel=4, change=12300
+Pitch bend		channel=4, change=12697
+Control/Mode change	channel=4, control=1 (Modulation Wheel), value=110
+Pitch bend		channel=4, change=13476
+Control/Mode change	channel=4, control=1 (Modulation Wheel), value=126
+Pitch bend		channel=4, change=14365
+Control/Mode change	channel=4, control=1 (Modulation Wheel), value=127
+Pitch bend		channel=4, change=15689
+Pitch bend		channel=4, change=16060
+Pitch bend		channel=4, change=16383
+Control/Mode change	channel=4, control=1 (Modulation Wheel), value=126
+Control/Mode change	channel=4, control=1 (Modulation Wheel), value=109
+Control/Mode change	channel=4, control=1 (Modulation Wheel), value=86
+Pitch bend		channel=4, change=13073
+Control/Mode change	channel=4, control=1 (Modulation Wheel), value=20
+Pitch bend		channel=4, change=8192
+Control/Mode change	channel=4, control=1 (Modulation Wheel), value=9
+Control/Mode change	channel=4, control=1 (Modulation Wheel), value=0
+Control/Mode change	channel=4, control=1 (Modulation Wheel), value=0
+</code></pre>
+<p>Ya comprobamos que el sistema está recibiendo eventos MIDI.</p>
+<p>Para poder escuchar sonidos debemos instalar un <a href="https://en.wikipedia.org/wiki/Software_synthesizer">sintetizador de software</a>
+el cual será el encargado de convertir los eventos MIDI en audio.
+Utilizaremos el programa <a href="https://www.fluidsynth.org/">fluidsynth</a> para ello, el cual requiere también la
+instalación de <a href="https://en.wikipedia.org/wiki/SoundFont">soundfonts</a>:</p>
+<pre><code class="language-shell">$ doas pkg install fluidsynth fluid-soundfont
+</code></pre>
+<p>Indagamos donde se encuentran los soundfonts:</p>
+<pre><code class="language-shell">$ pkg info -l fluid-soundfont
+fluid-soundfont-3.1:
+	/usr/local/lib/timidity/fluidr3_gm.cfg
+	/usr/local/lib/timidity/fluidr3_gs.cfg
+	/usr/local/share/doc/fluid-soundfont/README
+	/usr/local/share/licenses/fluid-soundfont-3.1/LICENSE
+	/usr/local/share/licenses/fluid-soundfont-3.1/MIT
+	/usr/local/share/licenses/fluid-soundfont-3.1/catalog.mk
+	/usr/local/share/sounds/sf2/FluidR3_GM.sf2
+	/usr/local/share/sounds/sf2/FluidR3_GS.sf2
+</code></pre>
+<p>Invocamos <code>fluidsynth</code> para que genere sonido a partir de eventos MIDI
+utilizando soundfonts:</p>
+<pre><code class="language-shell">$ fluidsynth -s -a oss -m oss -o midi.oss.device=/dev/umidi0.0 /usr/local/share/sounds/sf2/FluidR3_GM.sf2
+FluidSynth runtime version 2.5.2
+Copyright (C) 2000-2025 Peter Hanappe and others.
+Distributed under the LGPL license.
+SoundFont(R) is a registered trademark of Creative Technology Ltd.
+
+fluidsynth: warning: Failed to set thread to high priority
+Type 'help' for help topics.
+
+fluidsynth: warning: Failed to set thread to high priority
+&gt; 
+</code></pre>
+<p>Los parámetros del comando anterior se determinan del
+<a href="https://man.freebsd.org/cgi/man.cgi?query=fluidsynth&amp;manpath=FreeBSD+Ports+14.3">manual de fluidsynth</a> a excepción de la opción
+<code>-o midi.oss.device=/dev/umidi0.0</code>.
+Esta debe agregarse ya que por defecto <code>fluidsynth</code> utiliza como dispositivo
+MIDI <code>/dev/midi</code> lo cual puede verse mediante el comando <code>fluidsynth -o help</code>
+que muestra las opciones existentes y sus valores por default.</p>
+<pre><code class="language-shell">$ fluidsynth -o help | grep /dev/midi
+midi.oss.device          STR   [def='/dev/midi']
+</code></pre>
+<p>Si no se incluye esta opción <code>fluidsynth</code> intenta acceder a un dispositivo
+inexistente y falla con el siguiente mensaje:</p>
+<pre><code>$ fluidsynth -s -a oss -m oss /usr/local/share/sounds/sf2/FluidR3_GM.sf2
+FluidSynth runtime version 2.5.2
+Copyright (C) 2000-2025 Peter Hanappe and others.
+Distributed under the LGPL license.
+SoundFont(R) is a registered trademark of Creative Technology Ltd.
+
+/dev/midi: No such file or directory
+Failed to create the MIDI thread; no MIDI input
+will be available. You can access the synthesizer 
+through the console.
+Type 'help' for help topics.
+fluidsynth: warning: Failed to set thread to high priority
+
+&gt; 
+</code></pre>
+<p>Ahora ya se pueden presionar teclas del controlador y probar el sonido generado,
+el cual corresponde a un piano.</p>
+<p>Los sonidos disponibles en un soundfont se pueden listar utilizando</p>
+<pre><code class="language-shell">&gt; inst 1
+000-000 Yamaha Grand Piano
+000-001 Bright Yamaha Grand
+000-002 Electric Piano
+000-003 Honky Tonk
+...
+</code></pre>
+<p>Veamos de cambiar el sonido desde el prompt de <code>fluidsynth</code>, más específicamente
+que el canal 0 pase a utilizar el sonido 81 correspondiente a <em>Saw Wave</em>.</p>
+<pre><code class="language-shell">&gt; prog 0 81
+</code></pre>
+<p>Si no se escucha un cambio en el sonido es posible que el canal que está
+enviando el evento MIDI no se corresponde con el canal que cambiamos.
+Lo más sencillo para ver el canal es utilizar <code>mididump</code> (saliendo temporalmente
+de <code>fluidsynth</code>).</p>
+<p>Veamos un ejemplo de este caso:</p>
+<pre><code class="language-shell">$ mididump /dev/umidi0.0
+Note on 		channel=4, note=60 (C4, 261.63Hz), velocity=90
+Note off		channel=4, note=60 (C4, 261.63Hz), velocity=0
+</code></pre>
+<p>Aquí se está utilizando el canal 4, en lugar del 1 que es donde se cambió el
+sonido (usando <code>prog 0 81</code>).
+Se debe presionar en el teclado MIDI las teclas <code>PROG SELECT</code>+<code>PAD 1</code> y
+verificar que se estén enviando eventos correspondientes al canal 1:</p>
+<pre><code class="language-shell">Note on 		channel=1, note=60 (C4, 261.63Hz), velocity=80
+Note off		channel=1, note=60 (C4, 261.63Hz), velocity=0
+</code></pre>
+<p>Viendo lo sencillo de los pasos anteriores puedo concluir que fué <strong>un éxito</strong>
+configurar el controlador MIDI en FreeBSD.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

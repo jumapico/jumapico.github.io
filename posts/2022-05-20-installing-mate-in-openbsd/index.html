@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Instalando escritorio MATE en OpenBSD | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Instalando escritorio MATE en OpenBSD</h1>
+        <h2 class="date">2022-05-20</h2>
+      </div>
+<p>Notas para la instalación y configuración del <a href="https://mate-desktop.org/">escritorio MATE</a> en
+<a href="https://www.openbsd.org/">OpenBSD</a>:</p>
+<ol>
+<li>
+<p>Instalar los paquetes <code>mate</code> y <code>mate-extras</code>:</p>
+<pre><code>$ doas pkg_add mate mate-extras
+</code></pre>
+</li>
+<li>
+<p>Seguir las indicaciones del paquete mate que se encuentran en el archivo
+<code>/usr/local/share/doc/pkg-readmes/mate</code>:</p>
+<ol>
+<li>
+<p>Agregar <code>mate-session</code> en <code>~/.xsession</code>:</p>
+<pre><code>exec /usr/local/bin/ck-launch-session /usr/local/bin/mate-session
+</code></pre>
+</li>
+<li>
+<p>Habilitar <code>messagebus</code> para ver el indicador de la conexión AC/batería:</p>
+<pre><code>$ doas rcctl enable messagebus
+$ doas rcctl start messagebus
+</code></pre>
+</li>
+</ol>
+</li>
+<li>
+<p>Configuración de bloqueo al cerrar la tapa.</p>
+<p>Por defecto, al cerrar la tapa del laptop el equipo entra en suspensión y
+no se bloquea la pantalla, por lo que al volver a levantar la tapa y
+encender el equipo volvemos al escritorio y no está bloqueado.  <strong>Esto es un
+problema de seguridad</strong>.  Buscando en internet se encuentra la solución en
+el post <a href="https://dataswamp.org/~solene/2021-07-30-openbsd-xidle-xlock.html">Automatically lock screen on OpenBSD using xidle and xlock</a>,
+la cual adaptandola queda como:</p>
+<ol>
+<li>
+<p>Configurar el uso de <a href="https://man.openbsd.org/xidle.1">xidle</a> en <code>~/.xsession</code> agregando antes del final del
+archivo la linea:</p>
+<pre><code>xidle -delay 5 -nw -program &quot;/usr/local/bin/mate-screensaver-command -l&quot; -timeout 0 &amp;
+</code></pre>
+<p>que ejecuta el programa <a href="https://manpages.debian.org/testing/mate-screensaver-common/mate-screensaver-command.1.en.html">mate-screensaver-command</a> para <em>nunca</em>
+bloquear la pantalla.</p>
+<p>En la documenentación de <code>xidle</code> no se indica que el parámetro de
+<code>-timeout</code> debe ser positivo.  Entendiendo que con el valor <code>0</code> no se
+activa nunca, evitamos tener un conflicto entre el timeout dado por
+<code>xidle</code> y la configuración del salvapantallas de mate configurada por la
+UI.</p>
+</li>
+<li>
+<p>Crear script <code>/etc/apm/suspend</code> de <a href="https://man.openbsd.org/apmd.8">apmd</a> para que al suspenderse el equipo
+se envíe una señal al programa <code>xidle</code>:</p>
+<pre><code>$ doas mkdir /etc/apm
+$ cat &lt;&lt;'END' | doas tee /etc/apm/suspend
+#!/bin/sh
+
+pkill -USR1 xidle
+END
+$ doas chmod +x /etc/apm/suspend
+</code></pre>
+</li>
+<li>
+<p>Habilitar <code>apmd</code>:</p>
+<pre><code>$ doas rcctl enable apmd
+$ doas rcctl start apmd
+</code></pre>
+</li>
+</ol>
+</li>
+<li>
+<p>Agregar indicador de mayusculas presionadas en barra de tareas y quitar
+íconos de escritorio.</p>
+<p>Esto en <a href="https://www.debian.org/">debian</a> se realiza con el paquete <a href="https://packages.debian.org/bookworm/mate-tweak">mate-tweak</a>, pero en <a href="https://www.openbsd.org/">openbsd</a>
+no existe aún ese paquete, por lo que hay que modificar los settings
+utilizando <a href="https://manpages.debian.org/testing/dconf-cli/dconf.1.en.html">dconf</a>.</p>
+<p>Para obtener los valores a modificar utilizando <code>dconf</code> se puede
+inspeccionar el código fuente de <a href="https://packages.debian.org/bookworm/mate-tweak">mate-tweak</a> y también los archivos en
+<code>/usr/local/share/glib-2.0/schemas/</code>:</p>
+<ul>
+<li>
+<p><a href="https://github.com/ubuntu-mate/mate-tweak/blob/22.04.8/mate-tweak#L522">https://github.com/ubuntu-mate/mate-tweak/blob/22.04.8/mate-tweak#L522</a>:</p>
+<pre><code>self.set_bool('org.mate.peripherals-keyboard-xkb.general', None, 'duplicate-leds', self.keyboard_led_enabled)
+</code></pre>
+<p>Buscando el significado de la propiedad se confirma que es lo que
+estamos buscando:</p>
+<pre><code>$ grep -h -A4 duplicate-leds /usr/local/share/glib-2.0/schemas/org.mate.*
+&lt;key name=&quot;duplicate-leds&quot; type=&quot;b&quot;&gt;
+  &lt;default&gt;false&lt;/default&gt;
+  &lt;summary&gt;Show keyboard leds indicator&lt;/summary&gt;
+  &lt;description&gt;Show keyboard leds indicator&lt;/description&gt;
+&lt;/key&gt;
+</code></pre>
+</li>
+<li>
+<p><a href="https://github.com/ubuntu-mate/mate-tweak/blob/22.04.8/mate-tweak#L1631-L1636">https://github.com/ubuntu-mate/mate-tweak/blob/22.04.8/mate-tweak#L1631-L1636</a>:</p>
+<pre><code>self.init_checkbox(&quot;org.mate.background&quot;, &quot;show-desktop-icons&quot;, &quot;checkbox_show_icons&quot;)
+self.init_checkbox(&quot;org.mate.caja.desktop&quot;, &quot;computer-icon-visible&quot;, &quot;checkbox_computer&quot;)
+self.init_checkbox(&quot;org.mate.caja.desktop&quot;, &quot;home-icon-visible&quot;, &quot;checkbox_home&quot;)
+self.init_checkbox(&quot;org.mate.caja.desktop&quot;, &quot;network-icon-visible&quot;, &quot;checkbox_network&quot;)
+self.init_checkbox(&quot;org.mate.caja.desktop&quot;, &quot;trash-icon-visible&quot;, &quot;checkbox_trash&quot;)
+self.init_checkbox(&quot;org.mate.caja.desktop&quot;, &quot;volumes-visible&quot;, &quot;checkbox_volumes&quot;)
+</code></pre>
+<p>Volvemos a buscar el significado de las propiedades anteriores:</p>
+<pre><code>$ grep -h -A4 \
+    -e show-desktop-icons \
+    -e computer-icon-visible \
+    -e home-icon-visible \
+    -e trash-icon-visible \
+    /usr/local/share/glib-2.0/schemas/org.mate.*
+    &lt;key name=&quot;show-desktop-icons&quot; type=&quot;b&quot;&gt;
+      &lt;default&gt;true&lt;/default&gt;
+      &lt;summary&gt;Show Desktop Icons&lt;/summary&gt;
+      &lt;description&gt;Have MATE file manager (Caja) draw the desktop icons.&lt;/description&gt;
+    &lt;/key&gt;
+--
+    &lt;key name=&quot;home-icon-visible&quot; type=&quot;b&quot;&gt;
+      &lt;default&gt;true&lt;/default&gt;
+      &lt;summary&gt;Home icon visible on desktop&lt;/summary&gt;
+      &lt;description&gt;If this is set to true, an icon linking to the home folder will be put on the desktop.&lt;/description&gt;
+    &lt;/key&gt;
+    &lt;key name=&quot;computer-icon-visible&quot; type=&quot;b&quot;&gt;
+      &lt;default&gt;true&lt;/default&gt;
+      &lt;summary&gt;Computer icon visible on desktop&lt;/summary&gt;
+      &lt;description&gt;If this is set to true, an icon linking to the computer location will be put on the desktop.&lt;/description&gt;
+    &lt;/key&gt;
+    &lt;key name=&quot;trash-icon-visible&quot; type=&quot;b&quot;&gt;
+      &lt;default&gt;true&lt;/default&gt;
+      &lt;summary&gt;Trash icon visible on desktop&lt;/summary&gt;
+      &lt;description&gt;If this is set to true, an icon linking to the trash will be put on the desktop.&lt;/description&gt;
+    &lt;/key&gt;
+</code></pre>
+</li>
+</ul>
+<p>Ahora, el problema que hay que tener en cuenta es que en el código fuente se
+indica el <em>id</em> del esquema y <code>dconf</code> utiliza el <em>path</em> del esquema.</p>
+<p>Para obtener los <em>path</em> a partir de los <em>id</em> del esquema:</p>
+<pre><code>$ grep -h -e '&lt;schema .*org.mate.caja.desktop' \
+    -e '&lt;schema .*org.mate.background' \
+    -e '&lt;schema .*org.mate.peripherals-keyboard-xkb.general' \
+    /usr/local/share/glib-2.0/schemas/org.mate.*
+  &lt;schema id=&quot;org.mate.background&quot; path=&quot;/org/mate/desktop/background/&quot;&gt;
+  &lt;schema id=&quot;org.mate.caja.desktop&quot; path=&quot;/org/mate/caja/desktop/&quot; gettext-domain=&quot;caja&quot;&gt;
+  &lt;schema id=&quot;org.mate.peripherals-keyboard-xkb.general&quot; path=&quot;/org/mate/desktop/peripherals/keyboard/general/&quot;&gt;
+</code></pre>
+<p>Y ya podemos utilizar <code>dconf</code> para establecer las propiedades anteriores:</p>
+<pre><code>$ dconf write /org/mate/desktop/peripherals/keyboard/general/duplicate-leds true
+$ dconf write /org/mate/desktop/background/show-desktop-icons false
+$ dconf write /org/mate/caja/desktop/computer-icon-visible false
+$ dconf write /org/mate/caja/desktop/home-icon-visible false
+$ dconf write /org/mate/caja/desktop/trash-icon-visible false
+</code></pre>
+</li>
+<li>
+<p>Listar primero los directorios en los dialogos de GTK.  La solución <a href="https://superuser.com/questions/843615/gtk-3-14-file-chooser-folders-first">se
+encuentra publicada en internet</a>:</p>
+<pre><code>$ dconf write /org/gtk/settings/file-chooser/sort-directories-first true
+</code></pre>
+</li>
+<li>
+<p>Agregar al grupo <code>operator</code> a los usuarios que pueden apagar y reiniciar el
+equipo para que no pida contraseña al momento de realizar la operación:</p>
+<pre><code>$ doas usermod -G operator jmpc
+</code></pre>
+</li>
+</ol>
+<p><em>NOTA</em>: los settings pueden modificarse desde la UI de los programas del
+escritorio MATE por lo que no se utiliza para ello <code>dconf</code>.</p>
+<p>Con esto ya está prácticamente configurado el escritorio MATE; solo quedan
+ajustes menores mediante las preferencias de MATE.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

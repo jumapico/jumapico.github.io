@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Corrigiendo maven-wrapper | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Corrigiendo maven-wrapper</h1>
+        <h2 class="date">2021-10-01</h2>
+      </div>
+<p><strong>ACTUALIZACIÓN</strong></p>
+<p>Utilizando la nueva versión de <a href="https://maven.apache.org/wrapper/">maven-wrapper</a> y partiendo de
+un directorio que contenga un archivo <code>pom.xml</code> válido:</p>
+<pre><code>$ MVNW_VERBOSE=true \
+  MVNW_REPOURL='https://my-mirror.example.com/maven2' \
+  mvn wrapper:wrapper -Dmaven=3.8.6
+$ MVNW_VERBOSE=true \
+  ./mvnw install
+</code></pre>
+<hr />
+<p>Hoy estuve trabajando en un proyecto que utiliza <a href="https://maven.apache.org/">maven</a>, configurandolo para
+descargar todas las dependencias de un mirror local.</p>
+<p>Durante la inspección de las urls desde donde se realizan las descargas
+encuentro que luego de configurar el archivo
+<code>.mvn/wrapper/maven-wrapper.properties</code> con un mirror alternativo, por ejemplo:</p>
+<pre><code>distributionUrl=https://my-mirror.example.com/maven2/org/apache/maven/apache-maven/3.8.1/apache-maven-3.8.1-bin.zip
+wrapperUrl=https://my-mirror.example.com/maven2/io/takari/maven-wrapper/0.5.6/maven-wrapper-0.5.6.jar
+</code></pre>
+<p>igualmente se realiza la descarga del archivo <code>maven-wrapper-0.5.6.jar</code> desde
+<a href="https://repo.maven.apache.org/maven2/io/takari/maven-wrapper/0.5.6/maven-wrapper-0.5.6.jar">https://repo.maven.apache.org/maven2/io/takari/maven-wrapper/0.5.6/maven-wrapper-0.5.6.jar</a>,
+ignorando el valor de <code>wrapperUrl</code>.</p>
+<p>El problema se debe a que no se está calculando correctamente la ruta del
+archivo de properties, consistiendo el arreglo en el <a href="./fix-read-properties.patch">siguiente parche</a>:</p>
+<pre><code>--- .mvn/wrapper/MavenWrapperDownloader.java.orig	2021-10-01 17:11:55.443675541 -0300
++++ .mvn/wrapper/MavenWrapperDownloader.java	2021-10-01 22:00:58.943934407 -0300
+@@ -52,7 +52,7 @@
+
+         // If the maven-wrapper.properties exists, read it and check if it contains a custom
+         // wrapperUrl parameter.
+-        File mavenWrapperPropertyFile = new File(baseDirectory, MAVEN_WRAPPER_PROPERTIES_PATH);
++        File mavenWrapperPropertyFile = new File(baseDirectory.getAbsolutePath(), MAVEN_WRAPPER_PROPERTIES_PATH);
+         String url = DEFAULT_DOWNLOAD_URL;
+         if(mavenWrapperPropertyFile.exists()) {
+             FileInputStream mavenWrapperPropertyFileInputStream = null;
+</code></pre>
+<p>Este fué enviado como un <a href="https://github.com/takari/maven-wrapper/pull/180">pull request a maven-wrapper</a>, pero debido a que el
+proyecto actualmente se encuentra en estado <em>frozen</em> y es posible que no se
+aplique es que aprovecho a documentar el fix en un lugar más visible, por lo
+menos para mi.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>jaas is the way | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">jaas is the way</h1>
+        <h2 class="date">2024-08-30</h2>
+      </div>
+<p><strong>TL;DR</strong>: para desencriptar passwords de jboss 5 descargar el script
+<a href="./JBoss.java">JBoss.java</a> y ejecutarlo usando:</p>
+<pre><code>$ java JBoss.java
+</code></pre>
+<hr />
+<p>Cada tanto me topo con la necesidad de migrar una aplicación que se encuentra
+deployada en <a href="https://jbossas.jboss.org/">jboss 5</a>.</p>
+<p>Una parte de la tarea es verificar que el nuevo servidor puede conectarse a las
+bases de datos y/o ldap, por lo que si las contraseñas se almacenaron
+<em>&quot;encriptadas&quot;</em> es necesario desencriptarlas.</p>
+<p>Aquí el <em>&quot;encriptadas&quot;</em> entre comillas ya que se encuentran codificadas con un
+cifrado simétrico cuya <a href="https://docs.jboss.org/jbossas/javadoc/4.0.2/org/jboss/resource/security/SecureIdentityLoginModule.java.html">clave es conocida</a> y da lugar al título de este post.
+Lo peor que es una práctica indicada en la <a href="https://docs.redhat.com/en/documentation/red_hat_jboss_enterprise_application_platform/5/html-single/security_guide/index#sect-encrypt-data-source-password">documentación de jboss</a>.</p>
+<p>Ya que la tarea es esporádica, tiendo a olvidar el programa utilizado para
+desencriptar el password y la verdad que con los buscadores resulta cada vez más
+difícil encontrarlo, así que aquí el link a uno de los programas que cumplen la
+tarea:</p>
+<p><a href="https://raw.githubusercontent.com/usefulfor/usefulfor/master/security/JBoss.java">https://raw.githubusercontent.com/usefulfor/usefulfor/master/security/JBoss.java</a>
+<a href="./JBoss.java">(backup local)</a></p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Configurar scanner de impresora multifunción | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Configurar scanner de impresora multifunción</h1>
+        <h2 class="date">2020-09-16</h2>
+      </div>
+<p><strong>TL;DR</strong>:</p>
+<pre><code>$ sudo sh -c 'cat &gt; /etc/udev/rules.d/99-libsane-panasonic.rules' &lt;&lt;'END'
+ACTION==&quot;add&quot;, ENV{DEVTYPE}==&quot;usb_device&quot;, ATTRS{idVendor}==&quot;04da&quot;, ATTRS{idProduct}==&quot;0f0b&quot;, ENV{libsane_matched}=&quot;yes&quot;, RUN=&quot;/usr/local/bin/hack-panasonic $devnode&quot;
+END
+$ sudo sh -c 'cat &gt; /usr/local/bin/hack-panasonic' &lt;&lt;'END'
+#!/bin/bash
+[ $# -ne 1 -o ! -c &quot;$1&quot; ] &amp;&amp; exit 1
+exec /usr/bin/setfacl -m g:users:rw &quot;$1&quot;
+END
+$ sudo chmod +x /usr/local/bin/hack-panasonic
+$ sudo reboot
+</code></pre>
+<hr />
+<p>Se busca escanear desde una impresora multifunción Panasonic KX-MB1520AG bajo
+<a href="https://releases.ubuntu.com/18.04/">Ubuntu 18.04</a>.
+Para ver si la impresora es reconocida por <a href="http://www.sane-project.org/">sane</a> se prueba utilizando el
+comando <a href="https://manpages.ubuntu.com/manpages/bionic/man1/scanimage.1.html">scanimage</a>, verificando previamente que esté conectada al sistema
+(mediante <a href="https://manpages.ubuntu.com/manpages/bionic/en/man8/lsusb.8.html">lsusb</a>):</p>
+<pre><code>$ lsusb | grep -i panasonic
+Bus 001 Device 004: ID 04da:0f0b Panasonic (Matsushita)
+</code></pre>
+<p>Con esto se confirma que la impresora se encuentra conectada al sistema.</p>
+<pre><code>$ scanimage -L
+</code></pre>
+<p>el cual no devuelve ninguna impresora.
+Utilizando por otro lado <code>sudo</code> con el comando anterior se obtiene:</p>
+<pre><code>$ sudo scanimage -L
+device `panamfs:libusb:001:004' is a Panasonic KX-MB1520AG sheetfed scanner
+</code></pre>
+<p>Lo que indica un problema de permisos que se corrobora comprobando los permisos
+del archivo <code>/dev/bus/usb/001/004</code> (obtenidos de la salida de <code>lsusb</code>):</p>
+<pre><code>$ ls -lh /dev/bus/usb/001/004
+crw-rw-r-- 1 root lp 189, 3 Sep 14 12:38 /dev/bus/usb/001/004
+$ getfacl /dev/bus/usb/001/004
+getfacl: Removing leading '/' from absolute path names
+# file: dev/bus/usb/001/004
+# owner: root
+# group: lp
+user::rw-
+group::rw-
+other::r--
+</code></pre>
+<p>Para solucionar el problema por lo menos hay dos soluciones:</p>
+<ol>
+<li>
+<p>Agregar el grupo <code>lp</code> al usuario (o los usuarios) del PC:</p>
+<pre><code>$ sudo addgroup jmpc lp
+$ newgrp lp
+</code></pre>
+<p>La desventaja de esta solución es que solo aplica para los usuarios locales.
+Si la información de los usuarios es obtenida mediante <a href="https://en.wikipedia.org/wiki/Lightweight_Directory_Access_Protocol">ldap</a> este cambio no
+es posible.</p>
+</li>
+<li>
+<p>Utilizar <a href="https://manpages.ubuntu.com/manpages/bionic/man7/udev.7.html">udev</a> y <a href="https://manpages.ubuntu.com/manpages/bionic/man1/setfacl.1.html">setfacl</a> para dar permisos cuando se conecte el
+dispositivo.</p>
+</li>
+</ol>
+<p>Obviamente iremos por la opción 2., la cual es más general.</p>
+<p>Para dar permisos al archivo de dispositivo (<em>device file</em>), se creará una regla
+de udev en un archivo de reglas bajo <code>/etc/udev/rules.d</code> que corresponde a las
+reglas locales.
+Sobre el orden de procesamiento de la regla, se utilizará el prefijo <code>99-</code> para
+que la regla sea procesada al final (esta elección está basada en varios
+ejemplos vistos en internet).
+Con esto, el archivo que se creará para incluir la regla de udev será
+<code>/etc/udev/rules.d/99-libsane-panasonic.rules</code>.</p>
+<p>La regla a utilizar, basada en los archivos de <code>/lib/udev/rules.d</code>, será
+<em>inicialmente</em> de la forma:</p>
+<pre><code>ATTRS{idVendor}==&quot;04da&quot;, ATTRS{idProduct}==&quot;0f0b&quot;, ENV{libsane_matched}=&quot;yes&quot;, RUN+=&quot;/usr/local/bin/hack-panasonic&quot;
+</code></pre>
+<p>la cual al ser detectado el equipo panasonic:</p>
+<ul>
+<li>asigna la variable de entorno <code>libsane_matched</code> al valor <code>yes</code> como hacen las
+reglas del archivo <code>/lib/udev/rules.d/60-libsane1.rules</code> cuando detectan un
+scanner</li>
+<li>agrega para ejecutar el programa <code>/usr/local/bin/hack-panasonic</code> que
+utilizaremos para darle permisos al archivo de dispositivo con <code>setfacl</code>,
+aunque en esta etapa lo utilizaremos para comprobar que se está ejecutando la
+regla de forma correcta.</li>
+</ul>
+<p>El programa <code>/usr/local/bin/hack-panasonic</code> inicialmente tendrá el siguiente
+contenido:</p>
+<pre><code>#!/bin/bash
+set -e
+echo &quot;$(date -uIns) -- $@&quot; &gt;&gt; /tmp/hack-panasonic
+</code></pre>
+<p>y su función será indicar mediante el archivo <code>/tmp/hack-panasonic</code> que la regla
+es ejecutada.  Luego se modificará el programa para dar permisos al archivo de
+dispositivo, pero para ello se requiere conocer la ruta del archivo, la que
+puede variar con cada conexión.  Por ello, se deben utilizar las sustituciones
+de variables que se indican en la documentación de <a href="https://manpages.ubuntu.com/manpages/bionic/man7/udev.7.html">udev</a>, las cuales son
+pasadas al script por linea de comandos.  El utilizar la variable de shell <code>$@</code>
+ayudará a determinar de forma exacta como es realizada la sustitución de
+variables realizadas por udev en la clave <code>RUN</code>.</p>
+<p>Para crear los archivos anteriores se puede utilizar el script
+<a href="./setup-hack-panasonic-v1.sh">setup-hack-panasonic-v1.sh</a>.</p>
+<p>Luego de creados los archivos se deben recargar las reglas de udev y verificar
+su ejecución.</p>
+<p>Para recargar las reglas se debe invocar el comando <a href="https://manpages.ubuntu.com/manpages/bionic/man8/udevadm.8.html">udevadm</a> de la forma
+<code>udevadm control --reload-rules</code>.</p>
+<p>Para verificar la ejecución de la regla hay dos formas:</p>
+<ol>
+<li>
+<p>Desconectando y volviendo a conectar el cable usb de la impresora.  Si bien
+esto es &quot;sencillo&quot;, en la práctica mientras se da con la regla y los
+parámetros a utilizar hay que realizarlo muchas veces.  Otro punto en contra
+es que no puede realizarse de forma sencilla si se está brindando asistencia
+de forma remota.</p>
+</li>
+<li>
+<p>Relanzando los eventos generados al conectar el cable usb utilizando el
+comando <a href="https://manpages.ubuntu.com/manpages/bionic/man8/udevadm.8.html">udevadm</a> con la opción <code>trigger</code>.</p>
+<p><strong>Hay que tener cuidado al utilizar la opción <code>trigger</code>, ya que esta por
+defecto no simula la conexión del usb</strong>.</p>
+<p>Para simular la conexión del usb debe utilizarse el comando:</p>
+<pre><code>$ sudo udevadm trigger --action=add --subsystem-match=usb
+</code></pre>
+</li>
+</ol>
+<p>En este punto, ya se está en condiciones de probar si todo anda bien:</p>
+<pre><code>$ sudo udevadm control --reload-rules
+$ sudo udevadm trigger --action=add --subsystem-match=usb
+$ cat /tmp/hack-panasonic
+2020-09-16T18:25:14,945230203+00:00 --
+2020-09-16T18:25:14,952413377+00:00 --
+2020-09-16T18:25:14,952848018+00:00 --
+</code></pre>
+<p>Con lo que se ve que <strong>casi</strong> está todo funcionando correctamente:</p>
+<ul>
+<li>La regla de udev y el script <code>hack-panasonic</code> funcionan, ya que se genera el
+archivo <code>/tmp/hack-panasonic</code>.</li>
+<li>Revisando el contenido del archivo <code>/tmp/hack-panasonic</code> se ve que la regla
+fué llamada <em>tres</em> veces, ya que se tienen tres entradas consecutivas.</li>
+</ul>
+<p>Esto último no es deseado, ya que el evento de conexión debería ser uno solo.</p>
+<p>Estudiando el archivo <code>/lib/udev/rules.d/60-libsane1.rules</code> queda de manifiesto
+que falta agregar a la regla que la acción sea <code>add</code> y que se esté agregando un
+dispositivo usb, lo cual se escribe como:</p>
+<pre><code>ACTION==&quot;add&quot;, ENV{DEVTYPE}==&quot;usb_device&quot;
+</code></pre>
+<p>quedando la regla de la forma:</p>
+<pre><code>ACTION==&quot;add&quot;, ENV{DEVTYPE}==&quot;usb_device&quot;, ATTRS{idVendor}==&quot;04da&quot;, ATTRS{idProduct}==&quot;0f0b&quot;, ENV{libsane_matched}=&quot;yes&quot;, RUN=&quot;/usr/local/bin/hack-panasonic&quot;
+</code></pre>
+<p>Actualizando el archivo <code>/etc/udev/rules.d/99-libsane-panasonic.rules</code> con la
+regla anterior, recargando las reglas y lanzando los eventos se tiene:</p>
+<pre><code>$ sudo rm /tmp/hack-panasonic
+$ sudo udevadm control --reload-rules
+$ sudo udevadm trigger --action=add --subsystem-match=usb
+$ cat /tmp/hack-panasonic
+2020-09-16T18:34:42,097239894+00:00 --
+</code></pre>
+<p>Y ahora si estamos seguros de que la regla captura correctamente el evento que
+estamos buscando.</p>
+<p>Ahora hay que determinar los parámetros que se le deben pasar al script
+<code>hack-panasonic</code> para que este pueda dar permisos al archivo de dispositivo.
+El archivo que se debe modificar (en este caso) es <code>/dev/bus/usb/001/004</code>, por
+lo que se debe encontrar que variable de udev tiene este valor o en su defecto
+permite generarlo.</p>
+<p>Revisando la documentación de <a href="https://manpages.ubuntu.com/manpages/bionic/man7/udev.7.html">udev</a> se encuentran como disponibles las
+sustituciones: <code>$devpath</code>, <code>$number</code>, <code>$id</code>, <code>$name</code>, <code>$devnode</code>, entre otras.</p>
+<p>Para no perder tiempo probando cada una se modifica la regla en el archivo
+<code>/etc/udev/rules.d/99-libsane-panasonic.rules</code> para agregarlas todas a la vez y
+ver que valores se obtienen:</p>
+<pre><code>ACTION==&quot;add&quot;, ENV{DEVTYPE}==&quot;usb_device&quot;, ATTRS{idVendor}==&quot;04da&quot;, ATTRS{idProduct}==&quot;0f0b&quot;, ENV{libsane_matched}=&quot;yes&quot;, RUN=&quot;/usr/local/bin/hack-panasonic - $devpath - $number - $id - $name - $devnode -&quot;
+</code></pre>
+<p>Luego de modificada la regla se recarga y se prueba:</p>
+<pre><code>$ sudo rm /tmp/hack-panasonic
+$ sudo udevadm control --reload-rules
+$ sudo udevadm trigger --action=add --subsystem-match=usb
+$ cat /tmp/hack-panasonic
+2020-09-16T18:45:03,627583256+00:00 -- - /devices/pci0000:00/0000:00:14.0/usb1/1-13 - 13 - 1-13 - bus/usb/001/004 - /dev/bus/usb/001/004 -
+</code></pre>
+<p>Del resultado anterior se encuentra que la sustitución buscada es <code>$devnode</code>.</p>
+<p>Con esta información ya es posible escribir la versión final del la regla y el
+script:</p>
+<ul>
+<li>
+<p><code>/etc/udev/rules.d/99-libsane-panasonic.rules</code>:</p>
+<pre><code>ACTION==&quot;add&quot;, ENV{DEVTYPE}==&quot;usb_device&quot;, ATTRS{idVendor}==&quot;04da&quot;, ATTRS{idProduct}==&quot;0f0b&quot;, ENV{libsane_matched}=&quot;yes&quot;, RUN=&quot;/usr/local/bin/hack-panasonic $devnode&quot;
+</code></pre>
+</li>
+<li>
+<p><code>/usr/local/bin/hack-panasonic</code>:</p>
+<pre><code>#!/bin/bash
+[ $# -ne 1 -o ! -c &quot;$1&quot; ] &amp;&amp; exit 1
+exec /usr/bin/setfacl -m g:users:rw &quot;$1&quot;
+</code></pre>
+<p>Aquí se utiliza el grupo <code>users</code>, que por la característica de la instalación
+poseen todos los usuarios del sistema.</p>
+</li>
+</ul>
+<p>Para crear los archivos anteriores se puede utilizar el script
+<a href="./setup-hack-panasonic-v2.sh">setup-hack-panasonic-v2.sh</a>.</p>
+<p>Para probar que todo funciona correctamente luego de los cambios anteriores se
+recargan las reglas, se generan los eventos y se prueban los archivos bajo
+<code>/dev</code> y la salida de <code>scanimage</code>:</p>
+<pre><code>$ sudo udevadm control --reload-rules
+$ sudo udevadm trigger --action=add --subsystem-match=usb
+$ ls -lh /dev/bus/usb/001/004
+crw-rw-r--+ 1 root lp 189, 3 set 16 15:56 /dev/bus/usb/001/004
+$ getfacl /dev/bus/usb/001/004
+getfacl: Removing leading '/' from absolute path names
+# file: dev/bus/usb/001/004
+# owner: root
+# group: lp
+user::rw-
+group::rw-
+group:users:rw-
+mask::rw-
+other::r--
+$ scanimage -L
+device `panamfs:libusb:001:004' is a Panasonic KX-MB1520AG sheetfed scanner
+</code></pre>
+<h2>Sobre el uso de <code>$attr</code> y <code>$env</code></h2>
+<p>Para determinar las sustituciones de <code>$attr</code> y <code>$env</code> disponibles se utiliza el
+comando <code>udevadm info</code> con los parámetros <code>-q</code> y <code>-a</code> respectivamente:</p>
+<pre><code>$ lsusb | grep -i panasonic
+Bus 001 Device 005: ID 04da:0f0b Panasonic (Matsushita)
+$ udevadm info -a /dev/bus/usb/001/005
+
+Udevadm info starts with the device specified by the devpath and then
+walks up the chain of parent devices. It prints for every device
+found, all possible attributes in the udev rules key format.
+A rule to match, can be composed by the attributes of the device
+and the attributes from one single parent device.
+
+  looking at device '/devices/pci0000:00/0000:00:14.0/usb1/1-13':
+    KERNEL==&quot;1-13&quot;
+    SUBSYSTEM==&quot;usb&quot;
+    DRIVER==&quot;usb&quot;
+    ATTR{authorized}==&quot;1&quot;
+    ATTR{avoid_reset_quirk}==&quot;0&quot;
+    ATTR{bConfigurationValue}==&quot;1&quot;
+...
+$ udevadm info -q property /dev/bus/usb/001/005
+BUSNUM=001
+DEVNAME=/dev/bus/usb/001/005
+DEVNUM=005
+DEVPATH=/devices/pci0000:00/0000:00:14.0/usb1/1-13
+DEVTYPE=usb_device
+...
+</code></pre>
+<p><em>Nota</em>: para el ejemplo anterior cambió el archivo de dispositivo que se venía
+utilizando como ejemplo previamente.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

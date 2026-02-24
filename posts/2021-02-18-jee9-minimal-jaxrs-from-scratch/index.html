@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>JEE9 - Aplicación minima jaxrs desde cero | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">JEE9 - Aplicación minima jaxrs desde cero</h1>
+        <h2 class="date">2021-02-18</h2>
+      </div>
+<h2>Objetivo</h2>
+<p>Se busca crear desde cero, sin partir de un arquetipo o proyecto existente, una
+aplicación minima <a href="https://jakarta.ee/">Jakarta EE</a> 9 empaquetada como un
+<a href="https://eclipse-ee4j.github.io/jakartaee-tutorial/packaging001.html">archivo war</a>.
+Para construir la aplicación se utilizará <a href="https://maven.apache.org/">maven</a> y
+para ejecutarla el servidor de aplicaciones <a href="https://www.wildfly.org/">wildfly</a>.</p>
+<h2>Instalando y configurando dependencias</h2>
+<h3>git</h3>
+<p>Ya que se utilizará <a href="https://git-scm.com/">git</a> para realizar el control de
+versiones, si varios desarrolladores van a trabajar en el mismo proyecto
+conviene preveer el ignorar los archivos generados por los IDE's más comunes.
+Para ello se utiliza el servicio <a href="https://gitignore.io">gitignore.io</a>, el cual
+genera un archivo <code>.gitignore</code> que excluya los archivos conocidos generados por
+distintos IDE's:</p>
+<pre><code>$ wget -O .gitignore 'https://www.toptal.com/developers/gitignore/api/vim,eclipse,vscode,netbeans,intellij+all'
+</code></pre>
+<h3>maven wrapper</h3>
+<p>Aquí se sigue la <a href="https://bootstrappable.org/">receta para hacer yogur</a>:
+partiendo de una versión de maven en el sistema se utiliza
+<a href="https://github.com/takari/takari-maven-plugin">takari-maven-plugin</a> para
+instalar <a href="https://github.com/takari/maven-wrapper">maven-wrapper</a> el cual
+instala la versión más reciente de maven (la que se encuentra en la
+<a href="https://maven.apache.org/download.cgi">página web de maven</a>):</p>
+<pre><code>$ mvn -N io.takari:maven:0.7.7:wrapper -Dmaven=3.6.3
+</code></pre>
+<p><em>Nota</em>: en el repositorio de maven-wrapper se puede leer que para la versión
+<code>3.7.0</code> de maven (ouch, casi!), el código será portado al <a href="https://maven.apache.org/plugins/maven-wrapper-plugin/">maven-wrapper-plugin</a>,
+por lo que deberán actualizarse los pasos anteriores cuando salga la nueva
+versión de maven.</p>
+<p>Para ignorar los archivos descargados por el plugin que no correspondan a
+scripts para linux (tener en cuenta que si estos archivos no se encuentran serán
+descargados por el script):</p>
+<pre><code>$ rm mvnw.cmd
+$ cat &lt;&lt;'END' &gt;&gt; .gitignore
+
+### maven-wrapper ###
+mvnw.cmd
+.mvn/wrapper/MavenWrapperDownloader.java
+.mvn/wrapper/maven-wrapper.jar
+END
+</code></pre>
+<p>Por si se desea conocer más el porqué de la utilidad de utilizar un wrapper para
+maven ver <a href="http://jakub.marchwicki.pl/posts/2015/06/04/maven-wrapper/">Wrapping Maven distribution together with a project</a></p>
+<h3>wildfly preview</h3>
+<p>Como <a href="https://en.wikipedia.org/wiki/Application_server">servidor de aplicaciones</a>
+se utilizará [widlfly].</p>
+<p>Ya que se desea utilizar Jakarta EE 9, según el anuncio <a href="https://www.wildfly.org/news/2021/01/13/WildFly22-Final-Released/">WildFly 22 is released!</a>
+se debe utilizar la versión <em>Preview</em> de wildfly, lo que implica que:</p>
+<blockquote>
+<p>WildFly Preview should always be regarded as a tech-preview/beta distribution.</p>
+</blockquote>
+<p>Por otro lado, se indica también que para los casos en que se utilicen librerías
+de JEE 8 (que utilizan los paquetes <code>javax.*</code>):</p>
+<blockquote>
+<ul>
+<li>Any libraries that were using EE 8 APIs were detected and instructions were incorporated in the feature pack telling Galleon to do byte code transformation of that library whenever it provisions a server using the feature pack.</li>
+</ul>
+</blockquote>
+<p>Para descargar wildfly preview se utiliza:</p>
+<pre><code>$ wget 'https://download.jboss.org/wildfly/22.0.1.Final/wildfly-preview-22.0.1.Final.tar.gz'
+$ tar xf wildfly-preview-22.0.1.Final.tar.gz
+</code></pre>
+<p><em>Nota 1</em>: Si por error se utiliza la versión <em>Jakarta EE Full &amp; Web Distribution</em>
+se obtiene un error del tipo:</p>
+<pre><code>18:26:35,809 WARN  [org.jboss.modules.define] (Weld Thread Pool -- 3) Failed to define class uy.jumapico.demo.boundary.DemoApplication in Module &quot;deployment.minimal-jaxrs-from-scratch-1.0-SNAPSHOT.war&quot; from Service Module Loader: java.lang.NoClassDefFoundError: Failed to link uy/jumapico/demo/boundary/DemoApplication (Module &quot;deployment.minimal-jaxrs-from-scratch-1.0-SNAPSHOT.war&quot; from Service Module Loader): jakarta/ws/rs/core/Application
+</code></pre>
+<p>esto es, no se encuentra las clases <code>jakarta.*</code>.</p>
+<p><em>Nota 2</em>: A la fecha (2021-02-18) los servidores de aplicaciones más populares
+tienen solamente soporte para Jakarta EE 9 en versiones <em>beta</em>.</p>
+<h2>Codificando demo</h2>
+<h3>Creando archivo pom</h3>
+<p>Ya que se utiliza maven para generar el war de la aplicación debe crearse un
+archivo <a href="https://maven.apache.org/guides/introduction/introduction-to-the-pom.html">pom.xml</a>:</p>
+<pre><code>① &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+② &lt;project xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;&gt;
+      &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+③     &lt;groupId&gt;uy.jumapico&lt;/groupId&gt;
+      &lt;artifactId&gt;minimal-jaxrs-from-scratch&lt;/artifactId&gt;
+      &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+④     &lt;packaging&gt;war&lt;/packaging&gt;
+      &lt;properties&gt;
+⑤         &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
+⑥         &lt;maven.compiler.source&gt;1.8&lt;/maven.compiler.source&gt;
+          &lt;maven.compiler.target&gt;1.8&lt;/maven.compiler.target&gt;
+⑦         &lt;failOnMissingWebXml&gt;false&lt;/failOnMissingWebXml&gt;
+⑧         &lt;reproducible-build-maven-plugin.version&gt;0.13&lt;/reproducible-build-maven-plugin.version&gt;
+      &lt;/properties&gt;
+      &lt;dependencies&gt;
+⑨         &lt;dependency&gt;
+              &lt;groupId&gt;jakarta.platform&lt;/groupId&gt;
+              &lt;artifactId&gt;jakarta.jakartaee-api&lt;/artifactId&gt;
+              &lt;version&gt;9.0.0&lt;/version&gt;
+              &lt;scope&gt;provided&lt;/scope&gt;
+          &lt;/dependency&gt;
+      &lt;/dependencies&gt;
+      &lt;build&gt;
+          &lt;plugins&gt;
+⑩             &lt;plugin&gt;
+                  &lt;groupId&gt;io.github.zlika&lt;/groupId&gt;
+                  &lt;artifactId&gt;reproducible-build-maven-plugin&lt;/artifactId&gt;
+                  &lt;version&gt;${reproducible-build-maven-plugin.version}&lt;/version&gt;
+                  &lt;executions&gt;
+                      &lt;execution&gt;
+                          &lt;id&gt;strip-jar&lt;/id&gt;
+                          &lt;phase&gt;package&lt;/phase&gt;
+                          &lt;goals&gt;
+                              &lt;goal&gt;strip-jar&lt;/goal&gt;
+                          &lt;/goals&gt;
+                      &lt;/execution&gt;
+                  &lt;/executions&gt;
+              &lt;/plugin&gt;
+          &lt;/plugins&gt;
+      &lt;/build&gt;
+  &lt;/project&gt;
+</code></pre>
+<ul>
+<li>
+<p>① Un pom es un archivo xml por lo cual se agrega la <a href="https://en.wikipedia.org/wiki/XML#XML_declaration">declaración XML</a></p>
+</li>
+<li>
+<p>② Se comienza por un <a href="https://maven.apache.org/guides/introduction/introduction-to-the-pom.html#minimal-pom">pom minimo</a>
+con el tag <code>modelVersion</code> con valor <code>4.0.0</code> que indica <a href="https://maven.apache.org/pom.html#quick-overview">la versión del POM</a></p>
+</li>
+<li>
+<p>③ Se especifican las <a href="https://maven.apache.org/pom.html#Maven_Coordinates">coordenadas del pom</a>:
+<code>groupId</code>, <code>artifactId</code> y <code>version</code>.</p>
+<p>Por defecto se utilza en la versión el sufijo <code>-SNAPSHOT</code> el cual <a href="https://maven.apache.org/guides/getting-started/#what-is-a-snapshot-version">indica que
+no es una versión estable</a></p>
+</li>
+<li>
+<p>④ Se indica que se desea empaquetar el código como war, ya que
+<a href="https://maven.apache.org/pom.html#packaging">el empaquetamiento por defecto es <code>jar</code></a></p>
+</li>
+<li>
+<p>⑤ <a href="https://maven.apache.org/general.html#encoding-warning">Eliminar advertencias de encoding</a></p>
+</li>
+<li>
+<p>⑥ <a href="https://maven.apache.org/general.html#Compiling-Java-7">Establecer la versión de java de los fuentes y que ejecutará la aplicación</a></p>
+</li>
+<li>
+<p>⑦ <a href="https://maven.apache.org/plugins/maven-war-plugin/war-mojo.html#failOnMissingWebXml">No fallar si falta el archivo web.xml</a>
+ya que <a href="https://jakarta.ee/specifications/servlet/5.0/jakarta-servlet-spec-5.0.html#inclusion-of-a-web-xml-deployment-descriptor">es opcional en la especificación <em>servlet</em> si se utilizan anotaciones</a></p>
+</li>
+<li>
+<p>⑧ Versión del <a href="https://zlika.github.io/reproducible-build-maven-plugin/">Reproducible Build Maven Plugin</a>
+para obtener un artefacto <code>.war</code> reproducible.</p>
+</li>
+<li>
+<p>⑨ Utilizar las <a href="https://jakarta.ee/specifications/platform/9/">coordenadas maven para la especificación Jakarta EE Platform 9</a></p>
+</li>
+<li>
+<p>⑩ Se <a href="https://zlika.github.io/reproducible-build-maven-plugin/plugin-info.html">configura el Reproducible Build Maven Plugin</a></p>
+</li>
+</ul>
+<h3>Agregado de clases java</h3>
+<p>Ya que se utiliza maven para generar el archivo war, hay que seguir las
+convenciones del <a href="https://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html">layout de directorios de maven</a>,
+esto es, crear el código bajo el directorio <code>src/main/java</code>.</p>
+<p>Como nombre del paquete se utilizará <code>uy.jumapico.demo</code>.</p>
+<p>Se seguirá el enfoque <a href="https://www.youtube.com/watch?v=grJC6RFiB58">ECB - Entity Control Boundary</a>
+para la estructura del proyecto.  Dado que es será una aplicación de ejemplo no
+se utilizarán los paquetes <code>entity</code> ni <code>control</code>, ya que solo se definirá la
+interfaz de la aplicación.</p>
+<pre><code>$ mkdir -p src/main/java/uy/jumapico/demo/boundary
+</code></pre>
+<p>Ya que se utilizará <a href="https://jakarta.ee/specifications/restful-ws/3.0/">jaxrs</a>
+se requiere <a href="https://jakarta.ee/specifications/restful-ws/3.0/jakarta-restful-ws-spec-3.0.html#publication">publicar la aplicación</a>,
+para lo cual se creará una subclase de <a href="https://jakarta.ee/specifications/platform/9/apidocs/jakarta/ws/rs/core/application">Application</a>
+anotada con la clase <a href="https://jakarta.ee/specifications/platform/9/apidocs/jakarta/ws/rs/applicationpath">ApplicationPath</a>
+la cual indicara el mapeo de las rutas que se agregarán al servidor:</p>
+<pre><code>$ cat &gt; src/main/java/uy/jumapico/demo/boundary/DemoApplication.java &lt;&lt;'END'
+package uy.jumapico.demo.boundary;
+
+import jakarta.ws.rs.ApplicationPath;
+import jakarta.ws.rs.core.Application;
+
+@ApplicationPath(&quot;/&quot;)
+public class DemoApplication extends Application {
+}
+END
+</code></pre>
+<p>Para crear los endpoints se agregará una <a href="https://jakarta.ee/specifications/restful-ws/3.0/jakarta-restful-ws-spec-3.0.html#resource-classes">resource class</a>:</p>
+<pre><code>$ cat &gt; src/main/java/uy/jumapico/demo/boundary/Hello.java &lt;&lt;'END'
+package uy.jumapico.demo.boundary;
+
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+
+@Path(&quot;hello&quot;)
+public class Hello {
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public String hello() {
+        return &quot;Hello World!\n&quot;;
+    }
+
+}
+END
+</code></pre>
+<p>Aunque para este ejemplo no es necesario ya que no se utiliza <a href="https://jakarta.ee/specifications/cdi/3.0/">inyección de
+dependencias (CDI)</a>, se creará el
+el archivo <a href="https://jakarta.ee/specifications/cdi/3.0/jakarta-cdi-spec-3.0.html#bean_archive">beans.xml</a>
+que <a href="https://jakarta.ee/specifications/cdi/3.0/jakarta-cdi-spec-3.0.html#bean_archive_ee">debe encontrarse bajo el directorio <code>src/main/webapp/WEB-INF</code></a>
+para que pueda extenderse el ejemplo para utilizar CDI en el futuro.</p>
+<p>Un ejemplo del archivo <code>beans.xml</code> se puede obtender de la <a href="https://jakarta.ee/specifications/cdi/3.0/jakarta-cdi-spec-3.0.html">especificación de
+CDI</a> o de
+<a href="https://jakarta.ee/xml/ns/jakartaee/beans_3_0.xsd">su esquema</a>:</p>
+<pre><code>$ mkdir -p src/main/webapp/WEB-INF
+$ cat &gt; src/main/webapp/WEB-INF/beans.xml &lt;&lt;'END'
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;beans xmlns=&quot;https://jakarta.ee/xml/ns/jakartaee&quot;
+        xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:schemaLocation=&quot;https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/beans_3_0.xsd&quot;
+        version=&quot;3.0&quot;
+        bean-discovery-mode=&quot;all&quot;&gt;
+&lt;/beans&gt;
+END
+</code></pre>
+<h3>Cambio del context-root</h3>
+<p>Por defecto, al deployar el war este es expuesto bajo una ruta que tiene el
+mismo nombre.  En nuestro caso, ya que el artefacto es generado con un número de
+versión este será deployado en la ruta <code>/minimal-jaxrs-from-scratch-1.0-SNAPSHOT</code>.</p>
+<p>Para cambiar la ruta en wildfly se puede utilizar el <a href="https://docs.wildfly.org/22/Developer_Guide.html#Deployment_Descriptors_used_In_WildFly">deployment descriptor
+<code>jboss-web.xml</code></a>
+el cual permite especificar opciones especificas de wildfly.  En nuestro caso,
+nos interesa cambiar el <code>context-root</code>, cuya descripción se obtiene del archivo
+<a href="https://www.jboss.org/schema/jbossas/jboss-web_14_1.xsd">jboss-web_14_1.xsd</a>
+que puede encontrarse en la web o bajo el directorio <code>docs/schema</code> de wildfly:</p>
+<blockquote>
+<p>The context-root element specifies the context root of a web application. This is normally specified at the ear level using the standard JEE application.xml descriptor, but it may be given here for standalone wars. This should not override the application.xml level specification.</p>
+</blockquote>
+<p>Para cambiar el context root a <code>/minimal-jaxrs-from-scratch</code>:</p>
+<pre><code>$ cat &gt; src/main/webapp/WEB-INF/jboss-web.xml &lt;&lt;'END'
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;jboss-web xmlns=&quot;http://www.jboss.com/xml/ns/javaee&quot;
+        xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:schemaLocation=&quot;http://www.jboss.com/xml/ns/javaee https://www.jboss.org/schema/jbossas/jboss-web_14_1.xsd&quot;
+        version=&quot;14.1&quot;&gt;
+    &lt;context-root&gt;/minimal-jaxrs-from-scratch&lt;/context-root&gt;
+&lt;/jboss-web&gt;
+END
+</code></pre>
+<p><em>Nota</em>: Como se puede apreciar, las referencias a la versión del archivo son
+incorrectas en el esquema, ya que se utiliza
+<code>http://www.jboss.org/schema/jbossas/jboss-web_14_0.xsd</code>
+en lugar de <code>https://www.jboss.org/schema/jbossas/jboss-web_14_1.xsd</code> y como
+versión <code>14.0</code> en lugar de <code>14.1</code>.  Cuidado con los ejemplos dentro de los
+esquemas.</p>
+<h2>Deploy y prueba</h2>
+<p>Para generar el archivo war se utiliza el wrapper de maven:</p>
+<pre><code>$ ./mvnw clean package
+</code></pre>
+<p>Para realizar el deploy se copia el archivo
+<code>target/minimal-jaxrs-from-scratch-1.0-SNAPSHOT.war</code> al directorio <code>standalone/deployments/</code>
+de wildfly-preview.</p>
+<p>Por último, se comprueba que el war fué deployado correctamente y está
+funcionando:</p>
+<pre><code>$ curl -v 'http://localhost:8080/minimal-jaxrs-from-scratch/hello'
+$ curl -v 'http://localhost:8080/minimal-jaxrs-from-scratch/hello'
+*   Trying ::1:8080...
+* connect to ::1 port 8080 failed: Connection refused
+*   Trying 127.0.0.1:8080...
+* Connected to localhost (127.0.0.1) port 8080 (#0)
+&gt; GET /minimal-jaxrs-from-scratch/hello HTTP/1.1
+&gt; Host: localhost:8080
+&gt; User-Agent: curl/7.74.0
+&gt; Accept: */*
+&gt;
+* Mark bundle as not supporting multiuse
+&lt; HTTP/1.1 200 OK
+&lt; Connection: keep-alive
+&lt; Content-Type: application/json
+&lt; Content-Length: 13
+&lt; Date: Fri, 19 Feb 2021 02:49:11 GMT
+&lt;
+Hello World!
+* Connection #0 to host localhost left intact
+</code></pre>
+<h2>Conclusiones</h2>
+<ul>
+<li>A Febrero de 2021 los servidores de aplicaciones para Jakarta EE 9 con
+licencia open source más populares -wildfly, payara, openliberty- no tienen
+versión estable, lo cual dificulta su adopción para nuevos desarrollos.</li>
+<li>El uso del Reproducible Build Maven Plugin aumenta considerablemente -duplica
+para este caso- el tamaño del archivo <code>pom.xml</code> pero es útil ya que alcanza
+con realizar un checksum al archivo para poder comparar distintas versiones y
+confirmar que distintos desarrolladores pueden generar el mismo artefacto.</li>
+<li>El uso de maven wrapper implica que se deben descargar archivos desde internet
+o configurar variables de entorno para utilizar un cache local.</li>
+<li>La aplicación al final no fué <em>mínima</em>, ya que decidí agregar los archivos
+<code>beans.xml</code> y <code>jboss-web.xml</code> para que a futuro sea más fácil copiar el código
+como base para otras pruebas.</li>
+<li><em>En si la aplicación no tiene nada de especial pero lleva un tiempo importante
+el encontrar la documentación que describe las distintas opciones que se deben
+utilizar</em> en lugar de copiar y pegar código de ejemplo encontrado en internet.</li>
+</ul>
+<p>El código del proyecto se encuentra en el repositorio
+<a href="https://git.sr.ht/~jumapico/jakarta-ee-experiments">~jumapico/jakarta-ee-experiments</a> bajo
+el directorio <a href="https://git.sr.ht/~jumapico/jakarta-ee-experiments/tree/master/item/jee9-minimal-jaxrs-from-scratch">jee9-minimal-jaxrs-from-scratch</a>.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Subiendo archivos a ichi.city | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Subiendo archivos a ichi.city</h1>
+        <h2 class="date">2021-11-08</h2>
+      </div>
+<h2>Websites estáticos</h2>
+<p>Hoy encontré el sitio <a href="https://ichi.city/">ichi.city</a>, el cual permite crear un sitio estático
+utilizando subdominios y sincronizarlo mediante <a href="https://en.wikipedia.org/wiki/SSH_File_Transfer_Protocol">sftp</a>.</p>
+<p>Si, hay otras alternativas que utilizan repositorios git</p>
+<ul>
+<li><a href="https://srht.site/">https://srht.site/</a></li>
+<li><a href="https://docs.gitlab.com/ee/user/project/pages/">https://docs.gitlab.com/ee/user/project/pages/</a></li>
+<li><a href="https://pages.github.com/">https://pages.github.com/</a></li>
+</ul>
+<p>y otras que permiten editar archivos en linea y subir contenido (archivo <code>.zip</code>)</p>
+<ul>
+<li><a href="https://neocities.org/">https://neocities.org/</a></li>
+</ul>
+<p>La contra de las primeras es que es necesario saber <a href="https://git-scm.com/">git</a> y de la segunda que no
+es comodo tener que estar comprimiendo y subiendo el sitio manualmente
+(interaccionando con el sitio web para ello).</p>
+<h2>Procedimiento para upload a ichi</h2>
+<p>Volviendo a <a href="https://ichi.city/">ichi.city</a>, tiene la ventaja de que es posible crear un script para
+sincronizar de forma automática un sitio.  Para ello puede utilizarse el script
+<a href="./upload-ichi">upload-ichi</a>:</p>
+<ol>
+<li>Crear una cuenta en <a href="https://ichi.city/register">https://ichi.city/register</a>.  Como ejemplo se utilizará
+<code>example</code>.</li>
+<li>Crear el archivo <code>CREDENTIALS</code> que contenga el usuario/password para utilizar
+con <a href="https://man.openbsd.org/sftp.1">sftp (openssh)</a>
+<pre><code>$ echo 'example = mypassword' &gt;&gt; CREDENTIALS
+</code></pre>
+</li>
+<li>Crear un directorio para los archivos de la cuenta (este debe tener el mismo
+nombre que la cuenta):
+<pre><code>$ mkdir example
+</code></pre>
+</li>
+<li>Crear contenido:
+<pre><code>$ cat &gt; example/index.html &lt;&lt;'END'
+&lt;h1&gt;Hello world!&lt;/h1&gt;
+&lt;p&gt;With ❤ from &lt;a href=&quot;https://ichi.city&quot;&gt;ichi&lt;/a&gt;&lt;/p&gt;
+END
+</code></pre>
+</li>
+<li>Sincronizar (utilizando como parámetro el nombre de la cuenta):
+<pre><code>$ ./upload-ichi example
+</code></pre>
+</li>
+<li>Ir al sitio: <a href="https://example.ichi.city">https://example.ichi.city</a>.</li>
+</ol>
+<h2>Conclusiones</h2>
+<p>A esta altura algunas de las preguntas que pueden surgir son:</p>
+<ol>
+<li>¿Es necesario hacer un script para automatizar algo tan sencillo?</li>
+<li>¿Vale la pena utilizar ichi?</li>
+</ol>
+<p>En mi caso que mi intención pasa por enseñarle a mi hijo que es una página web y
+como funciona es más sencillo indicarle como ejecutar un script que una
+secuencia larga de pasos  (obviamente se puede crear un sitio local, pero es un
+aliciente que pueda mostrarselo a los amigos).</p>
+<p>Por otro lado siempre tenemos el sitio local y en caso de perder los archivos
+existe una forma sencilla y estandar de descargarlos, evitando el caso de
+<a href="https://en.wikipedia.org/wiki/Vendor_lock-in">vendor lock-in</a>.</p>
+<p>Ya que está disponible el <a href="https://git.sr.ht/~m15o/ichi">código fuente de ichi</a> y las instrucciones para crear
+el servidor son bastante sencillas no hay problema en caso de que se desee
+realizar un deploy local o en la red.</p>
+<p><strong>En resumen si, para pruebas sencillas vale la pena.</strong></p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

@@ -1,0 +1,99 @@
+From 793cc343942ab08295153af771c154acad141135 Mon Sep 17 00:00:00 2001
+From: Juan Picca <jumapico@gmail.com>
+Date: Mon, 23 Jul 2018 11:45:25 -0300
+Subject: [PATCH] Allow equivs-build to use alternative templates
+
+---
+ debian/changelog     |  3 +++
+ equivs-build.pod     |  9 ++++++++-
+ usr/bin/equivs-build | 19 +++++++++++--------
+ 3 files changed, 22 insertions(+), 9 deletions(-)
+
+diff --git a/debian/changelog b/debian/changelog
+index bd34af4..3be9d64 100644
+--- a/debian/changelog
++++ b/debian/changelog
+@@ -7,6 +7,9 @@ equivs (2.1.1) UNRELEASED; urgency=medium
+   [ Salvatore Bonaccorso ]
+   * Update Vcs-* headers for switch to salsa.debian.org
+ 
++  [ Juan Picca ]
++  * Add support to use alternative templates.
++
+  -- Damyan Ivanov <dmn@debian.org>  Sun, 03 Dec 2017 22:42:05 +0000
+ 
+ equivs (2.1.0) unstable; urgency=low
+diff --git a/equivs-build.pod b/equivs-build.pod
+index d327562..dc1f629 100644
+--- a/equivs-build.pod
++++ b/equivs-build.pod
+@@ -4,7 +4,7 @@ equivs-build - make a Debian package to register local software
+ 
+ =head1 SYNOPSIS
+ 
+-B<equivs-build [--full|-f] [--source|-s] [--arch=foo|-a=foo] controlfile>
++B<equivs-build [--full|-f] [--source|-s] [--arch=foo|-a=foo] [--templates=bar|-t=bar] controlfile>
+ 
+ =head1 DESCRIPTION
+ 
+@@ -135,6 +135,13 @@ Build package for the specified architecture. Used
+ e.g. for building packages for hurd under linux. B<equivs-build> uses
+ B<dpkg-architecture> to provide this facility.
+ 
++=item --templates | -t
++
++Build package using alternative templates in the given directory. By default
++B<equivs-build> uses template files from B</usr/share/equivs/template>.
++
++Use with caution, this can break B<equivs-build>.
++
+ =back
+ 
+ =head1 DISTRIBUTION
+diff --git a/usr/bin/equivs-build b/usr/bin/equivs-build
+index a95688a..6a5ac86 100755
+--- a/usr/bin/equivs-build
++++ b/usr/bin/equivs-build
+@@ -22,20 +22,23 @@ my %control;
+ 
+ sub usage {
+   print STDERR <<EOU;
+-Usage: equivs-build [--full|-f] [--source|-s] [--arch=foo|-a=foo] controlfile
++Usage: equivs-build [--full|-f] [--source|-s] [--arch=foo|-a=foo] [--templates=bar|-t=bar] controlfile
+ controlfile is the name of an equivs controlfile.
+ You can use "equivs-control filename" to create one.
+ 
+---full   Full build including signing, etc., suitable for upload to Debian
+---source Source build including signing, etc., suitable for upload to a PPA
+---arch   Build package for a different architecture.
+-         Used e.g. for building Hurd packages under Linux.
++--full      Full build including signing, etc., suitable for upload to Debian
++--source    Source build including signing, etc., suitable for upload to a PPA
++--arch      Build package for a different architecture.
++            Used e.g. for building Hurd packages under Linux.
++--templates Build package using alternative templates in the given directory.
++            Use with caution, this can break equivs-build.
+ EOU
+   exit 1;
+ }
+ 
+-my ($full_package, $source_only, $arch);
+-GetOptions('full|f' => \$full_package, 'source|s' => \$source_only, 'arch|a=s' => \$arch) or usage();
++my ($full_package, $source_only, $arch, $templatedir);
++$templatedir = "/usr/share/equivs/template";
++GetOptions('full|f' => \$full_package, 'source|s' => \$source_only, 'arch|a=s' => \$arch, 'templates|t=s' => \$templatedir) or usage();
+ 
+ my $debug = 0;
+ 
+@@ -47,7 +50,7 @@ if (! $controlfile) {
+   usage();
+ }
+ 
+-system("cp -R /usr/share/equivs/template/* \"$builddir\"") == 0 or
++system("cp -R \"$templatedir\"/* \"$builddir\"") == 0 or
+   die "Error on copy of the template files: exit status " . ($?>>8) . "\n";
+ 
+ # Parse the equivs control file
+-- 
+2.18.0
+

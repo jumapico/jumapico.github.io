@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Binarios utilizados al realizar un build | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Binarios utilizados al realizar un build</h1>
+        <h2 class="date">2018-05-31</h2>
+      </div>
+<p><a href="https://bootstrapping.miraheze.org/wiki/Build_Inputs">Listar todos los binarios invocados al compilar un
+paquete</a>:</p>
+<pre><code>$ TMP=$(mktemp)
+$ strace -o &quot;$TMP&quot; -f -e trace=execve -e 'signal=!all' make
+$ sed -ne 's/.*execve(&quot;\([^&quot;]*\)&quot;,.*/\1/p' &quot;$TMP&quot; \
+    | xargs ls -d 2&gt;/dev/null \
+    | sort \
+    | uniq
+</code></pre>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

@@ -1,0 +1,18 @@
+image: debian/buster
+arch: amd64
+packages:
+  - ruby2.5
+  - ruby2.5-dev
+  - zlib1g-dev
+sources:
+  - https://git.sr.ht/~jumapico/jumapico.ws
+secrets:
+  - b714e84b-1f5e-46fd-9aa1-737e0e5fe881
+tasks:
+  - build: |
+      set +x
+      . ~/.buildsecrets
+      set -x
+      export PATH=$PATH:$HOME/.gem/ruby/2.5.0/bin
+      cd jumapico.ws
+      make publish-from-sourcehut

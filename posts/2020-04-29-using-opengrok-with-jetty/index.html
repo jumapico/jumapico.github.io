@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Usando opengrok con jetty | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Usando opengrok con jetty</h1>
+        <h2 class="date">2020-04-29</h2>
+      </div>
+<h2>Motivación</h2>
+<p>Revisando el código de <a href="https://www.qemu.org/">qemu</a> me encontré con que es bastante tedioso el
+buscar las definiciones de algunas funciones, por lo que pensé en utilizar
+<a href="https://oracle.github.io/opengrok/">opengrok</a> para poder navegar de forma más fácil en el código.  Ya que
+normalmente utilizo <a href="https://www.eclipse.org/jetty/">jetty</a> como web server para aplicaciones java pensé
+en utilizarlo para ejecutar <em>opengrok</em>, en lugar de utilizar <a href="https://tomcat.apache.org/">tomcat</a>
+como es sugerido.</p>
+<h2>Instalación y configuración de opengrok</h2>
+<p>En la página web de <a href="https://oracle.github.io/opengrok/">opengrok</a> se indica que se requiere un <em>servlet
+container</em>, por lo que <em>jetty</em> debería poder utilizarse, ya que en la
+descripción de la página web se indica:</p>
+<blockquote>
+<p>Eclipse Jetty provides a Web server and javax.servlet container</p>
+</blockquote>
+<p>Se comienza instalando las dependencias (o asegurandose que estén) a nivel de
+sistema:</p>
+<pre><code>sudo apt-get install -Vy default-jre-headless universal-ctags
+</code></pre>
+<p>Luego se crea la estructura de directorios que utilizará <em>opengrok</em>, para
+descargar y descomprimir <em>jetty</em> y <em>opengrok</em>:</p>
+<pre><code>WORKDIR=/path/to/opengrok
+mkdir -p &quot;$WORKDIR&quot;/{src,data,dist,etc,log}
+wget -P &quot;$WORKDIR&quot; 'https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-distribution/9.4.28.v20200408/jetty-distribution-9.4.28.v20200408.tar.gz'
+mkdir &quot;$WORKDIR&quot;/jetty
+tar --strip-components=1 -xzf jetty-distribution-9.4.28.v20200408.tar.gz -C &quot;$WORKDIR&quot;/jetty
+wget -P &quot;$WORKDIR&quot; 'https://github.com/oracle/opengrok/releases/download/1.3.13/opengrok-1.3.13.tar.gz'
+tar --strip-components=1 -xzf opengrok-1.3.13.tar.gz -C &quot;$WORKDIR&quot;/dist
+</code></pre>
+<p>Continuando con la <a href="https://github.com/oracle/opengrok/wiki/How-to-setup-OpenGrok">documentación de instalación de opengrok</a> se copia la configuración de logs a utilizar (se utiliza la configuración
+por defecto):</p>
+<pre><code>cp &quot;$WORKDIR&quot;/dist/doc/logging.properties &quot;$WORKDIR&quot;/etc
+sed -i 's#^\(java.util.logging.FileHandler.pattern =\).*$#\1 '&quot;$WORKDIR&quot;'/log/opengrok%g.%u.log#' &quot;$WORKDIR&quot;/etc/logging.properties
+</code></pre>
+<p>Para el deploy de la aplicación web se crea un enlace simbólico del archivo
+<code>source.war</code> en <code>dist</code> al directorio <code>jetty/webapps</code>.</p>
+<pre><code>ln -s &quot;$WORKDIR&quot;/dist/lib/source.war &quot;$WORKDIR&quot;/jetty/webapps
+</code></pre>
+<p>Como se indica en la <a href="https://github.com/oracle/opengrok/wiki/How-to-setup-OpenGrok#step2---deploy-the-web-application">documentación respecto al deploy de la aplicación
+web</a>, el archivo <code>web.xml</code> contiene el
+<code>context-param</code> <strong>CONFIGURATION</strong> cuyo valor por defecto es
+<code>/opengrok/etc/configuration.xml</code> (en realidad, para la versión <em>1.3.13</em> el
+valor es <code>/var/opengrok/etc/configuration.xml</code>).  Para sobreescribir dicho valor
+podemos utilizar la opción <a href="https://www.eclipse.org/jetty/documentation/current/override-web-xml.html"><code>override-web.xml</code> de jetty</a>
+que permite reescribir o agregar nuevos elementos al archivo <code>web.xml</code>.</p>
+<p>Para esto se crea el archivo <code>source.xml</code> en la carpeta <code>jetty/webapps</code>
+indicando el archivo que tendrá la configuración que sobreescribirá el valor de
+<strong>CONFIGURATION</strong>:</p>
+<pre><code>cat &lt;&lt;END &gt; &quot;$WORKDIR&quot;/jetty/webapps/source.xml
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;Configure class=&quot;org.eclipse.jetty.webapp.WebAppContext&quot;&gt;
+    &lt;Set name=&quot;war&quot;&gt;${WORKDIR}/jetty/webapps/source.war&lt;/Set&gt;
+    &lt;Set name=&quot;overrideDescriptor&quot;&gt;${WORKDIR}/override-web.xml&lt;/Set&gt;
+&lt;/Configure&gt;
+END
+</code></pre>
+<p><strong>NOTA</strong>: Los detalles para configurar el archivo anterior se pueden encontrar
+en:</p>
+<ul>
+<li><a href="https://www.eclipse.org/jetty/documentation/current/configuring-contexts.html#using-the-webapp-provider">https://www.eclipse.org/jetty/documentation/current/configuring-contexts.html#using-the-webapp-provider</a></li>
+<li><a href="https://www.eclipse.org/jetty/javadoc/9.4.28.v20200408/org/eclipse/jetty/webapp/WebAppContext.html">https://www.eclipse.org/jetty/javadoc/9.4.28.v20200408/org/eclipse/jetty/webapp/WebAppContext.html</a></li>
+</ul>
+<p>Obviamente, debe crearse el archivo <code>override-web.xml</code> que indica el valor de
+configuración a sobreescribir:</p>
+<pre><code>cat &lt;&lt;END &gt; &quot;$WORKDIR&quot;/override-web.xml
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;web-app xmlns=&quot;http://xmlns.jcp.org/xml/ns/javaee&quot;
+         xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+         xsi:schemaLocation=&quot;http://xmlns.jcp.org/xml/ns/javaee
+         http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd&quot;
+         version=&quot;3.1&quot;&gt;
+    &lt;!--
+        This web.xml format file is an override file that is applied to the
+        opengrok webapp (source.war) AFTER it has been configured by the default
+        descriptor and the WEB-INF/web.xml descriptor
+    --&gt;
+
+    &lt;!-- Override context init parameter CONFIGURATION --&gt;
+    &lt;context-param&gt;
+        &lt;param-name&gt;CONFIGURATION&lt;/param-name&gt;
+        &lt;param-value&gt;${WORKDIR}/etc/configuration.xml&lt;/param-value&gt;
+    &lt;/context-param&gt;
+&lt;/web-app&gt;
+END
+</code></pre>
+<p>Ya creados los archivos anteriores se inicia <em>jetty</em>:</p>
+<pre><code>cd &quot;$WORKDIR&quot;/jetty
+java -jar start.jar &gt; /tmp/jetty.out 2&gt;&amp;1 &amp;
+</code></pre>
+<p>Para corroborar que la configuración funciona correctamente y que el archivo
+<code>web.xml</code> fué escrito correctamente es busca por el error esperado de que no se
+encuentra el archivo <code>$WORKDIR/etc/configuration.xml</code>:</p>
+<pre><code>$ grep 'java.io.FileNotFoundException: .* (No such file or directory)' /tmp/jetty.out
+java.io.FileNotFoundException: &lt;&lt;WORKDIR&gt;&gt;/etc/configuration.xml (No such file or directory)
+</code></pre>
+<p>(en la salida anterior se sustituyó el valor de la variable <code>$WORKDIR</code> por el
+texto <code>&lt;&lt;WORKDIR&gt;&gt;</code>.</p>
+<p>Lo que queda es realizar la indexación inicial, la cual también crea el archivo
+faltante <code>configuration.xml</code>.</p>
+<p>En mi caso, el código de <em>qemu</em> ya fué descargado en el directorio <code>QEMUDIR</code>:</p>
+<pre><code>QEMUDIR=/path/to/qemu
+cd &quot;$QEMUDIR&quot;/..
+git clone https://git.qemu.org/git/qemu.git
+cd qemu
+git submodule init
+git submodule update --recursive
+</code></pre>
+<p>Se utiliza un enlace simbólico para que <em>opengrok</em> tenga acceso al código:</p>
+<pre><code>ln -s &quot;$QEMUDIR&quot; &quot;$WORKDIR&quot;/src
+</code></pre>
+<p>Y se pasa a indexar el código del repositorio de <em>qemu</em>:</p>
+<pre><code>java \
+    -Djava.util.logging.config.file=&quot;$WORKDIR&quot;/etc/logging.properties \
+    -jar &quot;$WORKDIR&quot;/dist/lib/opengrok.jar \
+    -c /usr/bin/ctags-universal \
+    -s &quot;$WORKDIR&quot;/src \
+    -d &quot;$WORKDIR&quot;/data -H -P -S -G \
+    -W &quot;$WORKDIR&quot;/etc/configuration.xml \
+    -U http://localhost:8080/source
+</code></pre>
+<p>El comando anterior genera además el archivo <code>&quot;$WORKDIR&quot;/etc/configuration.xml</code>
+que será utilizado por el <a href="https://en.wikipedia.org/wiki/WAR_(file_format)">archivo war</a> de <em>opengrok</em> al ser
+deployado.</p>
+<p>Por último, se reinicia <code>jetty</code> y ya se puede acceder a <em>opengrok</em>.</p>
+<h2>Script para instalación y configuración de opengrok con jetty</h2>
+<p>Se crea el script <a href="./install-opengrok-using-jetty.sh">install-opengrok-using-jetty.sh</a>
+utilizando los comandos de la parte anterior.</p>
+<p>Este script utilizará dos parámetros, el primero la ruta donde se desea realizar
+la instalación de <em>opengrok</em>.  El segundo, la rutas donde se encuentra el código
+fuente a indexar.</p>
+<p>También se agrega el directorio <code>bin</code> con los scripts <code>reindex</code> y <code>up</code> para
+facilitar la administración y no tener que estar recordando los comandos
+utilizados luego de un tiempo.</p>
+<h2>Conclusiones</h2>
+<p>Sin duda que <em>opengrok</em> es una herramienta útil a la hora de recorrer el código
+fuente de un proyecto.  Como ejemplo, la definición de <code>type_init</code> en el código
+de <em>qemu</em>, que resultó ser una macro (y el motivo de porqué pensé en instalar
+<em>opengrok</em>), lo encontré al momento.</p>
+<p>Otro punto positivo fué el uso de <em>jetty</em>, ya que al utilizar <code>override-web.xml</code>
+facilita el deployment de <em>opengrok</em> respecto a <em>tomcat</em> en el sentido de que
+según las instrucciones de instalación hay que buscar el archivo <code>web.xml</code> y
+modificarlo manualmente (o con <code>sed</code>).</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

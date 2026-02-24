@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>IP's repetidas | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">IP's repetidas</h1>
+        <h2 class="date">2019-02-01</h2>
+      </div>
+<h2>Descripción del problema</h2>
+<p>Un PC reporta que no tiene red.
+Esta PC utiliza configuración estática para establecer la IP.
+Se encuentra que:</p>
+<ol>
+<li>La IP responde ping.</li>
+<li>Es posible conectarse al PC utilizando ssh, pero se cierra la conexión a los
+30 segundos aproximadamente con el mensaje:
+<pre><code>packet_write_wait: Connection to 10.11.12.13 port 22: Broken pipe
+</code></pre>
+</li>
+<li>En esos segundos en que es posible conectarse no se encuentran mensajes
+relevantes en los logs (<code>/var/log/kern.log</code>/<code>/var/log/syslog</code>).</li>
+</ol>
+<h2>Diagnóstico</h2>
+<p>Se supone que la PC tiene una IP duplicada.</p>
+<p>Para verificarlo se utiliza <a href="https://manpages.debian.org/stretch/arping/arping.8.en.html"><code>arping</code></a>, que permite explorar la
+red enviando y recibiendo paquetes <a href="https://en.wikipedia.org/wiki/Address_Resolution_Protocol">ARP</a>. Esto nos ayuda a ver si
+hay más de una <a href="https://en.wikipedia.org/wiki/MAC_address">MAC</a> asociada a la <a href="https://en.wikipedia.org/wiki/IP_address">IP</a> que está
+dando problemas.</p>
+<p>El comando utilizado para la exploración es el siguiente:</p>
+<pre><code>$ sudo arping -c 3 10.11.12.13
+ARPING 10.11.12.13 from 10.11.12.22 eth0
+Unicast reply from 10.11.12.13 [1C:51:D9:25:5F:E7]  0.728ms
+Unicast reply from 10.11.12.13 [AB:24:B2:5B:10:22]  1.056ms
+Unicast reply from 10.11.12.13 [1C:51:D9:25:5F:E7]  0.648ms
+Unicast reply from 10.11.12.13 [AB:24:B2:5B:10:22]  0.856ms
+Sent 3 probes (3 broadcast(s))
+Received 4 response(s)
+</code></pre>
+<p><strong>No olvidar que la exploración debe hacerse desde un PC que se encuentre en la
+misma red, ya que el protocolo ARP pertenece a la capa de enlace y solo se
+comunica dentro de los límites de una sola red</strong>.</p>
+<p>La salida del comando anterior indica que la IP está asociada a dos MACs
+distintas, por lo que se confirma que hay un caso de IP duplicada.</p>
+<h2>Lecciones aprendidas</h2>
+<ol>
+<li>Intentar utilizar <a href="https://en.wikipedia.org/wiki/Dynamic_Host_Configuration_Protocol">dhcp</a> si es posible, ya que al asignar
+IP's estáticamente se pueden cometer errores.</li>
+<li><strong>No utilizar el mismo <code>hostname</code> en varias PC's</strong>.
+Si las PC's hubieran tenido un hostname distinto se hubiera determinado
+mucho más rápidamente que <code>ssh</code> se estaba conectando a distintas PC's cada
+vez.</li>
+</ol>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Usando equivs para crear links faltantes | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Usando equivs para crear links faltantes</h1>
+        <h2 class="date">2018-07-12</h2>
+      </div>
+<p>El parche presentado en este post fué aceptado en el <a href="https://salsa.debian.org/perl-team/modules/packages/equivs/commit/41b6445a9838471c5b6e0ad0d76e012ca38d2a26">código
+fuente de equivs</a>.</p>
+<p>Mi agradecimiento a <a href="https://salsa.debian.org/abe">Axel Beckert</a> por el tiempo dedicado.</p>
+<hr />
+<h2>Descripción del problema</h2>
+<p>Utilizando <a href="https://github.com/torakiki/pdfsam-v2/releases/tag/v2.2.4">pdfsam 2.2.4</a>
+en <em>Ubuntu 14.04 (i386)</em> se notó que ocurre un problema
+en la generación de thumbnails durante la edición de los pdf's.</p>
+<p>Revisando el log se obtiene:</p>
+<blockquote>
+<p>12:12:08,656 ERROR Unable to generate thumbnail
+java.lang.UnsatisfiedLinkError: Unable to load library 'freetype': libfreetype.so: no se puede abrir el archivo del objeto compartido: No existe el archivo o el directorio</p>
+</blockquote>
+<p>El problema anterior se soluciona creando un link simbólico:</p>
+<pre><code>$ sudo ln -s /usr/lib/i386-linux-gnu/libfreetype.so.6.11.1 /usr/lib/i386-linux-gnu/libfreetype.so
+</code></pre>
+<p>El problema que la solución anterior nos generaría es un problema si se quiere
+instalar el paquete <code>libfreetype6-dev</code>:</p>
+<pre><code>$ dpkg -S /usr/lib/i386-linux-gnu/libfreetype.so
+libfreetype6-dev: /usr/lib/i386-linux-gnu/libfreetype.so
+</code></pre>
+<h2>Alternativas de solución</h2>
+<p>Como solución se podría:</p>
+<ol>
+<li>
+<p>Instalar el paquete <code>libfreetype6-dev</code>, con el problema de estar agregando
+dependencias no deseadas solo por un link simbólico.</p>
+</li>
+<li>
+<p>Crear un paquete dummy utilizando <a href="https://salsa.debian.org/perl-team/modules/packages/equivs">equivs</a> que genere el link anterior y
+tenga un conflicto con el paquete <code>libfreetype6-dev</code>, para que pueda
+desinstalarse sin problemas si por algún motivo se quiere instalar
+<code>libfreetype6-dev</code>.</p>
+</li>
+</ol>
+<p>Se elige la segunda opción.</p>
+<p>Se crea un paquete utilizando <a href="https://salsa.debian.org/perl-team/modules/packages/equivs">equivs</a>;
+particularmente se utiliza el campo
+<strong>Links</strong>, en el archivo de control para equivs como se indica en la <a href="https://manpages.debian.org/testing/equivs/equivs-build.1.en.html">página del
+manual</a> y
+está ejemplificado en
+<a href="https://sources.debian.org/src/equivs/2.1.0/examples/libstdc++6-dev.ctl/">/usr/share/doc/equivs/examples/libstdc++6-dev.ctl</a>.
+A continuación se muestra el contenido del archivo <code>pdfsam-fix-freetype</code>:</p>
+<pre><code>Section: text
+Priority: extra
+Homepage: https://pdfsam.org/
+Standards-Version: 3.9.2
+
+Package: pdfsam-fix-freetype
+Version: 1.0
+Maintainer: Juan Picca &lt;jumapico@gmail.com&gt;
+Depends: pdfsam (&gt;= 2.0), libfreetype6
+Conflicts: libfreetype6-dev
+Architecture: i386
+Description: Fix for pdfsam (&gt;= 2.0)
+ Fix errors in thumbnail generation due usage of `libfreetype.so`.
+Links: /usr/lib/i386-linux-gnu/libfreetype.so.6 /usr/lib/i386-linux-gnu/libfreetype.so
+</code></pre>
+<p>Notar que esta opción <strong>Links</strong> no está disponible en la <a href="https://packages.ubuntu.com/trusty/equivs">versión 2.0.9 provista
+por Ubuntu 14.04</a>,
+pero si para la <a href="https://sources.debian.org/src/equivs/2.1.0/">versión 2.10 provista por debian
+buster</a>,
+por lo que el paquete se generará en <em>debian buster</em>.</p>
+<h2>Problema 1 - defaults de dpkg-deb</h2>
+<p>Luego de construir el paquete mediante</p>
+<pre><code>$ equivs-build --arch i386 pdfsam-fix-freetype
+</code></pre>
+<p>e intentar instalarlo en <em>Ubuntu 14.04</em> se obtiene el siguiente error:</p>
+<pre><code>$ sudo dpkg -i pdfsam-fix-freetype_1.0_i386.deb
+dpkg-deb: error: archive 'pdfsam-fix-freetype_1.0_i386.deb' has premature member 'control.tar.xz' before 'control.tar.gz', giving up
+dpkg: error al procesar el archivo pdfsam-fix-freetype_1.0_i386.deb (--install):
+ el subproceso dpkg-deb --control devolvió el código de salida de error 2
+Se encontraron errores al procesar:
+ pdfsam-fix-freetype_1.0_i386.deb
+</code></pre>
+<p>Esto se debe a que cambiaron las <em>opciones por defecto</em> del paquete <em>dpkg-deb</em>
+desde la versión utilizada en Ubuntu 14.04 a la utilizada en debian buster, y
+la compresión por defecto es <strong>xz en lugar de gzip</strong>. Por otro lado, la versión
+de <em>dpkg</em> de <em>Ubuntu 14.04</em> no maneja correctamente el archivo de control
+comprimidos mediante <em>xz</em>, por lo que no se puede instalar dicho paquete.</p>
+<h2>Problema 2 - creación de fuentes con equivs</h2>
+<p>Ya que no se puede utilizar directamente el paquete generado por <code>equivs-build</code>,
+se intentará generar un paquete fuente, para luego editarlo y corregir los
+parámetros utilizados con <em>dpkg-deb</em>:</p>
+<pre><code>$ equivs-build --source --arch i386 pdfsam-fix-freetype
+dpkg-buildpackage: info: source package pdfsam-fix-freetype
+dpkg-buildpackage: info: source version 1.0
+dpkg-buildpackage: info: source distribution unstable
+dpkg-buildpackage: info: source changed by Juan Picca &lt;jumapico@gmail.com&gt;
+ dpkg-source --before-build equivs.qTTGhv
+ fakeroot debian/rules clean
+dh_testdir
+dh_clean
+ dpkg-source -b equivs.qTTGhv
+dpkg-source: error: can't build with source format '3.0 (quilt)': no upstream tarball found at ../pdfsam-fix-freetype_1.0.orig.tar.{bz2,gz,lzma,xz}
+dpkg-buildpackage: error: dpkg-source -b equivs.qTTGhv subprocess returned exit status 255
+Error in the build process: exit status 255
+</code></pre>
+<p>Se crea un archivo <code>pdfsam-fix-freetype_1.0.orig.tar.gz</code> vacío como es pedido
+por <code>dpkg-source</code> y se vuelve a intentar:</p>
+<pre><code>$ tar zcf pdfsam-fix-freetype_1.0.orig.tar.gz -T /dev/null
+$ equivs-build --source --arch i386 pdfsam-fix-freetype
+dpkg-buildpackage: info: source package pdfsam-fix-freetype
+dpkg-buildpackage: info: source version 1.0
+dpkg-buildpackage: info: source distribution unstable
+dpkg-buildpackage: info: source changed by Juan Picca &lt;jumapico@gmail.com&gt;
+ dpkg-source --before-build equivs.sJw8KU
+ fakeroot debian/rules clean
+dh_testdir
+dh_clean
+ dpkg-source -b equivs.sJw8KU
+dpkg-source: error: can't build with source format '3.0 (quilt)': non-native package version does not contain a revision
+dpkg-buildpackage: error: dpkg-source -b equivs.sJw8KU subprocess returned exit status 255
+Error in the build process: exit status 255
+</code></pre>
+<p>Se modifica la versión en en archivo <code>pdfsam-fix-freetype</code> agregandole un
+número de revisión a la versión y volviendo a intentar crear el paquete:</p>
+<pre><code>$ sed -i 's/Version: 1.0/Version: 1.0-1/' pdfsam-fix-freetype
+$ equivs-build --source --arch i386 pdfsam-fix-freetype
+dpkg-buildpackage: info: source package pdfsam-fix-freetype
+dpkg-buildpackage: info: source version 1.0-1
+dpkg-buildpackage: info: source distribution unstable
+dpkg-buildpackage: info: source changed by Juan Picca &lt;jumapico@gmail.com&gt;
+ dpkg-source --before-build equivs.PkGbQl
+ fakeroot debian/rules clean
+dh_testdir
+dh_clean
+ dpkg-source -b equivs.PkGbQl
+dpkg-source: info: using source format '3.0 (quilt)'
+dpkg-source: info: building pdfsam-fix-freetype using existing ./pdfsam-fix-freetype_1.0.orig.tar.gz
+dpkg-source: error: cannot represent change to install/0/libfreetype.so:
+dpkg-source: error:   new version is symlink to /usr/lib/i386-linux-gnu/libfreetype.so.6
+dpkg-source: error:   old version is nonexistent
+dpkg-source: error: unrepresentable changes to source
+dpkg-buildpackage: error: dpkg-source -b equivs.PkGbQl subprocess returned exit status 2
+Error in the build process: exit status 2
+</code></pre>
+<p>Debido a los errores anteriores se descarta la idea de generar un paquete
+<em>source</em> para luego editar.</p>
+<h2>Solución final</h2>
+<p>Inspeccionando el código fuente de <code>equivs-build</code>, se encuentra que <a href="https://salsa.debian.org/perl-team/modules/packages/equivs/blob/debian/2.1.0/usr/bin/equivs-build#L42">los
+templates a utilizar están hardcodeados en el
+código</a>:</p>
+<pre><code>system(&quot;cp -R /usr/share/equivs/template/* \&quot;$builddir\&quot;&quot;) == 0 or
+  die &quot;Error on copy of the template files: exit status &quot; . ($?&gt;&gt;8) . &quot;\n&quot;;
+</code></pre>
+<p>Para solucionar el problema se modificará el código de <code>equivs-build</code> para que
+acepte por parámetros un directorio de templates. Se copiará el template
+distribuido con <code>equivs</code>, modificandose el archivo <code>debian/rules</code> agregando el
+parámetro <code>-- -Zgzip</code> a la linea con <code>dh_builddeb</code> que es la que llama a
+<code>dpkg-deb</code> para construir el paquete:</p>
+<pre><code>$ mkdir ~/pdfsam-fix-freetype
+$ cat &gt; ~/pdfsam-fix-freetype/pdfsam-fix-freetype &lt;&lt;'END'
+Section: text
+Priority: extra
+Homepage: https://pdfsam.org/
+Standards-Version: 3.9.2
+
+Package: pdfsam-fix-freetype
+Version: 1.0
+Maintainer: Juan Picca &lt;jumapico@gmail.com&gt;
+Depends: pdfsam (&gt;= 2.0), libfreetype6
+Conflicts: libfreetype6-dev
+Architecture: i386
+Description: Fix for pdfsam (&gt;= 2.0)
+ Fix errors in thumbnail generation due usage of `libfreetype.so`.
+Links: /usr/lib/i386-linux-gnu/libfreetype.so.6 /usr/lib/i386-linux-gnu/libfreetype.so
+END
+$ cp -a /usr/share/equivs/template ~/pdfsam-fix-freetype/
+$ sed -i 's/dh_builddeb/dh_builddeb -- -Zgzip/' ~/pdfsam-fix-freetype/template/debian/rules
+$ cd ~/pdfsam-fix-freetype
+$ equivs-build --templates ~/pdfsam-fix-freetype/template --arch i386 pdfsam-fix-freetype
+</code></pre>
+<p>La modificación a <code>equivs-build</code> es la siguiente:</p>
+<pre><code class="language-diff">diff --git a/usr/bin/equivs-build b/usr/bin/equivs-build
+index a95688a..6a5ac86 100755
+--- a/usr/bin/equivs-build
++++ b/usr/bin/equivs-build
+@@ -22,20 +22,23 @@ my %control;
+
+ sub usage {
+   print STDERR &lt;&lt;EOU;
+-Usage: equivs-build [--full|-f] [--source|-s] [--arch=foo|-a=foo] controlfile
++Usage: equivs-build [--full|-f] [--source|-s] [--arch=foo|-a=foo] [--templates=bar|-t=bar] controlfile
+ controlfile is the name of an equivs controlfile.
+ You can use &quot;equivs-control filename&quot; to create one.
+
+---full   Full build including signing, etc., suitable for upload to Debian
+---source Source build including signing, etc., suitable for upload to a PPA
+---arch   Build package for a different architecture.
+-         Used e.g. for building Hurd packages under Linux.
++--full      Full build including signing, etc., suitable for upload to Debian
++--source    Source build including signing, etc., suitable for upload to a PPA
++--arch      Build package for a different architecture.
++            Used e.g. for building Hurd packages under Linux.
++--templates Build package using alternative templates in the given directory.
++            Use with caution, this can break equivs-build.
+ EOU
+   exit 1;
+ }
+
+-my ($full_package, $source_only, $arch);
+-GetOptions('full|f' =&gt; \$full_package, 'source|s' =&gt; \$source_only, 'arch|a=s' =&gt; \$arch) or usage();
++my ($full_package, $source_only, $arch, $templatedir);
++$templatedir = &quot;/usr/share/equivs/template&quot;;
++GetOptions('full|f' =&gt; \$full_package, 'source|s' =&gt; \$source_only, 'arch|a=s' =&gt; \$arch, 'templates|t=s' =&gt; \$templatedir) or usage();
+
+ my $debug = 0;
+
+@@ -47,7 +50,7 @@ if (! $controlfile) {
+   usage();
+ }
+
+-system(&quot;cp -R /usr/share/equivs/template/* \&quot;$builddir\&quot;&quot;) == 0 or
++system(&quot;cp -R \&quot;$templatedir\&quot;/* \&quot;$builddir\&quot;&quot;) == 0 or
+   die &quot;Error on copy of the template files: exit status &quot; . ($?&gt;&gt;8) . &quot;\n&quot;;
+
+ # Parse the equivs control file
+</code></pre>
+<p>El parche completo del pull request realizado al proyecto se puede encontrar
+<a href="./0001-Allow-equivs-build-to-use-alternative-templates.patch">aquí</a>.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

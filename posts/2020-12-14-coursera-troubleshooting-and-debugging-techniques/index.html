@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Coursera - Troubleshooting and Debugging Techniques | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Coursera - Troubleshooting and Debugging Techniques</h1>
+        <h2 class="date">2020-12-14</h2>
+      </div>
+<p>Recién termino el curso <a href="https://www.coursera.org/learn/troubleshooting-debugging-techniques/">Troubleshooting and Debugging Techniques</a> en <a href="https://www.coursera.org/">Coursera</a>.
+<strong>Muy bueno</strong>.</p>
+<h2>Troubleshooting</h2>
+<p>Si bien parte de mi trabajo está relacionado a la temática (ya que suelo
+realizar <a href="https://en.wikipedia.org/wiki/Technical_support#Tier_3">soporte de linux nivel 3</a>) el curso
+formaliza bastante la tarea de <em>Troubleshooting</em> en su ciclo de:</p>
+<ol>
+<li>Obtención de información: ¿cual es el estado actual?, ¿cuando pasa?, ¿cuales
+son las consecuencias?
+<ul>
+<li>Pasar del <em>no funciona</em> a una descripción más exacta preguntando a los
+involucrados.</li>
+<li>Obtención del caso mínimo reproducible.</li>
+</ul>
+</li>
+<li>Hipotesis respecto a la causa del problema
+<ul>
+<li>Considerar siempre las explicaciones más simples primero y luego seguir un
+proceso de eliminación hasta dar con el problema.</li>
+</ul>
+</li>
+<li>Aplicación de correcciones
+<ul>
+<li>A corto plazo (workaround)</li>
+<li>A largo plazo (corrección definitiva)</li>
+<li>Documentación del problema y solución para referencia futura.</li>
+</ul>
+</li>
+</ol>
+<p>Algunos de los trucos que aprendí:</p>
+<ul>
+<li><a href="https://manpages.debian.org/testing/ltrace/ltrace.1.en.html">ltrace</a>, para interceptar y grabar llamadas a librerías dinámicas.</li>
+<li><a href="https://manpages.debian.org/testing/trickle/trickle.1.en.html">trickle</a>, para limitar el ancho de banda de una aplicación.</li>
+<li><a href="https://manpages.debian.org/testing/apache2-utils/ab.1.en.html">ab</a>, para obtener estadisticas de un servidor HTTP.</li>
+<li><a href="https://manpages.debian.org/testing/daemonize/daemonize.1.en.html">daemonize</a>, para ejecutar un programa como demonio.</li>
+<li><code>kill -STOP</code> y <code>kill -CONT</code>, para detener y continuar procesos que estén
+utilizando mucho CPU.  Sin duda un recordatorio para releer la página del
+manual de <a href="https://manpages.debian.org/testing/manpages/signal.7.en.html">signal(7)</a>.</li>
+<li>Encadenamiento de <a href="https://manpages.debian.org/testing/coreutils/head.1.en.html">head</a> y <a href="https://manpages.debian.org/testing/coreutils/tail.1.en.html">tail</a> para realizar partición binaria en archivos
+al buscar datos inválidos.  Ejemplo:
+<pre><code>$ wc -l data.csv
+100 data.csv
+$ head -50 data.csv | tail -25 | ./script
+</code></pre>
+</li>
+<li>Busqueda de archivos en uso a los que se les realizó <a href="https://manpages.debian.org/buster/manpages-dev/unlink.2.en.html">unlink</a> (borrados
+inmediatamente despues de ser creados para que al cerrarse el programa se
+libere el espacio) mediante <a href="https://manpages.debian.org/buster/lsof/lsof.8.en.html">lsof</a>: <code>sudo lsof | grep deleted</code></li>
+</ul>
+<p>Sobre los distintos programas existentes para observar el funcionamiento y la
+performance en linux, conviene ver la página <a href="http://www.brendangregg.com/linuxperf.html">Linux Performance</a> de Brendan
+Gregg.</p>
+<h2>Debugging</h2>
+<p>Respecto al debugging, en mi caso fué más un repaso:</p>
+<ul>
+<li><a href="https://manpages.debian.org/testing/strace/strace.1.en.html">strace</a>, para rastrear las llamadas al sistema</li>
+<li>Obtención de <a href="https://en.wikipedia.org/wiki/Core_dump">core dump</a> en caso de crash (usando <code>ulimit -c unlimited</code>)</li>
+<li><a href="https://www.gnu.org/software/gdb/">gdb</a>, para depurar programas</li>
+<li><a href="https://valgrind.org/">valgrind</a>, para realizar análisis de memoria (entre otros)</li>
+<li>Uso de <a href="https://en.wikipedia.org/wiki/Profiling_(computer_programming)">profilers</a> según lenguaje</li>
+</ul>
+<p>Lo mismo con respecto a las causas de lentitud en programas:</p>
+<ul>
+<li>La mejor forma de no utilizar recursos es no hacer nada</li>
+<li>Intentar procesar una sola vez la información</li>
+<li>Mantener en memoria solo la información necesaria</li>
+<li>Utilizar estructuras de memoria adecuadas y caches cuando sea conveniente</li>
+<li>Liberar memoria y disco (caches/logs)</li>
+<li>Agregar información de depuración a los programas (logs que puedan habilitarse
+mediante flags que den más información respecto a lo que está haciendo el
+programa)</li>
+<li>Evaluar la utilización de <a href="https://en.wikipedia.org/wiki/Thread_(computing)">threads</a></li>
+</ul>
+<h2>Manejo de tiempos</h2>
+<p>Nuevamente, ya se descubrió la pólvora, pero entre los tips a recordar:</p>
+<ul>
+<li>Matriz de decisión de Eisenhower o <a href="https://en.wikipedia.org/wiki/Time_management#The_Eisenhower_Method">método de Eisenhower</a> - matriz (urgente|no
+urgente) x (importante|no importante) donde:
+<ol>
+<li>Importante y urgente: hacer inmediatamente</li>
+<li>Importante y no urgente: tareas a largo plazo</li>
+<li>No importante y urgente: interrupciones - evitarlas, fijando horas en las
+que pueden interrumpirnos</li>
+<li>No importante y no urgente: distracciones - consumen nuestro tiempo y no
+nos dan nada a cambio; evitarlas</li>
+</ol>
+</li>
+<li>Tener listadas <em>en un mismo lugar</em> todas las tareas a realizar y determinar
+urgencia e importancia de cada tarea</li>
+<li>No perder mucho tiempo en priorizar las tareas, ya que pasa a ser una
+distracción</li>
+<li>Estimar cuanto tiempo llevará una tarea.  Para ello utilizar como estimación
+inicial el tiempo que nos llevó una tarea previa.  Si la tarea es muy compleja
+descomponerla en partes que podamos estimar y agregar un tiempo de
+<em>integración</em>.  Por último ponderar por un factor (se menciona 3) para cubrir
+los problemas que puedan surgir.</li>
+<li>Comunicar expectativas en cuanto a la realización de las tareas</li>
+<li><em>Automatizar procesos en la medida de lo posible</em>.</li>
+</ul>
+<h2>Conclusión</h2>
+<p>Valió la pena, por lo menos como repaso de lo que ya conocía y para aprender
+algunos tips.  Se lleva bastante bien el curso, ¡y hasta dan diploma!</p>
+<p><a href="https://coursera.org/verify/RZADV5YB78HR"><img src="./Coursera-RZADV5YB78HR.jpg" alt="certificado" /></a></p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

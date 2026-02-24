@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Forth en Open Firmware mediante qemu | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Forth en Open Firmware mediante qemu</h1>
+        <h2 class="date">2018-12-31</h2>
+      </div>
+<p>Instalar en <em>debian</em> el paquete <code>qemu-system-ppc</code>:</p>
+<pre><code>$ sudo apt-get install -V qemu-system-ppc
+</code></pre>
+<p>Para utilizar <em><a href="https://en.wikipedia.org/wiki/Forth_(programming_language)">Forth</a></em> (en <em><a href="https://en.wikipedia.org/wiki/Open_Firmware">Open Firmware</a></em>) ejecutar:</p>
+<pre><code>$ qemu-system-ppc64 \
+    --net none \
+    -nographic \
+    -vga none \
+    -chardev stdio,mux=on,id=char0 \
+    -mon chardev=char0,mode=readline \
+    -serial chardev:char0
+</code></pre>
+<p>El comando anterior ejecuta <a href="https://www.qemu.org/">QEMU</a> en la terminal, redirigiendo la
+entrada/salida a la consola, multiplexandola entre el <em>monitor de qemu</em> y el
+<em>puerto virtual serial</em>.</p>
+<p>Para alternar entre el <em>monitor de qemu</em> y el <em>puerto virtual serial</em> utilizar
+<strong>Ctrl-a c</strong>. Para mostrar la ayuda utilizar <strong>Ctrl-a h</strong>.</p>
+<h2>Nota</h2>
+<p>La idea de utilizar el interprete de <a href="https://en.wikipedia.org/wiki/Forth_(programming_language)">Forth</a> en <a href="https://en.wikipedia.org/wiki/Open_Firmware">Open
+Firmware</a> mediante <a href="https://www.qemu.org/">QEMU</a> surgió a partir de
+la imagen del día 04, <a href="https://www.qemu-advent-calendar.org/2018/download/day04.tar.xz">Day 4 - Fun with Forth</a>, del <a href="https://www.qemu-advent-calendar.org/2018/">QEMU Advent
+Calendar 2018</a>.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

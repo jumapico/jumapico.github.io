@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Instalar Trine 2 en debian | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Instalar Trine 2 en debian</h1>
+        <h2 class="date">2021-01-17</h2>
+      </div>
+<p>Se busca instalar el juego <a href="https://en.wikipedia.org/wiki/Trine_2">Trine 2</a>
+comprado en <a href="https://www.gog.com/game/trine_2_complete_story">GOG</a>.</p>
+<p>Se instala <code>gog_trine_2_complete_story_2.0.0.5.sh</code> ejecutando como root en
+<code>/opt</code>.</p>
+<p>Al ejecutar el programa llegamos al siguiente error:</p>
+<pre><code>$ export LD_LIBRARY_PATH=&quot;/opt/GOG Games/Trine 2 Complete Story/game/lib/lib32&quot;
+$ &quot;/opt/GOG Games/Trine 2 Complete Story/game/bin/trine2_linux_launcher_32bit&quot;
+-bash: /opt/GOG Games/Trine 2 Complete Story/game/bin/trine2_linux_launcher_32bit: No such file or directory
+</code></pre>
+<p>Revisando el archivo:</p>
+<pre><code>$ file &quot;/opt/GOG Games/Trine 2 Complete Story/game/bin/trine2_linux_launcher_32bit&quot;
+/opt/GOG Games/Trine 2 Complete Story/game/bin/trine2_linux_launcher_32bit: ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux.so.2, for GNU/Linux 3.2.32, BuildID[sha1]=35c6e71eb1d64dc34c2177bd7c0fc89b7fd0c065, not stripped
+$ ldd &quot;/opt/GOG Games/Trine 2 Complete Story/game/bin/trine2_linux_launcher_32bit&quot;
+	not a dynamic executable
+</code></pre>
+<p>encontramos que es un ejecutable de 32 bits y para ejecutarlo en debian debemos
+agregar la arquitectura de 32 bits utilizando <a href="https://wiki.debian.org/Multiarch">Multiarch</a>.
+Para esto se siguen los pasos descriptos en la <a href="https://wiki.debian.org/Multiarch/HOWTO">wiki de debian</a>:</p>
+<pre><code>$ sudo dpkg --add-architecture i386
+$ sudo apt-get update
+$ sudo apt-get install -V libc6:i386
+</code></pre>
+<p>Ahora ya podemos ver que librerías están faltando:</p>
+<pre><code>$ export LD_LIBRARY_PATH=&quot;/opt/GOG Games/Trine 2 Complete Story/game/lib/lib32&quot;
+$ { ldd &quot;/opt/GOG Games/Trine 2 Complete Story/game/bin/trine2_linux_launcher_32bit&quot;; \
+    ldd &quot;/opt/GOG Games/Trine 2 Complete Story/game/bin/trine2_linux_32bit&quot;; \
+  } | sed -n 's/\s*\([^ ]*\) =&gt; not found/\1/p' | LC_ALL=C sort -u | tee /tmp/libs
+libGL.so.1
+libGLU.so.1
+libX11.so.6
+libasound.so.2
+libatk-1.0.so.0
+libdbus-1.so.3
+libexpat.so.1
+libfontconfig.so.1
+libfreetype.so.6
+libgdk-x11-2.0.so.0
+libgdk_pixbuf-2.0.so.0
+libgio-2.0.so.0
+libglib-2.0.so.0
+libgobject-2.0.so.0
+libgthread-2.0.so.0
+libgtk-x11-2.0.so.0
+libopenal.so.1
+libpango-1.0.so.0
+libpangoft2-1.0.so.0
+libpng12.so.0
+libstdc++.so.6
+libuuid.so.1
+libvorbisfile.so.3
+libz.so.1
+</code></pre>
+<p>Para buscar los paquetes que contienen los archivos anteriores se utiliza el
+comando <code>apt-file</code> (del paquete <code>apt-file</code>):</p>
+<pre><code>$ sudo apt-file update
+$ for i in $(cat /tmp/libs); do apt-file search -a i386 -x $i'$'; done | tee /tmp/packages
+</code></pre>
+<p>Y aquí hay que hacer una elección manual, ya que revisando los primeros
+resultados se encuentra que varios paquetes instalan una misma librería:</p>
+<pre><code>$ head /tmp/packages
+libgl1: /usr/lib/i386-linux-gnu/libGL.so.1
+libgl1-nvidia-legacy-340xx-glx: /usr/lib/i386-linux-gnu/nvidia/legacy-340xx/libGL.so.1
+libgl1-nvidia-legacy-390xx-glx: /usr/lib/i386-linux-gnu/nvidia/legacy-390xx/libGL.so.1
+libgl1-nvidia-tesla-418-glx: /usr/lib/i386-linux-gnu/nvidia/tesla-418/libGL.so.1
+primus-libs: /usr/lib/i386-linux-gnu/primus/libGL.so.1
+libglu1-mesa: /usr/lib/i386-linux-gnu/libGLU.so.1
+libx11-6: /usr/lib/i386-linux-gnu/libX11.so.6
+nxagent: /usr/lib/i386-linux-gnu/nx/X11/libX11.so.6
+libasound2: /usr/lib/i386-linux-gnu/libasound.so.2
+libatk1.0-0: /usr/lib/i386-linux-gnu/libatk-1.0.so.0
+</code></pre>
+<p>En el caso anterior, la librería <code>libGL.so.1</code> y <code>libX11.so.6</code> es instalada por
+varios paquetes.</p>
+<p>Lo que se hará a continuación es editar manualmente el archivo anterior,
+eliminando la linea con los paquetes que no se desea instalar.  En el ejemplo
+anterior, se desea instalar <code>libGL.so.1</code> del paquete <code>libgl1</code>, por lo que se
+borran las lineas correspondientes a los paquetes
+<code>libgl1-nvidia-legacy-340xx-glx</code>, <code>libgl1-nvidia-legacy-390xx-glx</code>,
+<code>libgl1-nvidia-tesla-418-glx</code> y <code>primus-libs</code>.  Esto se hace hasta dejar un
+solo paquete por librería.</p>
+<p>Luego de editar el archivo nos queda:</p>
+<pre><code>$ cat /tmp/packages
+libgl1: /usr/lib/i386-linux-gnu/libGL.so.1
+libglu1-mesa: /usr/lib/i386-linux-gnu/libGLU.so.1
+libx11-6: /usr/lib/i386-linux-gnu/libX11.so.6
+libasound2: /usr/lib/i386-linux-gnu/libasound.so.2
+libatk1.0-0: /usr/lib/i386-linux-gnu/libatk-1.0.so.0
+libdbus-1-3: /lib/i386-linux-gnu/libdbus-1.so.3
+libexpat1: /lib/i386-linux-gnu/libexpat.so.1
+libfontconfig1: /usr/lib/i386-linux-gnu/libfontconfig.so.1
+libfreetype6: /usr/lib/i386-linux-gnu/libfreetype.so.6
+libgtk2.0-0: /usr/lib/i386-linux-gnu/libgdk-x11-2.0.so.0
+libgdk-pixbuf-2.0-0: /usr/lib/i386-linux-gnu/libgdk_pixbuf-2.0.so.0
+libglib2.0-0: /usr/lib/i386-linux-gnu/libgio-2.0.so.0
+libglib2.0-0: /usr/lib/i386-linux-gnu/libglib-2.0.so.0
+libglib2.0-0: /usr/lib/i386-linux-gnu/libgobject-2.0.so.0
+libglib2.0-0: /usr/lib/i386-linux-gnu/libgthread-2.0.so.0
+libgtk2.0-0: /usr/lib/i386-linux-gnu/libgtk-x11-2.0.so.0
+libopenal1: /usr/lib/i386-linux-gnu/libopenal.so.1
+libpango-1.0-0: /usr/lib/i386-linux-gnu/libpango-1.0.so.0
+libpangoft2-1.0-0: /usr/lib/i386-linux-gnu/libpangoft2-1.0.so.0
+libuuid1: /usr/lib/i386-linux-gnu/libuuid.so.1
+libvorbisfile3: /usr/lib/i386-linux-gnu/libvorbisfile.so.3
+zlib1g: /lib/i386-linux-gnu/libz.so.1
+</code></pre>
+<p>Ahora pasamos a instalar los paquetes para la arquitectura i386:</p>
+<pre><code>$ sudo apt-get install -V $(sed 's/^\([^:]*\):.*$/\1:i386/' /tmp/packages | LC_ALL=C sort -u)
+</code></pre>
+<p>A pesar de lo anterior, ejecutando el programa obtenemos el siguiente mensaje:</p>
+<pre><code>$ &quot;/opt/GOG Games/Trine 2 Complete Story/game/bin/trine2_linux_launcher_32bit&quot;
+/opt/GOG Games/Trine 2 Complete Story/game/bin/trine2_linux_launcher_32bit: error while loading shared libraries: libpng12.so.0: cannot open shared object file: No such file or directory
+</code></pre>
+<p>Esto es, hubo archivo que <code>apt-file</code> no encontró, pero tampoco nos avisó de
+ello.  Volviendo a ver las librerías faltantes:</p>
+<pre><code>$ { ldd &quot;/opt/GOG Games/Trine 2 Complete Story/game/bin/trine2_linux_launcher_32bit&quot;; \
+    ldd &quot;/opt/GOG Games/Trine 2 Complete Story/game/bin/trine2_linux_32bit&quot;; \
+  } | sed -n 's/\s*\([^ ]*\) =&gt; not found/\1/p' | LC_ALL=C sort -u | tee /tmp/libs
+libpng12.so.0
+</code></pre>
+<p>En el caso de <code>libpng12</code>, la versión utilizada por debian actualmente es
+<code>libpng16</code>.  Buscando por nombre de paquetes en la web de debian,
+<a href="https://packages.debian.org/search?keywords=libpng12">https://packages.debian.org/search?keywords=libpng12</a>, encontramos que el
+paquete corresponde a <code>libpng12-0</code> de debian jessie.</p>
+<p>Siguiendo links, se descarga el paquete de la web:</p>
+<ul>
+<li><a href="https://packages.debian.org/jessie/libpng12-0">https://packages.debian.org/jessie/libpng12-0</a></li>
+<li><a href="https://packages.debian.org/jessie/i386/libpng12-0/download">https://packages.debian.org/jessie/i386/libpng12-0/download</a></li>
+<li><a href="http://ftp.us.debian.org/debian/pool/main/libp/libpng/libpng12-0_1.2.50-2+deb8u3_i386.deb">http://ftp.us.debian.org/debian/pool/main/libp/libpng/libpng12-0_1.2.50-2+deb8u3_i386.deb</a></li>
+</ul>
+<pre><code>$ wget 'http://ftp.us.debian.org/debian/pool/main/libp/libpng/libpng12-0_1.2.50-2+deb8u3_i386.deb'
+</code></pre>
+<p>Aquí revisamos:</p>
+<ol>
+<li>Si el paquete contiene efectivamente el archivo <code>libpng12.so.0</code></li>
+<li>Las dependencias del paquete, para asegurarnos de que la librería pueda ser
+utilizada sin problemas o si es necesario descargar más paquetes:</li>
+</ol>
+<pre><code>$ dpkg -c libpng12-0_1.2.50-2+deb8u3_i386.deb | grep libpng12.so
+-rw-r--r-- root/root    177984 2017-01-07 00:23 ./lib/i386-linux-gnu/libpng12.so.0.50.0
+lrwxrwxrwx root/root         0 2017-01-07 00:23 ./lib/i386-linux-gnu/libpng12.so.0 -&gt; libpng12.so.0.50.0
+lrwxrwxrwx root/root         0 2017-01-07 00:23 ./usr/lib/i386-linux-gnu/libpng12.so.0 -&gt; /lib/i386-linux-gnu/libpng12.so.0
+$ dpkg -I libpng12-0_1.2.50-2+deb8u3_i386.deb | grep Depends:
+ Pre-Depends: multiarch-support
+ Depends: libc6 (&gt;= 2.11), zlib1g (&gt;= 1:1.1.4)
+</code></pre>
+<p>De lo anterior podemos obtener la librería del paquete.
+Ya que es un paquete correspondiente a una versión vieja de debian, no se
+instalará en el sistema con <code>dpkg</code>, sinó que se copiará la librería en el
+directorio de librerías del juego,
+<code>&quot;/opt/GOG Games/Trine 2 Complete Story/game/lib/lib32/&quot;</code>:</p>
+<pre><code>$ dpkg -x libpng12-0_1.2.50-2+deb8u3_i386.deb /tmp/libpng12-0
+$ sudo cp /tmp/libpng12-0/lib/i386-linux-gnu/libpng12.so.* &quot;/opt/GOG Games/Trine 2 Complete Story/game/lib/lib32/&quot;
+</code></pre>
+<p>Corroboramos que se encuentren todas las librerías de 32bits que utilizan los
+binarios del juego:</p>
+<pre><code>$ { ldd &quot;/opt/GOG Games/Trine 2 Complete Story/game/bin/trine2_linux_launcher_32bit&quot;; \
+    ldd &quot;/opt/GOG Games/Trine 2 Complete Story/game/bin/trine2_linux_32bit&quot;; \
+  } | grep &quot;not found&quot;
+</code></pre>
+<p>y vemos que no hay coincidencias.</p>
+<p>Volvemos a ejecutar el binario y esta vez si ya tenemos andando el juego:</p>
+<pre><code>$ export LD_LIBRARY_PATH=&quot;/opt/GOG Games/Trine 2 Complete Story/game/lib/lib32&quot;
+$ &quot;/opt/GOG Games/Trine 2 Complete Story/game/bin/trine2_linux_launcher_32bit&quot;
+</code></pre>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Reinstalando windows 10 | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Reinstalando windows 10</h1>
+        <h2 class="date">2021-08-04</h2>
+      </div>
+<h2>Contexto</h2>
+<p>Estos días tuve un familiar con un problema en la laptop.  Especificamente un
+fallo en el disco duro, por lo que debí reinstalarle windows 10.</p>
+<p>Ya que es posible que el disco siga con problemas y a futuro deba volver
+a realizar el procedimiento (ya que por ahora no piensa cambiarlo), agrego las
+indicaciones seguidas para que la próxima vez sea más sencillo de realizar.</p>
+<h3>Sobre la licencia de windows</h3>
+<p>En varios modelos de laptops, la licencia de windows viene embebida en el BIOS
+y alcanza con instalar la última versión de windows 10.  Durante la instalación
+(o una vez instalado, no investigué lo suficiente), la licencia se lee del
+BIOS.</p>
+<p>Para verificar que la laptop cuente con dicha licencia se puede utilizar una
+imagen booteable de linux y revisar el archivo <code>/sys/firmware/acpi/tables/MSDM</code>.</p>
+<p>Por más detalles ver
+<a href="https://www.cyberciti.biz/faq/linux-find-windows-10-oem-product-key-command/">https://www.cyberciti.biz/faq/linux-find-windows-10-oem-product-key-command/</a>.</p>
+<h2>Preparar el pendrive de instalación</h2>
+<ol>
+<li>
+<p>Descargar el ISO de windows 10.  Para ello ir al sitio
+<a href="https://www.microsoft.com/en-us/software-download/windows10ISO">https://www.microsoft.com/en-us/software-download/windows10ISO</a></p>
+</li>
+<li>
+<p>Utilizar el programa
+<a href="https://raw.githubusercontent.com/jsamr/bootiso/">bootiso</a> para crear un
+pendrive booteable:</p>
+<pre><code>$ curl -L -O https://raw.githubusercontent.com/jsamr/bootiso/v4.2.0/bootiso
+$ chmod +x bootiso
+$ ./bootiso -p ~/Downloads/Win10_21H1_Spanish_x64.iso  # inspeccionar si el
+                                                       # iso es booteable y
+                                                       # listar usb's
+$ ./bootiso ~/Downloads/Win10_21H1_Spanish_x64.iso  # crear el pendrive
+</code></pre>
+</li>
+</ol>
+<h2>Configuracion de windows</h2>
+<ol>
+<li>Deshabilitar las actualizaciones automáticas utilizando el programa
+<code>services.msc</code>.  Esto se realiza a pedido del usuario.  Ver
+<a href="https://www.alphr.com/microsoft/microsoft-windows-10/1003724/how-to-stop-the-windows-10-upgrade-from-downloading/">https://www.alphr.com/microsoft/microsoft-windows-10/1003724/how-to-stop-the-windows-10-upgrade-from-downloading/</a>.</li>
+</ol>
+<h2>Programas a instalar</h2>
+<ul>
+<li><a href="https://www.mozilla.org/en-US/firefox/new/">Firefox</a></li>
+<li><a href="https://www.google.com/chrome/">Google Chrome</a></li>
+<li><a href="https://www.libreoffice.org/download/download/">LibreOffice</a></li>
+<li><a href="https://www.vim.org/download.php">Vim</a></li>
+<li><a href="https://www.videolan.org/vlc/download-windows.html">VLC</a></li>
+</ul>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+
