@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Archivos reproducibles | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Archivos reproducibles</h1>
+        <h2 class="date">2019-03-01</h2>
+      </div>
+<p><em>Este tip es creado para tener un lugar fácil en el cual buscar cuando no
+se recuerdan exactamente los comandos a utilizar.</em></p>
+<hr />
+<p>Comandos utilizados frecuentemente para la creación de archivos reproducibles.
+En su mayoría obtenidos de <a href="https://reproducible-builds.org/docs/">1</a> y <a href="https://wiki.debian.org/ReproducibleBuilds/Howto">2</a>.</p>
+<h2>Creación de archivo tar (ver <a href="https://reproducible-builds.org/docs/archives/#file-ordering">3</a>)</h2>
+<ul>
+<li>Entradas ordenadas</li>
+</ul>
+<ol>
+<li>
+<p>Versión 1 - <code>tar</code> <em>no posee</em> la opción <code>--sort</code></p>
+<pre><code>$ find src -print0 | LC_ALL=C sort -z | \
+    tar --no-recursion --null -T - -cf archive.tar
+</code></pre>
+</li>
+<li>
+<p>Versión 2 - <code>tar</code> <em>posee</em> la opción <code>--sort</code></p>
+<pre><code>$ tar --sort=name -cf archive.tar src
+</code></pre>
+</li>
+</ol>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

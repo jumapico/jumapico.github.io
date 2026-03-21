@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Varios ssh | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Varios ssh</h1>
+        <h2 class="date">2018-05-02</h2>
+      </div>
+<p>Varios ssh:</p>
+<ul>
+<li>
+<p>Cambiar password del <em>keyfile</em>:</p>
+<pre><code>$ ssh-keygen -p -f keyfile
+</code></pre>
+</li>
+<li>
+<p>Regenerar el archivo <em>public key</em> a partir del <em>keyfile</em>:</p>
+<pre><code>$ ssh-keygen -y -f input_keyfile
+</code></pre>
+<p>Nota: el <em>key pair</em> mencionado en la documentación de <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html">amazon ec2</a>
+es en realidad el <em>keyfile</em> generado con <code>ssh-keygen</code> con extension
+<code>pem</code>. El <em>public key</em> se genera a partir de este, por lo que no es
+necesario tenerlo almacenado.</p>
+</li>
+</ul>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

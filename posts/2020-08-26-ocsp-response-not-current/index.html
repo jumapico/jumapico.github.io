@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ocsp response not current | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">ocsp response not current</h1>
+        <h2 class="date">2020-08-26</h2>
+      </div>
+<p><strong>TL;DR</strong>: para ajustar la hora en <em>OpenBSD</em> cuando esta se desfasa tanto que
+falla la validación de fecha (y hora) de los certificados TLS hacer:</p>
+<pre><code>$ doas rdate pool.ntp.org
+</code></pre>
+<hr />
+<p>Al tratar de instalar un paquete en <em>OpenBSD</em> obtuve la siguiente salida:</p>
+<pre><code>openbsd67$ pkg_info -Q vim
+https://cdn.openbsd.org/pub/OpenBSD/6.7/packages-stable/amd64/: TLS handshake failure: ocsp verify failed: ocsp response not current
+https://cdn.openbsd.org/pub/OpenBSD/6.7/packages/amd64/: TLS handshake failure: ocsp verify failed: ocsp response not current
+https://cdn.openbsd.org/pub/OpenBSD/6.7/packages/amd64/: empty
+</code></pre>
+<p>Probando con el comando <a href="https://man.openbsd.org/ftp">ftp</a> (en <em>OpenBSD</em> los
+comandos <code>wget</code> o <code>curl</code> no estan disponibles por defecto) para ver si es un
+problema del servidor se obtiene el mismo error, a no ser que se deshabilite la
+validación del certificado, o más especificamente la validación de fechas:</p>
+<pre><code>openbsd67$ ftp -o- 'https://cdn.openbsd.org/pub/OpenBSD/'
+Trying 151.101.218.217...
+TLS handshake failure: ocsp verify failed: ocsp response not current
+openbsd67$ ftp -Sdont -o- 'https://cdn.openbsd.org/pub/OpenBSD/' | head -1
+Trying 151.101.218.217...
+Requesting https://cdn.openbsd.org/pub/OpenBSD/
+2396 bytes received in 0.00 seconds (1.05 MB/s)
+&lt;!DOCTYPE html&gt;
+openbsd67$ ftp -Snoverifytime -o- 'https://cdn.openbsd.org/pub/OpenBSD/' | head -1
+Trying 151.101.218.217...
+Requesting https://cdn.openbsd.org/pub/OpenBSD/
+2396 bytes received in 0.00 seconds (3.25 MB/s)
+&lt;!DOCTYPE html&gt;
+</code></pre>
+<p>Revisando el log en <code>/var/log/daemon</code> se encuentran mensajes del tipo:</p>
+<pre><code>Aug 10 06:34:14 openbsd67 ntpd[61643]: reply from 190.64.134.53: constraint check failed
+</code></pre>
+<p>lo que indica problemas con la sincronización de la hora.</p>
+<p>Revisando la hora actual del sistema se encuentra:</p>
+<pre><code>openbsd67$ date
+Mon Aug 10 07:13:43 -03 2020
+</code></pre>
+<p>Buscando en internet respecto al problema se encuentra que este es debido a que
+la hora del sistema está <em>muy</em> desajustada, por lo que esta no puede ajustarse
+automáticamente.</p>
+<p>Si bien la forma que me parece más <em>segura</em> es <em>acercar</em> primero la hora de
+forma manual usando <a href="https://man.openbsd.org/date">date</a> y luego dejar que
+<a href="https://man.openbsd.org/ntpd">ntpd</a> la ajuste automáticamente, en la práctica
+encontré que al hacer esto en el log (<code>/var/log/daemon</code>) siempre queda la hora
+desfasada varios segundos (<code>constraint reply from 9.9.9.9: offset 49.217986</code>).</p>
+<p>Por otro lado, utilizando <code>rdate pool.ntp.org</code>, si bien se indica que es
+una opción insegura -ya que &lt;pool.ntp.org&gt; no utiliza certificados-, en la
+práctica se obtiene un offset del reloj de menos de un segundo inmediatamente.</p>
+<p>¿Como se llegó a esta situación?.
+El problema ocurrió en una máquina virtual de <em>OpenBSD</em> la cual se <strong>suspendió</strong>
+en lugar de apagarse, por lo que creo que por allí se dió el error.</p>
+<p>Para más detalles:</p>
+<ul>
+<li><a href="https://www.openbsd.org/faq/faq8.html#OpenNTPD">Using OpenNTPD</a></li>
+<li><a href="https://marc.info/?l=openbsd-bugs&amp;m=153364908028345&amp;w=2">ntpd -s + constraint + too old time = failure</a></li>
+<li><a href="http://anadoxin.org/blog/my-systems-time-was-so-wrong-that-even-ntpd-didnt-work.html">My system's time was so wrong, that even ntpd didn't work</a></li>
+</ul>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

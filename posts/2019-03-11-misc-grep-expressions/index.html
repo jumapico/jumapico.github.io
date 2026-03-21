@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Expresiones varias con grep | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Expresiones varias con grep</h1>
+        <h2 class="date">2019-03-11</h2>
+      </div>
+<ul>
+<li>
+<p>Utilizar varias expresiones en la misma linea mediante el parámetro <code>-e</code>.</p>
+<p><a href="https://manpages.debian.org/testing/grep/grep.1.en.html">man grep</a>:</p>
+<blockquote>
+<p>-e PATTERN, --regexp=PATTERN</p>
+<p>Use PATTERN as the pattern. If this option is used multiple times or is
+combined with the -f (--file) option, search for all patterns given.
+This option can be used to protect a pattern beginning with “-”.</p>
+</blockquote>
+<p>Ejemplo: Eliminar comentarios y lineas en blanco, generalmente para
+inspeccionar archivos de configuración:</p>
+<pre><code>grep -v -e '^#' -e '^\s*$' /etc/adduser.conf
+</code></pre>
+</li>
+<li>
+<p>Obtener texto a partir de un patrón ignorando un prefijo mediante el
+parámetro <code>-o</code> y el uso de <code>\K</code> en una expresión de tipo PCRE:</p>
+<p><a href="https://manpages.debian.org/testing/grep/grep.1.en.html">man grep</a>:</p>
+<blockquote>
+<p>-o, --only-matching</p>
+<p>Print only the matched (non-empty) parts of a matching line, with each
+such part on a separate output line.</p>
+</blockquote>
+<blockquote>
+<p>-P, --perl-regexp</p>
+<p>Interpret the pattern as a Perl-compatible regular expression (PCRE). This
+is experimental and grep -P may warn of unimplemented features.</p>
+</blockquote>
+<p><a href="https://manpages.debian.org/testing/libpcre3-dev/pcresyntax.3.en.html">man pcresyntax</a>:</p>
+<blockquote>
+<p>MATCH POINT RESET</p>
+<p>\K reset start of match</p>
+<p>\K is honoured in positive assertions, but ignored in negative ones.</p>
+</blockquote>
+<p>Ejemplo: Obtener el tipo de filesystem de <code>/</code>:</p>
+<pre><code>grep -oP '^[^#]+\s+/\s+\K\S+' /etc/fstab
+</code></pre>
+</li>
+<li>
+<p>Obtener texto a partir de un patrón ignorando prefijo y sufijo usando <code>-o</code>
+en una expresión de tipo PCRE con <code>-P</code>:</p>
+<p><a href="https://manpages.debian.org/testing/perl-doc/perlre.1.en.html">man perlre</a></p>
+<blockquote>
+<p>&quot;(?&lt;=pattern)&quot;</p>
+<p>A zero-width positive lookbehind assertion. For
+example, &quot;/(?&lt;=\t)\w+/&quot; matches a word that follows a
+tab, without including the tab in $&amp;.</p>
+</blockquote>
+<blockquote>
+<p>&quot;(?=pattern)&quot;</p>
+<p>A zero-width positive lookahead assertion. For example,
+&quot;/\w+(?=\t)/&quot; matches a word followed by a tab, without
+including the tab in $&amp;</p>
+</blockquote>
+<p>Ver: <a href="https://unix.stackexchange.com/questions/13466/can-grep-output-only-specified-groupings-that-match">https://unix.stackexchange.com/questions/13466/can-grep-output-only-specified-groupings-that-match</a></p>
+</li>
+</ul>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

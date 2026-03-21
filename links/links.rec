@@ -1,0 +1,1422 @@
+%rec: LinkNotes
+%doc: Notas sobre links visitados que me parecieron interesantes (Juan Picca)
+
+
+Date: 2022-01-24
+Title: Come full circle - back to HTML
+Url: https://www.unixsheikh.com/articles/come-full-circle-back-to-html.html
+Notes:
++ ¿Como hace con la conversión de [carácteres no permitidos](https://en.wikipedia.org/wiki/Valid_characters_in_XML)
++ (xhtml)? ¿Y si se quiere generar un pdf en lugar de una página web?
++
++ Nota: ¡el mismo enfoque que el sitio web de OpenBSD!
+
+
+Date: 2022-01-24
+Title: The problems with the GPL
+Url: https://unixsheikh.com/articles/the-problems-with-the-gpl.html
+Notes:
++ Punto de vista sobre licencias
+
+
+Date: 2022-01-25
+Title: The real motivation behind systemd
+Url: https://unixsheikh.com/articles/the-real-motivation-behind-systemd.html
+Notes:
++ Otro punto de vista...
+
+
+Date: 2022-01-25
+Title: No more object oriented programming with PHP
+Url: https://unixsheikh.com/articles/no-more-object-oriented-programming-with-php.html
+Notes:
++ > Let me tell you something. If you depend on an IDE to make heads or tails
++ > out of your code, then you know you're dealing with mess.
+
+
+Date: 2022-01-27
+Title: Procedural programming in a nutshell
+Url: https://unixsheikh.com/articles/procedural-programming-in-a-nutshell.html
+Notes:
++ > We have rules and regulations in society, but guidelines are named
++ > "guidelines" or "best practice" for a reason. It means that these things
++ > aren't carved out in stone, and they are definitely **not meant to be
++ > followed blindly**. Secondly, and this is perhaps the most important,
++ > **best practice has context**.
+
+
+Date: 2022-01-27
+Title: No your API isn't REST, but don't worry, it really shouldn't be!
+Url: https://unixsheikh.com/articles/no-your-api-isnt-rest.html
+Notes:
++ > If your application needs documentation, also referred to by some as a
++ > "profile", in order for the client to use your resources beyond the
++ > initial root URI, then that is NOT REST!
++
++ > REST applications are for people, not machines!
++
++ Se indica que en realidad se realizan API's web en lugar de aplicaciones
++ REST, lo cual tiene diferencias y hay que tenerlas en cuenta.
+
+
+Date: 2022-01-27
+Title: Keeping your home in Git, the right way?
+Url: https://unixsheikh.com/tutorials/keeping-your-home-in-git.html
+Notes:
++ La forma más sencilla que he visto de versionar `$HOME`.
+
+
+Date: 2022-01-27
+Title: Procedural Programming vs Object Oriented Programming
+Url: https://unixsheikh.com/articles/procedural-programming-vs-object-oriented-programming.html
+Notes:
++ > a discussion about one paradigm vs another doesn't make sense until you
++ > first define the problem you are trying to solve
+
+
+Date: 2022-01-27
+Title: 0x10 rules
+Url: https://fabiensanglard.net/ilike/index.html
+Notes:
++ Creación del blog: archivos `article.php` en subdirectorios que son ejecutados
++ para renderizar el contenido del artículo junto a un header/footer común.  La
++ mayoría de los artículos están escritos en html.
+
+
+Date: 2022-01-30
+Title: Setting the Record Straight: containers vs. Zones vs. Jails vs. VMs
+Url: https://blog.jessfraz.com/post/containers-zones-jails-vms/
+Notes:
++ > A “container” is just a term people use to describe a combination of Linux
++ > namespaces and cgroups
+
+
+Date: 2022-01-30
+Title: Programming languages and programming paradigms
+Url: https://unixsheikh.com/articles/programming-languages-and-programming-paradigms.html
+Notes:
++ > The higher level of abstraction we're using the more detail is lost.
++
++ > A programming paradigm is in reality nothing more than a "style of
++ > programming", ie. a way to organize the code.
++
++ > we must strive to find the perfect balance rather than being extremist in
++ > the implementation of one single "way of doing things".
+
+
+Date: 2022-01-31
+Title: A simple Git workflow - using main as the development branch
+Url: https://unixsheikh.com/tutorials/a-simple-git-workflow-using-main-as-the-development-branch.html
+Notes:
++ >  you must implement "a daily merge routine"
++
++ > If the software is being used in production, it should already be version
++ > 1.0.0.
++
++ Realiza versionado semántico, crea un branch por *major release* y un tag por
++ cada *minor* y *patch* release.
+
+
+Date: 2022-02-01
+Title: Request bodies in GET requests
+Url: https://evertpot.com/get-request-bodies/
+Notes:
++ Si bien nada impide que el GET pueda tener un body (enviar información) hay
++ componentes "en el medio" (entre el cliente y el sitio) que pueden descartar
++ el body, por lo que *no se recomienda su uso*.  Para ello utilizar el nuevo
++ método `QUERY` (aún está en *draft*, 2022-01).
+
+
+Date: 2022-02-01
+Title: Pointers in C
+Url: https://unixsheikh.com/tutorials/pointers-in-c.html
+Notes:
++ Introducción básica a punteros, pero no viene mal refrescar cada tanto.
++
++ > If time passes and you don't program in C often, one tends to forget how it
++ > works
+
+
+Date: 2022-02-04
+Title: Lessons learned on machine code generation
+Url: https://ekaitz.elenq.tech/machine-code-generation.html
+Notes:
++ Codificar instrucciones de risc-v como números en un programa y ejecutarlas.
++ Protecciones de memoria.
++ Ejemplos de como manejar inmediatos de más de 12 bits (no se pueden codificar
++ en una única instrucción).
++ Relocations: fake offset/address for to patch later.
++ Siempre suponer que es necesario realizar un salto que no puede codificarse
++ con 12 bits.
++ Etapa de relajación.
++
++ Para compilar y ejecutar el demo:
++
++ ```
++ $ riscv64-linux-gnu-gcc -static -o test test.c
++ $ qemu-riscv64-static test
++ ```
+
+
+Date: 2022-02-14
+Title: The terminal, the console and the shell - what are they?
+Url: https://unixsheikh.com/articles/the-terminal-the-console-and-the-shell-what-are-they.html
+Notes:
++ Bastante historia; sugerencias: *POSIX sh* al escribir scripts (usar
++ `shellcheck`), `bash` como shell (`ksh` en openbsd), `tmux`, cualquier
++ emulador de terminal.
+
+
+Date: 2022-02-15
+Title: RISC-V ELF psABI Document
+Url: https://github.com/riscv-non-isa/riscv-elf-psabi-doc/releases
+Notes:
++ Tamaños de datos en C/C++, convenciones de llamadas, ejemplo de uso para
++ formar direcciones en los distintos *Code models*.  Se pone realmente espeso
++ en la sección *Relocations* del capítulo *ELF Object Files*.
+
+
+Date: 2022-02-15
+Title: Introduction to Assembly: RISC-V Instruction Set Architecture
+Url: https://inst.eecs.berkeley.edu/%7Ecs61c/sp21/pdfs/docs/lectures/lec06_assembly.key.pdf
+Notes:
++ Tips de ensamblador risc-v en 58 diapositivas.
++ Nota: según [riscv-asm-manual](https://github.com/riscv-non-isa/riscv-asm-manual/blob/master/riscv-asm.md#a-listing-of-standard-risc-v-pseudoinstructions)
++ `nop` corresponde a `addi x0, x0, 0` en lugar de `add x0 x0 x0`.
+
+
+Date: 2022-02-15
+Title: An Introduction to Assembly Programming with RISC-V
+Url: https://riscv-programming.org/book/riscv-book.html
+Notes:
++ Backup en <https://git.sr.ht/~jumapico/archive-riscv-programming>.
+
+
+Date: 2022-02-16
+Title: systemd isn't safe to run anywhere
+Url: https://unixsheikh.com/articles/systemd-isnt-safe-to-run-anywhere.html
+Notes:
++ Quejas sobre `systemd`.  Las de siempre y conocidas, pero es cierto que cada
++ tanto cansa tener que aprender a utilizar una utilidad introducida por systemd
++ que reemplaza a una utilidad del sistema con años de funcionamiento probado.
++ También es cierto que es una fábrica de bugs **:)**.
+
+
+Date: 2022-02-16
+Title: Go (Golang) - Errors and panics
+Url: https://unixsheikh.com/articles/go-errors-and-panics.html
+Notes:
++ Notas para manejo de errores en golang teniendo en cuenta el uso de
++ [idiomatic go code](https://go.dev/doc/effective_go).  Hay que tener en cuenta
++ que para ello se utilizan las características
++ [multiple return values](https://go.dev/doc/effective_go#multiple-returns) y
++ [redeclaration and reassignment](https://go.dev/doc/effective_go#redeclaration).
++ También es necesario tener clara la
++ [diferencia entre `=` y `:=`](https://www.godesignpatterns.com/2014/04/assignment-vs-short-variable-declaration.html).
++
++ Sin duda es más *lindo* que como se devuelven los errores en `C`.
+
+
+Date: 2022-02-18
+Title: Why Privacy/Security (usually) Needs Anonymity
+Url: https://www.nycbug.org/event/10685/20210707-anonymity/
+Notes:
++ *Anonimato se trata de proteger metadata*
+
+
+Date: 2022-02-18
+Title: Minimalist Scripted Configuration
+Url: https://www.nycbug.org/index?action=view&id=10684
+Notes:
++ Motivation: Simple enough to be used at small scale
++
++ * rset: <http://scriptedconfiguration.org/>
++ * drist: <https://dataswamp.org/~solene/page-drist-official-website.html>
+
+
+Date: 2022-02-18
+Title: RISC-V Adventures II: hex0
+Url: https://ekaitz.elenq.tech/hex0.html
+Notes:
++ Hace años cuando leí el código de [stage0](https://github.com/oriansj/stage0)
++ se hacía referencia a utilizar la salida de `Hex0` en el **Knight processor**
++ (¿procesador inventado por Jeremiah Orians?).
++
++ En <https://bootstrapping.miraheze.org/wiki/Stage0> se da un poco más de
++ detalle de que es `stage0`.
++
++ En el post se explica como implementar `Hex0` en rv64 que será ejecutado en un
++ kernel linux (realiza llamadas al sistema: `sys_openat`, `sys_read`,
++ `sys_write`, `sys_exit`).
++
++ En resumen, proyecto interesante, el repositorio podría *estar limpio* de
++ todos los experimentos realizados previamente por el autor, de forma tal de
++ entender más fácilmente el proyecto.  También hay varios proyectos
++ relacionados ([stage0](https://github.com/oriansj/stage0),
++ [stage0-posix](https://github.com/oriansj/stage0-posix),
++ [bootstrap-seeds](https://github.com/oriansj/bootstrap-seeds),
++ [mescc-tools](https://github.com/oriansj/mescc-tools)), pero no he encontrado
++ una hoja de ruta clara.
+
+
+Date: 2022-02-18
+Title: TUI: A look to the deep
+Url: https://ekaitz.elenq.tech/clopher03.html
+Notes:
++ Control de terminal POSIX usando termios.
++ <https://en.wikipedia.org/wiki/POSIX_terminal_interface>
+
+
+Date: 2022-02-18
+Title: What do you really get from IDE-driven development?
+Url: https://briandfoy.github.io/ide-driven-development/
+Notes:
++ Coincido.  Programar en java con el IDE es facilisimo: dos letras,
++ ctrl-espacio y a ver que variable/método completa.  Mi contribución a la
++ especificación de microprofile jwt-auth fué cuando en lugar de utilizar el IDE
++ y autocompletar fuí leyendo la especificación y entendiendo que estaba
++ haciendo (escribiendo el código en vim :).
+
+
+Date: 2022-02-18
+Title: The distant legacy of terminal emulators
+Url: gemini://drewdevault.com/2021/10/05/Terminal-emulation-legacy.gmi
+Notes:
++ Historia de los orígenes del código ASCII: 1872.
+
+
+Date: 2022-02-19
+Title: Thoughts on software-defined silicon
+Url: https://lwn.net/Articles/884876/
+Notes:
++ La descripción de un futuro bastante feo...
++ Creo que ya lo había escuchado en una charla de Snowden: "a mi generación no
++ se le está permitiendo ser dueña de las cosas", o algo así.
+
+
+Date: 2022-02-25
+Title: Learn X in Y minutes
+Url: https://learnxinyminutes.com/
+Notes:
++ Sitio que resume en una página distintos lenguajes de programación /
++ herramientas / algoritmos.
+
+
+Date: 2022-02-25
+Title: linenoise
+Url: https://github.com/antirez/linenoise
+Notes:
++ Librería C para lectura de lineas (*readline replacement*).
+
+
+Date: 2022-02-25
+Title: Learn to use email with git!
+Url: https://git-send-email.io/
+Notes:
++ Configurar git para enviar parches a listas de correo.
++ Hay que revisar de utilizar un caché en memoria para que solo pida la
++ contraseña cada cierto tiempo o ver si de utilizar `git-credentials` para el
++ almacenamiento cifrado.
+
+
+Date: 2022-02-25
+Title: Use plaintext email
+Url: https://useplaintext.email/
+Notes:
++ Link a enviar para quien envía muchos emails html o realizan top posting.
+
+
+Date: 2022-02-27
+Title: The Internet Was Designed With a Narrow Waist
+Url: https://www.oilshell.org/blog/2022/02/diagrams.html
+Notes:
++ Sobre ideas y diseños para pasar O(MxN) a O(M+N) y como el uso de la capa IP y
++ el texto plano en UNIX son una forma de solucionar el problema.
++ Habilitar interoperabilidad.
++ *local convenience vs. system integrity*.
+
+
+Date: 2022-02-27
+Title: Roy Fielding's Misappropriated REST Dissertation
+Url: https://twobithistory.org/2020/06/28/rest.html
+Notes:
++ Recordando que REST es para personas y no para APIs, y como la gente utiliza
++ erroneamente el término.
+
+
+Date: 2022-02-27
+Title: Things You Didn't Know About GNU Readline
+Url: https://twobithistory.org/2019/08/22/readline.html
+Notes:
++ Que es readline, un poco de historia.  Tener en cuenta que se puede usar como
++ emacs o modo vi.
+
+
+Date: 2022-03-02
+Title: Modular Monolith
+Url: https://modular-monolith.knowledge.devmentors.io/
+Notes:
++ Explicación de la arquitectura *modular monolith*.  Un opción alternativa a
++ microservicios y que se puede percibir como una mejora a un monolito.
++ *A la fecha la documentación está incompleta*.
+
+
+Date: 2022-03-15
+Title: [Documentary] Line Goes Up - The Problem With NFTs
+Url: https://nicksphere.ch/2022/03/15/documentary-line-goes-up-the-problem-with-nfts/
+Notes:
+
+
+Date: 2022-03-16
+Title: Modern Android development: Android Jetpack, Kotlin, and more (Google I/O 2018)
+Url: https://www.youtube.com/watch?v=IrMw7MEgADk
+Notes:
++ La información sobre como desarrollar ha cambiado debido a nuevas capacidades
++ en las plataformas y librerías.
++ Mucha de la información previa existente ya no aplica.
++
++ * Nuevas herramientas en Android Studio.
++ * Uso de layouts: `LinearLayout` solo para casos simples, `FrameLayout` ok,
++   `ConstraintLayout`.
++ * Adapters ~> `RecyclerView`.
++ * Usar `Fragments` solo de la *support library* o de *jetpack*.
++ * Lifecycle: LiveData.
++ * Librerias open source: [glide](https://github.com/bumptech/glide),
++   [Picasso](https://square.github.io/picasso/),
++   [Lottie](https://airbnb.design/lottie/).
+
+
+Date: 2022-03-16
+Title: Chet Haase & Romain Guy: Modern Android Development - .droidconitaly 2020
+Url: https://www.youtube.com/watch?v=QTs_eDAXksY
+Notes:
++ * Desarrollo en android es [Kotlin-first](https://developer.android.com/kotlin/first).
++ * [Jetpack](https://developer.android.com/jetpack) (librerías).
++ * [`ConstraintLayout`](https://developer.android.com/training/constraint-layout), [`MotionLayout`](https://developer.android.com/training/constraint-layout/motionlayout)/`MotionEditor`.
++ * Activity lifecycle ~> [observers](https://developer.android.com/topic/libraries/architecture/lifecycle) (`Lifecycle`/`LifecycleObserver`).
++ * [LiveData](https://developer.android.com/topic/libraries/architecture/livedata) + [ViewModel](https://developer.android.com/topic/libraries/architecture/viewmodel) + [Room](https://developer.android.com/training/data-storage/room).
++ * Librerías a usar/tener en cuenta: [Navigation component](https://developer.android.com/guide/navigation/navigation-getting-started), [WorkManager](https://developer.android.com/topic/libraries/architecture/workmanager/basics), [CameraX](https://developer.android.com/training/camerax), [Hilt](https://developer.android.com/training/dependency-injection/hilt-android), [Paging3](https://developer.android.com/topic/libraries/architecture/paging/v3-overview), [Jetpack Compose](https://developer.android.com/jetpack/compose).
++ * [App Bundles](https://developer.android.com/guide/app-bundle).
+
+
+Date: 2022-03-16
+Title: Modern Android Development
+Url: https://developer.android.com/modern-android-development
+Url: https://developer.android.com/series/mad-skills
+Notes:
++ Para seguir los cambios/tendencias/nuevos usos en android.
+
+
+Date: 2022-03-16
+Title: How to write a Windows emulator for Linux from scratch
+Url: https://www.youtube.com/watch?v=8-N7wDCRohg
+Notes:
++ Da una idea de alto nivel sobre como usar binary translation para emular juegos
++ de windows en linux.
+
+
+Date: 2022-03-19
+Title: Contributing to Complex Projects
+Url: https://mitchellh.com/writing/contributing-to-complex-projects
+Notes:
++ Interesante técnica a tener en cuenta al explorar el código de un programa. La
++ parte de reimplementar commits suena a *mucho*...
+
+
+Date: 2022-03-20
+Title: The Downloadable Internet
+Url: https://anarc.at/blog/2016-01-12-the-downloadable-internet/
+Notes:
++ Buena descripción (hace seis años) del rumbo de la web al basarse en
++ aplicaciones que no funcionan sin javascript habilitado y no permiten
++ descargar su contenido.
+
+
+Date: 2022-03-20
+Title: This is why native apps matter
+Url: https://anarc.at/blog/2019-10-06-native-apps-matter/
+Notes:
++ Hace tiempo que estoy pasando a usar aplicaciones nativas (TUIs
++ preferentemente), pero no tenía el dato que `vlc` puede reproducir videos de
++ youtube :D
+
+
+Date: 2022-03-21
+Title: Tough times on the road to Starcraft
+Url: https://www.codeofhonor.com/blog/tough-times-on-the-road-to-starcraft
+Notes:
++ Trabajar demasiadas horas de continuo empeora la calidad del trabajo (parece
++ obvio).
++ ¿Quien pensaría que las listas dan tantos problemas en un código real?
+
+
+Date: 2022-03-21
+Title: Avoiding game crashes related to linked lists
+Url: https://www.codeofhonor.com/blog/avoiding-game-crashes-related-to-linked-lists
+Notes:
++ Porqué usar *intrusive lists* y como le ha funcionado al autor.
+
+
+Date: 2022-03-22
+Title: Hype Driven Development
+Url: https://blog.daftcode.pl/hype-driven-development-3469fc2e9b22
+Notes:
++ Buenos ejemplos.  Hay que recordar siempre que "todo tiene *tradeoffs*
++ (compromisos)" y hay que conocer el problema para ver los tradeoffs de las
++ distintas soluciones posibles.
++
++ Hay que evitar ser el *Loudest guy* :)
+
+
+Date: 2022-03-22
+Title: Why Don't You Use ...
+Url: https://www.brendangregg.com/blog/2022-03-19/why-dont-you-use.html
+Notes:
++ La sección *Private reasons* debería llamarse "falta de honestidad".  Hay que
++ recordar que eso existe y el negocio está primero.
+
+
+Date: 2022-03-27
+Title: The Gift of It's Your Problem Now
+Url: https://apenwarr.ca/log/20211229
+Notes:
++ Otra forma de ver el software libre, el autoritarismo y como entender un
++ regalo.
+
+
+Date: 2022-03-29
+Title: How security is handled by package maintainers
+Url: https://unixsheikh.com/articles/how-security-is-handled-by-package-maintainers.html
+Notes:
++ Un buen recordatorio de como trabajan los *maintainers* en las distribuciones.
+
+
+Date: 2022-04-06
+Title: Practical rc.d scripting in BSD
+Url: https://docs.freebsd.org/en/articles/rc-scripting/
+Notes:
++ Sobre el *init system* utilizado en sistemas BSD.
+
+
+Date: 2022-04-06
+Title: The BSD and Linux approaches to development put coherence in different places
+Url: https://utcc.utoronto.ca/~cks/space/blog/unix/BSDLinuxApproachesCoherence
+Notes:
++ Diferencias en la forma de consistencia entre sistemas BSD y Linux:
++
++ * BSD: consistencia interna (un único código base) pero gran diferencia entre
++   distintos BSD's
++ * Linux: inconsistencia interna (debido a que se compone del código de
++   distintos proyectos) pero gran similitud entre distribuciones.
+
+
+Date: 2022-04-06
+Title: OpenBSD has to be a BSD Unix and you couldn't duplicate it with Linux
+Url: https://utcc.utoronto.ca/~cks/space/blog/unix/OpenBSDMustBeABSD
+Notes:
++ Como afecta el que el kernel y el sistema base sean desarrollados
++ conjuntamente a la seguridad de un sistema.
+
+
+Date: 2022-04-06
+Title: Upgrading machines versus reinstalling them
+Url: https://utcc.utoronto.ca/~cks/space/blog/sysadmin/ReinstallVersusUpgrade
+Notes:
++ Punto de vista.  Al reinstalar se está obligado a revisar la documentación y
++ ver que cambios están obsoletos.
+
+
+Date: 2022-04-06
+Title: How to write software that will keep working for decades without problems
+Url: https://unixsheikh.com/articles/how-to-write-software-that-will-keep-working-for-decades.html
+Notes:
++ Evitar frameworks, crear capa de compatibilidad por funciones del OS o
++ lenguaje que puedan cambiar con los años.
+
+
+Date: 2022-04-11
+Title: The flaws of distro hopping and asking other people about their OS of choice
+Url: https://unixsheikh.com/articles/the-flaws-of-distro-hopping-and-asking-other-people-about-their-os-of-choice.html
+Notes:
++ > You have a specific problem to solve, so in what way do you think asking other people about their choice is going to help you solve your specific problem?
+
+
+Date: 2022-04-25
+Title: The mythical 10x programmer
+Url: http://antirez.com/news/112
+Notes:
++ Ideas sobre que aspectos pueden incidir sobre la productividad de una tarea.
+
+
+Date: 2022-05-03
+Title: A Philosophy of Software Design — Book Summary & Notes
+Url: https://elvischidera.com/2022-04-29-philosphy-software-design/
+Notes:
++ Intentar reducir la carga cognitiva: cuanto necesita conocer un desarrollador
++ para completar una tarea.
++
++ Distintas capas tienen distintas abstracciones.
++
++ Intentar eliminar los métodos *Pass-Through*.
++
++ Intentar considerar más de una opción para cada decisión de diseño.
++
++ > The overall idea behind comments is to capture information that was in the
++ > mind of the designer but couldn’t be represented in the code.
++
++ > Not every problem can be solved cleanly with an existing design pattern;
++ > don’t try to force a problem into a design pattern when a custom approach
++ > will be cleaner.
+
+
+Date: 2022-05-04
+Title: A Bug’s Life, Fixing a MongoDB Replication Protocol Bug with TLA+
+Url: http://tla.msr-inria.inria.fr/kuppe/2019conf/06%20-%20William%20Schultz%20-%20Strangeloop%20TLA+%20Conference%202019%20Talk.pdf
+Notes:
++ Hay que recordar que la utilidad de TLA+ es validar modelos, no
++ implementaciones y que estos requieren un modelo formal.
+
+
+Date: 2022-05-04
+Title: Fooling AI Into Believing Turtles Are Weapons
+Url: https://pretalx.linuxtage.at/glt22/talk/JTLBXV/
+Url: https://www.youtube.com/watch?v=w9v-UO0pJd8
+Notes:
+
+
+Date: 2022-05-04
+Title: How I fell in love with low-js
+Url: https://edofic.com/posts/2022-01-28-low-js/
+Notes:
++ Interesante lo de "obtener el 80% de la experiencia con el 20% del trabajo"
++ apoyandose en el backend en lugar del frontend, minimizando javascript.
++ Indica los casos en que el autor entiende que aplica, indicando tradeoffs.
++ Lo que no me convence del todo es el agregado de tags y/o atributos no
++ estandar a los tags de html.
+
+
+Date: 2022-05-07
+Title: Cargo cult software design [blog post, by me]
+Url: https://liam-on-linux.dreamwidth.org/69084.html
+Notes:
++ > You must understand first and only then copy.
++
++ Sobre escritorios linux.
+
+
+Date: 2022-05-07
+Title: Mankind is a monkey with its hand in a trap, & legacy operating systems are among the bait
+Url: https://liam-on-linux.dreamwidth.org/80045.html
+Notes:
++ Interesante punto sobre la adopción de linux vs chromebook y como linux no ha
++ aprendido nada de ello.
+
+
+Date: 2022-05-07
+Title: Introducing libeconf
+Url: https://archive.fosdem.org/2020/schedule/event/ilbsclte/
+Notes:
++ Librería para cargar configuración de programas de dos fuentes: sistema `/usr`
++ y usuario `/etc`.  La librería realiza un *merge* de los archivos en ambas
++ rutas, siendo `/etc` el que tiene prioridad.  Ideado a partir de `systemd`.
+
+
+Date: 2022-05-17
+Title: Console by candlelight, using the framebuffer console at night - Adding new visual enhancements to the framebuffer display, including a blue-filtering mode
+Url: https://www.exoticsilicon.com/research/candlelit_console
+Notes:
++ Como modificar el kernel de OpenBSD 7.1 para agregar parámetros al kernel que
++ puedan ser modificados por `sysctl`.
++
++ Insufrible el sitio, a no ser que se [cambie el tema](https://www.exoticsilicon.com/website_config)
++ a *The 1980s* o similar.
+
+
+Date: 2022-05-17
+Title: Uncurled
+Url: https://un.curl.dev/
+Notes:
++ Libro sobre mantenimiento de proyectos open source, por Daniel Stenberg (el
++ autor de curl).
+
+
+Date: 2022-05-23
+Title: Donald Knuth on work habits, problem solving, and happiness
+Url: https://shuvomoy.github.io/blogs/posts/Knuth-on-work-habits-and-problem-solving-and-happiness/
+Notes:
++ > My scheduling principle is to do the thing I hate most on my to-do list.
++
++ > I think that the limiting thing — the thing that determines a person's
++ > success in life — is not so much what they do best, but what they do worst.
+
+
+Date: 2022-05-27
+Title: Thoughts on Forth Programming
+Url: http://www.call-with-current-continuation.org/articles/forth.txt
+Notes:
+
+
+Date: 2022-05-27
+Title: clipboards-spec, version 0.1
+Url: https://specifications.freedesktop.org/clipboards-spec/clipboards-latest.txt
+Notes:
++ Para entender que opción usar con el comando `xclip`.
+
+
+Date: 2022-05-27
+Title: Devil's Dictionary of Programming
+Url: http://www.call-with-current-continuation.org/rants/devils-dictionary.txt
+Notes:
++ > configurable - It's your job to make it usable.
+
+
+Date: 2022-06-09
+Title: PODMAN on the Edge, Auto-Updating Containers
+Url: https://static.sched.com/hosted_files/devconfcz2022/34/Podman%20on%20the%20Edge.pdf
+Notes:
++ Uso de `podman generate systemd` y `podman auto-update` en host en lugar de
++ k8s.
+
+
+Date: 2022-06-11
+Title: Write HTML Right
+Url: http://lofi.limo/blog/write-html-right
+Notes:
++ Buena comparación entre troff (~> mdoc ~> mandoc) y html.  Conviene probar el
++ estilo de texto html *sin indentar* aunque no comparto el obviar etiquetas de
++ cierre y prefiero utilizar xhtml estricto.
++
++ Ejemplo: <https://justine.lol/sizetricks/>
+
+
+Date: 2022-06-14
+Title: Lessons from my PhD
+Url: https://austinhenley.com/blog/lessonsfrommyphd.html
+Notes:
++ Tips para escribir una tesis.
++
++ Muy bueno lo de *lead or be led*: llevar siempre a las reuniones un plan
++ convincente como propuesta.
+
+
+Date: 2022-06-17
+Title: Optimizing GoAWK with a bytecode compiler and virtual machine
+Url: https://benhoyt.com/writings/goawk-compiler-vm/
+Notes:
++ Buen recordatorio:
++
++ > RAM – which stands for Random Access Memory – is not actually random access on modern processors. Memory blocks are loaded into fast CPU caches as needed, so when you have to access a new block, it takes about 10x as long as if it’s in the cache.
+
+
+Date: 2022-06-21
+Title: Stanford Seminar The Rust Programming Language - The Best Documentary Ever
+Url: https://www.youtube.com/watch?v=O5vzLKg7y-k
+Notes:
++ * Control/Security ~> ex, aliasing + mutation = dangling pointer
++ * Ownership/Borrowing: the hearth of rust
++   * Ownership ~> forbid aliasing: always one owner/always only one valid alias
++     The compiler enforces ownership
++   * Borrowing
++     * ~> shared, but not allowed to mutate (allows aliasing, prevents mutation)
++     * ~> mutable, lending only to one party (prevent aliasing, allows mutation)
++ * Data races = aliasing + mutation + no ordering
++   * messages
++   * shared read-only access
++ * Unsafe ~> bend the rules
++   * use in libraries; the library need to give warranties inside boundaries
++   * avoid unsafe whenever possible
++   * to be practical you can't have a completely rigid set of rules
+
+
+Date: 2022-06-25
+Title: A Tutorial on Portable Makefiles
+Url: https://nullprogram.com/blog/2017/08/20/
+Notes:
++ Corto acercamiento a que es un makefile
+
+
+Date: 2022-06-27
+Title: All Software is Legacy
+Url: https://leejo.github.io/2016/02/22/all_software_is_legacy/
+Notes:
++ > Just as all software contains bugs, all software is legacy. Software development is about solving specific problems that exist now and not about solving non-specific or future problems. Every few years, once a decade perhaps, there is a paradigm shift. Given time parts of the technological bedrock will have changed enough to render previous patterns obsolete.
+
+
+Date: 2022-07-08
+Title: Semantic Linefeeds
+Url: https://rhodesmill.org/brandon/2012/one-sentence-per-line/
+Notes:
++ Ideas sobre como mejorar la escritura de documentos cuando se usan
++ formateadores de documentos:
++
++ > Instead of fussing with the lines of each paragraph so that they all end near the right margin, they can add linefeeds anywhere that there is a break between ideas.
++ >
++ > The result can be spectacular.
+
+
+Date: 2022-07-12
+Title: The Demise of the Mildly Dynamic Website
+Url: https://www.devever.net/~hl/mildlydynamic
+Notes:
++ Interesante comparación entre FAAS (AWS Lambda) y scripts CGI.
++
++ También la idea de que el esfuerzo en el uso de php y javascript *es lineal*
++ respecto al aumento del dinamismo (dynamicity) de un sitio comparado con otros
++ lenguajes o frameworks.
+
+
+Date: 2022-07-12
+Title: Subresource Integrity
+Url: https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
+Notes:
++ Utilizado para verificar que un recurso obtenido de una CDN u otro sitio web
++ sea el esperado.
+
+
+Date: 2022-07-14
+Title: Self-hosting a static site with OpenBSD, httpd, and relayd
+Url: https://citizen428.net/blog/self-hosting-static-site-openbsd-httpd-relayd/
+Notes:
++ Ejemplo de uso de httpd y relayd para configurar sitio web en openbsd.
+
+
+Date: 2022-07-14
+Title: Krazydad
+Url: https://krazydad.com/
+Notes:
++ Laberintos (y más) para imprimir.
+
+
+Date: 2022-07-14
+Title: What makes a build reproducible? - OSSNA 2022
+Url: https://static.sched.com/hosted_files/ossna2022/83/What%20Makes%20a%20Build%20Reproducible.pdf [archived](https://web.archive.org/web/2/https://static.sched.com/hosted_files/ossna2022/83/What%20Makes%20a%20Build%20Reproducible.pdf)
+Notes:
++ Diferencias entre repetible, reconstruible y reproducible.
+
+
+Date: 2022-07-19
+Title: An intro to Go for non-Go developers
+Url: https://benhoyt.com/writings/go-intro/
+Notes:
++ Una mirada rápida a golang.
+
+
+Date: 2022-08-12
+Title: La democracia como problema. Alexis de Tocqueville | Eduardo Nolla
+Url: https://www.youtube.com/watch?v=HAsASKWy0BA
+Notes:
++ Interesantes anecdotas sobre la esclavitud en Estados Unidos.
++
++ "La igualdad avanza" - nos movemos hacia la igualdad.
++
++ La libertad es una sensación que cambia entre paises e individuos y se
++ construye cada día.
++
++ Es más sencillo imaginar la igualdad que la libertad, por eso podemos ser
++ iguales pero no libres.
++
++ Individualismo y la tiranía de la mayoría.
+
+
+Date: 2022-08-12
+Title: La democracia como solución. Alexis de Tocqueville | Eduardo Nolla
+Url: https://www.youtube.com/watch?v=yqtRVxx3L_Q
+Notes:
++ El peligro de este tiempo es que ya no se podrá cambiar el sistema.
++
++ "La uniformidad es igual a muerte."
++
++ "Un sistema libre e igualitario tiene siempre pequeñas revoluciones."
++
++ "Las autenticas revoluciones se producen en la mente y en el corazón."
++
++ "Para que se entienda la igualdad hay que entender la desigualdad."
++
++ "Hay que introducir desigualdades."
++
++ Hay que asociarse para evitar la desigualdad entre el estado y el individuo y
++ tener la posibilidad de discutir.
++
++ Las opiniones no hacen el mundo, la razón hace el mundo.
++
++ "Se escribe para no cometer los errores.  De la escritura se aprenden donde
++ están los errores."
+
+
+Date: 2022-08-12
+Title: Carbon Language: An experimental successor to C++ - Chandler Carruth - CppNorth 2022
+Url: https://www.youtube.com/watch?v=omrY53kbVoA
+Notes:
++ El mayor obstaculo para mejorar C++ es el *backward compatibility*
++
++ Interesante que muchos de los *lenguajes modernos* están utilizando el keyword
++ `var` o similar para indicar las variables y los tipos tienen tamaños
++ explícitos (`i32`, `u64`).
++
++ Muy interesante la [documentación de carbon](https://github.com/carbon-language/carbon-lang/tree/trunk/docs)
++ que indica varios de los tradeoffs tomados en cuenta para las características
++ del lenguaje.
+
+
+Date: 2022-08-14
+Title: The very minimal PHP support
+Url: https://si3t.ch/ah/en/04-httpd/00-intro/
+Url: https://si3t.ch/ah/en/04-httpd/01-static/
+Url: https://si3t.ch/ah/en/04-httpd/03-php/
+Url: https://si3t.ch/ah/en/04-httpd/05-permissions/
+Notes:
++ Explicación sencilla de como configurar un sitio web en OpenBSD usando httpd y
++ php
+
+
+Date: 2022-08-14
+Title: Virtualization
+Url: https://si3t.ch/ah/en/07-vm/00-intro/
+Url: https://si3t.ch/ah/en/07-vm/05-alpine/
+Notes:
++ Explicación sencilla de como virtualizar alpine en OpenBSD
+
+
+Date: 2022-08-14
+Title: Write an OpenBSD port with me: The TIC-80 fantasy game console
+Url: https://briancallahan.net/blog/20210627.html
+Notes:
++ Ejemplo de creación de port para OpenBSD
+
+
+Date: 2022-08-29
+Title: Los PEORES ERRORES que cometí como SRE
+Url: https://www.youtube.com/watch?v=fscB2xZA2wQ&t=570s
+Notes:
++ Porqué Pablo Fredrikson se considera un **senior**:
++
++ * experiencia
++ * antes de hacer cualquier cambio en producción escribir un
++   [runbook](https://es.wikipedia.org/wiki/Runbook) como archivo de texto que
++   indica los cambios que se van a hacer en producción
++ * que un compañero revise el runbook y verifique que esté bien
+
+
+Date: 2022-08-30
+Title: Thinking Architecturally - Nate Schutta
+Url: https://www.youtube.com/watch?v=EfKT1dgsLFA
+Notes:
++ * La arquitectura es sobre tradeoffs
++ * Evitar seguir algo nuevo solo por ser nuevo; esperar que termine el *hype*
++ * Muchas veces lo nuevo tiene aspectos sin pulir
++ * Las ventajas del tecnologías/soluciones viejas/aburridas es que se conocen
++   los tradeoffs.
++ * *La atención es preciosa* y hay que ser selectivo
++ * *No hay tecnología perfecta*
++ * Intentar tener presente los aspectos negativos
++ * "No se ha dominado una herramienta hasta que entendemos cuando no debe ser
++   usada"
+
+
+Date:
+Title: Code Shrinking Techniques with Jakarta EE and MicroProfile #slideless - Adam Bien
+Url: https://www.youtube.com/watch?v=FKYetddHz1E
+Notes:
++ * Particular patterns make sense only in particular contexts
++ * Time to first commit is important
++ * Microprofile in jakartaee is part of the platform (today)
++ * Only dependencies in pom.xml: jakarta-ee and microprofile
++ * Use [wad](https://github.com/AdamBien/wad) for watch and deploy (no quarkus projects)
++   * NOTA: hay que compilar el branch master del repositorio
++   * NOTA: hay que definir `maven.home`: `$ java -Dmaven.home=$HOME/.m2/wrapper/dists/apache-maven-3.8.6-bin/*/apache-maven-3.8.6 -jar wad.jar ~/wildfly-26.1.1.Final/standalone/deployments`
++ * In quarkus projects use dev-mode for live reload
++ * It's important the ability to create proofs of concepts very quickly
++ * Kill all dto's and mappers using jsonb and public attributes (new data
++   transporter).  (Why make attributes private and getters and setters? )
++   * Use setters and getters only where are needed
++   * It's not immutable, you can always set it
++   * jee applications don't have layers
++   * in theory it is bad but in practice nothing happens - this is not
++     necessarily the absolute best practice
++ * Create exceptions which remaps themselves to the proper http response
++   extending from WebApplicationException
++ * Add metrics for connections to external sites
++ * Quarkus: put the libs directory in a base layer and later the jar of the
++   application in the top layer (same history as war's and applications
++   servers)
++ * Minimize proprietary servlets filters from keycloak: remove all the stuff
++   and use jwt instead
++ * Use [jwtenizr](https://jwtenizr.sh/) to create calls for tests
++ * Quarkus idea: move whatever possible to build time
++ * **The main challenge is to understand the business behind an application,
++   not the technology**
+
+
+Date: 2022-09-15
+Title: Why do we use SDL with C & C++?
+Url: https://www.youtube.com/watch?v=LrTZmRV8Oik
+Notes:
++ En los fines de los 90's los programadores accedían directamente a la memoria
++ en la que estaba mapeado el hardware de salida (video) o entrada (teclados/joysticks).
++ Como ejemplo, al modificar la memoria a partir de 0xA0000000 se podían modificar
++ los pixels en pantalla.
++ Hoy día, con un hardware y OS modernos, no se puede utilizar más las técnicas
++ anteriores ya que el sistema operativo protege el hardware, impidiendo un acceso
++ directo al mismo.
++ Para esto hay que "pedirle" al sistema operativo -mediante sus apis- que lo haga
++ (ya no lo podemos hacer nosotros directamente).
++ SDL es una librería multiplataforma que hace "de puente" entre nuestro código y
++ el del OS en que la aplicación corre, al utilizar la api de sdl en lugar de la
++ de un sistema operativo particular
++ (cambiamos una api particular de un sistema operativo por la api multiplataforma
++ de SDL).
+
+
+Date: 2022-09-15
+Title: Coding Challenge #11: 3D Terrain Generation with Perlin Noise in Processing
+Url: https://www.youtube.com/watch?v=IKB1hWWedMk
+Notes:
++ El video muestra como generar de forma básica un terreno.
++ Lo hace de forma muy clara.., pero a tener en cuenta:
++ 1.) utiliza processing
++ 2.) explica la idea de generación pero no como se calcula la función de
++ Perling Noise o algo tán básico de como centrar el terreno para que se vea
++ bien (aunque sirve como ejercicio para el lector).
++
++ El link a la lista de reproducción de otras demostraciones del mismo autor:
++ <https://www.youtube.com/playlist?list=PLRqwX-V7Uu6ZiZxtDDRCi6uhfTH4FilpH>
+
+
+Date: 2022-10-03
+Title: Ray Tracing in One Weekend
+Url: https://raytracing.github.io/books/RayTracingInOneWeekend.html
+Notes:
++ Guía de como implementar un ray tracer.
++ La imagen final demora horas :).
++ Muy buena la idea de utilizar archivos ppm para visualizar las imágenes:
++ sencillo y sin requerir dependencias.
+
+
+Date: 2022-10-22
+Title: Visualization of npm dependencies
+Url: https://npm.anvaka.com/
+Notes:
++ Aplicación web para visualizar las dependencias (directas y transitivas) de
++ librerías npm.
+
+
+Date: 2022-12-12
+Title: Talks on Tree-sitter
+Url: https://tree-sitter.github.io/tree-sitter/#talks-on-tree-sitter
+Notes:
++ A tener en cuenta.
++
++ Varios editores utilizan [LSP](https://microsoft.github.io/language-server-protocol/),
++ pero creo que LSP agrega mayor complejidad a la solución y treesitter
++ (descontando que no tiene muchos plugins) me parece una mejor solución.
+
+
+Date: 2022-12-15
+Title: A 1.5MB Java Container App? Yes you can! by Shaun Smith
+Url: https://www.youtube.com/watch?v=6wYrAtngIVo
+Notes:
++ Tips para generar imágenes de contenedores más pequeñas:
++
++ * ["Distroless" Container Images](https://github.com/GoogleContainerTools/distroless)
++ * [GraalVM](https://www.graalvm.org/)
++ * [musl](https://www.musl-libc.org/)
++ * [upx](https://upx.github.io/)
+
+
+Date: 2022-12-15
+Title: How Not to Die: A Journey from Startup to Unicorn through the Valley of Death
+Url: https://www.youtube.com/watch?v=YNZq6tMZO-g
+Notes:
++ Charla de Diego donde cuenta su experiencia con Kona.
++
++ Valley of death
++ Uruguay: No venture capital
++ Product (with Intelectual Property), not services
++ Minimal Viable Product
++ chatbot
++ show numbers about the product: how much it can earn/save
++ services: make money for survive, to not die
++
++ Take aways:
++ * imperfect MVP ~> show value
++ * startups run on morale; find a few people that love your product
++ * pivos as needed, fast; don't wait until is too late
++ * cashflow is everything; cashflow pays the bills, revenue is for the books
+
+
+Date: 2023-01-14
+Title: What the hell is Forth?
+Url: https://blog.information-superhighway.net/what-the-hell-is-forth
+Notes:
++ > There is an expression about Forth: “If you've seen one Forth, you've seen
++ > one Forth.” Forth isn't a strictly-defined language, though there is a
++ > standardized dialect; it's more a set of ideas that tend to work well
++ > together.
+
+
+Date: 2023-02-09
+Title: Don't Do This
+Url: https://fosdem.org/2023/schedule/event/postgresql_dont_do_this/
+Notes:
++ Tips de postgresql
+
+
+Date: 2023-02-09
+Title: Exploring WebAssembly with Forth (and vice versa)
+Url: https://fosdem.org/2023/schedule/event/webassemblyforth/
+Notes:
++ Se puede usar en la web:
++ * consola interactiva
++ * notebook en archivo html
+
+
+Date: 2023-02-26
+Title: Forth: The programming language that writes itself
+Url: https://ratfactor.com/forth/forth_talk_2023.html
+Notes:
++ * Forth is an idea
++ * Forth is:
++   * Postfix notation (RPN)
++   * Stack-oriented
++   * Concatenative programming style
++   * Interpreted
++   * Highly adaptable to machine architectures
++   * Extremely compact
++ * Ejemplos de forth: [nasmjf](http://ratfactor.com/nasmjf/), [planckforth](https://github.com/nineties/planckforth)
++ * [minslides](http://ratfactor.com/minslides/)
+
+
+Date: 2023-03-05
+Title: Secure the Border and Build the Wall
+Url: https://venam.nixers.net/blog/unix/2023/02/28/access_control.html
+Notes:
++ Descripción bastante exhaustiva de controles de acceso en unix
+
+
+Date: 2023-03-12
+Title: Privilege drop, privilege separation, and restricted-service operating mode in OpenBSD
+Url: https://sha256.net/privsep.html
+Notes:
++ Muy buena explicación de como crear demonios en openbsd:
++ * [pledge](https://man.openbsd.org/man2/pledge.2) para limitar llamadas al sistema
++ * [unveil](https://man.openbsd.org/man2/unveil.2) para limitar acceso al filesystem
++ * [fork](https://man.openbsd.org/man2/fork.2) + [execv](https://man.openbsd.org/man3/execv.3)
++   para lanzar instancias que realicen distintas tareas del demonio usando un
++   layout de memoria distinto
++ * [imsg](https://man.openbsd.org/man3/imsg_init.3) para comunicación entre los procesos
++ * [event](https://man.openbsd.org/man3/event.3) para ejecutar funciones cuando ocurren eventos
+
+
+Date: 2023-03-20
+Title: Is OpenBSD for you?
+Url: https://mizik.eu/blog/is-openbsd-for-you/
+Notes:
++ Muy buen resumen de las limitaciones de openbsd y con que se puede encontrar
++ un usuario del sistema.
++
++ En mi caso **la motivación para usar openbsd son simplicidad, consistencia y
++ minimalismo**, aunque me es problemática la poca performance en todos los
++ sentidos, la falta de máquinas virtuales con interfaz gráfica y la falta de
++ soporte para los  filesystems más comunes.
+
+
+Date: 2023-04-01
+Title: Run Your Own LastPass on Hardened OpenBSD
+Url: https://マリウス.com/run-your-own-lastpass-on-hardened-openbsd/
+Notes:
++ * uso de paquete `login_oath` en openbsd para loguearse usando otp+password
++ * uso de `pyqrcode` para crear código qr en python
++ * uso de paquete [lynis](https://cisofy.com/) para auditar estado del sistema
+
+
+Date: 2023-04-02
+Title: OpenBSD: VM
+Url: https://astro-gr.org/openbsd-vm/
+Notes:
++ Configuración de vm linux bajo openbsd usando [vmm](https://www.openbsd.org/faq/faq16.html):
++ * habilitar forwarding de paquetes
++ * configurar pf para que la vm tenga tráfico de red
++ * crear vm usando [vmctl](https://man.openbsd.org/man8/vmctl.8)
++ * configuración de sshd en la vm
++ * uso de `ssh -Y` para ejecutar el programa en la vm linux y ver la gui en el escritorio
++ * configuración de doas para poder ejecutar vmctl sin pedir contraseña
+
+
+Date: 2023-04-02
+Title: Host a server with OpenBSD
+Url: https://si3t.ch/ah/en/
+Notes:
++ Tips varios:
++ * configuración de `HISTFILE` en shell así no se usa `~/.bash_history` por
++   defecto; se debe configurar también `HISTSIZE`
++ * edición de `/etc/mail/aliases` para agregar cuentas como alias de `root`
++   para recibir emails del sistema
++ * `CHECKFILESYSTEMS=1` en `/etc/daily.local`
++ * configuración de `pf` para bloquear intentos de acceso usando fuerza bruta
++ * uso de `pkg_add -nu` en `/etc/daily.local` para ver si hay actualizaciones
++   de paquetes
++ * uso de `sysclean` para eliminar archivos obsoletos que quedaron luego de un
++   upgrade
++ * tips varios de `relayd` + `httpd` + `php`
++ * uso de `unwind` para realizar resolución de DNS
++ * ejemplos de virtualización de linux
++ * uso de `pkg_check` para verificar la consistencia de los paquetes instalados
++ * uso de `openssl` para generar passwords aleatorios
+
+
+Date: 2023-04-05
+Title: EXPLANATIONS - X Window System
+Url: https://magcius.github.io/xplain/article/
+Notes:
++ Explicaciones sobre X11: historia, conceptos, arquitectura.
+
+
+Date: 2023-04-09
+Title: D-Bus and Polkit, No More Mysticism and Confusion
+Url: https://venam.nixers.net/blog/unix/2020/07/06/dbus-polkit.html
+Notes:
++ Muy buena explicación sobre dbus y polkit.
++ El blog tiene muy buenos artículos sobre tópicos de unix/linux.
+
+
+Date: 2023-04-09
+Title: ping and traceroute Unable to Resolve Hostnames While Other Programs Work Fine
+Url: https://sourceopen.com/index.php/ping-and-traceroute-unable-to-resolve-hostnames-while-other-programs-work-fine/
+Notes:
++ Problema de hoy con openbsd:
++ ```
++ $ ping www.openbsd.org
++ ping: no address associated with name
++ ```
++ Solución: Revisar permisos de `/etc/resolv.conf`:
++ ```
++ $ ls -lh /etc/resolv.conf
++ -rw-r----- 1 root wheel 98 Apr  9 21:35 /etc/resolv.conf
++ ```
++ En este caso corregir permisos:
++ ```
++ $ doas chmod 644 /etc/resolv.conf
++ ```
+
+
+Date: 2023-04-16
+Title: Making Sense of The Audio Stack On Unix
+Url: https://venam.nixers.net/blog/unix/2021/02/07/audio-stack.html
+Notes:
++ Muy buen (y extenso) recorrido por la api de audio de unix.
+
+
+Date: 2023-05-28
+Title: PostgREST - REST API for any Postgres database
+Url: https://postgrest.org/
+Notes:
++ Servidor HTTP escrito en Haskell que permite crear backends a partir de una
++ base de datos postgresql.
+
+
+Date: 2023-05-28
+Title: Learn Go with Tests
+Url: https://quii.gitbook.io/learn-go-with-tests/
+Notes:
++ Aprendizaje de golang usando TDD con el módulo testing.
+
+
+Date: 2023-09-12
+Title: Secure Quick Reliable Login
+Url: https://www.grc.com/sqrl/sqrl.htm
+Notes:
++ SQRL: Secure Quick Reliable Login
++ A highly secure, comprehensive, easy-to-use replacement
++ for usernames, passwords, reminders, one-time-code
++ authenticators . . . and everything else.
+
+
+Date: 2023-10-09
+Title: Forth: The programming language that writes itself: The Web Page
+Url: http://ratfactor.com/forth/the_programming_language_that_writes_itself.html
+Notes:
++ Versión página web de las slides
+
+
+Date: 2024-01-01
+Title: A Philosophy of Software Design | John Ousterhout | Talks at Google
+Url: https://www.youtube.com/watch?v=bmSAYlu0NcY
+Notes:
++ Nociones sobre complejidad, abstracciones, deep vs shallow modules, tactical
++ vs strategic programming.
++
++ * problem descomposition
++ * red flags
++ * deep classes (deep vs shallow)
++ * abstraction ~> proveer una forma simple de pensar algo que es complicado
++ * definir semántica para eliminar errores
++ * las excepciones son fuente de complejidad
++ * deber ser fácil realizar el caso correcto/común
++ * exceptions vs return values ~> proveen beneficios cuando se lanzan en una
++   función muy profunda
++ * si no se tiene el mindset (mentalidad) correcto no es posible producir un
++   buen diseño
++ * programming approaches
++   * tactical
++     * goal: nex feature/bugfix ASAP
++     * bad design, high complexity
++     * complexity: "hundred of shortcuts"
++     * *technical tornadoes*
++   * strategical
++     * goal: produce a great design
++     * simplify future development
++     * investment mindset:
++       * take extra time today
++       * pays back in the long run
++ * invertir 10% ~ 20%
++ * layers (capas) vs performance ~> definir indicadores de performance y definir
++   las capas en base a estos
++ * contratar
++   * buscar a personas que aprenden rápido
++   * > en mi experiencia las personas que trabajaron mejor fueron con los que
++     > realmente disfruté mi conversación durante la entrevista
+
+
+Date: 2024-01-02
+Title: The Effective Engineer | Edmond Lau | Talks at Google
+Url: https://www.youtube.com/watch?v=BnIz7H5ruy0
+Notes:
++ * esfuerzo != impacto
++ * leverage = impact produced / time invested
++ * ¿estamos trabajando en lo correcto?
++
++ ## high leverage activities
++ 1. optimize for learning
++   * ¿como mejorar cada día?
++ 2. invest in iteration speed
++   * ¿que tan rápido podemos hacer las cosas?
++   * invertir en herramientas (1/3 del tiempo en hacerlas)
++   * > if you have to do something manually more than twice, then write a tool
++     > for the third time
++   * ¿cuales son los eventos que causan cuellos de botella en el desarrollo?
++   * optimizar builds, pasos de debut
++ 3. validate your ideas aggressively and iteratively
++   * validar supuestos
++   * "como probar que pasaría si algo es más rápido" es equivalente a agregar un
++     delay artificial para hacer más lento lo que queremos probar
++   * intentar descomponer un proyecto en supuestos diferentes que sean testeables
++     ~> ¿que cambios importan?
++   * > experiment-driven product design is a powerful tool
++   * ¿el producto es realmente lo que se necesita?
++   * ¿cual es la parte que más asusta del proyecto a cada desarrollador?
++     ~> es la parte a hacer primero para reducir el riesgo
++   * **¿como podemos gastar el 10% del esfuerzo inicialmente para validar que el
++     proyecto funcionará?**
++ 4. minimize operational burden
++   * disminuir el tiempo que estamos manteniendo y operando el software
++   * > do the simple thing first
++   * eliminar fuentes de complejidad ~> hacer las cosas lo más simple posible
++     ~> **la complejidad tiene costos ocultos**
++
++ ## Q&A
++ * para unittests: tipos de test fáciles de escribir que den mucho beneficio; no
++   hay que buscar un 100% de cobertura
++ * hacer las preguntas correctas y respaldarse en datos
++ * mentoring ~> puede tener un efecto dramático en los resultados de las personas
++   ~> explicar cuales son las mejores prácticas
++ * establecer tiempos dentro del proyecto para realizar mejoras y limpieza del
++   código
++ * *misalignment in incentives* ~> intentar alinear metas e incentivos entre
++   equipos que tengan dependencias
+
+
+Date: 2024-01-03
+Title: Bare metal programming with RISC-V guide
+Url: https://popovicu.com/posts/bare-metal-programming-risc-v/
+Notes:
++ Excelente explicación de como se realiza el booteo en riscv.  Utilizando qemu
++ y con ejemplos.
+
+
+Date: 2024-01-03
+Title: RISC-V SBI and the full boot process
+Url: https://popovicu.com/posts/risc-v-sbi-and-full-boot-process/
+Notes:
++ Excelente explicación de como funciona el booteo en riscv y la motivación de
++ opensbi.  Nuevamente se utiliza qemu y ejemplos.
+
+
+Date: 2024-01-03
+Title: RV64 QEMU virt VGA mode 13h
+Url: https://gist.github.com/iamgreaser/15a0a81cd117d4efd1c47ce598c13c91
+Notes:
++ Solo se muestra el código, no hay explicaciones.
++ ¡Funciona!
++
++ Sería interesante agregar el setup como una extensión vendor de opensbi.
+
+
+Date: 2024-03-27
+Title: Donut math: how donut.c works
+Url: https://www.a1k0n.net/2011/07/20/donut-math.html
+Notes:
++ Explicación de como se programa la animación de un toroide usando asciiart
+
+
+Date: 2024-03-27
+Title: Filosofía aquí y ahora - playlist
+Url: https://www.youtube.com/@filosofiaaquiyahora9169/playlists
+Notes:
++ Videos del programa *Filosofía aquí y ahora* de José Pablo Feinmann.
+
+
+Date: 2024-11-04
+Title: Full-featured email server running OpenBSD
+Url: https://dataswamp.org/~solene/2024-07-24-openbsd-email-server-setup.html
+Notes:
++ Una descripción muy completa de como configurar un servidor de correo
+
+
+Date: 2025-05-05
+Title: The Kindle Modding Wiki
+Url: https://kindlemodding.org/
+Notes:
++ Instrucciones para desbloquear los lectores kindle (instalando koreader)
+
+
+Date: 2025-05-05
+Title: deskto.ps
+Url: https://deskto.ps/
+Notes:
++ Screenshots de escritorios con los programas utilizados y links a las
++ configuraciones
+
+
+Date: 2025-05-05
+Title: vendorpull
+Url: https://github.com/sourcemeta/vendorpull
+Notes:
++ A simple vendoring package manager
+
+
+Date: 2025-12-18
+Title: You don't need an ORM - Giacomo Cavalieri | Lambda Days 2025
+Url: https://www.youtube.com/watch?v=XEJxk5VUSTs
+Notes:
++ Un enfoque similar a yesql, solo que el autor a partir del código en archivos
++ SQL genera la función en código para realizar el binding.
++
++ El proyecto se encuentra en: <https://github.com/giacomocavalieri/squirrel>.
++
++ Lo que queda pendiente es un ORM mínimo para hacer el mapeo clase <-> tabla al
++ momento de realizar los insert/update.
+
+
+Date: 2025-12-18
+Title: Makefile Tutorial By Example
+Url: https://makefiletutorial.com/
+Notes:
++ Tutorial de como escribir makefiles.
+
+
+Date: 2025-12-18
+Title: RVPC
+Url: https://github.com/OLIMEX/RVPC
+Notes:
++ The EURO 1.00 Risc-V personal computer with VGA and Keyboard and Woz like
++ monitor.
