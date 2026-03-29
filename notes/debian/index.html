@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Debian | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Debian</h1>
+        <h2 class="date">2017-04-25</h2>
+      </div>
+<h2>Creación de repositorios y mirrors</h2>
+<ul>
+<li><a href="https://web.archive.org/web/20161115003340/https://blog.sileht.net/create-a-smart-debian-repository-with-reprepro.html">Create a smart debian repository with reprepro</a></li>
+<li><a href="https://vincent.bernat.ch/en/blog/2014-local-apt-repositories">Local corporate APT repositories</a></li>
+<li><a href="https://chrisgilmerproj.github.io/debian/mirror/reprepro/2013/08/29/mirror-with-reprepro.html">Mirror with reprepro</a></li>
+</ul>
+<h2>Creación de paquetes</h2>
+<ul>
+<li><a href="https://www.debian.org/doc/devel-manuals">Manuales para desarrolladores</a>
+<ul>
+<li><a href="https://www.debian.org/doc/manuals/developers-reference/index.en.html">Debian Developer's Reference</a></li>
+<li><a href="https://www.debian.org/doc/manuals/debmake-doc/index.en.html">Guide for Debian Maintainers</a></li>
+<li><a href="https://www.debian.org/doc/manuals/maint-guide/index.en.html">Debian New Maintainers' Guide</a>
+(a ser reemplazada por <em>Guide for Debian Maintainers</em>)</li>
+</ul>
+</li>
+<li><a href="http://web.archive.org/web/*/https://debian-administration.org/article/118/Replacing_binaries_with_dpkg-divert">Replacing binaries with dpkg-divert</a></li>
+<li><a href="https://david.kalnischkies.de/blog/2018/apt-for-package-self-builders/">APT for package self-builders</a></li>
+<li><a href="http://www.enricozini.org/blog/2006/tips/pbuilder-tips/">pbuilder tips</a></li>
+<li><a href="https://people.debian.org/~stapelberg//2018/03/19/sbuild-debian-developer-setup.html">sbuild-debian-developer-setup</a></li>
+</ul>
+<h3>Quilt</h3>
+<ul>
+<li><a href="https://wiki.debian.org/UsingQuilt">Using Quilt</a></li>
+<li><a href="https://raphaelhertzog.com/2012/08/08/how-to-use-quilt-to-manage-patches-in-debian-packages/">How to use quilt to manage patches in Debian packages</a></li>
+<li><a href="https://stuff.mit.edu/afs/athena/system/i386_deb50/os/usr/share/doc/quilt/quilt.html">Introduction to Quilt</a></li>
+<li><a href="https://packaging.ubuntu.com/html/patches-to-packages.html">Patches to Packages</a></li>
+<li><a href="https://wiki.openwrt.org/doc/devel/patches">Working with patches</a></li>
+<li><a href="https://elinux.org/Quilt">elinux Quilt</a></li>
+<li><a href="https://utcc.utoronto.ca/~cks/space/blog/linux/PatchingRPMsWithQuilt">Working on RPMs with quilt: an illustrated guide</a></li>
+</ul>
+<h3>Empaquetado skopeo</h3>
+<ul>
+<li><a href="https://bugs.debian.org/880199">ITP</a></li>
+<li><a href="https://go-team.pages.debian.net/">Debian Go Packaging Team</a></li>
+<li>Sobre skopeo:
+<ul>
+<li><a href="https://bcksp.blogspot.com/2018/02/diy-docker-using-skopeoostreerunc.html">DIY Docker using Skopeo+OStree+Runc</a></li>
+</ul>
+</li>
+</ul>
+<h2>Read only root (Debian)</h2>
+<ul>
+<li><a href="https://wiki.debian.org/ReadonlyRoot">Readonly Root in debian wiki</a></li>
+<li><a href="https://spin.atomicobject.com/2015/03/10/protecting-ubuntu-root-filesystem/">Protecting the Root Filesystem on Ubuntu with Overlayroot</a></li>
+<li><a href="https://www.freedesktop.org/wiki/Software/systemd/TheCaseForTheUsrMerge/">The Case for the /usr Merge</a></li>
+<li><a href="https://bugs.debian.org/860915">#860915 - cloud-initramfs-tools: Please re-enable generation of the overlayroot package</a></li>
+</ul>
+<h2>Debian reproducible</h2>
+<ul>
+<li><a href="https://salsa.debian.org/reproducible-builds/reproducible-notes/blob/master/issues.yml">issues (reproducible-notes scm)</a></li>
+<li><a href="https://tests.reproducible-builds.org/debian/index_issues.html">known issues</a></li>
+<li><a href="https://tests.reproducible-builds.org/debian/issues/unstable/randomness_in_documentation_generated_by_lua_ldoc_issue.html">randomness_in_documentation_generated_by_lua_ldoc</a></li>
+<li><a href="https://tests.reproducible-builds.org/debian/issues/unstable/timestamps_in_tarball_issue.html">timestamps_in_tarball</a></li>
+<li><a href="https://tests.reproducible-builds.org/debian/issues/unstable/timestamp_in_pear_registry_files_issue.html">timestamp_in_pear_registry_files</a>
+<ul>
+<li><a href="https://sources.debian.org/src/php-pear/1:1.10.5+submodules+notgz-1/PEAR/Registry.php/">php registry - PEAR</a></li>
+</ul>
+</li>
+<li><a href="https://tests.reproducible-builds.org/debian/issues/unstable/random_order_in_documentation_generated_by_javadoc_issue.html">random_order_in_documentation_generated_by_javadoc</a></li>
+</ul>
+<h2>Bugs</h2>
+<ul>
+<li><a href="https://wiki.debian.org/BSP/BeginnersHOWTO">Beginners HOWTO</a></li>
+<li><a href="https://people.debian.org/~vorlon/rc-bugsquashing.html">Squashing Release-Critical Bugs in Debian: A Primer</a></li>
+<li><a href="https://bugs.debian.org/release-critical/">Release-critical bugs status</a>
+(paquetes candidatos para colaborar)</li>
+</ul>
+<h2>Varios</h2>
+<ul>
+<li>Instalación de paquetes de forma desatendida:
+<ul>
+<li><a href="https://raphaelhertzog.com/2010/09/21/debian-conffile-configuration-file-managed-by-dpkg/">Everything you need to know about conffiles: configuration files managed by dpkg</a></li>
+<li><a href="http://www.microhowto.info/howto/perform_an_unattended_installation_of_a_debian_package.html">microHOWTO: Perform an unattended installation of a Debian package</a></li>
+</ul>
+</li>
+</ul>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+
