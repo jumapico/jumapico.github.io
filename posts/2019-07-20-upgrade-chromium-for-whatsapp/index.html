@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Upgrade de chromium por whatsapp | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Upgrade de chromium por whatsapp</h1>
+        <h2 class="date">2019-07-20</h2>
+      </div>
+<h2>Descripción del problema</h2>
+<p>Hace unos días <a href="https://www.whatsapp.com/">WhatsApp</a> dejó de funcionar con los navegadores instalados
+por defecto en una PC con <em>Ubuntu 14.04 (i386)</em>.</p>
+<p><img src="./no-funciona.png" alt="chromium no funciona" /></p>
+<p>Las versiones de los navegadores instalados son:</p>
+<ul>
+<li>Chromium: 53.0.2785.143-0ubuntu0.14.04.1.1145</li>
+<li>Firefox: 50.1.0+build2-0ubuntu0.14.04.1</li>
+</ul>
+<p>Debido a que hay programas (applets) que solo funcionan con la versión
+instalada de <em>Firefox</em> y esta no puede actualizarse, el PC no utiliza el
+repositorio de ubuntu sinó un repositorio local de una versión no actualizada
+del repositorio de ubuntu.</p>
+<p>La solución propuesta es actualizar la versión del navegador web <em>Chromium</em>, pero
+no se encontró información sobre las versiones de los navegadores soportados por
+<em>WhatsApp</em>, por lo que se probará actualizar a la última versión soportada de
+<em>Chromium</em> por <em>Ubuntu 14.04</em> y ver si funciona con <em>WhatsApp</em> al día de hoy
+(2019-07-19).</p>
+<h2>Prueba de actualización de Chromium</h2>
+<p>Ya que se está utilizando un repositorio local para controlar que paquetes
+serán instalados se comienza agregando el repositorio de ubuntu y actualizando
+la lista de paquetes:</p>
+<pre><code>$ cat &lt;&lt;'END' | sudo tee /etc/apt/sources.list.d/repositorio-ubuntu.list &gt;/dev/null
+deb http://archive.ubuntu.com/ubuntu trusty main universe multiverse restricted
+deb http://archive.ubuntu.com/ubuntu trusty-updates main universe multiverse restricted
+deb http://archive.ubuntu.com/ubuntu trusty-security main universe multiverse restricted
+deb http://archive.ubuntu.com/ubuntu trusty-backports main universe multiverse restricted
+END
+$ sudo apt-get update
+</code></pre>
+<p>Luego se listan las versiones disponibles para instalar (para asegurarnos de que
+no tenemos la última versión ya instalada, y si supieramos la versión minima
+soportada se podría determinar en este paso si continuar o no):</p>
+<pre><code>$ apt-cache policy chromium-browser
+chromium-browser:
+  Installed: 53.0.2785.143-0ubuntu0.14.04.1.1145
+  Candidate: 65.0.3325.181-0ubuntu0.14.04.1
+  Version table:
+     65.0.3325.181-0ubuntu0.14.04.1 0
+        500 http://archive.ubuntu.com/ubuntu/ trusty-updates/universe i386 Packages
+        500 http://archive.ubuntu.com/ubuntu/ trusty-security/universe i386 Packages
+ *** 53.0.2785.143-0ubuntu0.14.04.1.1145 0
+        500 http://mirror.example.com/ubuntu/ trusty-updates/universe i386 Packages
+        500 http://mirror.example.com/ubuntu/ trusty-security/universe i386 Packages
+        100 /var/lib/dpkg/status
+     34.0.1847.116-0ubuntu2 0
+        500 http://mirror.example.com/ubuntu/ trusty/universe i386 Packages
+        500 http://archive.ubuntu.com/ubuntu/ trusty/universe i386 Packages
+</code></pre>
+<p>Otra pregunta a hacernos es ¿que paquetes se instalarían junto al paquete
+<code>chromium-browser</code>?.  Esto nos interesa para conocer el impacto y saber que
+paquetes hay que descargar del repositorio de ubuntu:</p>
+<pre><code>$ sudo apt-get install -sV chromium-browser
+...
+The following packages will be upgraded:
+   chromium-browser (53.0.2785.143-0ubuntu0.14.04.1.1145 =&gt; 65.0.3325.181-0ubuntu0.14.04.1)
+   chromium-browser-l10n (53.0.2785.143-0ubuntu0.14.04.1.1145 =&gt; 65.0.3325.181-0ubuntu0.14.04.1)
+   chromium-codecs-ffmpeg-extra (53.0.2785.143-0ubuntu0.14.04.1.1145 =&gt; 65.0.3325.181-0ubuntu0.14.04.1)
+   libnspr4 (4.10.10-0ubuntu0.14.04.1 =&gt; 4.13.1-0ubuntu0.14.04.1)
+   libnspr4-0d (4.10.10-0ubuntu0.14.04.1 =&gt; 4.13.1-0ubuntu0.14.04.1)
+   libnss3 (3.19.2.1-0ubuntu0.14.04.2 =&gt; 3.28.4-0ubuntu0.14.04.5)
+   libnss3-1d (3.19.2.1-0ubuntu0.14.04.2 =&gt; 3.28.4-0ubuntu0.14.04.5)
+   libnss3-nssdb (3.19.2.1-0ubuntu0.14.04.2 =&gt; 3.28.4-0ubuntu0.14.04.5)
+8 upgraded, 0 newly installed, 0 to remove and 523 not upgraded.
+...
+</code></pre>
+<p>De la salida anterior se ve que hay varios paquetes aparte de chromium-browser
+que serán instalados:</p>
+<ul>
+<li>Relativos a <code>chromium</code>: <code>chromium-browser</code>, <code>chromium-browser-l10n</code> y
+<code>chromium-codecs-ffmpeg-extra</code>.</li>
+<li>Relativos a <code>libnspr4</code>: <code>libnspr4</code> y <code>libnspr4-0d</code>.</li>
+<li>Relativos a <code>libnss3</code>: <code>libnss3</code>, <code>libnss3-1d</code> y <code>libnss3-nssdb</code>:</li>
+</ul>
+<p>Se pasa a buscar cuales son las versiones <strong>necesarias</strong> de las dependencias
+<strong>directas</strong> del paquete <code>chromium-browser</code>.  Esto es para evitar descargar e
+instalar paquetes que pueden actualizarse desde el repositorio local:</p>
+<pre><code>$ apt-cache show chromium-browser=65.0.3325.181-0ubuntu0.14.04.1 | grep -P '^Depends:|^Recommends:' | tr , '\n' | grep -P 'libnspr4|libnss3'
+ libnspr4 (&gt;= 2:4.9-2~) | libnspr4-0d (&gt;= 1.8.0.10)
+ libnss3 (&gt;= 2:3.22)
+</code></pre>
+<p><em>Nota: si las dependencias anteriores no fueran <strong>directas</strong> del paquete
+<code>chromium-browser</code> sinó <strong>transitivas</strong> encontrar las versiones anteriores
+sería más difícil.</em></p>
+<p>Revisando las versiones disponibles de los paquetes <code>libnspr4</code> y <code>libnss3</code> se
+obtiene:</p>
+<pre><code>$ apt-cache policy libnspr4 libnss3
+libnspr4:
+  Installed: 2:4.10.10-0ubuntu0.14.04.1
+  Candidate: 2:4.13.1-0ubuntu0.14.04.1
+  Version table:
+     2:4.13.1-0ubuntu0.14.04.1 0
+        500 http://archive.ubuntu.com/ubuntu/ trusty-updates/main i386 Packages
+        500 http://archive.ubuntu.com/ubuntu/ trusty-security/main i386 Packages
+     2:4.12-0ubuntu0.14.04.1 0
+        500 http://mirror.example.com/ubuntu/ trusty-updates/main i386 Packages
+        500 http://mirror.example.com/ubuntu/ trusty-security/main i386 Packages
+ *** 2:4.10.10-0ubuntu0.14.04.1 0
+        100 /var/lib/dpkg/status
+     2:4.10.2-1ubuntu1 0
+        500 http://mirror.example.com/ubuntu/ trusty/main i386 Packages
+        500 http://archive.ubuntu.com/ubuntu/ trusty/main i386 Packages
+libnss3:
+  Installed: 2:3.19.2.1-0ubuntu0.14.04.2
+  Candidate: 2:3.28.4-0ubuntu0.14.04.5
+  Version table:
+     2:3.28.4-0ubuntu0.14.04.5 0
+        500 http://archive.ubuntu.com/ubuntu/ trusty-updates/main i386 Packages
+        500 http://archive.ubuntu.com/ubuntu/ trusty-security/main i386 Packages
+     2:3.26.2-0ubuntu0.14.04.3 0
+        500 http://mirror.example.com/ubuntu/ trusty-updates/main i386 Packages
+        500 http://mirror.example.com/ubuntu/ trusty-security/main i386 Packages
+ *** 2:3.19.2.1-0ubuntu0.14.04.2 0
+        100 /var/lib/dpkg/status
+     2:3.15.4-1ubuntu7 0
+        500 http://mirror.example.com/ubuntu/ trusty/main i386 Packages
+        500 http://archive.ubuntu.com/ubuntu/ trusty/main i386 Packages
+</code></pre>
+<p>O sea, <code>libnspr4</code> ya cumple con las dependencias y <code>libnss3</code> necesita
+actualizarse, pero la versión en el repositorio interno satisface la
+dependencia, por lo cual solo es necesario descargar los paquetes
+<code>chromium-browser</code>, <code>chromium-browser-l10n</code> y <code>chromium-codecs-ffmpeg-extra</code>:</p>
+<pre><code>$ apt-get download chromium-browser chromium-browser-l10n chromium-codecs-ffmpeg-extra
+</code></pre>
+<p>Al momento de instalar los paquetes anteriores y corregir dependencias se desea
+utilizar solo los repositorios internos, por lo cual se deshabilita el
+repositorio de ubuntu:</p>
+<pre><code>$ sudo mv /etc/apt/sources.list.d/repositorio-ubuntu.list{,.disabled}
+$ sudo apt-get clean
+$ sudo apt-get update
+</code></pre>
+<p>Se instalan los paquetes descargados:</p>
+<pre><code>$ sudo dpkg -i chromium-browser_65.0.3325.181-0ubuntu0.14.04.1_i386.deb \
+    chromium-browser-l10n_65.0.3325.181-0ubuntu0.14.04.1_all.deb \
+    chromium-codecs-ffmpeg-extra_65.0.3325.181-0ubuntu0.14.04.1_i386.deb
+...
+dpkg: dependency problems prevent configuration of chromium-browser:
+ chromium-browser depends on libnss3 (&gt;= 2:3.22); however:
+  Version of libnss3:i386 on system is 2:3.19.2.1-0ubuntu0.14.04.2.
+
+dpkg: error processing package chromium-browser (--install):
+ dependency problems - leaving unconfigured
+dpkg: dependency problems prevent configuration of chromium-browser-l10n:
+ chromium-browser-l10n depends on chromium-browser (&gt;= 65.0.3325.181-0ubuntu0.14.04.1); however:
+  Package chromium-browser is not configured yet.
+ chromium-browser-l10n depends on chromium-browser (&lt;&lt; 65.0.3325.181-0ubuntu0.14.04.1.1~); however:
+  Package chromium-browser is not configured yet.
+
+dpkg: error processing package chromium-browser-l10n (--install):
+ dependency problems - leaving unconfigured
+...
+Errors were encountered while processing:
+ chromium-browser
+ chromium-browser-l10n
+</code></pre>
+<p>El error de que no se cumple la dependencia era esperable, ya que se vió
+anteriormente que la dependencia se satisface actualizando <code>libnss3</code> con la
+versión de los repositorios internos.</p>
+<p>Para corregir la instalación se utiliza la opción <code>--fix-broken</code> de <code>apt-get</code>:</p>
+<pre><code>$ sudo apt-get install -V --fix-broken
+...
+The following packages will be upgraded:
+   libnspr4 (4.10.10-0ubuntu0.14.04.1 =&gt; 4.12-0ubuntu0.14.04.1)
+   libnspr4-0d (4.10.10-0ubuntu0.14.04.1 =&gt; 4.12-0ubuntu0.14.04.1)
+   libnss3 (3.19.2.1-0ubuntu0.14.04.2 =&gt; 3.26.2-0ubuntu0.14.04.3)
+   libnss3-1d (3.19.2.1-0ubuntu0.14.04.2 =&gt; 3.26.2-0ubuntu0.14.04.3)
+   libnss3-nssdb (3.19.2.1-0ubuntu0.14.04.2 =&gt; 3.26.2-0ubuntu0.14.04.3)
+5 upgraded, 0 newly installed, 0 to remove and 331 not upgraded.
+...
+Setting up chromium-browser (65.0.3325.181-0ubuntu0.14.04.1) ...
+Setting up chromium-browser-l10n (65.0.3325.181-0ubuntu0.14.04.1) ...
+Processing triggers for libc-bin (2.19-0ubuntu6.6) ...
+</code></pre>
+<p>Ahora, probando nuevamente <em>WhatsApp</em> se que ve funciona con la versión <em>65</em> de
+<em>Chromium</em>.</p>
+<p><img src="./funciona.png" alt="chromium funcionando" /></p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

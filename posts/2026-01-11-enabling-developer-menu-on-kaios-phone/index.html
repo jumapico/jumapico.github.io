@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Habilitando menú developer en teléfono kaios | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Habilitando menú developer en teléfono kaios</h1>
+        <h2 class="date">2026-01-11</h2>
+      </div>
+
+<p>A continuación los pasos seguidos para habilitar el menú <code>developer</code> en un
+celular con sistema operativo <a href="https://en.wikipedia.org/wiki/KaiOS">KaiOS</a> 2.5 (sucesor de <a href="https://en.wikipedia.org/wiki/Firefox_OS">Firefox OS</a>).</p>
+<p>Datos del celular (por más informacion ver el <a href="https://static1.squarespace.com/static/5e34751ca1edc769087f5e37/t/6372f8dc79373d133f03e8f9/1668479228394/FR150_User+Manual_V3.6_20221114.pdf">manual de usuario</a>):</p>
+<ul>
+<li>
+<a href="https://r3di-shop.com/collections/phones/products/r3di-fr150-works-almost-anywhere-flip-phone-compatible-with-t-mobile-t-mobile-mvnos-at-t-and-at-t-mvnos">R3Di FR150 Bright Flip Phone</a>
+</li>
+<li>
+OS: KaiOS 2.5.4 Version B166
+</li>
+</ul>
+<section id="Comunicación-con-celular-en-modo-EDL">
+<h2>Comunicación con celular en modo EDL</h2>
+<p>Para realizar el cambios en las particiones del celular debemos poner a este en
+en modo <a href="https://en.wikipedia.org/wiki/Qualcomm_EDL_mode">EDL</a>.</p>
+<p>Para ello, con el celular sin batería alimentado solo por cable usb conectado a
+la computadora.  Se presionan los botones <code>*</code> + <code>#</code>, se conecta el usb y
+verificamos que haya entrado en modo EDL usando <code>lsusb</code>:</p>
+<pre><code class="language-bash">$ lsusb
+Bus 002 Device 038: ID 05c6:9008 Qualcomm, Inc. Gobi Wireless Modem (QDL mode)
+</code></pre>
+<p>Se debe instalar el programa <code>edl</code> para comunicarse con el celular cuando se
+encuentre en modo EDL.
+Este programa se encuentra en el repositorio <a href="https://github.com/bkerler/edl/">https://github.com/bkerler/edl/</a>.</p>
+<p>Seguimos los pasos para instalarlo:</p>
+<pre><code class="language-bash">$ cd ~/workspace
+$ git clone https://github.com/bkerler/edl
+$ cd edl
+$ git submodule update --init --recursive
+$ python3 -m venv ENV
+$ source ENV/bin/activate
+$ pip install -r requirements.txt
+...
+Installing collected packages: pyserial, passlib, keystone-engine, docopt, wheel, urllib3, qrcode, pyusb, pycryptodomex, pycryptodome, pycparser, lxml, invoke, idna, future, configparser, colorama, charset_normalizer, certifi, capstone, bcrypt, requests, cffi, pynacl, cryptography, paramiko, Exscript
+Successfully installed Exscript-2.6.32 bcrypt-5.0.0 capstone-5.0.6 certifi-2025.11.12 cffi-2.0.0 charset_normalizer-3.4.4 colorama-0.4.6 configparser-7.2.0 cryptography-46.0.3 docopt-0.6.2 future-1.0.0 idna-3.11 invoke-2.2.1 keystone-engine-0.9.2 lxml-6.0.2 paramiko-4.0.0 passlib-1.7.4 pycparser-2.23 pycryptodome-3.23.0 pycryptodomex-3.23.0 pynacl-1.6.1 pyserial-3.5 pyusb-1.3.1 qrcode-8.2 requests-2.32.5 urllib3-2.6.2 wheel-0.45.1
+</code></pre>
+<p>Ahora ejecutamos el programa edl para verificar que podemos comunicarnos con el
+celular que se encuentra en modo EDL</p>
+<pre><code class="language-bash">Qualcomm Sahara / Firehose Client V3.62 (c) B.Kerler 2018-2025.
+main - Trying with no loader given ...
+main - Waiting for the device
+main - Device detected :)
+sahara - Protocol version: 2, Version supported: 1
+main - Mode detected: sahara
+sahara - 
+Version 0x2
+------------------------
+HWID:              0x009600e100000000 (MSM_ID:0x009600e1,OEM_ID:0x0000,MODEL_ID:0x0000)
+CPU detected:      "MSM8909"
+PK_HASH:           0xcc3153a80293939b90d02d3bf8b23e0292e452fef662c74998421adad42a380f
+Serial:            0x1f2a7c5e
+
+sahara - Possibly unfused device detected, so any loader should be fine...
+sahara - Trying loader: /home/jmpc/workspace/edl/edlclient/../Loaders/qualcomm/model_generic/msm8909/009600e100000000_cc3153a80293939b_fhprg_peek.bin
+sahara - Protocol version: 2, Version supported: 1
+sahara - Uploading loader /home/jmpc/workspace/edl/edlclient/../Loaders/qualcomm/model_generic/msm8909/009600e100000000_cc3153a80293939b_fhprg_peek.bin ...
+sahara - 32-Bit mode detected.
+sahara - Firehose mode detected, uploading...
+sahara - Loader successfully uploaded.
+</code></pre>
+</section>
+<section id="Backup-de-particiones">
+<h2>Backup de particiones</h2>
+<p><strong><strong>Lo primero que debemos hacer es un backup de las particiones del celular.</strong></strong></p>
+<pre><code class="language-bash">$ mkdir -p ~/workspace/r3di-fr150-backup
+$ ./edl rl ~/workspace/r3di-fr150-backup --genxml
+Qualcomm Sahara / Firehose Client V3.62 (c) B.Kerler 2018-2025.
+main - Trying with no loader given ...
+main - Waiting for the device
+main - Device detected :)
+main - Mode detected: firehose
+firehose
+firehose - [LIB]: Sector size in XML 4096 does not match disk sector size 512
+Wrote partition xml as rawprogram0.xml
+Progress: |██████████| 100.0% Read (Sector 0x20000 of 0x20000, ) 15.24 MB/s
+Progress: |██████████| 100.0% Read (Sector 0x400 of 0x400, ) 15.09 MB/s
+Progress: |██████████| 100.0% Read (Sector 0x400 of 0x400, ) 15.10 MB/s
+Progress: |██████████| 100.0% Read (Sector 0x800 of 0x800, ) 15.05 MB/s
+Progress: |██████████| 100.0% Read (Sector 0x800 of 0x800, ) 15.00 MB/s
+Progress: |██████████| 100.0% Read (Sector 0x400 of 0x400, ) 14.47 MB/s
+Progress: |██████████| 100.0% Read (Sector 0x400 of 0x400, ) 15.27 MB/s
+Progress: |██████████| 100.0% Read (Sector 0x1000 of 0x1000, ) 15.21 MB/s
+Progress: |██████████| 100.0% Read (Sector 0x1000 of 0x1000, ) 14.97 MB/s
+Progress: |██████████| 100.0% Read (Sector 0x200 of 0x200, ) 14.87 MB/s
+Progress: |██████████| 100.0% Read (Sector 0x200 of 0x200, ) 14.97 MB/s
+Progress: |██████████| 100.0% Read (Sector 0x800 of 0x800, ) 15.03 MB/s
+Progress: |██████████| 100.0% Read (Sector 0xC00 of 0xC00, ) 12.50 MB/s
+Progress: |██████████| 100.0% Read (Sector 0xC00 of 0xC00, ) 12.19 MB/s
+Progress: |██████████| 100.0% Read (Sector 0x800 of 0x800, ) 14.65 MB/s
+Progress: |██████████| 100.0% Read (Sector 0x2 of 0x2, ) 2.23 MB/s
+Progress: |██████████| 100.0% Read (Sector 0x10 of 0x10, ) 5.25 MB/s
+Progress: |██████████| 100.0% Read (Sector 0x5000 of 0x5000, ) 14.90 MB/s
+Progress: |██████████| 100.0% Read (Sector 0x40 of 0x40, ) 10.60 MB/s
+Progress: |██████████| 100.0% Read (Sector 0xC00 of 0xC00, ) 12.09 MB/s
+Progress: |██████████| 100.0% Read (Sector 0x20 of 0x20, ) 7.76 MB/s
+Progress: |██████████| 100.0% Read (Sector 0x10000 of 0x10000, ) 15.26 MB/s
+Progress: |██████████| 100.0% Read (Sector 0x190000 of 0x190000, ) 12.06 MB/s
+Progress: |██████████| 100.0% Read (Sector 0x10000 of 0x10000, ) 15.06 MB/s
+Progress: |██████████| 100.0% Read (Sector 0x1F3D15 of 0x1F4000, ) 11.71 MB/s
+Progress: |██████████| 100.0% Read (Sector 0x1F4000 of 0x1F4000, ) 14.61 MB/s
+Progress: |██████████| 100.0% Read (Sector 0x80000 of 0x80000, ) 14.57 MB/s
+Progress: |██████████| 100.0% Read (Sector 0x10000 of 0x10000, ) 15.26 MB/s
+Progress: |██████████| 100.0% Read (Sector 0x800 of 0x800, ) 15.16 MB/s
+Progress: |██████████| 100.0% Read (Sector 0x400 of 0x400, ) 14.83 MB/s
+Progress: |██████████| 100.0% Read (Sector 0x20000 of 0x20000, ) 15.09 MB/s
+Progress: |██████████| 100.0% Read (Sector 0x400 of 0x400, ) 13.97 MB/s
+Progress: |██████████| 100.0% Read (Sector 0x200 of 0x200, ) 14.99 MB/s
+Progress: |██████████| 100.0% Read (Sector 0x200 of 0x200, ) 15.04 MB/s
+Progress: |██████████| 100.0% Read (Sector 0x400 of 0x400, ) 14.41 MB/s
+Progress: |██████████| 100.0% Read (Sector 0x400 of 0x400, ) 15.16 MB/s
+Progress: |██████████| 100.0% Read (Sector 0x227C79 of 0x227FDF, ) 12.43 MB/s
+Progress: |██████████| 100.0% Read (Sector 0x227FDF of 0x227FDF, ) 15.01 MB/s
+</code></pre>
+<p>y verificamos si se escribieron los archivos del respaldo:</p>
+<pre><code class="language-bash">$ ls -lh ~/workspace/r3di-fr150-backup
+total 3.4G
+-rw-rw-r-- 1 jmpc jmpc  1.0M Jan 10 22:52 abootbak.bin
+-rw-rw-r-- 1 jmpc jmpc  1.0M Jan 10 22:52 aboot.bin
+-rw-rw-r-- 1 jmpc jmpc  256K Jan 10 22:52 apdp.bin
+-rw-rw-r-- 1 jmpc jmpc   32M Jan 10 22:52 boot.bin
+-rw-rw-r-- 1 jmpc jmpc  256M Jan 10 22:55 cache.bin
+-rw-rw-r-- 1 jmpc jmpc  256K Jan 10 22:55 cmnlibbak.bin
+-rw-rw-r-- 1 jmpc jmpc  256K Jan 10 22:55 cmnlib.bin
+-rw-rw-r-- 1 jmpc jmpc  512K Jan 10 22:55 config.bin
+-rw-rw-r-- 1 jmpc jmpc   32K Jan 10 22:52 DDR.bin
+-rw-rw-r-- 1 jmpc jmpc  256K Jan 10 22:52 devcfg.bin
+-rw-rw-r-- 1 jmpc jmpc  1.0M Jan 10 22:55 devinfo.bin
+-rw-rw-r-- 1 jmpc jmpc  1.0K Jan 10 22:52 fsc.bin
+-rw-rw-r-- 1 jmpc jmpc  1.5M Jan 10 22:52 fsg.bin
+-rw-rw-r-- 1 jmpc jmpc  4.5K Jan 10 22:52 gpt_backup0.bin
+-rw-rw-r-- 1 jmpc jmpc  5.5K Jan 10 22:52 gpt_main0.bin
+-rw-rw-r-- 1 jmpc jmpc  512K Jan 10 22:55 keymasterbak.bin
+-rw-rw-r-- 1 jmpc jmpc  512K Jan 10 22:55 keymaster.bin
+-rw-rw-r-- 1 jmpc jmpc  512K Jan 10 22:55 keystore.bin
+-rw-rw-r-- 1 jmpc jmpc  1.0M Jan 10 22:52 misc.bin
+-rw-rw-r-- 1 jmpc jmpc   64M Jan 10 22:52 modem.bin
+-rw-rw-r-- 1 jmpc jmpc  1.5M Jan 10 22:52 modemst1.bin
+-rw-rw-r-- 1 jmpc jmpc  1.5M Jan 10 22:52 modemst2.bin
+-rw-rw-r-- 1 jmpc jmpc   64M Jan 10 22:55 oem.bin
+-rw-rw-r-- 1 jmpc jmpc  1.0M Jan 10 22:52 pad.bin
+-rw-rw-r-- 1 jmpc jmpc   32M Jan 10 22:53 persist.bin
+-rw-rw-r-- 1 jmpc jmpc   11K Jan 10 22:52 rawprogram0.xml
+-rw-rw-r-- 1 jmpc jmpc   32M Jan 10 22:55 recovery.bin
+-rw-rw-r-- 1 jmpc jmpc  512K Jan 10 22:52 rpmbak.bin
+-rw-rw-r-- 1 jmpc jmpc  512K Jan 10 22:52 rpm.bin
+-rw-rw-r-- 1 jmpc jmpc  512K Jan 10 22:52 sbl1bak.bin
+-rw-rw-r-- 1 jmpc jmpc  512K Jan 10 22:52 sbl1.bin
+-rw-rw-r-- 1 jmpc jmpc   16K Jan 10 22:52 sec.bin
+-rw-rw-r-- 1 jmpc jmpc   10M Jan 10 22:52 splash.bin
+-rw-rw-r-- 1 jmpc jmpc  8.0K Jan 10 22:52 ssd.bin
+-rw-rw-r-- 1 jmpc jmpc  800M Jan 10 22:53 system.bin
+-rw-rw-r-- 1 jmpc jmpc  2.0M Jan 10 22:52 tzbak.bin
+-rw-rw-r-- 1 jmpc jmpc  2.0M Jan 10 22:52 tz.bin
+-rw-rw-r-- 1 jmpc jmpc 1000M Jan 10 22:55 usbmsc.bin
+-rw-rw-r-- 1 jmpc jmpc  1.1G Jan 10 22:57 userdata.bin
+</code></pre>
+<p>En el archivo <code>rawprogram0.xml</code> también se puede encontrar información de las
+particiones de las que se hizo un volcado (<em>dump</em>).</p>
+</section>
+<section id="Habilitar-menú-Developer">
+<h2>Habilitar menú Developer</h2>
+<p>Para habilitar el menú <code>Developer</code> y poder habilitar adb debemos modificar
+archivos en la partición <code>system.bin</code> y luego realizar un <code>Factory Reset</code>.</p>
+<p>Copiamos la partición al directorio de trabajo y creamos los directorios que
+utilizaremos:</p>
+<pre><code>$ mkdir -p ~/workspace/r3di-fr150
+$ cd ~/workspace/r3di-fr150
+$ cp ~/workspace/r3di-fr150-backup/system.bin .
+$ mkdir mnt_system
+</code></pre>
+<p>Luego montamos la partición <code>ext4</code> del archivo <code>system.bin</code>:</p>
+<pre><code>$ file system.bin 
+system.bin: Linux rev 1.0 ext4 filesystem data, UUID=da594c53-9beb-f85c-85c5-cedf76546f7a, volume name "system" (extents) (large files)
+$ doas mount -t ext4 -o rw,loop system.bin mnt_system
+</code></pre>
+<p>Para evitar problemas de permisos, utilizamos <code>root</code> para navegar y editar
+archivos en el sistema montado.
+Luego buscamos el archivo <code>settings.json</code> y utilizamos el comando <code>jq</code> para
+formatearlo así podremos editarlo más fácilmente:</p>
+<pre><code>$ doas su
+# cd mnt_system
+# file b2g/defaults/settings.json
+b2g/defaults/settings.json: JSON text data
+# wc -l b2g/defaults/settings.json
+1 b2g/defaults/settings.json
+# jq . b2g/defaults/settings.json &gt; b2g/defaults/settings.json.tmp
+# mv b2g/defaults/settings.json.tmp b2g/defaults/settings.json
+</code></pre>
+<p>Luego habilitamos el menú:</p>
+<pre><code class="language-bash"># cp b2g/defaults/settings.json b2g/defaults/settings.json.orig
+# sed -i 's/"developer.menu.enabled": false,/"developer.menu.enabled": true,/' \
+    b2g/defaults/settings.json
+</code></pre>
+<p>Salimos de la consola con <code>root</code>, desmontamos, escribimos la partición en el
+teléfono y lo reiniciamos:</p>
+<pre><code class="language-bash"># exit
+$ doas umount mnt_system
+$ cd ~/workspace/edl
+$ ./edl w system ~/workspace/r3di-fr150/system.bin
+$ ./edl reset
+</code></pre>
+<p>Al encender el teléfono e ir a <code>Settings</code> veremos que no se encuentra el menú
+<code>Developer</code>; es necesario realizar un <code>Factory Reset</code>.
+Para ello vamos a <code>Settings &gt; Device &gt; Device information &gt; Reset Phone</code>.</p>
+<p>Una vez que terminemos el factory reset e inicie el teléfono ya encontramos el
+menú <code>Developer</code> en <code>Settings &gt; Device &gt; Developer</code>.</p>
+<p>Allí elegimos <code>Debugger</code> (única opción) y entre las opciones <code>ADB and DevTools</code>.
+Confirmamos que funciona:</p>
+<pre><code class="language-bash">$ lsusb
+Bus 002 Device 061: ID 05c6:9092 Qualcomm, Inc. Nokia 8110 4G
+$ adb devices
+List of devices attached
+c7d8d112	unauthorized
+</code></pre>
+</section>
+<section id="Instalar-clave-pública-de-adb">
+<h2>Instalar clave pública de adb</h2>
+<p>Para poder conectarnos al celular utilizando <code>adb</code> debemos instalar en el
+celular la clave pública del certificado que está utilizando adb.</p>
+<p>Para esto copiamos la clave pública de adb que se encuentra en
+<code>~/.android/adbkey.pub</code> en el ramdisk de boot bajo <code>/adb_keys</code>.</p>
+<p>Primero extraemos el ramdisk del boot usando <code>abootimg</code>:</p>
+<pre><code class="language-bash">$ cd ~/workspace/r3di-fr150
+$ cp ~/workspace/r3di-fr150-backup/boot.bin .
+$ mkdir boot_content
+$ cd boot_content
+$ abootimg -x ../boot.bin
+writing boot image config in bootimg.cfg
+extracting kernel in zImage
+extracting ramdisk in initrd.img
+</code></pre>
+<p>Luego se utiliza <code>cpio</code> para extraer el ramdisk y poder modificarlo:</p>
+<pre><code>$ mkdir ramdisk
+$ cd ramdisk
+$ gunzip -c ../initrd.img | doas cpio -i
+</code></pre>
+<p>Pasamos a usar un shell con <code>root</code> para copiar los archivos y ajustar permisos:</p>
+<pre><code>$ doas su
+# cp /home/$DOAS_USER/.android/adbkey.pub adb_keys
+# ls -lh adb_keys
+-rw-r--r-- 1 root root 713 Jan 10 23:59 adb_keys
+</code></pre>
+<p>Terminamos saliendo del shell, reconstruyendo el ramdisk, reconstruyendo el
+boot, grabando al celular y reiniciandolo:</p>
+<p><strong>No olvidar pasar el celular a modo EDL antes de grabar boot.bin al celular.</strong></p>
+<pre><code># exit
+$ doas find . | doas cpio -o -H newc | gzip &gt; ../initrd.img
+3947 blocks
+$ cd ..
+$ abootimg -u ../boot.bin -r initrd.img 
+reading ramdisk from initrd.img
+Writing Boot Image ../boot.bin
+$ cd ~/workspace/edl
+$ ./edl w boot ~/workspace/r3di-fr150/boot.bin
+$ ./edl reset
+</code></pre>
+<p>Verificamos que nos podemos conectar utilizando <code>adb</code>:</p>
+<pre><code class="language-bash">$ adb devices
+List of devices attached
+c7d8d112	device
+$ adb shell
+shell@msm8909_512:/ $
+shell@msm8909_512:/ $ id
+uid=2000(shell) gid=2000(shell) groups=2000(shell),1004(input),1007(log),1011(adb),1015(sdcard_rw),1023(media_rw),1028(sdcard_r),3001(net_bt_admin),3002(net_bt),3003(inet),3006(net_bw_stats) context=u:r:shell:s0
+</code></pre>
+</section>
+<section id="Notas">
+<h2>Notas</h2>
+<section id="Modos-usb">
+<h3>Modos usb</h3>
+<p>Una característica interesante del celular es la cantidad distinta de modos en
+que puede ser reconocido por el PC utilizando <code>lsusb</code>.</p>
+<p><strong>Nota: Conviene quitarle la batería al celular para que sea más sencillo
+reiniciarlo, conectandolo a la computadora mediante un puerto usb que le de la
+suficiente carga para que pueda prenderse.</strong></p>
+<ol>
+<li>
+<p>Si prendemos el celular y dejamos que cargue el sistema operativo, este es
+reconocido como:</p>
+<pre><code>ID 05c6:9092 Qualcomm, Inc. Nokia 8110 4G
+</code></pre>
+</li>
+<li>
+<p>Si en kaios vamos a <code>Settings &gt; Storage &gt; USB storage</code> y habilitamos el usb
+el celular pasa a ser reconocido como:</p>
+<pre><code>ID 18d1:4ee1 Google Inc. Nexus/Pixel Device (MTP)
+</code></pre>
+</li>
+<li>
+<p>Presionando el boton <code>vol-</code> y conectando el usb se reconoce como:</p>
+<pre><code>ID 18d1:d00d Google Inc. Xiaomi Mi/Redmi 2 (fastboot)
+</code></pre>
+</li>
+<li>
+<p>Presionando los botones <code>vol+</code> + <code>pwr</code>, conectando el usb y soltando los
+botones cuando se enciente la retroiluminación del teclado (a unos
+4 segundos de haber conectado el usb) se reconoce como:</p>
+<pre><code>ID 18d1:d001 Google Inc. Nexus 4 (fastboot)
+</code></pre>
+</li>
+<li>
+<p>Presionando los botones <code>vol+</code> + <code>pwr</code>, conectando el usb y dejando los
+botones presionados por unos 10 segundos sin soltar, primero se reconoce el
+usb como</p>
+<pre><code>ID 18d1:d001 Google Inc. Nexus 4 (fastboot)
+</code></pre>
+<p>si dejamos presionados los botones desaparece y aparece:</p>
+<pre><code>ID 05c6:900e Qualcomm, Inc. QHSUSB__BULK
+</code></pre>
+</li>
+<li>
+<p>Presionando los botones <code>*</code> + <code>#</code> y conectando el usb tenemos:</p>
+<pre><code>ID 05c6:9008 Qualcomm, Inc. Gobi Wireless Modem (QDL mode)
+</code></pre>
+</li>
+</ol>
+</section>
+<section id="Recursos">
+<h3>Recursos</h3>
+<p>Documentación oficial:</p>
+<ul>
+<li>
+<a href="https://developer.kaiostech.com/">https://developer.kaiostech.com/</a>
+</li>
+</ul>
+<p>BananaHackers:</p>
+<blockquote>
+<p>Guides and resources to modify your KaiOS devices, by the community, for
+the community</p>
+</blockquote>
+<ul>
+<li>
+<a href="https://wiki.bananahackers.net/">https://wiki.bananahackers.net/</a> (nueva)
+</li>
+<li>
+<a href="https://bananahackers.net/">https://bananahackers.net/</a> (antigua)
+</li>
+</ul>
+<p>La información está <strong>MUY</strong> desordenada.</p>
+<p>EDL:</p>
+<ul>
+<li>
+Exploiting Qualcomm EDL Programmers
+<a href="https://alephsecurity.com/2018/01/22/qualcomm-edl-1/">https://alephsecurity.com/2018/01/22/qualcomm-edl-1/</a>
+</li>
+</ul>
+</section>
+<section id="Errores-al-montar-particiones-con-opción-readonly">
+<h3>Errores al montar particiones con opción readonly</h3>
+<p>En el caso que se quiera montar una partición en modo <em>read only</em> para
+inspeccionar el contenido sin modificarlo, puede aparecer un error del tipo:</p>
+<pre><code>$ doas mount -t ext4 -o ro,loop userdata.bin mnt_userdata
+mount: /home/jmpc/workspace/r3di-fr150-backup/mnt_userdata: cannot mount /dev/loop1 read-only.
+       dmesg(1) may have more information after failed mount system call.
+</code></pre>
+<p>y en la salida de <code>dmesg</code>:</p>
+<pre><code>$ doas dmesg
+ [37411.035278] loop1: detected capacity change from 0 to 2260959
+ [37411.035655] EXT4-fs (loop1): INFO: recovery required on readonly filesystem
+ [37411.035659] EXT4-fs (loop1): write access unavailable, cannot proceed (try mounting with noload)
+</code></pre>
+<p>Esto quiere decir que hay información en el jornal de la partición que no aún no
+fué escrito al filesystem.</p>
+<p>La solución es montar el filesystem como <code>rw</code> así se escribe la información del
+journal al filesystem.</p>
+<pre><code>$ doas mount -t ext4 -o rw,loop userdata.bin mnt_userdata
+</code></pre>
+<p>y en <code>dmesg</code> vemos</p>
+<pre><code> [37631.700972] loop1: detected capacity change from 0 to 2260959
+ [37631.716541] EXT4-fs (loop1): recovery complete
+ [37631.717202] EXT4-fs (loop1): mounted filesystem 57f8f4bc-abf4-655f-bf67-946fc0f9f25b r/w with ordered data mode. Quota mode: none.
+</code></pre>
+<p>Aquí ya podemos proceder a desmontar y montar como <code>ro</code> aunque la imagen ya fué
+modificada:</p>
+<pre><code>$ doas umount mnt_userdata/
+$ doas mount -t ext4 -o ro,loop userdata.bin mnt_userdata
+</code></pre>
+<p>La salida de <code>dmesg</code>:</p>
+<pre><code> [37641.311462] EXT4-fs (loop1): unmounting filesystem 57f8f4bc-abf4-655f-bf67-946fc0f9f25b.
+ [37646.697110] loop1: detected capacity change from 0 to 2260959
+ [37646.697665] EXT4-fs (loop1): mounted filesystem 57f8f4bc-abf4-655f-bf67-946fc0f9f25b ro with ordered data mode. Quota mode: none.
+</code></pre>
+</section>
+</section>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

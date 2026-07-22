@@ -1,0 +1,37 @@
+#!/bin/bash
+#-------------------------------------------------------------------------------
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021, Juan Picca <juan.picca@jumapico.uy>
+#
+# Transfer files to <https://ichi.city/>.
+#
+#-------------------------------------------------------------------------------
+[ -n "$DEBUG" ] && { export PS4='+ [${BASH_SOURCE##*/}:${LINENO}] '; set -x; }
+set -euo pipefail
+
+if [ $# -ne 1 ]; then
+    printf "Usage: %s user\n" "$0"
+    exit 1
+elif [ ! -d "$1" ]; then
+    printf "Directory %s does not exist\n" "$1"
+    exit 1
+elif [ ! -f CREDENTIALS ]; then
+    printf "Missing file \`CREDENTIALS\` with 'user = password' values\n"
+    exit 1
+else
+    user="$1"
+    SSHPASS=$(sed -n "s/^\s*${user}\s*=\s*\([^ ]*\)\s*$/\1/p" CREDENTIALS)
+    if [ -z "$SSHPASS" ]; then
+        printf "Missing 'user = password' entry for user %s in CREDENTIALS\n" "$user"
+        exit 1
+    elif [ "$(echo "$SSHPASS" | wc -l)" -ne 1 ]; then
+        printf "More than one password line for user %s in CREDENTIALS\n" "$user"
+        exit 1
+    fi
+    export SSHPASS
+    sshpass -e sftp -oBatchMode=no -b - "${user}"@ichi.city <<END
+        -rm /${user}/*
+        -rm /${user}/.[!.]*
+        put -R ./${user}/ /
+END
+fi

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Canales de youtube | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Canales de youtube</h1>
+        <h2 class="date">2026-07-21</h2>
+      </div>
+
+<p>Aquí la lista de canales de youtube a recordar luego de borrar las cookies.</p>
+<p>Q: ¿Cuando borrar las cookies?<br>
+A: Cuando las sugerencias de youtube divergen mucho de lo esperado/querido y
+empieza a equivocar las sugerencias de videos.</p>
+<ul>
+<li>
+<a href="https://www.youtube.com/@Allprocessofworld">All process of world</a>
+</li>
+<li>
+<a href="https://www.youtube.com/@kingprocess">king process</a>
+</li>
+<li>
+<a href="https://www.youtube.com/@satisfactoryprocess">SatisFactory Process</a>
+</li>
+<li>
+<a href="https://www.youtube.com/@processx">ProcessX</a>
+</li>
+<li>
+<a href="https://www.youtube.com/InsiderEspanol">Insider Español</a>
+</li>
+<li>
+<a href="https://www.youtube.com/@food_star">FOOD☆STAR</a>
+</li>
+<li>
+<a href="https://www.youtube.com/@lamarch">Fundación Juan March</a>
+</li>
+<li>
+<a href="https://www.youtube.com/@FreeDocumentaryEspanol">Free Documentary Español</a>
+</li>
+<li>
+<a href="https://www.youtube.com/@Moconomy_Economia_y_Finanzas">Moconomy - Economía y Finanzas</a>
+</li>
+<li>
+<a href="https://www.youtube.com/@SLICEIberia">SLICE Iberia</a>
+</li>
+<li>
+<a href="https://www.youtube.com/@HistoryLA">History Latinoamérica</a>
+</li>
+<li>
+<a href="https://www.youtube.com/@Detr%C3%A1sdeltitular-doc">Detrás del titular</a>
+</li>
+<li>
+<a href="https://www.youtube.com/@filosofiaaquiyahora9169">Filosofía aquí y ahora</a>
+Programa de José Pablo Feinmann, subidos a youtube.
+</li>
+<li>
+<a href="https://www.youtube.com/@JMZunzu">Juan Miguel Zunzunegui</a>
+</li>
+<li>
+<a href="https://www.youtube.com/results?search_query=Miguel Anxo Bastos">Miguel Anxo Bastos</a>
+No tiene canal propio, otros suben sus videos.
+</li>
+<li>
+<a href="https://www.youtube.com/@MitosyMentes">Mitos y Mentes</a>
+Los de Distopías y Control Social.
+</li>
+<li>
+<a href="https://www.youtube.com/@liberalistico">Liberalístico</a>
+Los de filosofía y dinero.
+</li>
+<li>
+<a href="https://www.youtube.com/@InigoQuilez">Inigo Quilez</a>
+Demoscene.
+</li>
+<li>
+<a href="https://www.youtube.com/@awenotv">AWENO TV</a>
+Al Weso (Uruguay).
+</li>
+</ul>
+<button id="openall">Abrir links de youtube para actualizar preferencias</button>
+
+<script>
+/* abrir todos los links de la lista en pestañas nuevas */
+function openAllLinks() {
+  const links = [...document.querySelectorAll('li > a')].filter(a =>
+    /(^|\.)youtube\.com$/.test(new URL(a.href).hostname)
+  );
+
+  if (!confirm(`Se van a abrir ${links.length} ventanas. ¿Continuar?`)) return;
+
+  links.forEach(a => window.open(a.href, '_blank'));
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById('openall').addEventListener('click', openAllLinks);
+});
+</script>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

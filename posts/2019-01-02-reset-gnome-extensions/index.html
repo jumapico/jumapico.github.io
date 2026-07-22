@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Resetear extensiones de gnome | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Resetear extensiones de gnome</h1>
+        <h2 class="date">2019-01-02</h2>
+      </div>
+<p>Hace días que tengo problemas con las <a href="https://wiki.gnome.org/Projects/GnomeShell/Extensions">extensiones de gnome</a>
+en varias de mis PC's usando <a href="https://help.gnome.org/users/gnome-help/stable/gnome-classic.html">gnome classic</a>:</p>
+<ul>
+<li>PC 1 (<em>gnome 3.22</em>): no aparece la <em>windows list</em></li>
+<li>PC 2 (<em>gnome 3.30</em>): solo aparece el fondo de pantalla. No aparece la <em>topbar</em>
+ni la <em>windows list</em> y cuando se abre una ventana esta aparece sin
+decoraciones.</li>
+</ul>
+<p>La solución que encontré para corregir los problemas anteriores fué <em>resetear</em>
+las extensiones de <a href="https://wiki.gnome.org/Projects/GnomeShell">gnome shell</a>, <strong>eliminando el directorio
+<code>~/.local/share/gnome-shell</code></strong>:</p>
+<pre><code>$ rm -fr ~/.local/share/gnome-shell
+</code></pre>
+<p>Obviamente con lo anterior se pierden las extensiones que pudieron haber sido
+instaladas por el usuario.</p>
+<h2>Observaciones</h2>
+<p>Realmente asombrado con el hecho de que de un día para otro, sin haber realizado
+cambios en la configuración del escritorio (o de las extensiones),
+<a href="https://www.gnome.org/">gnome</a> deje de funcionar como lo venía haciendo.</p>
+<p>A raíz de los problemas anteriores es que comencé a utilizar <a href="https://mate-desktop.org/">mate</a> como
+escritorio, que si bien no es tan atractivo visualmente, al carecer de
+extensiones estoy seguro que no me va volver a suceder que entre un día a mi
+sesión y esté imposibilitado de utilizar el escritorio, o me falte un elemento
+importante como la lista de ventanas.
+Para quien no lo sepa, <a href="https://mate-desktop.org/">mate</a> es un fork de <em>gnome 2</em>.</p>
+<p>Último comentario sobre <em>gnome</em>: no me agrada pensar que javascript es el único
+lenguaje para programar las extensiones. Realmente hubiera preferido tener
+<a href="https://www.lua.org/">lua</a> como opción.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

@@ -1,0 +1,2999 @@
+DEBUG: Running installation step: auto 
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: dialog.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: strings.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/variable.subr]
+DEBUG: variable.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: variable.subr: New variable VAR_CONFIG_FILE -> configFile
+DEBUG: variable.subr: New variable VAR_DEBUG -> debug
+DEBUG: variable.subr: New variable VAR_DEBUG_FILE -> debugFile
+DEBUG: variable.subr: New variable VAR_DIRECTORY_PATH -> _directoryPath
+DEBUG: variable.subr: New variable VAR_DOMAINNAME -> domainname
+DEBUG: variable.subr: New variable VAR_EDITOR -> editor
+DEBUG: variable.subr: New variable VAR_EXTRAS -> ifconfig_
+DEBUG: variable.subr: New variable VAR_FTP_DIR -> ftpDirectory
+DEBUG: variable.subr: New variable VAR_FTP_HOST -> ftpHost
+DEBUG: variable.subr: New variable VAR_FTP_PASS -> ftpPass
+DEBUG: variable.subr: New variable VAR_FTP_PATH -> _ftpPath
+DEBUG: variable.subr: New variable VAR_FTP_PORT -> ftpPort
+DEBUG: variable.subr: New variable VAR_FTP_STATE -> ftpState
+DEBUG: variable.subr: New variable VAR_FTP_USER -> ftpUser
+DEBUG: variable.subr: New variable VAR_GATEWAY -> defaultrouter
+DEBUG: variable.subr: New variable VAR_GROUP -> group
+DEBUG: variable.subr: New variable VAR_GROUP_GID -> groupGid
+DEBUG: variable.subr: New variable VAR_GROUP_MEMBERS -> groupMembers
+DEBUG: variable.subr: New variable VAR_GROUP_PASSWORD -> groupPassword
+DEBUG: variable.subr: New variable VAR_HOSTNAME -> hostname
+DEBUG: variable.subr: New variable VAR_HTTP_DIR -> httpDirectory
+DEBUG: variable.subr: New variable VAR_HTTP_FTP_MODE -> httpFtpMode
+DEBUG: variable.subr: New variable VAR_HTTP_HOST -> httpHost
+DEBUG: variable.subr: New variable VAR_HTTP_PATH -> _httpPath
+DEBUG: variable.subr: New variable VAR_HTTP_PORT -> httpPort
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY -> httpProxy
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_HOST -> httpProxyHost
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_PATH -> _httpProxyPath
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_PORT -> httpProxyPort
+DEBUG: variable.subr: New variable VAR_IFCONFIG -> ifconfig_
+DEBUG: variable.subr: New variable VAR_IPADDR -> ipaddr
+DEBUG: variable.subr: New variable VAR_IPV6ADDR -> ipv6addr
+DEBUG: variable.subr: New variable VAR_IPV6_ENABLE -> ipv6_activate_all_interfaces
+DEBUG: variable.subr: New variable VAR_KEYMAP -> keymap
+DEBUG: variable.subr: New variable VAR_MEDIA_TIMEOUT -> MEDIA_TIMEOUT
+DEBUG: variable.subr: New variable VAR_MEDIA_TYPE -> mediaType
+DEBUG: variable.subr: New variable VAR_NAMESERVER -> nameserver
+DEBUG: variable.subr: New variable VAR_NETINTERACTIVE -> netInteractive
+DEBUG: variable.subr: New variable VAR_NETMASK -> netmask
+DEBUG: variable.subr: New variable VAR_NETWORK_DEVICE -> netDev
+DEBUG: variable.subr: New variable VAR_NFS_HOST -> nfsHost
+DEBUG: variable.subr: New variable VAR_NFS_PATH -> nfsPath
+DEBUG: variable.subr: New variable VAR_NFS_SECURE -> nfs_reserved_port_only
+DEBUG: variable.subr: New variable VAR_NFS_TCP -> nfs_use_tcp
+DEBUG: variable.subr: New variable VAR_NFS_V3 -> nfs_use_v3
+DEBUG: variable.subr: New variable VAR_NONINTERACTIVE -> nonInteractive
+DEBUG: variable.subr: New variable VAR_NO_CONFIRM -> noConfirm
+DEBUG: variable.subr: New variable VAR_NO_ERROR -> noError
+DEBUG: variable.subr: New variable VAR_NO_INET6 -> noInet6
+DEBUG: variable.subr: New variable VAR_PACKAGE -> package
+DEBUG: variable.subr: New variable VAR_PKG_TMPDIR -> PKG_TMPDIR
+DEBUG: variable.subr: New variable VAR_PORTS_PATH -> ports
+DEBUG: variable.subr: New variable VAR_RELNAME -> releaseName
+DEBUG: variable.subr: New variable VAR_SLOW_ETHER -> slowEthernetCard
+DEBUG: variable.subr: New variable VAR_TRY_DHCP -> tryDHCP
+DEBUG: variable.subr: New variable VAR_TRY_RTSOL -> tryRTSOL
+DEBUG: variable.subr: New variable VAR_UFS_PATH -> ufs
+DEBUG: variable.subr: New variable VAR_USER -> user
+DEBUG: variable.subr: New variable VAR_USER_ACCOUNT_EXPIRE -> userAccountExpire
+DEBUG: variable.subr: New variable VAR_USER_DOTFILES_CREATE -> userDotfilesCreate
+DEBUG: variable.subr: New variable VAR_USER_GECOS -> userGecos
+DEBUG: variable.subr: New variable VAR_USER_GID -> userGid
+DEBUG: variable.subr: New variable VAR_USER_GROUPS -> userGroups
+DEBUG: variable.subr: New variable VAR_USER_GROUP_DELETE -> userGroupDelete
+DEBUG: variable.subr: New variable VAR_USER_HOME -> userHome
+DEBUG: variable.subr: New variable VAR_USER_HOME_CREATE -> userHomeCreate
+DEBUG: variable.subr: New variable VAR_USER_HOME_DELETE -> userHomeDelete
+DEBUG: variable.subr: New variable VAR_USER_LOGIN_CLASS -> userLoginClass
+DEBUG: variable.subr: New variable VAR_USER_PASSWORD -> userPassword
+DEBUG: variable.subr: New variable VAR_USER_PASSWORD_EXPIRE -> userPasswordExpire
+DEBUG: variable.subr: New variable VAR_USER_SHELL -> userShell
+DEBUG: variable.subr: New variable VAR_USER_UID -> userUid
+DEBUG: variable.subr: New variable VAR_ZFSINTERACTIVE -> zfsInteractive
+DEBUG: variable.subr: VARIABLE_SELF_INITIALIZE=[1]
+DEBUG: f_variable_set_defaults: Initializing defaults...
+DEBUG: f_getvar: var=[debug] value=[1] r=0
+DEBUG: f_getvar: var=[editor] value=[/usr/bin/ee] r=0
+DEBUG: f_getvar: var=[ftpState] value=[auto] r=0
+DEBUG: f_getvar: var=[ftpUser] value=[ftp] r=0
+DEBUG: f_getvar: var=[hostname] value=[] r=0
+DEBUG: f_getvar: var=[MEDIA_TIMEOUT] value=[300] r=0
+DEBUG: f_getvar: var=[nfs_reserved_port_only] value=[NO] r=0
+DEBUG: f_getvar: var=[nfs_use_tcp] value=[NO] r=0
+DEBUG: f_getvar: var=[nfs_use_v3] value=[YES] r=0
+DEBUG: f_getvar: var=[PKG_TMPDIR] value=[/var/tmp] r=0
+DEBUG: f_getvar: var=[releaseName] value=[14.3-RELEASE] r=0
+DEBUG: f_variable_set_defaults: Defaults initialized.
+DEBUG: variable.subr: Successfully loaded.
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/include/messages.subr] lang=[C.UTF-8]
+DEBUG: dialog.subr: DIALOG_SELF_INITIALIZE=[1]
+DEBUG: f_dialog_init: ARGV=[] GETOPTS_STDARGS=[dD:SX]
+DEBUG: f_dialog_init: SECURE=[] USE_XDIALOG=[]
+DEBUG: f_dialog_init: dialog(1) API initialized.
+DEBUG: dialog.subr: Successfully loaded.
+DEBUG: Began Installation at Wed Jul  9 02:22:17 UTC 2025
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: f_debug_init: ARGV=[keymap] GETOPTS_STDARGS=[dD:]
+DEBUG: f_debug_init: debug=[1] debugFile=[/tmp/bsdinstall_log]
+DEBUG: Running installation step: keymap 
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: /usr/libexec/bsdinstall/keymap: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: dialog.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: strings.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/variable.subr]
+DEBUG: variable.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: variable.subr: New variable VAR_CONFIG_FILE -> configFile
+DEBUG: variable.subr: New variable VAR_DEBUG -> debug
+DEBUG: variable.subr: New variable VAR_DEBUG_FILE -> debugFile
+DEBUG: variable.subr: New variable VAR_DIRECTORY_PATH -> _directoryPath
+DEBUG: variable.subr: New variable VAR_DOMAINNAME -> domainname
+DEBUG: variable.subr: New variable VAR_EDITOR -> editor
+DEBUG: variable.subr: New variable VAR_EXTRAS -> ifconfig_
+DEBUG: variable.subr: New variable VAR_FTP_DIR -> ftpDirectory
+DEBUG: variable.subr: New variable VAR_FTP_HOST -> ftpHost
+DEBUG: variable.subr: New variable VAR_FTP_PASS -> ftpPass
+DEBUG: variable.subr: New variable VAR_FTP_PATH -> _ftpPath
+DEBUG: variable.subr: New variable VAR_FTP_PORT -> ftpPort
+DEBUG: variable.subr: New variable VAR_FTP_STATE -> ftpState
+DEBUG: variable.subr: New variable VAR_FTP_USER -> ftpUser
+DEBUG: variable.subr: New variable VAR_GATEWAY -> defaultrouter
+DEBUG: variable.subr: New variable VAR_GROUP -> group
+DEBUG: variable.subr: New variable VAR_GROUP_GID -> groupGid
+DEBUG: variable.subr: New variable VAR_GROUP_MEMBERS -> groupMembers
+DEBUG: variable.subr: New variable VAR_GROUP_PASSWORD -> groupPassword
+DEBUG: variable.subr: New variable VAR_HOSTNAME -> hostname
+DEBUG: variable.subr: New variable VAR_HTTP_DIR -> httpDirectory
+DEBUG: variable.subr: New variable VAR_HTTP_FTP_MODE -> httpFtpMode
+DEBUG: variable.subr: New variable VAR_HTTP_HOST -> httpHost
+DEBUG: variable.subr: New variable VAR_HTTP_PATH -> _httpPath
+DEBUG: variable.subr: New variable VAR_HTTP_PORT -> httpPort
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY -> httpProxy
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_HOST -> httpProxyHost
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_PATH -> _httpProxyPath
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_PORT -> httpProxyPort
+DEBUG: variable.subr: New variable VAR_IFCONFIG -> ifconfig_
+DEBUG: variable.subr: New variable VAR_IPADDR -> ipaddr
+DEBUG: variable.subr: New variable VAR_IPV6ADDR -> ipv6addr
+DEBUG: variable.subr: New variable VAR_IPV6_ENABLE -> ipv6_activate_all_interfaces
+DEBUG: variable.subr: New variable VAR_KEYMAP -> keymap
+DEBUG: variable.subr: New variable VAR_MEDIA_TIMEOUT -> MEDIA_TIMEOUT
+DEBUG: variable.subr: New variable VAR_MEDIA_TYPE -> mediaType
+DEBUG: variable.subr: New variable VAR_NAMESERVER -> nameserver
+DEBUG: variable.subr: New variable VAR_NETINTERACTIVE -> netInteractive
+DEBUG: variable.subr: New variable VAR_NETMASK -> netmask
+DEBUG: variable.subr: New variable VAR_NETWORK_DEVICE -> netDev
+DEBUG: variable.subr: New variable VAR_NFS_HOST -> nfsHost
+DEBUG: variable.subr: New variable VAR_NFS_PATH -> nfsPath
+DEBUG: variable.subr: New variable VAR_NFS_SECURE -> nfs_reserved_port_only
+DEBUG: variable.subr: New variable VAR_NFS_TCP -> nfs_use_tcp
+DEBUG: variable.subr: New variable VAR_NFS_V3 -> nfs_use_v3
+DEBUG: variable.subr: New variable VAR_NONINTERACTIVE -> nonInteractive
+DEBUG: variable.subr: New variable VAR_NO_CONFIRM -> noConfirm
+DEBUG: variable.subr: New variable VAR_NO_ERROR -> noError
+DEBUG: variable.subr: New variable VAR_NO_INET6 -> noInet6
+DEBUG: variable.subr: New variable VAR_PACKAGE -> package
+DEBUG: variable.subr: New variable VAR_PKG_TMPDIR -> PKG_TMPDIR
+DEBUG: variable.subr: New variable VAR_PORTS_PATH -> ports
+DEBUG: variable.subr: New variable VAR_RELNAME -> releaseName
+DEBUG: variable.subr: New variable VAR_SLOW_ETHER -> slowEthernetCard
+DEBUG: variable.subr: New variable VAR_TRY_DHCP -> tryDHCP
+DEBUG: variable.subr: New variable VAR_TRY_RTSOL -> tryRTSOL
+DEBUG: variable.subr: New variable VAR_UFS_PATH -> ufs
+DEBUG: variable.subr: New variable VAR_USER -> user
+DEBUG: variable.subr: New variable VAR_USER_ACCOUNT_EXPIRE -> userAccountExpire
+DEBUG: variable.subr: New variable VAR_USER_DOTFILES_CREATE -> userDotfilesCreate
+DEBUG: variable.subr: New variable VAR_USER_GECOS -> userGecos
+DEBUG: variable.subr: New variable VAR_USER_GID -> userGid
+DEBUG: variable.subr: New variable VAR_USER_GROUPS -> userGroups
+DEBUG: variable.subr: New variable VAR_USER_GROUP_DELETE -> userGroupDelete
+DEBUG: variable.subr: New variable VAR_USER_HOME -> userHome
+DEBUG: variable.subr: New variable VAR_USER_HOME_CREATE -> userHomeCreate
+DEBUG: variable.subr: New variable VAR_USER_HOME_DELETE -> userHomeDelete
+DEBUG: variable.subr: New variable VAR_USER_LOGIN_CLASS -> userLoginClass
+DEBUG: variable.subr: New variable VAR_USER_PASSWORD -> userPassword
+DEBUG: variable.subr: New variable VAR_USER_PASSWORD_EXPIRE -> userPasswordExpire
+DEBUG: variable.subr: New variable VAR_USER_SHELL -> userShell
+DEBUG: variable.subr: New variable VAR_USER_UID -> userUid
+DEBUG: variable.subr: New variable VAR_ZFSINTERACTIVE -> zfsInteractive
+DEBUG: variable.subr: VARIABLE_SELF_INITIALIZE=[1]
+DEBUG: f_variable_set_defaults: Initializing defaults...
+DEBUG: f_getvar: var=[debug] value=[1] r=0
+DEBUG: f_getvar: var=[editor] value=[/usr/bin/ee] r=0
+DEBUG: f_getvar: var=[ftpState] value=[auto] r=0
+DEBUG: f_getvar: var=[ftpUser] value=[ftp] r=0
+DEBUG: f_getvar: var=[hostname] value=[] r=0
+DEBUG: f_getvar: var=[MEDIA_TIMEOUT] value=[300] r=0
+DEBUG: f_getvar: var=[nfs_reserved_port_only] value=[NO] r=0
+DEBUG: f_getvar: var=[nfs_use_tcp] value=[NO] r=0
+DEBUG: f_getvar: var=[nfs_use_v3] value=[YES] r=0
+DEBUG: f_getvar: var=[PKG_TMPDIR] value=[/var/tmp] r=0
+DEBUG: f_getvar: var=[releaseName] value=[14.3-RELEASE] r=0
+DEBUG: f_variable_set_defaults: Defaults initialized.
+DEBUG: variable.subr: Successfully loaded.
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/include/messages.subr] lang=[C.UTF-8]
+DEBUG: dialog.subr: DIALOG_SELF_INITIALIZE=[1]
+DEBUG: f_dialog_init: ARGV=[] GETOPTS_STDARGS=[dD:SX]
+DEBUG: f_dialog_init: SECURE=[] USE_XDIALOG=[]
+DEBUG: f_dialog_init: dialog(1) API initialized.
+DEBUG: dialog.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/keymap.subr]
+DEBUG: keymap.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/struct.subr]
+DEBUG: struct.subr: Successfully loaded.
+DEBUG: keymap.subr: KEYMAP_SELF_SCAN_ALL=[1]
+DEBUG: f_keymap_get_all: Looking for keymap files...
+DEBUG: f_dialog_max_size: dialog --print-maxsize = [MaxSize: 25, 80]
+DEBUG: f_getvar: var=[height] value=[3] r=0
+DEBUG: f_getvar: var=[width] value=[31] r=0
+DEBUG: DEFAULT_LANG=[en]
+DEBUG: dialect=[C.UTF-8]
+DEBUG: lang_abk=[C.UTF-8]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_am_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_be_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_be_acc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_bg_bds_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_bg_phonetic_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_br_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_br_noacc_kbd]
+DEBUG: f_getvar: var=[debug] value=[1] r=0
+DEBUG: /usr/share/vt/keymaps/br.lenovo.kbd: No such file or directory
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_by_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_centraleuropean_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_centraleuropean_qwerty_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_colemak_dh_acc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_colemak_acc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_cz_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_dk_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_dk_acc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_dk_macbook_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_nl_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_nordic_asus_eee_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_ee_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_fi_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_fr_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_fr_acc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_fr_bepo_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_fr_macbook_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_fr_dvorak_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_fr_dvorak_acc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_ca_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_ca_fr_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_ca_multi_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_de_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_de_acc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_de_noacc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_gr_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_gr_elot_acc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_gr_101_acc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_il_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_hr_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_hu_101_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_hu_102_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_is_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_is_acc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_it_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_jp_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_jp_capsctrl_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_kz_kst_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_kz_io_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_latinamerican_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_latinamerican_acc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_lt_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_no_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_no_dvorak_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_pl_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_pl_dvorak_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_pt_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_pt_acc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_ru_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_ru_shift_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_ru_win_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_es_dvorak_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_es_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_es_acc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_si_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_sk_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_se_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_ch_fr_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_ch_fr_acc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_ch_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_ch_acc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_ch_macbook_acc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_tr_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_tr_f_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_uk_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_uk_capsctrl_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_uk_dvorak_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_uk_macbook_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_us_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_us_acc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_us_dvorak_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_us_dvorakr_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_us_dvorakl_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_us_dvorakp_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_us_dvorakx_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_us_emacs_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_us_ctrl_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_us_unix_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_us_macbook_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_ua_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_ua_shift_alt_kbd]
+DEBUG: f_keymap_get_all: Sorting keymap entries by description...
+DEBUG: keymap.subr: Found 88 keymap file(s).
+DEBUG: keymap.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/sysrc.subr]
+DEBUG: sysrc.subr: loading includes...
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/include/messages.subr] lang=[C.UTF-8]
+DEBUG: sysrc.subr: Successfully loaded.
+DEBUG: f_getvar: var=[keymap] value=[] r=1
+DEBUG: f_getvar: var=[_struct_value_keymap_am_kbd_keym] value=[am.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_am_kbd_desc] value=[Armenian phonetic layout] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_by_kbd_keym] value=[by.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_by_kbd_desc] value=[Belarusian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_be_kbd_keym] value=[be.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_be_kbd_desc] value=[Belgian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_be_acc_kbd_keym] value=[be.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_be_acc_kbd_desc] value=[Belgian (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_br_kbd_keym] value=[br.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_br_kbd_desc] value=[Brazilian (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_br_noacc_kbd_keym] value=[br.noacc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_br_noacc_kbd_desc] value=[Brazilian (without accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_bg_bds_kbd_keym] value=[bg.bds.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_bg_bds_kbd_desc] value=[Bulgarian (BDS)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_bg_phonetic_kbd_keym] value=[bg.phonetic.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_bg_phonetic_kbd_desc] value=[Bulgarian (Phonetic)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ca_kbd_keym] value=[ca.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ca_kbd_desc] value=[Canadian Bilingual] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ca_multi_kbd_keym] value=[ca-multi.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ca_multi_kbd_desc] value=[Canadian Mulitlingual Standard] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_centraleuropean_kbd_keym] value=[centraleuropean.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_centraleuropean_kbd_desc] value=[Central European] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_centraleuropean_qwerty_kbd_keym] value=[centraleuropean.qwerty.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_centraleuropean_qwerty_kbd_desc] value=[Central European (QWERTY)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_colemak_dh_acc_kbd_keym] value=[colemak-dh.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_colemak_dh_acc_kbd_desc] value=[Colemak Mod-DH ergonomic alternative] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_colemak_acc_kbd_keym] value=[colemak.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_colemak_acc_kbd_desc] value=[Colemak ergonomic alternative] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_hr_kbd_keym] value=[hr.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_hr_kbd_desc] value=[Croatian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_cz_kbd_keym] value=[cz.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_cz_kbd_desc] value=[Czech (QWERTZ, accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_dk_kbd_keym] value=[dk.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_dk_kbd_desc] value=[Danish] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_dk_macbook_kbd_keym] value=[dk.macbook.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_dk_macbook_kbd_desc] value=[Danish (MacBook)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_dk_acc_kbd_keym] value=[dk.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_dk_acc_kbd_desc] value=[Danish (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_nl_kbd_keym] value=[nl.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_nl_kbd_desc] value=[Dutch (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ee_kbd_keym] value=[ee.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ee_kbd_desc] value=[Estonian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fi_kbd_keym] value=[fi.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fi_kbd_desc] value=[Finnish] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_kbd_keym] value=[fr.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_kbd_desc] value=[French] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_macbook_kbd_keym] value=[fr.macbook.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_macbook_kbd_desc] value=[French (MacBook/MacBook Pro) (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_acc_kbd_keym] value=[fr.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_acc_kbd_desc] value=[French (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_bepo_kbd_keym] value=[fr.bepo.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_bepo_kbd_desc] value=[French Bépo] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ca_fr_kbd_keym] value=[ca-fr.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ca_fr_kbd_desc] value=[French Canadian (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_dvorak_kbd_keym] value=[fr.dvorak.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_dvorak_kbd_desc] value=[French Dvorak-like] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_dvorak_acc_kbd_keym] value=[fr.dvorak.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_dvorak_acc_kbd_desc] value=[French Dvorak-like (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_de_kbd_keym] value=[de.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_de_kbd_desc] value=[German] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_de_acc_kbd_keym] value=[de.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_de_acc_kbd_desc] value=[German (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_de_noacc_kbd_keym] value=[de.noacc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_de_noacc_kbd_desc] value=[German (no accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_gr_101_acc_kbd_keym] value=[gr.101.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_gr_101_acc_kbd_desc] value=[Greek (101 keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_gr_kbd_keym] value=[gr.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_gr_kbd_desc] value=[Greek (104 keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_gr_elot_acc_kbd_keym] value=[gr.elot.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_gr_elot_acc_kbd_desc] value=[Greek ELOT] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_il_kbd_keym] value=[il.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_il_kbd_desc] value=[Hebrew] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_hu_101_kbd_keym] value=[hu.101.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_hu_101_kbd_desc] value=[Hungarian (101 keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_hu_102_kbd_keym] value=[hu.102.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_hu_102_kbd_desc] value=[Hungarian (102 keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_is_kbd_keym] value=[is.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_is_kbd_desc] value=[Icelandic] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_is_acc_kbd_keym] value=[is.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_is_acc_kbd_desc] value=[Icelandic (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_it_kbd_keym] value=[it.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_it_kbd_desc] value=[Italian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_jp_kbd_keym] value=[jp.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_jp_kbd_desc] value=[Japanese 106] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_jp_capsctrl_kbd_keym] value=[jp.capsctrl.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_jp_capsctrl_kbd_desc] value=[Japanese 106x] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_kz_kst_kbd_keym] value=[kz.kst.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_kz_kst_kbd_desc] value=[Kazakh] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_kz_io_kbd_keym] value=[kz.io.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_kz_io_kbd_desc] value=[Kazakh (with IO)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_latinamerican_kbd_keym] value=[latinamerican.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_latinamerican_kbd_desc] value=[Latin American] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_latinamerican_acc_kbd_keym] value=[latinamerican.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_latinamerican_acc_kbd_desc] value=[Latin American (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_lt_kbd_keym] value=[lt.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_lt_kbd_desc] value=[Lithuanian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_nordic_asus_eee_kbd_keym] value=[nordic.asus-eee.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_nordic_asus_eee_kbd_desc] value=[Nordic layout on Asus eeePC] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_no_kbd_keym] value=[no.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_no_kbd_desc] value=[Norwegian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_no_dvorak_kbd_keym] value=[no.dvorak.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_no_dvorak_kbd_desc] value=[Norwegian dvorak] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_pl_kbd_keym] value=[pl.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_pl_kbd_desc] value=[Polish (programmer's)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_pl_dvorak_kbd_keym] value=[pl.dvorak.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_pl_dvorak_kbd_desc] value=[Polish Dvorak] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_pt_kbd_keym] value=[pt.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_pt_kbd_desc] value=[Portuguese] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_pt_acc_kbd_keym] value=[pt.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_pt_acc_kbd_desc] value=[Portuguese (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ru_kbd_keym] value=[ru.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ru_kbd_desc] value=[Russian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ru_shift_kbd_keym] value=[ru.shift.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ru_shift_kbd_desc] value=[Russian (shift)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ru_win_kbd_keym] value=[ru.win.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ru_win_kbd_desc] value=[Russian (winkeys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_sk_kbd_keym] value=[sk.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_sk_kbd_desc] value=[Slovak] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_si_kbd_keym] value=[si.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_si_kbd_desc] value=[Slovenian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_es_kbd_keym] value=[es.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_es_kbd_desc] value=[Spanish] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_es_acc_kbd_keym] value=[es.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_es_acc_kbd_desc] value=[Spanish (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_es_dvorak_kbd_keym] value=[es.dvorak.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_es_dvorak_kbd_desc] value=[Spanish Dvorak] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_se_kbd_keym] value=[se.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_se_kbd_desc] value=[Swedish] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_fr_kbd_keym] value=[ch-fr.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_fr_kbd_desc] value=[Swiss-French] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_fr_acc_kbd_keym] value=[ch-fr.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_fr_acc_kbd_desc] value=[Swiss-French (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_kbd_keym] value=[ch.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_kbd_desc] value=[Swiss-German] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_macbook_acc_kbd_keym] value=[ch.macbook.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_macbook_acc_kbd_desc] value=[Swiss-German (MacBook/MacBook Pro) (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_acc_kbd_keym] value=[ch.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_acc_kbd_desc] value=[Swiss-German (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_tr_f_kbd_keym] value=[tr.f.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_tr_f_kbd_desc] value=[Turkish (F)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_tr_kbd_keym] value=[tr.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_tr_kbd_desc] value=[Turkish (Q)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ua_kbd_keym] value=[ua.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ua_kbd_desc] value=[Ukrainian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ua_shift_alt_kbd_keym] value=[ua.shift.alt.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ua_shift_alt_kbd_desc] value=[Ukrainian (with Russian) (shift)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_uk_kbd_keym] value=[uk.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_uk_kbd_desc] value=[United Kingdom] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_uk_capsctrl_kbd_keym] value=[uk.capsctrl.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_uk_capsctrl_kbd_desc] value=[United Kingdom (Caps Lock acts as Left Ctrl)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_uk_macbook_kbd_keym] value=[uk.macbook.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_uk_macbook_kbd_desc] value=[United Kingdom (MacBook)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_uk_dvorak_kbd_keym] value=[uk.dvorak.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_uk_dvorak_kbd_desc] value=[United Kingdom Dvorak] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_kbd_keym] value=[us.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_kbd_desc] value=[United States of America] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_ctrl_kbd_keym] value=[us.ctrl.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_ctrl_kbd_desc] value=[United States of America (Caps Lock acts as Left Ctrl)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_macbook_kbd_keym] value=[us.macbook.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_macbook_kbd_desc] value=[United States of America (MacBook/MacBook Pro) ISO-8859-1] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_acc_kbd_keym] value=[us.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_acc_kbd_desc] value=[United States of America (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_emacs_kbd_keym] value=[us.emacs.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_emacs_kbd_desc] value=[United States of America Emacs optimized layout] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorakp_kbd_keym] value=[us.dvorakp.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorakp_kbd_desc] value=[United States of America Programmer Dvorak] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_unix_kbd_keym] value=[us.unix.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_unix_kbd_desc] value=[United States of America Traditional Unix Workstation] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorak_kbd_keym] value=[us.dvorak.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorak_kbd_desc] value=[United States of America dvorak] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorakx_kbd_keym] value=[us.dvorakx.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorakx_kbd_desc] value=[United States of America dvorakx] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorakl_kbd_keym] value=[us.dvorakl.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorakl_kbd_desc] value=[United States of America lefthand dvorak] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorakr_kbd_keym] value=[us.dvorakr.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorakr_kbd_desc] value=[United States of America righthand dvorak] r=0
+DEBUG: f_dialog_max_size: dialog --print-maxsize = [MaxSize: 25, 80]
+DEBUG: f_getvar: var=[height] value=[20] r=0
+DEBUG: f_getvar: var=[rows] value=[14] r=0
+DEBUG: f_getvar: var=[menu_choice] value=[( ) United States of America] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_kbd_keym] value=[us.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_am_kbd_keym] value=[am.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_am_kbd_desc] value=[Armenian phonetic layout] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_by_kbd_keym] value=[by.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_by_kbd_desc] value=[Belarusian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_be_kbd_keym] value=[be.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_be_kbd_desc] value=[Belgian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_be_acc_kbd_keym] value=[be.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_be_acc_kbd_desc] value=[Belgian (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_br_kbd_keym] value=[br.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_br_kbd_desc] value=[Brazilian (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_br_noacc_kbd_keym] value=[br.noacc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_br_noacc_kbd_desc] value=[Brazilian (without accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_bg_bds_kbd_keym] value=[bg.bds.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_bg_bds_kbd_desc] value=[Bulgarian (BDS)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_bg_phonetic_kbd_keym] value=[bg.phonetic.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_bg_phonetic_kbd_desc] value=[Bulgarian (Phonetic)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ca_kbd_keym] value=[ca.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ca_kbd_desc] value=[Canadian Bilingual] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ca_multi_kbd_keym] value=[ca-multi.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ca_multi_kbd_desc] value=[Canadian Mulitlingual Standard] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_centraleuropean_kbd_keym] value=[centraleuropean.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_centraleuropean_kbd_desc] value=[Central European] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_centraleuropean_qwerty_kbd_keym] value=[centraleuropean.qwerty.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_centraleuropean_qwerty_kbd_desc] value=[Central European (QWERTY)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_colemak_dh_acc_kbd_keym] value=[colemak-dh.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_colemak_dh_acc_kbd_desc] value=[Colemak Mod-DH ergonomic alternative] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_colemak_acc_kbd_keym] value=[colemak.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_colemak_acc_kbd_desc] value=[Colemak ergonomic alternative] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_hr_kbd_keym] value=[hr.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_hr_kbd_desc] value=[Croatian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_cz_kbd_keym] value=[cz.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_cz_kbd_desc] value=[Czech (QWERTZ, accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_dk_kbd_keym] value=[dk.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_dk_kbd_desc] value=[Danish] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_dk_macbook_kbd_keym] value=[dk.macbook.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_dk_macbook_kbd_desc] value=[Danish (MacBook)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_dk_acc_kbd_keym] value=[dk.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_dk_acc_kbd_desc] value=[Danish (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_nl_kbd_keym] value=[nl.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_nl_kbd_desc] value=[Dutch (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ee_kbd_keym] value=[ee.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ee_kbd_desc] value=[Estonian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fi_kbd_keym] value=[fi.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fi_kbd_desc] value=[Finnish] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_kbd_keym] value=[fr.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_kbd_desc] value=[French] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_macbook_kbd_keym] value=[fr.macbook.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_macbook_kbd_desc] value=[French (MacBook/MacBook Pro) (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_acc_kbd_keym] value=[fr.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_acc_kbd_desc] value=[French (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_bepo_kbd_keym] value=[fr.bepo.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_bepo_kbd_desc] value=[French Bépo] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ca_fr_kbd_keym] value=[ca-fr.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ca_fr_kbd_desc] value=[French Canadian (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_dvorak_kbd_keym] value=[fr.dvorak.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_dvorak_kbd_desc] value=[French Dvorak-like] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_dvorak_acc_kbd_keym] value=[fr.dvorak.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_dvorak_acc_kbd_desc] value=[French Dvorak-like (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_de_kbd_keym] value=[de.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_de_kbd_desc] value=[German] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_de_acc_kbd_keym] value=[de.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_de_acc_kbd_desc] value=[German (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_de_noacc_kbd_keym] value=[de.noacc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_de_noacc_kbd_desc] value=[German (no accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_gr_101_acc_kbd_keym] value=[gr.101.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_gr_101_acc_kbd_desc] value=[Greek (101 keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_gr_kbd_keym] value=[gr.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_gr_kbd_desc] value=[Greek (104 keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_gr_elot_acc_kbd_keym] value=[gr.elot.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_gr_elot_acc_kbd_desc] value=[Greek ELOT] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_il_kbd_keym] value=[il.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_il_kbd_desc] value=[Hebrew] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_hu_101_kbd_keym] value=[hu.101.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_hu_101_kbd_desc] value=[Hungarian (101 keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_hu_102_kbd_keym] value=[hu.102.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_hu_102_kbd_desc] value=[Hungarian (102 keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_is_kbd_keym] value=[is.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_is_kbd_desc] value=[Icelandic] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_is_acc_kbd_keym] value=[is.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_is_acc_kbd_desc] value=[Icelandic (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_it_kbd_keym] value=[it.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_it_kbd_desc] value=[Italian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_jp_kbd_keym] value=[jp.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_jp_kbd_desc] value=[Japanese 106] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_jp_capsctrl_kbd_keym] value=[jp.capsctrl.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_jp_capsctrl_kbd_desc] value=[Japanese 106x] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_kz_kst_kbd_keym] value=[kz.kst.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_kz_kst_kbd_desc] value=[Kazakh] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_kz_io_kbd_keym] value=[kz.io.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_kz_io_kbd_desc] value=[Kazakh (with IO)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_latinamerican_kbd_keym] value=[latinamerican.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_latinamerican_kbd_desc] value=[Latin American] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_latinamerican_acc_kbd_keym] value=[latinamerican.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_latinamerican_acc_kbd_desc] value=[Latin American (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_lt_kbd_keym] value=[lt.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_lt_kbd_desc] value=[Lithuanian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_nordic_asus_eee_kbd_keym] value=[nordic.asus-eee.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_nordic_asus_eee_kbd_desc] value=[Nordic layout on Asus eeePC] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_no_kbd_keym] value=[no.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_no_kbd_desc] value=[Norwegian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_no_dvorak_kbd_keym] value=[no.dvorak.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_no_dvorak_kbd_desc] value=[Norwegian dvorak] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_pl_kbd_keym] value=[pl.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_pl_kbd_desc] value=[Polish (programmer's)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_pl_dvorak_kbd_keym] value=[pl.dvorak.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_pl_dvorak_kbd_desc] value=[Polish Dvorak] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_pt_kbd_keym] value=[pt.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_pt_kbd_desc] value=[Portuguese] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_pt_acc_kbd_keym] value=[pt.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_pt_acc_kbd_desc] value=[Portuguese (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ru_kbd_keym] value=[ru.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ru_kbd_desc] value=[Russian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ru_shift_kbd_keym] value=[ru.shift.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ru_shift_kbd_desc] value=[Russian (shift)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ru_win_kbd_keym] value=[ru.win.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ru_win_kbd_desc] value=[Russian (winkeys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_sk_kbd_keym] value=[sk.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_sk_kbd_desc] value=[Slovak] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_si_kbd_keym] value=[si.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_si_kbd_desc] value=[Slovenian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_es_kbd_keym] value=[es.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_es_kbd_desc] value=[Spanish] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_es_acc_kbd_keym] value=[es.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_es_acc_kbd_desc] value=[Spanish (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_es_dvorak_kbd_keym] value=[es.dvorak.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_es_dvorak_kbd_desc] value=[Spanish Dvorak] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_se_kbd_keym] value=[se.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_se_kbd_desc] value=[Swedish] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_fr_kbd_keym] value=[ch-fr.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_fr_kbd_desc] value=[Swiss-French] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_fr_acc_kbd_keym] value=[ch-fr.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_fr_acc_kbd_desc] value=[Swiss-French (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_kbd_keym] value=[ch.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_kbd_desc] value=[Swiss-German] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_macbook_acc_kbd_keym] value=[ch.macbook.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_macbook_acc_kbd_desc] value=[Swiss-German (MacBook/MacBook Pro) (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_acc_kbd_keym] value=[ch.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_acc_kbd_desc] value=[Swiss-German (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_tr_f_kbd_keym] value=[tr.f.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_tr_f_kbd_desc] value=[Turkish (F)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_tr_kbd_keym] value=[tr.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_tr_kbd_desc] value=[Turkish (Q)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ua_kbd_keym] value=[ua.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ua_kbd_desc] value=[Ukrainian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ua_shift_alt_kbd_keym] value=[ua.shift.alt.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ua_shift_alt_kbd_desc] value=[Ukrainian (with Russian) (shift)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_uk_kbd_keym] value=[uk.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_uk_kbd_desc] value=[United Kingdom] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_uk_capsctrl_kbd_keym] value=[uk.capsctrl.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_uk_capsctrl_kbd_desc] value=[United Kingdom (Caps Lock acts as Left Ctrl)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_uk_macbook_kbd_keym] value=[uk.macbook.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_uk_macbook_kbd_desc] value=[United Kingdom (MacBook)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_uk_dvorak_kbd_keym] value=[uk.dvorak.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_uk_dvorak_kbd_desc] value=[United Kingdom Dvorak] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_kbd_keym] value=[us.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_kbd_desc] value=[United States of America] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_ctrl_kbd_keym] value=[us.ctrl.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_ctrl_kbd_desc] value=[United States of America (Caps Lock acts as Left Ctrl)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_macbook_kbd_keym] value=[us.macbook.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_macbook_kbd_desc] value=[United States of America (MacBook/MacBook Pro) ISO-8859-1] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_acc_kbd_keym] value=[us.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_acc_kbd_desc] value=[United States of America (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_emacs_kbd_keym] value=[us.emacs.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_emacs_kbd_desc] value=[United States of America Emacs optimized layout] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorakp_kbd_keym] value=[us.dvorakp.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorakp_kbd_desc] value=[United States of America Programmer Dvorak] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_unix_kbd_keym] value=[us.unix.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_unix_kbd_desc] value=[United States of America Traditional Unix Workstation] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorak_kbd_keym] value=[us.dvorak.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorak_kbd_desc] value=[United States of America dvorak] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorakx_kbd_keym] value=[us.dvorakx.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorakx_kbd_desc] value=[United States of America dvorakx] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorakl_kbd_keym] value=[us.dvorakl.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorakl_kbd_desc] value=[United States of America lefthand dvorak] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorakr_kbd_keym] value=[us.dvorakr.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorakr_kbd_desc] value=[United States of America righthand dvorak] r=0
+DEBUG: f_dialog_max_size: dialog --print-maxsize = [MaxSize: 25, 80]
+DEBUG: f_getvar: var=[height] value=[20] r=0
+DEBUG: f_getvar: var=[rows] value=[14] r=0
+DEBUG: f_getvar: var=[menu_choice] value=[>>> Continue with us.kbd keymap] r=0
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: f_debug_init: ARGV=[hostname] GETOPTS_STDARGS=[dD:]
+DEBUG: f_debug_init: debug=[1] debugFile=[/tmp/bsdinstall_log]
+DEBUG: Running installation step: hostname 
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: /usr/libexec/bsdinstall/hostname: loading_includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: dialog.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: strings.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/variable.subr]
+DEBUG: variable.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: variable.subr: New variable VAR_CONFIG_FILE -> configFile
+DEBUG: variable.subr: New variable VAR_DEBUG -> debug
+DEBUG: variable.subr: New variable VAR_DEBUG_FILE -> debugFile
+DEBUG: variable.subr: New variable VAR_DIRECTORY_PATH -> _directoryPath
+DEBUG: variable.subr: New variable VAR_DOMAINNAME -> domainname
+DEBUG: variable.subr: New variable VAR_EDITOR -> editor
+DEBUG: variable.subr: New variable VAR_EXTRAS -> ifconfig_
+DEBUG: variable.subr: New variable VAR_FTP_DIR -> ftpDirectory
+DEBUG: variable.subr: New variable VAR_FTP_HOST -> ftpHost
+DEBUG: variable.subr: New variable VAR_FTP_PASS -> ftpPass
+DEBUG: variable.subr: New variable VAR_FTP_PATH -> _ftpPath
+DEBUG: variable.subr: New variable VAR_FTP_PORT -> ftpPort
+DEBUG: variable.subr: New variable VAR_FTP_STATE -> ftpState
+DEBUG: variable.subr: New variable VAR_FTP_USER -> ftpUser
+DEBUG: variable.subr: New variable VAR_GATEWAY -> defaultrouter
+DEBUG: variable.subr: New variable VAR_GROUP -> group
+DEBUG: variable.subr: New variable VAR_GROUP_GID -> groupGid
+DEBUG: variable.subr: New variable VAR_GROUP_MEMBERS -> groupMembers
+DEBUG: variable.subr: New variable VAR_GROUP_PASSWORD -> groupPassword
+DEBUG: variable.subr: New variable VAR_HOSTNAME -> hostname
+DEBUG: variable.subr: New variable VAR_HTTP_DIR -> httpDirectory
+DEBUG: variable.subr: New variable VAR_HTTP_FTP_MODE -> httpFtpMode
+DEBUG: variable.subr: New variable VAR_HTTP_HOST -> httpHost
+DEBUG: variable.subr: New variable VAR_HTTP_PATH -> _httpPath
+DEBUG: variable.subr: New variable VAR_HTTP_PORT -> httpPort
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY -> httpProxy
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_HOST -> httpProxyHost
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_PATH -> _httpProxyPath
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_PORT -> httpProxyPort
+DEBUG: variable.subr: New variable VAR_IFCONFIG -> ifconfig_
+DEBUG: variable.subr: New variable VAR_IPADDR -> ipaddr
+DEBUG: variable.subr: New variable VAR_IPV6ADDR -> ipv6addr
+DEBUG: variable.subr: New variable VAR_IPV6_ENABLE -> ipv6_activate_all_interfaces
+DEBUG: variable.subr: New variable VAR_KEYMAP -> keymap
+DEBUG: variable.subr: New variable VAR_MEDIA_TIMEOUT -> MEDIA_TIMEOUT
+DEBUG: variable.subr: New variable VAR_MEDIA_TYPE -> mediaType
+DEBUG: variable.subr: New variable VAR_NAMESERVER -> nameserver
+DEBUG: variable.subr: New variable VAR_NETINTERACTIVE -> netInteractive
+DEBUG: variable.subr: New variable VAR_NETMASK -> netmask
+DEBUG: variable.subr: New variable VAR_NETWORK_DEVICE -> netDev
+DEBUG: variable.subr: New variable VAR_NFS_HOST -> nfsHost
+DEBUG: variable.subr: New variable VAR_NFS_PATH -> nfsPath
+DEBUG: variable.subr: New variable VAR_NFS_SECURE -> nfs_reserved_port_only
+DEBUG: variable.subr: New variable VAR_NFS_TCP -> nfs_use_tcp
+DEBUG: variable.subr: New variable VAR_NFS_V3 -> nfs_use_v3
+DEBUG: variable.subr: New variable VAR_NONINTERACTIVE -> nonInteractive
+DEBUG: variable.subr: New variable VAR_NO_CONFIRM -> noConfirm
+DEBUG: variable.subr: New variable VAR_NO_ERROR -> noError
+DEBUG: variable.subr: New variable VAR_NO_INET6 -> noInet6
+DEBUG: variable.subr: New variable VAR_PACKAGE -> package
+DEBUG: variable.subr: New variable VAR_PKG_TMPDIR -> PKG_TMPDIR
+DEBUG: variable.subr: New variable VAR_PORTS_PATH -> ports
+DEBUG: variable.subr: New variable VAR_RELNAME -> releaseName
+DEBUG: variable.subr: New variable VAR_SLOW_ETHER -> slowEthernetCard
+DEBUG: variable.subr: New variable VAR_TRY_DHCP -> tryDHCP
+DEBUG: variable.subr: New variable VAR_TRY_RTSOL -> tryRTSOL
+DEBUG: variable.subr: New variable VAR_UFS_PATH -> ufs
+DEBUG: variable.subr: New variable VAR_USER -> user
+DEBUG: variable.subr: New variable VAR_USER_ACCOUNT_EXPIRE -> userAccountExpire
+DEBUG: variable.subr: New variable VAR_USER_DOTFILES_CREATE -> userDotfilesCreate
+DEBUG: variable.subr: New variable VAR_USER_GECOS -> userGecos
+DEBUG: variable.subr: New variable VAR_USER_GID -> userGid
+DEBUG: variable.subr: New variable VAR_USER_GROUPS -> userGroups
+DEBUG: variable.subr: New variable VAR_USER_GROUP_DELETE -> userGroupDelete
+DEBUG: variable.subr: New variable VAR_USER_HOME -> userHome
+DEBUG: variable.subr: New variable VAR_USER_HOME_CREATE -> userHomeCreate
+DEBUG: variable.subr: New variable VAR_USER_HOME_DELETE -> userHomeDelete
+DEBUG: variable.subr: New variable VAR_USER_LOGIN_CLASS -> userLoginClass
+DEBUG: variable.subr: New variable VAR_USER_PASSWORD -> userPassword
+DEBUG: variable.subr: New variable VAR_USER_PASSWORD_EXPIRE -> userPasswordExpire
+DEBUG: variable.subr: New variable VAR_USER_SHELL -> userShell
+DEBUG: variable.subr: New variable VAR_USER_UID -> userUid
+DEBUG: variable.subr: New variable VAR_ZFSINTERACTIVE -> zfsInteractive
+DEBUG: variable.subr: VARIABLE_SELF_INITIALIZE=[1]
+DEBUG: f_variable_set_defaults: Initializing defaults...
+DEBUG: f_getvar: var=[debug] value=[1] r=0
+DEBUG: f_getvar: var=[editor] value=[/usr/bin/ee] r=0
+DEBUG: f_getvar: var=[ftpState] value=[auto] r=0
+DEBUG: f_getvar: var=[ftpUser] value=[ftp] r=0
+DEBUG: f_getvar: var=[hostname] value=[] r=0
+DEBUG: f_getvar: var=[MEDIA_TIMEOUT] value=[300] r=0
+DEBUG: f_getvar: var=[nfs_reserved_port_only] value=[NO] r=0
+DEBUG: f_getvar: var=[nfs_use_tcp] value=[NO] r=0
+DEBUG: f_getvar: var=[nfs_use_v3] value=[YES] r=0
+DEBUG: f_getvar: var=[PKG_TMPDIR] value=[/var/tmp] r=0
+DEBUG: f_getvar: var=[releaseName] value=[14.3-RELEASE] r=0
+DEBUG: f_variable_set_defaults: Defaults initialized.
+DEBUG: variable.subr: Successfully loaded.
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/include/messages.subr] lang=[C.UTF-8]
+DEBUG: dialog.subr: DIALOG_SELF_INITIALIZE=[1]
+DEBUG: f_dialog_init: ARGV=[] GETOPTS_STDARGS=[dD:SX]
+DEBUG: f_dialog_init: SECURE=[] USE_XDIALOG=[]
+DEBUG: f_dialog_init: dialog(1) API initialized.
+DEBUG: dialog.subr: Successfully loaded.
+DEBUG: hostname: echo "hostname=\"$HOSTNAME\"" > "/tmp/bsdinstall_etc/rc.conf.hostname"
+DEBUG: hostname: retval=0 <no output>
+DEBUG: hostname: hostname -s "example"
+DEBUG: hostname: retval=0 <no output>
+DEBUG: f_getvar: var=[nonInteractive] value=[] r=1
+DEBUG: smbios.system.maker=[innotek GmbH]
+DEBUG: smbios.system.product=[VirtualBox]
+DEBUG: smbios.system.version=[1.2]
+DEBUG: smbios.planar.maker=[Oracle Corporation]
+DEBUG: smbios.planar.product=[VirtualBox]
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: f_debug_init: ARGV=[zfsboot] GETOPTS_STDARGS=[dD:]
+DEBUG: f_debug_init: debug=[1] debugFile=[/tmp/bsdinstall_log]
+DEBUG: Running installation step: zfsboot 
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: /usr/libexec/bsdinstall/zfsboot: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/device.subr]
+DEBUG: device.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: dialog.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: strings.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/variable.subr]
+DEBUG: variable.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: variable.subr: New variable VAR_CONFIG_FILE -> configFile
+DEBUG: variable.subr: New variable VAR_DEBUG -> debug
+DEBUG: variable.subr: New variable VAR_DEBUG_FILE -> debugFile
+DEBUG: variable.subr: New variable VAR_DIRECTORY_PATH -> _directoryPath
+DEBUG: variable.subr: New variable VAR_DOMAINNAME -> domainname
+DEBUG: variable.subr: New variable VAR_EDITOR -> editor
+DEBUG: variable.subr: New variable VAR_EXTRAS -> ifconfig_
+DEBUG: variable.subr: New variable VAR_FTP_DIR -> ftpDirectory
+DEBUG: variable.subr: New variable VAR_FTP_HOST -> ftpHost
+DEBUG: variable.subr: New variable VAR_FTP_PASS -> ftpPass
+DEBUG: variable.subr: New variable VAR_FTP_PATH -> _ftpPath
+DEBUG: variable.subr: New variable VAR_FTP_PORT -> ftpPort
+DEBUG: variable.subr: New variable VAR_FTP_STATE -> ftpState
+DEBUG: variable.subr: New variable VAR_FTP_USER -> ftpUser
+DEBUG: variable.subr: New variable VAR_GATEWAY -> defaultrouter
+DEBUG: variable.subr: New variable VAR_GROUP -> group
+DEBUG: variable.subr: New variable VAR_GROUP_GID -> groupGid
+DEBUG: variable.subr: New variable VAR_GROUP_MEMBERS -> groupMembers
+DEBUG: variable.subr: New variable VAR_GROUP_PASSWORD -> groupPassword
+DEBUG: variable.subr: New variable VAR_HOSTNAME -> hostname
+DEBUG: variable.subr: New variable VAR_HTTP_DIR -> httpDirectory
+DEBUG: variable.subr: New variable VAR_HTTP_FTP_MODE -> httpFtpMode
+DEBUG: variable.subr: New variable VAR_HTTP_HOST -> httpHost
+DEBUG: variable.subr: New variable VAR_HTTP_PATH -> _httpPath
+DEBUG: variable.subr: New variable VAR_HTTP_PORT -> httpPort
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY -> httpProxy
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_HOST -> httpProxyHost
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_PATH -> _httpProxyPath
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_PORT -> httpProxyPort
+DEBUG: variable.subr: New variable VAR_IFCONFIG -> ifconfig_
+DEBUG: variable.subr: New variable VAR_IPADDR -> ipaddr
+DEBUG: variable.subr: New variable VAR_IPV6ADDR -> ipv6addr
+DEBUG: variable.subr: New variable VAR_IPV6_ENABLE -> ipv6_activate_all_interfaces
+DEBUG: variable.subr: New variable VAR_KEYMAP -> keymap
+DEBUG: variable.subr: New variable VAR_MEDIA_TIMEOUT -> MEDIA_TIMEOUT
+DEBUG: variable.subr: New variable VAR_MEDIA_TYPE -> mediaType
+DEBUG: variable.subr: New variable VAR_NAMESERVER -> nameserver
+DEBUG: variable.subr: New variable VAR_NETINTERACTIVE -> netInteractive
+DEBUG: variable.subr: New variable VAR_NETMASK -> netmask
+DEBUG: variable.subr: New variable VAR_NETWORK_DEVICE -> netDev
+DEBUG: variable.subr: New variable VAR_NFS_HOST -> nfsHost
+DEBUG: variable.subr: New variable VAR_NFS_PATH -> nfsPath
+DEBUG: variable.subr: New variable VAR_NFS_SECURE -> nfs_reserved_port_only
+DEBUG: variable.subr: New variable VAR_NFS_TCP -> nfs_use_tcp
+DEBUG: variable.subr: New variable VAR_NFS_V3 -> nfs_use_v3
+DEBUG: variable.subr: New variable VAR_NONINTERACTIVE -> nonInteractive
+DEBUG: variable.subr: New variable VAR_NO_CONFIRM -> noConfirm
+DEBUG: variable.subr: New variable VAR_NO_ERROR -> noError
+DEBUG: variable.subr: New variable VAR_NO_INET6 -> noInet6
+DEBUG: variable.subr: New variable VAR_PACKAGE -> package
+DEBUG: variable.subr: New variable VAR_PKG_TMPDIR -> PKG_TMPDIR
+DEBUG: variable.subr: New variable VAR_PORTS_PATH -> ports
+DEBUG: variable.subr: New variable VAR_RELNAME -> releaseName
+DEBUG: variable.subr: New variable VAR_SLOW_ETHER -> slowEthernetCard
+DEBUG: variable.subr: New variable VAR_TRY_DHCP -> tryDHCP
+DEBUG: variable.subr: New variable VAR_TRY_RTSOL -> tryRTSOL
+DEBUG: variable.subr: New variable VAR_UFS_PATH -> ufs
+DEBUG: variable.subr: New variable VAR_USER -> user
+DEBUG: variable.subr: New variable VAR_USER_ACCOUNT_EXPIRE -> userAccountExpire
+DEBUG: variable.subr: New variable VAR_USER_DOTFILES_CREATE -> userDotfilesCreate
+DEBUG: variable.subr: New variable VAR_USER_GECOS -> userGecos
+DEBUG: variable.subr: New variable VAR_USER_GID -> userGid
+DEBUG: variable.subr: New variable VAR_USER_GROUPS -> userGroups
+DEBUG: variable.subr: New variable VAR_USER_GROUP_DELETE -> userGroupDelete
+DEBUG: variable.subr: New variable VAR_USER_HOME -> userHome
+DEBUG: variable.subr: New variable VAR_USER_HOME_CREATE -> userHomeCreate
+DEBUG: variable.subr: New variable VAR_USER_HOME_DELETE -> userHomeDelete
+DEBUG: variable.subr: New variable VAR_USER_LOGIN_CLASS -> userLoginClass
+DEBUG: variable.subr: New variable VAR_USER_PASSWORD -> userPassword
+DEBUG: variable.subr: New variable VAR_USER_PASSWORD_EXPIRE -> userPasswordExpire
+DEBUG: variable.subr: New variable VAR_USER_SHELL -> userShell
+DEBUG: variable.subr: New variable VAR_USER_UID -> userUid
+DEBUG: variable.subr: New variable VAR_ZFSINTERACTIVE -> zfsInteractive
+DEBUG: variable.subr: VARIABLE_SELF_INITIALIZE=[1]
+DEBUG: f_variable_set_defaults: Initializing defaults...
+DEBUG: f_getvar: var=[debug] value=[1] r=0
+DEBUG: f_getvar: var=[editor] value=[/usr/bin/ee] r=0
+DEBUG: f_getvar: var=[ftpState] value=[auto] r=0
+DEBUG: f_getvar: var=[ftpUser] value=[ftp] r=0
+DEBUG: f_getvar: var=[hostname] value=[example] r=0
+DEBUG: f_getvar: var=[MEDIA_TIMEOUT] value=[300] r=0
+DEBUG: f_getvar: var=[nfs_reserved_port_only] value=[NO] r=0
+DEBUG: f_getvar: var=[nfs_use_tcp] value=[NO] r=0
+DEBUG: f_getvar: var=[nfs_use_v3] value=[YES] r=0
+DEBUG: f_getvar: var=[PKG_TMPDIR] value=[/var/tmp] r=0
+DEBUG: f_getvar: var=[releaseName] value=[14.3-RELEASE] r=0
+DEBUG: f_variable_set_defaults: Defaults initialized.
+DEBUG: variable.subr: Successfully loaded.
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/include/messages.subr] lang=[C.UTF-8]
+DEBUG: dialog.subr: DIALOG_SELF_INITIALIZE=[1]
+DEBUG: f_dialog_init: ARGV=[] GETOPTS_STDARGS=[dD:SX]
+DEBUG: f_dialog_init: SECURE=[] USE_XDIALOG=[]
+DEBUG: f_dialog_init: dialog(1) API initialized.
+DEBUG: dialog.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/geom.subr]
+DEBUG: geom.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/struct.subr]
+DEBUG: struct.subr: Successfully loaded.
+DEBUG: geom.subr: GEOM_SELF_SCAN_ALL=[1]
+DEBUG: geom.subr: Initialized 11 geom devices in 10 classes.
+DEBUG: geom.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/struct.subr]
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/include/messages.subr] lang=[C.UTF-8]
+DEBUG: device.subr: Initialized device catalog with 106 names/descriptions.
+DEBUG: device.subr: DEVICE_SELF_SCAN_ALL=[1]
+DEBUG: f_device_get_all: Probing devices...
+DEBUG: f_dialog_max_size: dialog --print-maxsize = [MaxSize: 25, 80]
+DEBUG: f_getvar: var=[height] value=[3] r=0
+DEBUG: f_getvar: var=[width] value=[59] r=0
+DEBUG: Found network device named em0
+DEBUG: Found network device named em1
+DEBUG: WARNING! Unable to classify GEOM device diskid/DISK-VBb938e211-f4fc1c86 as media source
+DEBUG: Found CDROM device labeled iso9660/14_3_RELEASE_AMD64_CD
+DEBUG: Found disk device named ada0
+DEBUG: Found CDROM device for disk cd0
+DEBUG: device.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/password/password.subr]
+DEBUG: password/password.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/040.password/include/messages.subr] lang=[C.UTF-8]
+DEBUG: password/password.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/variable.subr]
+DEBUG: f_getvar: var=[nonInteractive] value=[] r=1
+DEBUG: BSDINSTALL_CHROOT=[/mnt]
+DEBUG: BSDINSTALL_TMPETC=[/tmp/bsdinstall_etc]
+DEBUG: FSTAB_FMT=[%s\t\t%s\t%s\t%s\t\t%s\t%s\n]
+no pools available to import
+DEBUG: machdep.bootmethod=[BIOS]
+DEBUG: f_getvar: var=[nonInteractive] value=[] r=1
+DEBUG: f_dialog_max_size: dialog --print-maxsize = [MaxSize: 25, 80]
+DEBUG: f_getvar: var=[height] value=[19] r=0
+DEBUG: f_getvar: var=[width] value=[57] r=0
+DEBUG: f_getvar: var=[rows] value=[12] r=0
+DEBUG: f_getvar: var=[menu_choice] value=[P Partition Scheme] r=0
+DEBUG: retval=0 mtag=[P Partition Scheme]
+DEBUG: f_getvar: var=[nonInteractive] value=[] r=1
+DEBUG: f_dialog_max_size: dialog --print-maxsize = [MaxSize: 25, 80]
+DEBUG: f_getvar: var=[height] value=[19] r=0
+DEBUG: f_getvar: var=[width] value=[57] r=0
+DEBUG: f_getvar: var=[rows] value=[12] r=0
+DEBUG: f_getvar: var=[menu_choice] value=[E Encrypt Disks?] r=0
+DEBUG: retval=0 mtag=[E Encrypt Disks?]
+DEBUG: f_getvar: var=[nonInteractive] value=[] r=1
+DEBUG: f_dialog_max_size: dialog --print-maxsize = [MaxSize: 25, 80]
+DEBUG: f_getvar: var=[height] value=[19] r=0
+DEBUG: f_getvar: var=[width] value=[57] r=0
+DEBUG: f_getvar: var=[rows] value=[12] r=0
+DEBUG: f_getvar: var=[menu_choice] value=[W Encrypt Swap?] r=0
+DEBUG: retval=0 mtag=[W Encrypt Swap?]
+DEBUG: f_getvar: var=[nonInteractive] value=[] r=1
+DEBUG: f_dialog_max_size: dialog --print-maxsize = [MaxSize: 25, 80]
+DEBUG: f_getvar: var=[height] value=[19] r=0
+DEBUG: f_getvar: var=[width] value=[57] r=0
+DEBUG: f_getvar: var=[rows] value=[12] r=0
+DEBUG: f_getvar: var=[menu_choice] value=[P Partition Scheme] r=0
+DEBUG: retval=0 mtag=[P Partition Scheme]
+DEBUG: f_getvar: var=[nonInteractive] value=[] r=1
+DEBUG: f_dialog_max_size: dialog --print-maxsize = [MaxSize: 25, 80]
+DEBUG: f_getvar: var=[height] value=[19] r=0
+DEBUG: f_getvar: var=[width] value=[57] r=0
+DEBUG: f_getvar: var=[rows] value=[12] r=0
+DEBUG: f_getvar: var=[menu_choice] value=[P Partition Scheme] r=0
+DEBUG: retval=0 mtag=[P Partition Scheme]
+DEBUG: f_getvar: var=[nonInteractive] value=[] r=1
+DEBUG: f_dialog_max_size: dialog --print-maxsize = [MaxSize: 25, 80]
+DEBUG: f_getvar: var=[height] value=[19] r=0
+DEBUG: f_getvar: var=[width] value=[57] r=0
+DEBUG: f_getvar: var=[rows] value=[12] r=0
+DEBUG: f_getvar: var=[menu_choice] value=[P Partition Scheme] r=0
+DEBUG: retval=0 mtag=[P Partition Scheme]
+DEBUG: f_getvar: var=[nonInteractive] value=[] r=1
+DEBUG: f_dialog_max_size: dialog --print-maxsize = [MaxSize: 25, 80]
+DEBUG: f_getvar: var=[height] value=[19] r=0
+DEBUG: f_getvar: var=[width] value=[57] r=0
+DEBUG: f_getvar: var=[rows] value=[12] r=0
+DEBUG: f_getvar: var=[menu_choice] value=[P Partition Scheme] r=0
+DEBUG: retval=0 mtag=[P Partition Scheme]
+DEBUG: f_getvar: var=[nonInteractive] value=[] r=1
+DEBUG: f_dialog_max_size: dialog --print-maxsize = [MaxSize: 25, 80]
+DEBUG: f_getvar: var=[height] value=[19] r=0
+DEBUG: f_getvar: var=[width] value=[57] r=0
+DEBUG: f_getvar: var=[rows] value=[12] r=0
+DEBUG: f_getvar: var=[menu_choice] value=[P Partition Scheme] r=0
+DEBUG: retval=0 mtag=[P Partition Scheme]
+DEBUG: f_getvar: var=[nonInteractive] value=[] r=1
+DEBUG: f_dialog_max_size: dialog --print-maxsize = [MaxSize: 25, 80]
+DEBUG: f_getvar: var=[height] value=[19] r=0
+DEBUG: f_getvar: var=[width] value=[57] r=0
+DEBUG: f_getvar: var=[rows] value=[12] r=0
+DEBUG: f_getvar: var=[menu_choice] value=[P Partition Scheme] r=0
+DEBUG: retval=0 mtag=[P Partition Scheme]
+DEBUG: f_getvar: var=[nonInteractive] value=[] r=1
+DEBUG: f_dialog_max_size: dialog --print-maxsize = [MaxSize: 25, 80]
+DEBUG: f_getvar: var=[height] value=[19] r=0
+DEBUG: f_getvar: var=[width] value=[57] r=0
+DEBUG: f_getvar: var=[rows] value=[12] r=0
+DEBUG: f_getvar: var=[menu_choice] value=[T Pool Type/Disks:] r=0
+DEBUG: retval=0 mtag=[T Pool Type/Disks:]
+DEBUG: f_dialog_max_size: dialog --print-maxsize = [MaxSize: 25, 80]
+DEBUG: f_getvar: var=[vheight] value=[13] r=0
+DEBUG: f_getvar: var=[vwidth] value=[47] r=0
+DEBUG: f_getvar: var=[vrows] value=[6] r=0
+DEBUG: dialog_menu_layout: disks=[ada0]
+DEBUG: f_getvar: var=[disks] value=[device_4] r=0
+DEBUG: f_getvar: var=[disks] value=[device_4] r=0
+DEBUG: f_getvar: var=[nonInteractive] value=[] r=1
+DEBUG: f_getvar: var=[vdev_choice] value=[stripe] r=0
+DEBUG: dialog_menu_layout: ZFSBOOT_VDEV_TYPE=[stripe]
+DEBUG: No disks selected.
+DEBUG: f_getvar: var=[nonInteractive] value=[] r=1
+DEBUG: f_getvar: var=[nonInteractive] value=[] r=1
+DEBUG: f_getvar: var=[nonInteractive] value=[] r=1
+DEBUG: f_getvar: var=[_struct_value_device_4_name] value=[ada0] r=0
+DEBUG: f_getvar: var=[_struct_value_device_4_desc] value=[VBOX HARDDISK] r=0
+DEBUG: f_getvar: var=[_device_4_status:-off] value=[off] r=0
+DEBUG: f_dialog_max_size: dialog --print-maxsize = [MaxSize: 25, 80]
+DEBUG: f_getvar: var=[height] value=[8] r=0
+DEBUG: f_getvar: var=[width] value=[54] r=0
+DEBUG: f_getvar: var=[rows] value=[1] r=0
+DEBUG: f_getvar: var=[selections] value=[ada0] r=0
+DEBUG: dialog_menu_layout: ZFSBOOT_DISKS=[ada0]
+DEBUG: f_getvar: var=[nonInteractive] value=[] r=1
+DEBUG: f_dialog_max_size: dialog --print-maxsize = [MaxSize: 25, 80]
+DEBUG: f_getvar: var=[height] value=[19] r=0
+DEBUG: f_getvar: var=[width] value=[57] r=0
+DEBUG: f_getvar: var=[rows] value=[12] r=0
+DEBUG: f_getvar: var=[menu_choice] value=[T Pool Type/Disks:] r=0
+DEBUG: retval=0 mtag=[T Pool Type/Disks:]
+DEBUG: f_dialog_max_size: dialog --print-maxsize = [MaxSize: 25, 80]
+DEBUG: f_getvar: var=[vheight] value=[13] r=0
+DEBUG: f_getvar: var=[vwidth] value=[47] r=0
+DEBUG: f_getvar: var=[vrows] value=[6] r=0
+DEBUG: dialog_menu_layout: disks=[ada0]
+DEBUG: f_getvar: var=[disks] value=[device_4] r=0
+DEBUG: f_getvar: var=[disks] value=[device_4] r=0
+DEBUG: f_getvar: var=[nonInteractive] value=[] r=1
+DEBUG: f_getvar: var=[nonInteractive] value=[] r=1
+DEBUG: f_dialog_max_size: dialog --print-maxsize = [MaxSize: 25, 80]
+DEBUG: f_getvar: var=[height] value=[19] r=0
+DEBUG: f_getvar: var=[width] value=[57] r=0
+DEBUG: f_getvar: var=[rows] value=[12] r=0
+DEBUG: f_getvar: var=[menu_choice] value=[] r=0
+DEBUG: retval=1 mtag=[]
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: f_debug_init: ARGV=[umount] GETOPTS_STDARGS=[dD:]
+DEBUG: f_debug_init: debug=[1] debugFile=[/tmp/bsdinstall_log]
+DEBUG: Running installation step: umount 
+DEBUG: f_dialog_max_size: stty size
+DEBUG: f_dialog_max_size: retval=0 <output below>
+25 80
+DEBUG: f_getvar: var=[height] value=[8] r=0
+DEBUG: f_getvar: var=[width] value=[57] r=0
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: dialog.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: strings.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/variable.subr]
+DEBUG: variable.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: variable.subr: New variable VAR_CONFIG_FILE -> configFile
+DEBUG: variable.subr: New variable VAR_DEBUG -> debug
+DEBUG: variable.subr: New variable VAR_DEBUG_FILE -> debugFile
+DEBUG: variable.subr: New variable VAR_DIRECTORY_PATH -> _directoryPath
+DEBUG: variable.subr: New variable VAR_DOMAINNAME -> domainname
+DEBUG: variable.subr: New variable VAR_EDITOR -> editor
+DEBUG: variable.subr: New variable VAR_EXTRAS -> ifconfig_
+DEBUG: variable.subr: New variable VAR_FTP_DIR -> ftpDirectory
+DEBUG: variable.subr: New variable VAR_FTP_HOST -> ftpHost
+DEBUG: variable.subr: New variable VAR_FTP_PASS -> ftpPass
+DEBUG: variable.subr: New variable VAR_FTP_PATH -> _ftpPath
+DEBUG: variable.subr: New variable VAR_FTP_PORT -> ftpPort
+DEBUG: variable.subr: New variable VAR_FTP_STATE -> ftpState
+DEBUG: variable.subr: New variable VAR_FTP_USER -> ftpUser
+DEBUG: variable.subr: New variable VAR_GATEWAY -> defaultrouter
+DEBUG: variable.subr: New variable VAR_GROUP -> group
+DEBUG: variable.subr: New variable VAR_GROUP_GID -> groupGid
+DEBUG: variable.subr: New variable VAR_GROUP_MEMBERS -> groupMembers
+DEBUG: variable.subr: New variable VAR_GROUP_PASSWORD -> groupPassword
+DEBUG: variable.subr: New variable VAR_HOSTNAME -> hostname
+DEBUG: variable.subr: New variable VAR_HTTP_DIR -> httpDirectory
+DEBUG: variable.subr: New variable VAR_HTTP_FTP_MODE -> httpFtpMode
+DEBUG: variable.subr: New variable VAR_HTTP_HOST -> httpHost
+DEBUG: variable.subr: New variable VAR_HTTP_PATH -> _httpPath
+DEBUG: variable.subr: New variable VAR_HTTP_PORT -> httpPort
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY -> httpProxy
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_HOST -> httpProxyHost
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_PATH -> _httpProxyPath
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_PORT -> httpProxyPort
+DEBUG: variable.subr: New variable VAR_IFCONFIG -> ifconfig_
+DEBUG: variable.subr: New variable VAR_IPADDR -> ipaddr
+DEBUG: variable.subr: New variable VAR_IPV6ADDR -> ipv6addr
+DEBUG: variable.subr: New variable VAR_IPV6_ENABLE -> ipv6_activate_all_interfaces
+DEBUG: variable.subr: New variable VAR_KEYMAP -> keymap
+DEBUG: variable.subr: New variable VAR_MEDIA_TIMEOUT -> MEDIA_TIMEOUT
+DEBUG: variable.subr: New variable VAR_MEDIA_TYPE -> mediaType
+DEBUG: variable.subr: New variable VAR_NAMESERVER -> nameserver
+DEBUG: variable.subr: New variable VAR_NETINTERACTIVE -> netInteractive
+DEBUG: variable.subr: New variable VAR_NETMASK -> netmask
+DEBUG: variable.subr: New variable VAR_NETWORK_DEVICE -> netDev
+DEBUG: variable.subr: New variable VAR_NFS_HOST -> nfsHost
+DEBUG: variable.subr: New variable VAR_NFS_PATH -> nfsPath
+DEBUG: variable.subr: New variable VAR_NFS_SECURE -> nfs_reserved_port_only
+DEBUG: variable.subr: New variable VAR_NFS_TCP -> nfs_use_tcp
+DEBUG: variable.subr: New variable VAR_NFS_V3 -> nfs_use_v3
+DEBUG: variable.subr: New variable VAR_NONINTERACTIVE -> nonInteractive
+DEBUG: variable.subr: New variable VAR_NO_CONFIRM -> noConfirm
+DEBUG: variable.subr: New variable VAR_NO_ERROR -> noError
+DEBUG: variable.subr: New variable VAR_NO_INET6 -> noInet6
+DEBUG: variable.subr: New variable VAR_PACKAGE -> package
+DEBUG: variable.subr: New variable VAR_PKG_TMPDIR -> PKG_TMPDIR
+DEBUG: variable.subr: New variable VAR_PORTS_PATH -> ports
+DEBUG: variable.subr: New variable VAR_RELNAME -> releaseName
+DEBUG: variable.subr: New variable VAR_SLOW_ETHER -> slowEthernetCard
+DEBUG: variable.subr: New variable VAR_TRY_DHCP -> tryDHCP
+DEBUG: variable.subr: New variable VAR_TRY_RTSOL -> tryRTSOL
+DEBUG: variable.subr: New variable VAR_UFS_PATH -> ufs
+DEBUG: variable.subr: New variable VAR_USER -> user
+DEBUG: variable.subr: New variable VAR_USER_ACCOUNT_EXPIRE -> userAccountExpire
+DEBUG: variable.subr: New variable VAR_USER_DOTFILES_CREATE -> userDotfilesCreate
+DEBUG: variable.subr: New variable VAR_USER_GECOS -> userGecos
+DEBUG: variable.subr: New variable VAR_USER_GID -> userGid
+DEBUG: variable.subr: New variable VAR_USER_GROUPS -> userGroups
+DEBUG: variable.subr: New variable VAR_USER_GROUP_DELETE -> userGroupDelete
+DEBUG: variable.subr: New variable VAR_USER_HOME -> userHome
+DEBUG: variable.subr: New variable VAR_USER_HOME_CREATE -> userHomeCreate
+DEBUG: variable.subr: New variable VAR_USER_HOME_DELETE -> userHomeDelete
+DEBUG: variable.subr: New variable VAR_USER_LOGIN_CLASS -> userLoginClass
+DEBUG: variable.subr: New variable VAR_USER_PASSWORD -> userPassword
+DEBUG: variable.subr: New variable VAR_USER_PASSWORD_EXPIRE -> userPasswordExpire
+DEBUG: variable.subr: New variable VAR_USER_SHELL -> userShell
+DEBUG: variable.subr: New variable VAR_USER_UID -> userUid
+DEBUG: variable.subr: New variable VAR_ZFSINTERACTIVE -> zfsInteractive
+DEBUG: variable.subr: VARIABLE_SELF_INITIALIZE=[1]
+DEBUG: f_variable_set_defaults: Initializing defaults...
+DEBUG: f_getvar: var=[debug] value=[1] r=0
+DEBUG: f_getvar: var=[editor] value=[/usr/bin/ee] r=0
+DEBUG: f_getvar: var=[ftpState] value=[auto] r=0
+DEBUG: f_getvar: var=[ftpUser] value=[ftp] r=0
+DEBUG: f_getvar: var=[hostname] value=[example] r=0
+DEBUG: f_getvar: var=[MEDIA_TIMEOUT] value=[300] r=0
+DEBUG: f_getvar: var=[nfs_reserved_port_only] value=[NO] r=0
+DEBUG: f_getvar: var=[nfs_use_tcp] value=[NO] r=0
+DEBUG: f_getvar: var=[nfs_use_v3] value=[YES] r=0
+DEBUG: f_getvar: var=[PKG_TMPDIR] value=[/var/tmp] r=0
+DEBUG: f_getvar: var=[releaseName] value=[14.3-RELEASE] r=0
+DEBUG: f_variable_set_defaults: Defaults initialized.
+DEBUG: variable.subr: Successfully loaded.
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/include/messages.subr] lang=[C.UTF-8]
+DEBUG: dialog.subr: DIALOG_SELF_INITIALIZE=[1]
+DEBUG: f_dialog_init: ARGV=[] GETOPTS_STDARGS=[dD:SX]
+DEBUG: f_dialog_init: SECURE=[] USE_XDIALOG=[]
+DEBUG: f_dialog_init: dialog(1) API initialized.
+DEBUG: dialog.subr: Successfully loaded.
+DEBUG: Began Installation at Wed Jul  9 02:24:22 UTC 2025
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: f_debug_init: ARGV=[keymap] GETOPTS_STDARGS=[dD:]
+DEBUG: f_debug_init: debug=[1] debugFile=[/tmp/bsdinstall_log]
+DEBUG: Running installation step: keymap 
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: /usr/libexec/bsdinstall/keymap: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: dialog.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: strings.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/variable.subr]
+DEBUG: variable.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: variable.subr: New variable VAR_CONFIG_FILE -> configFile
+DEBUG: variable.subr: New variable VAR_DEBUG -> debug
+DEBUG: variable.subr: New variable VAR_DEBUG_FILE -> debugFile
+DEBUG: variable.subr: New variable VAR_DIRECTORY_PATH -> _directoryPath
+DEBUG: variable.subr: New variable VAR_DOMAINNAME -> domainname
+DEBUG: variable.subr: New variable VAR_EDITOR -> editor
+DEBUG: variable.subr: New variable VAR_EXTRAS -> ifconfig_
+DEBUG: variable.subr: New variable VAR_FTP_DIR -> ftpDirectory
+DEBUG: variable.subr: New variable VAR_FTP_HOST -> ftpHost
+DEBUG: variable.subr: New variable VAR_FTP_PASS -> ftpPass
+DEBUG: variable.subr: New variable VAR_FTP_PATH -> _ftpPath
+DEBUG: variable.subr: New variable VAR_FTP_PORT -> ftpPort
+DEBUG: variable.subr: New variable VAR_FTP_STATE -> ftpState
+DEBUG: variable.subr: New variable VAR_FTP_USER -> ftpUser
+DEBUG: variable.subr: New variable VAR_GATEWAY -> defaultrouter
+DEBUG: variable.subr: New variable VAR_GROUP -> group
+DEBUG: variable.subr: New variable VAR_GROUP_GID -> groupGid
+DEBUG: variable.subr: New variable VAR_GROUP_MEMBERS -> groupMembers
+DEBUG: variable.subr: New variable VAR_GROUP_PASSWORD -> groupPassword
+DEBUG: variable.subr: New variable VAR_HOSTNAME -> hostname
+DEBUG: variable.subr: New variable VAR_HTTP_DIR -> httpDirectory
+DEBUG: variable.subr: New variable VAR_HTTP_FTP_MODE -> httpFtpMode
+DEBUG: variable.subr: New variable VAR_HTTP_HOST -> httpHost
+DEBUG: variable.subr: New variable VAR_HTTP_PATH -> _httpPath
+DEBUG: variable.subr: New variable VAR_HTTP_PORT -> httpPort
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY -> httpProxy
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_HOST -> httpProxyHost
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_PATH -> _httpProxyPath
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_PORT -> httpProxyPort
+DEBUG: variable.subr: New variable VAR_IFCONFIG -> ifconfig_
+DEBUG: variable.subr: New variable VAR_IPADDR -> ipaddr
+DEBUG: variable.subr: New variable VAR_IPV6ADDR -> ipv6addr
+DEBUG: variable.subr: New variable VAR_IPV6_ENABLE -> ipv6_activate_all_interfaces
+DEBUG: variable.subr: New variable VAR_KEYMAP -> keymap
+DEBUG: variable.subr: New variable VAR_MEDIA_TIMEOUT -> MEDIA_TIMEOUT
+DEBUG: variable.subr: New variable VAR_MEDIA_TYPE -> mediaType
+DEBUG: variable.subr: New variable VAR_NAMESERVER -> nameserver
+DEBUG: variable.subr: New variable VAR_NETINTERACTIVE -> netInteractive
+DEBUG: variable.subr: New variable VAR_NETMASK -> netmask
+DEBUG: variable.subr: New variable VAR_NETWORK_DEVICE -> netDev
+DEBUG: variable.subr: New variable VAR_NFS_HOST -> nfsHost
+DEBUG: variable.subr: New variable VAR_NFS_PATH -> nfsPath
+DEBUG: variable.subr: New variable VAR_NFS_SECURE -> nfs_reserved_port_only
+DEBUG: variable.subr: New variable VAR_NFS_TCP -> nfs_use_tcp
+DEBUG: variable.subr: New variable VAR_NFS_V3 -> nfs_use_v3
+DEBUG: variable.subr: New variable VAR_NONINTERACTIVE -> nonInteractive
+DEBUG: variable.subr: New variable VAR_NO_CONFIRM -> noConfirm
+DEBUG: variable.subr: New variable VAR_NO_ERROR -> noError
+DEBUG: variable.subr: New variable VAR_NO_INET6 -> noInet6
+DEBUG: variable.subr: New variable VAR_PACKAGE -> package
+DEBUG: variable.subr: New variable VAR_PKG_TMPDIR -> PKG_TMPDIR
+DEBUG: variable.subr: New variable VAR_PORTS_PATH -> ports
+DEBUG: variable.subr: New variable VAR_RELNAME -> releaseName
+DEBUG: variable.subr: New variable VAR_SLOW_ETHER -> slowEthernetCard
+DEBUG: variable.subr: New variable VAR_TRY_DHCP -> tryDHCP
+DEBUG: variable.subr: New variable VAR_TRY_RTSOL -> tryRTSOL
+DEBUG: variable.subr: New variable VAR_UFS_PATH -> ufs
+DEBUG: variable.subr: New variable VAR_USER -> user
+DEBUG: variable.subr: New variable VAR_USER_ACCOUNT_EXPIRE -> userAccountExpire
+DEBUG: variable.subr: New variable VAR_USER_DOTFILES_CREATE -> userDotfilesCreate
+DEBUG: variable.subr: New variable VAR_USER_GECOS -> userGecos
+DEBUG: variable.subr: New variable VAR_USER_GID -> userGid
+DEBUG: variable.subr: New variable VAR_USER_GROUPS -> userGroups
+DEBUG: variable.subr: New variable VAR_USER_GROUP_DELETE -> userGroupDelete
+DEBUG: variable.subr: New variable VAR_USER_HOME -> userHome
+DEBUG: variable.subr: New variable VAR_USER_HOME_CREATE -> userHomeCreate
+DEBUG: variable.subr: New variable VAR_USER_HOME_DELETE -> userHomeDelete
+DEBUG: variable.subr: New variable VAR_USER_LOGIN_CLASS -> userLoginClass
+DEBUG: variable.subr: New variable VAR_USER_PASSWORD -> userPassword
+DEBUG: variable.subr: New variable VAR_USER_PASSWORD_EXPIRE -> userPasswordExpire
+DEBUG: variable.subr: New variable VAR_USER_SHELL -> userShell
+DEBUG: variable.subr: New variable VAR_USER_UID -> userUid
+DEBUG: variable.subr: New variable VAR_ZFSINTERACTIVE -> zfsInteractive
+DEBUG: variable.subr: VARIABLE_SELF_INITIALIZE=[1]
+DEBUG: f_variable_set_defaults: Initializing defaults...
+DEBUG: f_getvar: var=[debug] value=[1] r=0
+DEBUG: f_getvar: var=[editor] value=[/usr/bin/ee] r=0
+DEBUG: f_getvar: var=[ftpState] value=[auto] r=0
+DEBUG: f_getvar: var=[ftpUser] value=[ftp] r=0
+DEBUG: f_getvar: var=[hostname] value=[example] r=0
+DEBUG: f_getvar: var=[MEDIA_TIMEOUT] value=[300] r=0
+DEBUG: f_getvar: var=[nfs_reserved_port_only] value=[NO] r=0
+DEBUG: f_getvar: var=[nfs_use_tcp] value=[NO] r=0
+DEBUG: f_getvar: var=[nfs_use_v3] value=[YES] r=0
+DEBUG: f_getvar: var=[PKG_TMPDIR] value=[/var/tmp] r=0
+DEBUG: f_getvar: var=[releaseName] value=[14.3-RELEASE] r=0
+DEBUG: f_variable_set_defaults: Defaults initialized.
+DEBUG: variable.subr: Successfully loaded.
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/include/messages.subr] lang=[C.UTF-8]
+DEBUG: dialog.subr: DIALOG_SELF_INITIALIZE=[1]
+DEBUG: f_dialog_init: ARGV=[] GETOPTS_STDARGS=[dD:SX]
+DEBUG: f_dialog_init: SECURE=[] USE_XDIALOG=[]
+DEBUG: f_dialog_init: dialog(1) API initialized.
+DEBUG: dialog.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/keymap.subr]
+DEBUG: keymap.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/struct.subr]
+DEBUG: struct.subr: Successfully loaded.
+DEBUG: keymap.subr: KEYMAP_SELF_SCAN_ALL=[1]
+DEBUG: f_keymap_get_all: Looking for keymap files...
+DEBUG: f_dialog_max_size: dialog --print-maxsize = [MaxSize: 25, 80]
+DEBUG: f_getvar: var=[height] value=[3] r=0
+DEBUG: f_getvar: var=[width] value=[31] r=0
+DEBUG: DEFAULT_LANG=[en]
+DEBUG: dialect=[C.UTF-8]
+DEBUG: lang_abk=[C.UTF-8]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_am_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_be_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_be_acc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_bg_bds_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_bg_phonetic_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_br_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_br_noacc_kbd]
+DEBUG: f_getvar: var=[debug] value=[1] r=0
+DEBUG: /usr/share/vt/keymaps/br.lenovo.kbd: No such file or directory
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_by_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_centraleuropean_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_centraleuropean_qwerty_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_colemak_dh_acc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_colemak_acc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_cz_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_dk_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_dk_acc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_dk_macbook_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_nl_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_nordic_asus_eee_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_ee_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_fi_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_fr_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_fr_acc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_fr_bepo_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_fr_macbook_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_fr_dvorak_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_fr_dvorak_acc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_ca_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_ca_fr_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_ca_multi_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_de_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_de_acc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_de_noacc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_gr_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_gr_elot_acc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_gr_101_acc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_il_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_hr_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_hu_101_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_hu_102_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_is_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_is_acc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_it_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_jp_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_jp_capsctrl_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_kz_kst_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_kz_io_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_latinamerican_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_latinamerican_acc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_lt_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_no_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_no_dvorak_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_pl_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_pl_dvorak_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_pt_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_pt_acc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_ru_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_ru_shift_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_ru_win_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_es_dvorak_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_es_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_es_acc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_si_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_sk_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_se_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_ch_fr_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_ch_fr_acc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_ch_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_ch_acc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_ch_macbook_acc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_tr_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_tr_f_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_uk_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_uk_capsctrl_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_uk_dvorak_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_uk_macbook_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_us_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_us_acc_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_us_dvorak_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_us_dvorakr_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_us_dvorakl_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_us_dvorakp_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_us_dvorakx_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_us_emacs_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_us_ctrl_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_us_unix_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_us_macbook_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_ua_kbd]
+DEBUG: f_struct_new: type=[KEYMAP] name=[keymap_ua_shift_alt_kbd]
+DEBUG: f_keymap_get_all: Sorting keymap entries by description...
+DEBUG: keymap.subr: Found 88 keymap file(s).
+DEBUG: keymap.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/sysrc.subr]
+DEBUG: sysrc.subr: loading includes...
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/include/messages.subr] lang=[C.UTF-8]
+DEBUG: sysrc.subr: Successfully loaded.
+DEBUG: f_getvar: var=[keymap] value=[] r=1
+DEBUG: f_getvar: var=[_struct_value_keymap_am_kbd_keym] value=[am.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_am_kbd_desc] value=[Armenian phonetic layout] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_by_kbd_keym] value=[by.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_by_kbd_desc] value=[Belarusian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_be_kbd_keym] value=[be.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_be_kbd_desc] value=[Belgian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_be_acc_kbd_keym] value=[be.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_be_acc_kbd_desc] value=[Belgian (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_br_kbd_keym] value=[br.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_br_kbd_desc] value=[Brazilian (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_br_noacc_kbd_keym] value=[br.noacc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_br_noacc_kbd_desc] value=[Brazilian (without accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_bg_bds_kbd_keym] value=[bg.bds.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_bg_bds_kbd_desc] value=[Bulgarian (BDS)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_bg_phonetic_kbd_keym] value=[bg.phonetic.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_bg_phonetic_kbd_desc] value=[Bulgarian (Phonetic)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ca_kbd_keym] value=[ca.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ca_kbd_desc] value=[Canadian Bilingual] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ca_multi_kbd_keym] value=[ca-multi.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ca_multi_kbd_desc] value=[Canadian Mulitlingual Standard] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_centraleuropean_kbd_keym] value=[centraleuropean.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_centraleuropean_kbd_desc] value=[Central European] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_centraleuropean_qwerty_kbd_keym] value=[centraleuropean.qwerty.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_centraleuropean_qwerty_kbd_desc] value=[Central European (QWERTY)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_colemak_dh_acc_kbd_keym] value=[colemak-dh.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_colemak_dh_acc_kbd_desc] value=[Colemak Mod-DH ergonomic alternative] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_colemak_acc_kbd_keym] value=[colemak.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_colemak_acc_kbd_desc] value=[Colemak ergonomic alternative] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_hr_kbd_keym] value=[hr.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_hr_kbd_desc] value=[Croatian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_cz_kbd_keym] value=[cz.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_cz_kbd_desc] value=[Czech (QWERTZ, accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_dk_kbd_keym] value=[dk.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_dk_kbd_desc] value=[Danish] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_dk_macbook_kbd_keym] value=[dk.macbook.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_dk_macbook_kbd_desc] value=[Danish (MacBook)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_dk_acc_kbd_keym] value=[dk.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_dk_acc_kbd_desc] value=[Danish (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_nl_kbd_keym] value=[nl.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_nl_kbd_desc] value=[Dutch (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ee_kbd_keym] value=[ee.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ee_kbd_desc] value=[Estonian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fi_kbd_keym] value=[fi.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fi_kbd_desc] value=[Finnish] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_kbd_keym] value=[fr.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_kbd_desc] value=[French] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_macbook_kbd_keym] value=[fr.macbook.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_macbook_kbd_desc] value=[French (MacBook/MacBook Pro) (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_acc_kbd_keym] value=[fr.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_acc_kbd_desc] value=[French (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_bepo_kbd_keym] value=[fr.bepo.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_bepo_kbd_desc] value=[French Bépo] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ca_fr_kbd_keym] value=[ca-fr.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ca_fr_kbd_desc] value=[French Canadian (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_dvorak_kbd_keym] value=[fr.dvorak.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_dvorak_kbd_desc] value=[French Dvorak-like] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_dvorak_acc_kbd_keym] value=[fr.dvorak.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_dvorak_acc_kbd_desc] value=[French Dvorak-like (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_de_kbd_keym] value=[de.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_de_kbd_desc] value=[German] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_de_acc_kbd_keym] value=[de.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_de_acc_kbd_desc] value=[German (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_de_noacc_kbd_keym] value=[de.noacc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_de_noacc_kbd_desc] value=[German (no accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_gr_101_acc_kbd_keym] value=[gr.101.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_gr_101_acc_kbd_desc] value=[Greek (101 keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_gr_kbd_keym] value=[gr.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_gr_kbd_desc] value=[Greek (104 keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_gr_elot_acc_kbd_keym] value=[gr.elot.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_gr_elot_acc_kbd_desc] value=[Greek ELOT] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_il_kbd_keym] value=[il.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_il_kbd_desc] value=[Hebrew] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_hu_101_kbd_keym] value=[hu.101.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_hu_101_kbd_desc] value=[Hungarian (101 keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_hu_102_kbd_keym] value=[hu.102.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_hu_102_kbd_desc] value=[Hungarian (102 keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_is_kbd_keym] value=[is.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_is_kbd_desc] value=[Icelandic] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_is_acc_kbd_keym] value=[is.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_is_acc_kbd_desc] value=[Icelandic (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_it_kbd_keym] value=[it.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_it_kbd_desc] value=[Italian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_jp_kbd_keym] value=[jp.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_jp_kbd_desc] value=[Japanese 106] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_jp_capsctrl_kbd_keym] value=[jp.capsctrl.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_jp_capsctrl_kbd_desc] value=[Japanese 106x] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_kz_kst_kbd_keym] value=[kz.kst.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_kz_kst_kbd_desc] value=[Kazakh] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_kz_io_kbd_keym] value=[kz.io.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_kz_io_kbd_desc] value=[Kazakh (with IO)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_latinamerican_kbd_keym] value=[latinamerican.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_latinamerican_kbd_desc] value=[Latin American] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_latinamerican_acc_kbd_keym] value=[latinamerican.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_latinamerican_acc_kbd_desc] value=[Latin American (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_lt_kbd_keym] value=[lt.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_lt_kbd_desc] value=[Lithuanian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_nordic_asus_eee_kbd_keym] value=[nordic.asus-eee.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_nordic_asus_eee_kbd_desc] value=[Nordic layout on Asus eeePC] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_no_kbd_keym] value=[no.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_no_kbd_desc] value=[Norwegian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_no_dvorak_kbd_keym] value=[no.dvorak.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_no_dvorak_kbd_desc] value=[Norwegian dvorak] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_pl_kbd_keym] value=[pl.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_pl_kbd_desc] value=[Polish (programmer's)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_pl_dvorak_kbd_keym] value=[pl.dvorak.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_pl_dvorak_kbd_desc] value=[Polish Dvorak] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_pt_kbd_keym] value=[pt.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_pt_kbd_desc] value=[Portuguese] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_pt_acc_kbd_keym] value=[pt.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_pt_acc_kbd_desc] value=[Portuguese (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ru_kbd_keym] value=[ru.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ru_kbd_desc] value=[Russian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ru_shift_kbd_keym] value=[ru.shift.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ru_shift_kbd_desc] value=[Russian (shift)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ru_win_kbd_keym] value=[ru.win.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ru_win_kbd_desc] value=[Russian (winkeys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_sk_kbd_keym] value=[sk.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_sk_kbd_desc] value=[Slovak] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_si_kbd_keym] value=[si.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_si_kbd_desc] value=[Slovenian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_es_kbd_keym] value=[es.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_es_kbd_desc] value=[Spanish] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_es_acc_kbd_keym] value=[es.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_es_acc_kbd_desc] value=[Spanish (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_es_dvorak_kbd_keym] value=[es.dvorak.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_es_dvorak_kbd_desc] value=[Spanish Dvorak] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_se_kbd_keym] value=[se.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_se_kbd_desc] value=[Swedish] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_fr_kbd_keym] value=[ch-fr.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_fr_kbd_desc] value=[Swiss-French] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_fr_acc_kbd_keym] value=[ch-fr.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_fr_acc_kbd_desc] value=[Swiss-French (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_kbd_keym] value=[ch.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_kbd_desc] value=[Swiss-German] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_macbook_acc_kbd_keym] value=[ch.macbook.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_macbook_acc_kbd_desc] value=[Swiss-German (MacBook/MacBook Pro) (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_acc_kbd_keym] value=[ch.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_acc_kbd_desc] value=[Swiss-German (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_tr_f_kbd_keym] value=[tr.f.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_tr_f_kbd_desc] value=[Turkish (F)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_tr_kbd_keym] value=[tr.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_tr_kbd_desc] value=[Turkish (Q)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ua_kbd_keym] value=[ua.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ua_kbd_desc] value=[Ukrainian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ua_shift_alt_kbd_keym] value=[ua.shift.alt.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ua_shift_alt_kbd_desc] value=[Ukrainian (with Russian) (shift)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_uk_kbd_keym] value=[uk.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_uk_kbd_desc] value=[United Kingdom] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_uk_capsctrl_kbd_keym] value=[uk.capsctrl.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_uk_capsctrl_kbd_desc] value=[United Kingdom (Caps Lock acts as Left Ctrl)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_uk_macbook_kbd_keym] value=[uk.macbook.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_uk_macbook_kbd_desc] value=[United Kingdom (MacBook)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_uk_dvorak_kbd_keym] value=[uk.dvorak.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_uk_dvorak_kbd_desc] value=[United Kingdom Dvorak] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_kbd_keym] value=[us.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_kbd_desc] value=[United States of America] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_ctrl_kbd_keym] value=[us.ctrl.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_ctrl_kbd_desc] value=[United States of America (Caps Lock acts as Left Ctrl)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_macbook_kbd_keym] value=[us.macbook.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_macbook_kbd_desc] value=[United States of America (MacBook/MacBook Pro) ISO-8859-1] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_acc_kbd_keym] value=[us.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_acc_kbd_desc] value=[United States of America (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_emacs_kbd_keym] value=[us.emacs.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_emacs_kbd_desc] value=[United States of America Emacs optimized layout] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorakp_kbd_keym] value=[us.dvorakp.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorakp_kbd_desc] value=[United States of America Programmer Dvorak] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_unix_kbd_keym] value=[us.unix.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_unix_kbd_desc] value=[United States of America Traditional Unix Workstation] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorak_kbd_keym] value=[us.dvorak.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorak_kbd_desc] value=[United States of America dvorak] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorakx_kbd_keym] value=[us.dvorakx.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorakx_kbd_desc] value=[United States of America dvorakx] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorakl_kbd_keym] value=[us.dvorakl.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorakl_kbd_desc] value=[United States of America lefthand dvorak] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorakr_kbd_keym] value=[us.dvorakr.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorakr_kbd_desc] value=[United States of America righthand dvorak] r=0
+DEBUG: f_dialog_max_size: dialog --print-maxsize = [MaxSize: 25, 80]
+DEBUG: f_getvar: var=[height] value=[20] r=0
+DEBUG: f_getvar: var=[rows] value=[14] r=0
+DEBUG: f_getvar: var=[menu_choice] value=[( ) United States of America] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_kbd_keym] value=[us.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_am_kbd_keym] value=[am.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_am_kbd_desc] value=[Armenian phonetic layout] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_by_kbd_keym] value=[by.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_by_kbd_desc] value=[Belarusian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_be_kbd_keym] value=[be.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_be_kbd_desc] value=[Belgian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_be_acc_kbd_keym] value=[be.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_be_acc_kbd_desc] value=[Belgian (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_br_kbd_keym] value=[br.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_br_kbd_desc] value=[Brazilian (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_br_noacc_kbd_keym] value=[br.noacc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_br_noacc_kbd_desc] value=[Brazilian (without accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_bg_bds_kbd_keym] value=[bg.bds.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_bg_bds_kbd_desc] value=[Bulgarian (BDS)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_bg_phonetic_kbd_keym] value=[bg.phonetic.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_bg_phonetic_kbd_desc] value=[Bulgarian (Phonetic)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ca_kbd_keym] value=[ca.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ca_kbd_desc] value=[Canadian Bilingual] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ca_multi_kbd_keym] value=[ca-multi.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ca_multi_kbd_desc] value=[Canadian Mulitlingual Standard] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_centraleuropean_kbd_keym] value=[centraleuropean.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_centraleuropean_kbd_desc] value=[Central European] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_centraleuropean_qwerty_kbd_keym] value=[centraleuropean.qwerty.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_centraleuropean_qwerty_kbd_desc] value=[Central European (QWERTY)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_colemak_dh_acc_kbd_keym] value=[colemak-dh.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_colemak_dh_acc_kbd_desc] value=[Colemak Mod-DH ergonomic alternative] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_colemak_acc_kbd_keym] value=[colemak.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_colemak_acc_kbd_desc] value=[Colemak ergonomic alternative] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_hr_kbd_keym] value=[hr.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_hr_kbd_desc] value=[Croatian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_cz_kbd_keym] value=[cz.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_cz_kbd_desc] value=[Czech (QWERTZ, accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_dk_kbd_keym] value=[dk.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_dk_kbd_desc] value=[Danish] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_dk_macbook_kbd_keym] value=[dk.macbook.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_dk_macbook_kbd_desc] value=[Danish (MacBook)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_dk_acc_kbd_keym] value=[dk.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_dk_acc_kbd_desc] value=[Danish (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_nl_kbd_keym] value=[nl.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_nl_kbd_desc] value=[Dutch (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ee_kbd_keym] value=[ee.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ee_kbd_desc] value=[Estonian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fi_kbd_keym] value=[fi.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fi_kbd_desc] value=[Finnish] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_kbd_keym] value=[fr.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_kbd_desc] value=[French] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_macbook_kbd_keym] value=[fr.macbook.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_macbook_kbd_desc] value=[French (MacBook/MacBook Pro) (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_acc_kbd_keym] value=[fr.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_acc_kbd_desc] value=[French (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_bepo_kbd_keym] value=[fr.bepo.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_bepo_kbd_desc] value=[French Bépo] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ca_fr_kbd_keym] value=[ca-fr.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ca_fr_kbd_desc] value=[French Canadian (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_dvorak_kbd_keym] value=[fr.dvorak.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_dvorak_kbd_desc] value=[French Dvorak-like] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_dvorak_acc_kbd_keym] value=[fr.dvorak.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_fr_dvorak_acc_kbd_desc] value=[French Dvorak-like (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_de_kbd_keym] value=[de.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_de_kbd_desc] value=[German] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_de_acc_kbd_keym] value=[de.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_de_acc_kbd_desc] value=[German (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_de_noacc_kbd_keym] value=[de.noacc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_de_noacc_kbd_desc] value=[German (no accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_gr_101_acc_kbd_keym] value=[gr.101.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_gr_101_acc_kbd_desc] value=[Greek (101 keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_gr_kbd_keym] value=[gr.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_gr_kbd_desc] value=[Greek (104 keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_gr_elot_acc_kbd_keym] value=[gr.elot.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_gr_elot_acc_kbd_desc] value=[Greek ELOT] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_il_kbd_keym] value=[il.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_il_kbd_desc] value=[Hebrew] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_hu_101_kbd_keym] value=[hu.101.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_hu_101_kbd_desc] value=[Hungarian (101 keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_hu_102_kbd_keym] value=[hu.102.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_hu_102_kbd_desc] value=[Hungarian (102 keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_is_kbd_keym] value=[is.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_is_kbd_desc] value=[Icelandic] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_is_acc_kbd_keym] value=[is.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_is_acc_kbd_desc] value=[Icelandic (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_it_kbd_keym] value=[it.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_it_kbd_desc] value=[Italian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_jp_kbd_keym] value=[jp.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_jp_kbd_desc] value=[Japanese 106] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_jp_capsctrl_kbd_keym] value=[jp.capsctrl.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_jp_capsctrl_kbd_desc] value=[Japanese 106x] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_kz_kst_kbd_keym] value=[kz.kst.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_kz_kst_kbd_desc] value=[Kazakh] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_kz_io_kbd_keym] value=[kz.io.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_kz_io_kbd_desc] value=[Kazakh (with IO)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_latinamerican_kbd_keym] value=[latinamerican.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_latinamerican_kbd_desc] value=[Latin American] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_latinamerican_acc_kbd_keym] value=[latinamerican.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_latinamerican_acc_kbd_desc] value=[Latin American (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_lt_kbd_keym] value=[lt.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_lt_kbd_desc] value=[Lithuanian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_nordic_asus_eee_kbd_keym] value=[nordic.asus-eee.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_nordic_asus_eee_kbd_desc] value=[Nordic layout on Asus eeePC] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_no_kbd_keym] value=[no.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_no_kbd_desc] value=[Norwegian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_no_dvorak_kbd_keym] value=[no.dvorak.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_no_dvorak_kbd_desc] value=[Norwegian dvorak] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_pl_kbd_keym] value=[pl.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_pl_kbd_desc] value=[Polish (programmer's)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_pl_dvorak_kbd_keym] value=[pl.dvorak.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_pl_dvorak_kbd_desc] value=[Polish Dvorak] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_pt_kbd_keym] value=[pt.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_pt_kbd_desc] value=[Portuguese] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_pt_acc_kbd_keym] value=[pt.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_pt_acc_kbd_desc] value=[Portuguese (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ru_kbd_keym] value=[ru.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ru_kbd_desc] value=[Russian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ru_shift_kbd_keym] value=[ru.shift.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ru_shift_kbd_desc] value=[Russian (shift)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ru_win_kbd_keym] value=[ru.win.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ru_win_kbd_desc] value=[Russian (winkeys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_sk_kbd_keym] value=[sk.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_sk_kbd_desc] value=[Slovak] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_si_kbd_keym] value=[si.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_si_kbd_desc] value=[Slovenian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_es_kbd_keym] value=[es.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_es_kbd_desc] value=[Spanish] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_es_acc_kbd_keym] value=[es.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_es_acc_kbd_desc] value=[Spanish (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_es_dvorak_kbd_keym] value=[es.dvorak.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_es_dvorak_kbd_desc] value=[Spanish Dvorak] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_se_kbd_keym] value=[se.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_se_kbd_desc] value=[Swedish] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_fr_kbd_keym] value=[ch-fr.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_fr_kbd_desc] value=[Swiss-French] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_fr_acc_kbd_keym] value=[ch-fr.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_fr_acc_kbd_desc] value=[Swiss-French (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_kbd_keym] value=[ch.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_kbd_desc] value=[Swiss-German] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_macbook_acc_kbd_keym] value=[ch.macbook.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_macbook_acc_kbd_desc] value=[Swiss-German (MacBook/MacBook Pro) (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_acc_kbd_keym] value=[ch.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ch_acc_kbd_desc] value=[Swiss-German (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_tr_f_kbd_keym] value=[tr.f.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_tr_f_kbd_desc] value=[Turkish (F)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_tr_kbd_keym] value=[tr.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_tr_kbd_desc] value=[Turkish (Q)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ua_kbd_keym] value=[ua.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ua_kbd_desc] value=[Ukrainian] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ua_shift_alt_kbd_keym] value=[ua.shift.alt.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_ua_shift_alt_kbd_desc] value=[Ukrainian (with Russian) (shift)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_uk_kbd_keym] value=[uk.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_uk_kbd_desc] value=[United Kingdom] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_uk_capsctrl_kbd_keym] value=[uk.capsctrl.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_uk_capsctrl_kbd_desc] value=[United Kingdom (Caps Lock acts as Left Ctrl)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_uk_macbook_kbd_keym] value=[uk.macbook.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_uk_macbook_kbd_desc] value=[United Kingdom (MacBook)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_uk_dvorak_kbd_keym] value=[uk.dvorak.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_uk_dvorak_kbd_desc] value=[United Kingdom Dvorak] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_kbd_keym] value=[us.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_kbd_desc] value=[United States of America] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_ctrl_kbd_keym] value=[us.ctrl.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_ctrl_kbd_desc] value=[United States of America (Caps Lock acts as Left Ctrl)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_macbook_kbd_keym] value=[us.macbook.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_macbook_kbd_desc] value=[United States of America (MacBook/MacBook Pro) ISO-8859-1] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_acc_kbd_keym] value=[us.acc.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_acc_kbd_desc] value=[United States of America (accent keys)] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_emacs_kbd_keym] value=[us.emacs.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_emacs_kbd_desc] value=[United States of America Emacs optimized layout] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorakp_kbd_keym] value=[us.dvorakp.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorakp_kbd_desc] value=[United States of America Programmer Dvorak] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_unix_kbd_keym] value=[us.unix.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_unix_kbd_desc] value=[United States of America Traditional Unix Workstation] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorak_kbd_keym] value=[us.dvorak.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorak_kbd_desc] value=[United States of America dvorak] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorakx_kbd_keym] value=[us.dvorakx.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorakx_kbd_desc] value=[United States of America dvorakx] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorakl_kbd_keym] value=[us.dvorakl.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorakl_kbd_desc] value=[United States of America lefthand dvorak] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorakr_kbd_keym] value=[us.dvorakr.kbd] r=0
+DEBUG: f_getvar: var=[_struct_value_keymap_us_dvorakr_kbd_desc] value=[United States of America righthand dvorak] r=0
+DEBUG: f_dialog_max_size: dialog --print-maxsize = [MaxSize: 25, 80]
+DEBUG: f_getvar: var=[height] value=[20] r=0
+DEBUG: f_getvar: var=[rows] value=[14] r=0
+DEBUG: f_getvar: var=[menu_choice] value=[>>> Continue with us.kbd keymap] r=0
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: f_debug_init: ARGV=[hostname] GETOPTS_STDARGS=[dD:]
+DEBUG: f_debug_init: debug=[1] debugFile=[/tmp/bsdinstall_log]
+DEBUG: Running installation step: hostname 
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: /usr/libexec/bsdinstall/hostname: loading_includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: dialog.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: strings.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/variable.subr]
+DEBUG: variable.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: variable.subr: New variable VAR_CONFIG_FILE -> configFile
+DEBUG: variable.subr: New variable VAR_DEBUG -> debug
+DEBUG: variable.subr: New variable VAR_DEBUG_FILE -> debugFile
+DEBUG: variable.subr: New variable VAR_DIRECTORY_PATH -> _directoryPath
+DEBUG: variable.subr: New variable VAR_DOMAINNAME -> domainname
+DEBUG: variable.subr: New variable VAR_EDITOR -> editor
+DEBUG: variable.subr: New variable VAR_EXTRAS -> ifconfig_
+DEBUG: variable.subr: New variable VAR_FTP_DIR -> ftpDirectory
+DEBUG: variable.subr: New variable VAR_FTP_HOST -> ftpHost
+DEBUG: variable.subr: New variable VAR_FTP_PASS -> ftpPass
+DEBUG: variable.subr: New variable VAR_FTP_PATH -> _ftpPath
+DEBUG: variable.subr: New variable VAR_FTP_PORT -> ftpPort
+DEBUG: variable.subr: New variable VAR_FTP_STATE -> ftpState
+DEBUG: variable.subr: New variable VAR_FTP_USER -> ftpUser
+DEBUG: variable.subr: New variable VAR_GATEWAY -> defaultrouter
+DEBUG: variable.subr: New variable VAR_GROUP -> group
+DEBUG: variable.subr: New variable VAR_GROUP_GID -> groupGid
+DEBUG: variable.subr: New variable VAR_GROUP_MEMBERS -> groupMembers
+DEBUG: variable.subr: New variable VAR_GROUP_PASSWORD -> groupPassword
+DEBUG: variable.subr: New variable VAR_HOSTNAME -> hostname
+DEBUG: variable.subr: New variable VAR_HTTP_DIR -> httpDirectory
+DEBUG: variable.subr: New variable VAR_HTTP_FTP_MODE -> httpFtpMode
+DEBUG: variable.subr: New variable VAR_HTTP_HOST -> httpHost
+DEBUG: variable.subr: New variable VAR_HTTP_PATH -> _httpPath
+DEBUG: variable.subr: New variable VAR_HTTP_PORT -> httpPort
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY -> httpProxy
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_HOST -> httpProxyHost
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_PATH -> _httpProxyPath
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_PORT -> httpProxyPort
+DEBUG: variable.subr: New variable VAR_IFCONFIG -> ifconfig_
+DEBUG: variable.subr: New variable VAR_IPADDR -> ipaddr
+DEBUG: variable.subr: New variable VAR_IPV6ADDR -> ipv6addr
+DEBUG: variable.subr: New variable VAR_IPV6_ENABLE -> ipv6_activate_all_interfaces
+DEBUG: variable.subr: New variable VAR_KEYMAP -> keymap
+DEBUG: variable.subr: New variable VAR_MEDIA_TIMEOUT -> MEDIA_TIMEOUT
+DEBUG: variable.subr: New variable VAR_MEDIA_TYPE -> mediaType
+DEBUG: variable.subr: New variable VAR_NAMESERVER -> nameserver
+DEBUG: variable.subr: New variable VAR_NETINTERACTIVE -> netInteractive
+DEBUG: variable.subr: New variable VAR_NETMASK -> netmask
+DEBUG: variable.subr: New variable VAR_NETWORK_DEVICE -> netDev
+DEBUG: variable.subr: New variable VAR_NFS_HOST -> nfsHost
+DEBUG: variable.subr: New variable VAR_NFS_PATH -> nfsPath
+DEBUG: variable.subr: New variable VAR_NFS_SECURE -> nfs_reserved_port_only
+DEBUG: variable.subr: New variable VAR_NFS_TCP -> nfs_use_tcp
+DEBUG: variable.subr: New variable VAR_NFS_V3 -> nfs_use_v3
+DEBUG: variable.subr: New variable VAR_NONINTERACTIVE -> nonInteractive
+DEBUG: variable.subr: New variable VAR_NO_CONFIRM -> noConfirm
+DEBUG: variable.subr: New variable VAR_NO_ERROR -> noError
+DEBUG: variable.subr: New variable VAR_NO_INET6 -> noInet6
+DEBUG: variable.subr: New variable VAR_PACKAGE -> package
+DEBUG: variable.subr: New variable VAR_PKG_TMPDIR -> PKG_TMPDIR
+DEBUG: variable.subr: New variable VAR_PORTS_PATH -> ports
+DEBUG: variable.subr: New variable VAR_RELNAME -> releaseName
+DEBUG: variable.subr: New variable VAR_SLOW_ETHER -> slowEthernetCard
+DEBUG: variable.subr: New variable VAR_TRY_DHCP -> tryDHCP
+DEBUG: variable.subr: New variable VAR_TRY_RTSOL -> tryRTSOL
+DEBUG: variable.subr: New variable VAR_UFS_PATH -> ufs
+DEBUG: variable.subr: New variable VAR_USER -> user
+DEBUG: variable.subr: New variable VAR_USER_ACCOUNT_EXPIRE -> userAccountExpire
+DEBUG: variable.subr: New variable VAR_USER_DOTFILES_CREATE -> userDotfilesCreate
+DEBUG: variable.subr: New variable VAR_USER_GECOS -> userGecos
+DEBUG: variable.subr: New variable VAR_USER_GID -> userGid
+DEBUG: variable.subr: New variable VAR_USER_GROUPS -> userGroups
+DEBUG: variable.subr: New variable VAR_USER_GROUP_DELETE -> userGroupDelete
+DEBUG: variable.subr: New variable VAR_USER_HOME -> userHome
+DEBUG: variable.subr: New variable VAR_USER_HOME_CREATE -> userHomeCreate
+DEBUG: variable.subr: New variable VAR_USER_HOME_DELETE -> userHomeDelete
+DEBUG: variable.subr: New variable VAR_USER_LOGIN_CLASS -> userLoginClass
+DEBUG: variable.subr: New variable VAR_USER_PASSWORD -> userPassword
+DEBUG: variable.subr: New variable VAR_USER_PASSWORD_EXPIRE -> userPasswordExpire
+DEBUG: variable.subr: New variable VAR_USER_SHELL -> userShell
+DEBUG: variable.subr: New variable VAR_USER_UID -> userUid
+DEBUG: variable.subr: New variable VAR_ZFSINTERACTIVE -> zfsInteractive
+DEBUG: variable.subr: VARIABLE_SELF_INITIALIZE=[1]
+DEBUG: f_variable_set_defaults: Initializing defaults...
+DEBUG: f_getvar: var=[debug] value=[1] r=0
+DEBUG: f_getvar: var=[editor] value=[/usr/bin/ee] r=0
+DEBUG: f_getvar: var=[ftpState] value=[auto] r=0
+DEBUG: f_getvar: var=[ftpUser] value=[ftp] r=0
+DEBUG: f_getvar: var=[hostname] value=[example] r=0
+DEBUG: f_getvar: var=[MEDIA_TIMEOUT] value=[300] r=0
+DEBUG: f_getvar: var=[nfs_reserved_port_only] value=[NO] r=0
+DEBUG: f_getvar: var=[nfs_use_tcp] value=[NO] r=0
+DEBUG: f_getvar: var=[nfs_use_v3] value=[YES] r=0
+DEBUG: f_getvar: var=[PKG_TMPDIR] value=[/var/tmp] r=0
+DEBUG: f_getvar: var=[releaseName] value=[14.3-RELEASE] r=0
+DEBUG: f_variable_set_defaults: Defaults initialized.
+DEBUG: variable.subr: Successfully loaded.
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/include/messages.subr] lang=[C.UTF-8]
+DEBUG: dialog.subr: DIALOG_SELF_INITIALIZE=[1]
+DEBUG: f_dialog_init: ARGV=[] GETOPTS_STDARGS=[dD:SX]
+DEBUG: f_dialog_init: SECURE=[] USE_XDIALOG=[]
+DEBUG: f_dialog_init: dialog(1) API initialized.
+DEBUG: dialog.subr: Successfully loaded.
+DEBUG: hostname: echo "hostname=\"$HOSTNAME\"" > "/tmp/bsdinstall_etc/rc.conf.hostname"
+DEBUG: hostname: retval=0 <no output>
+DEBUG: hostname: hostname -s "example"
+DEBUG: hostname: retval=0 <no output>
+DEBUG: f_getvar: var=[nonInteractive] value=[] r=1
+DEBUG: smbios.system.maker=[innotek GmbH]
+DEBUG: smbios.system.product=[VirtualBox]
+DEBUG: smbios.system.version=[1.2]
+DEBUG: smbios.planar.maker=[Oracle Corporation]
+DEBUG: smbios.planar.product=[VirtualBox]
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: f_debug_init: ARGV=[zfsboot] GETOPTS_STDARGS=[dD:]
+DEBUG: f_debug_init: debug=[1] debugFile=[/tmp/bsdinstall_log]
+DEBUG: Running installation step: zfsboot 
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: /usr/libexec/bsdinstall/zfsboot: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/device.subr]
+DEBUG: device.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: dialog.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: strings.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/variable.subr]
+DEBUG: variable.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: variable.subr: New variable VAR_CONFIG_FILE -> configFile
+DEBUG: variable.subr: New variable VAR_DEBUG -> debug
+DEBUG: variable.subr: New variable VAR_DEBUG_FILE -> debugFile
+DEBUG: variable.subr: New variable VAR_DIRECTORY_PATH -> _directoryPath
+DEBUG: variable.subr: New variable VAR_DOMAINNAME -> domainname
+DEBUG: variable.subr: New variable VAR_EDITOR -> editor
+DEBUG: variable.subr: New variable VAR_EXTRAS -> ifconfig_
+DEBUG: variable.subr: New variable VAR_FTP_DIR -> ftpDirectory
+DEBUG: variable.subr: New variable VAR_FTP_HOST -> ftpHost
+DEBUG: variable.subr: New variable VAR_FTP_PASS -> ftpPass
+DEBUG: variable.subr: New variable VAR_FTP_PATH -> _ftpPath
+DEBUG: variable.subr: New variable VAR_FTP_PORT -> ftpPort
+DEBUG: variable.subr: New variable VAR_FTP_STATE -> ftpState
+DEBUG: variable.subr: New variable VAR_FTP_USER -> ftpUser
+DEBUG: variable.subr: New variable VAR_GATEWAY -> defaultrouter
+DEBUG: variable.subr: New variable VAR_GROUP -> group
+DEBUG: variable.subr: New variable VAR_GROUP_GID -> groupGid
+DEBUG: variable.subr: New variable VAR_GROUP_MEMBERS -> groupMembers
+DEBUG: variable.subr: New variable VAR_GROUP_PASSWORD -> groupPassword
+DEBUG: variable.subr: New variable VAR_HOSTNAME -> hostname
+DEBUG: variable.subr: New variable VAR_HTTP_DIR -> httpDirectory
+DEBUG: variable.subr: New variable VAR_HTTP_FTP_MODE -> httpFtpMode
+DEBUG: variable.subr: New variable VAR_HTTP_HOST -> httpHost
+DEBUG: variable.subr: New variable VAR_HTTP_PATH -> _httpPath
+DEBUG: variable.subr: New variable VAR_HTTP_PORT -> httpPort
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY -> httpProxy
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_HOST -> httpProxyHost
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_PATH -> _httpProxyPath
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_PORT -> httpProxyPort
+DEBUG: variable.subr: New variable VAR_IFCONFIG -> ifconfig_
+DEBUG: variable.subr: New variable VAR_IPADDR -> ipaddr
+DEBUG: variable.subr: New variable VAR_IPV6ADDR -> ipv6addr
+DEBUG: variable.subr: New variable VAR_IPV6_ENABLE -> ipv6_activate_all_interfaces
+DEBUG: variable.subr: New variable VAR_KEYMAP -> keymap
+DEBUG: variable.subr: New variable VAR_MEDIA_TIMEOUT -> MEDIA_TIMEOUT
+DEBUG: variable.subr: New variable VAR_MEDIA_TYPE -> mediaType
+DEBUG: variable.subr: New variable VAR_NAMESERVER -> nameserver
+DEBUG: variable.subr: New variable VAR_NETINTERACTIVE -> netInteractive
+DEBUG: variable.subr: New variable VAR_NETMASK -> netmask
+DEBUG: variable.subr: New variable VAR_NETWORK_DEVICE -> netDev
+DEBUG: variable.subr: New variable VAR_NFS_HOST -> nfsHost
+DEBUG: variable.subr: New variable VAR_NFS_PATH -> nfsPath
+DEBUG: variable.subr: New variable VAR_NFS_SECURE -> nfs_reserved_port_only
+DEBUG: variable.subr: New variable VAR_NFS_TCP -> nfs_use_tcp
+DEBUG: variable.subr: New variable VAR_NFS_V3 -> nfs_use_v3
+DEBUG: variable.subr: New variable VAR_NONINTERACTIVE -> nonInteractive
+DEBUG: variable.subr: New variable VAR_NO_CONFIRM -> noConfirm
+DEBUG: variable.subr: New variable VAR_NO_ERROR -> noError
+DEBUG: variable.subr: New variable VAR_NO_INET6 -> noInet6
+DEBUG: variable.subr: New variable VAR_PACKAGE -> package
+DEBUG: variable.subr: New variable VAR_PKG_TMPDIR -> PKG_TMPDIR
+DEBUG: variable.subr: New variable VAR_PORTS_PATH -> ports
+DEBUG: variable.subr: New variable VAR_RELNAME -> releaseName
+DEBUG: variable.subr: New variable VAR_SLOW_ETHER -> slowEthernetCard
+DEBUG: variable.subr: New variable VAR_TRY_DHCP -> tryDHCP
+DEBUG: variable.subr: New variable VAR_TRY_RTSOL -> tryRTSOL
+DEBUG: variable.subr: New variable VAR_UFS_PATH -> ufs
+DEBUG: variable.subr: New variable VAR_USER -> user
+DEBUG: variable.subr: New variable VAR_USER_ACCOUNT_EXPIRE -> userAccountExpire
+DEBUG: variable.subr: New variable VAR_USER_DOTFILES_CREATE -> userDotfilesCreate
+DEBUG: variable.subr: New variable VAR_USER_GECOS -> userGecos
+DEBUG: variable.subr: New variable VAR_USER_GID -> userGid
+DEBUG: variable.subr: New variable VAR_USER_GROUPS -> userGroups
+DEBUG: variable.subr: New variable VAR_USER_GROUP_DELETE -> userGroupDelete
+DEBUG: variable.subr: New variable VAR_USER_HOME -> userHome
+DEBUG: variable.subr: New variable VAR_USER_HOME_CREATE -> userHomeCreate
+DEBUG: variable.subr: New variable VAR_USER_HOME_DELETE -> userHomeDelete
+DEBUG: variable.subr: New variable VAR_USER_LOGIN_CLASS -> userLoginClass
+DEBUG: variable.subr: New variable VAR_USER_PASSWORD -> userPassword
+DEBUG: variable.subr: New variable VAR_USER_PASSWORD_EXPIRE -> userPasswordExpire
+DEBUG: variable.subr: New variable VAR_USER_SHELL -> userShell
+DEBUG: variable.subr: New variable VAR_USER_UID -> userUid
+DEBUG: variable.subr: New variable VAR_ZFSINTERACTIVE -> zfsInteractive
+DEBUG: variable.subr: VARIABLE_SELF_INITIALIZE=[1]
+DEBUG: f_variable_set_defaults: Initializing defaults...
+DEBUG: f_getvar: var=[debug] value=[1] r=0
+DEBUG: f_getvar: var=[editor] value=[/usr/bin/ee] r=0
+DEBUG: f_getvar: var=[ftpState] value=[auto] r=0
+DEBUG: f_getvar: var=[ftpUser] value=[ftp] r=0
+DEBUG: f_getvar: var=[hostname] value=[example] r=0
+DEBUG: f_getvar: var=[MEDIA_TIMEOUT] value=[300] r=0
+DEBUG: f_getvar: var=[nfs_reserved_port_only] value=[NO] r=0
+DEBUG: f_getvar: var=[nfs_use_tcp] value=[NO] r=0
+DEBUG: f_getvar: var=[nfs_use_v3] value=[YES] r=0
+DEBUG: f_getvar: var=[PKG_TMPDIR] value=[/var/tmp] r=0
+DEBUG: f_getvar: var=[releaseName] value=[14.3-RELEASE] r=0
+DEBUG: f_variable_set_defaults: Defaults initialized.
+DEBUG: variable.subr: Successfully loaded.
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/include/messages.subr] lang=[C.UTF-8]
+DEBUG: dialog.subr: DIALOG_SELF_INITIALIZE=[1]
+DEBUG: f_dialog_init: ARGV=[] GETOPTS_STDARGS=[dD:SX]
+DEBUG: f_dialog_init: SECURE=[] USE_XDIALOG=[]
+DEBUG: f_dialog_init: dialog(1) API initialized.
+DEBUG: dialog.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/geom.subr]
+DEBUG: geom.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/struct.subr]
+DEBUG: struct.subr: Successfully loaded.
+DEBUG: geom.subr: GEOM_SELF_SCAN_ALL=[1]
+DEBUG: geom.subr: Initialized 11 geom devices in 12 classes.
+DEBUG: geom.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/struct.subr]
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/include/messages.subr] lang=[C.UTF-8]
+DEBUG: device.subr: Initialized device catalog with 106 names/descriptions.
+DEBUG: device.subr: DEVICE_SELF_SCAN_ALL=[1]
+DEBUG: f_device_get_all: Probing devices...
+DEBUG: f_dialog_max_size: dialog --print-maxsize = [MaxSize: 25, 80]
+DEBUG: f_getvar: var=[height] value=[3] r=0
+DEBUG: f_getvar: var=[width] value=[59] r=0
+DEBUG: Found network device named em0
+DEBUG: Found network device named em1
+DEBUG: WARNING! Unable to classify GEOM device diskid/DISK-VBb938e211-f4fc1c86 as media source
+DEBUG: Found CDROM device labeled iso9660/14_3_RELEASE_AMD64_CD
+DEBUG: Found disk device named ada0
+DEBUG: Found CDROM device for disk cd0
+DEBUG: device.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/password/password.subr]
+DEBUG: password/password.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/040.password/include/messages.subr] lang=[C.UTF-8]
+DEBUG: password/password.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/variable.subr]
+DEBUG: f_getvar: var=[nonInteractive] value=[] r=1
+DEBUG: BSDINSTALL_CHROOT=[/mnt]
+DEBUG: BSDINSTALL_TMPETC=[/tmp/bsdinstall_etc]
+DEBUG: FSTAB_FMT=[%s\t\t%s\t%s\t%s\t\t%s\t%s\n]
+no pools available to import
+DEBUG: machdep.bootmethod=[BIOS]
+DEBUG: f_getvar: var=[nonInteractive] value=[] r=1
+DEBUG: f_dialog_max_size: dialog --print-maxsize = [MaxSize: 25, 80]
+DEBUG: f_getvar: var=[height] value=[19] r=0
+DEBUG: f_getvar: var=[width] value=[57] r=0
+DEBUG: f_getvar: var=[rows] value=[12] r=0
+DEBUG: f_getvar: var=[menu_choice] value=[E Encrypt Disks?] r=0
+DEBUG: retval=0 mtag=[E Encrypt Disks?]
+DEBUG: f_getvar: var=[nonInteractive] value=[] r=1
+DEBUG: f_dialog_max_size: dialog --print-maxsize = [MaxSize: 25, 80]
+DEBUG: f_getvar: var=[height] value=[19] r=0
+DEBUG: f_getvar: var=[width] value=[57] r=0
+DEBUG: f_getvar: var=[rows] value=[12] r=0
+DEBUG: f_getvar: var=[menu_choice] value=[P Partition Scheme] r=0
+DEBUG: retval=0 mtag=[P Partition Scheme]
+DEBUG: f_getvar: var=[nonInteractive] value=[] r=1
+DEBUG: f_dialog_max_size: dialog --print-maxsize = [MaxSize: 25, 80]
+DEBUG: f_getvar: var=[height] value=[19] r=0
+DEBUG: f_getvar: var=[width] value=[57] r=0
+DEBUG: f_getvar: var=[rows] value=[12] r=0
+DEBUG: f_getvar: var=[menu_choice] value=[W Encrypt Swap?] r=0
+DEBUG: retval=0 mtag=[W Encrypt Swap?]
+DEBUG: f_getvar: var=[nonInteractive] value=[] r=1
+DEBUG: f_dialog_max_size: dialog --print-maxsize = [MaxSize: 25, 80]
+DEBUG: f_getvar: var=[height] value=[19] r=0
+DEBUG: f_getvar: var=[width] value=[57] r=0
+DEBUG: f_getvar: var=[rows] value=[12] r=0
+DEBUG: f_getvar: var=[menu_choice] value=[>>> Install] r=0
+DEBUG: retval=0 mtag=[>>> Install]
+DEBUG: f_dialog_max_size: dialog --print-maxsize = [MaxSize: 25, 80]
+DEBUG: f_getvar: var=[vheight] value=[13] r=0
+DEBUG: f_getvar: var=[vwidth] value=[47] r=0
+DEBUG: f_getvar: var=[vrows] value=[6] r=0
+DEBUG: dialog_menu_layout: disks=[ada0]
+DEBUG: f_getvar: var=[disks] value=[device_4] r=0
+DEBUG: f_getvar: var=[disks] value=[device_4] r=0
+DEBUG: f_getvar: var=[nonInteractive] value=[] r=1
+DEBUG: f_getvar: var=[vdev_choice] value=[stripe] r=0
+DEBUG: dialog_menu_layout: ZFSBOOT_VDEV_TYPE=[stripe]
+DEBUG: No disks selected.
+DEBUG: f_getvar: var=[nonInteractive] value=[] r=1
+DEBUG: f_getvar: var=[nonInteractive] value=[] r=1
+DEBUG: f_getvar: var=[nonInteractive] value=[] r=1
+DEBUG: f_getvar: var=[_struct_value_device_4_name] value=[ada0] r=0
+DEBUG: f_getvar: var=[_struct_value_device_4_desc] value=[VBOX HARDDISK] r=0
+DEBUG: f_getvar: var=[_device_4_status:-off] value=[off] r=0
+DEBUG: f_dialog_max_size: dialog --print-maxsize = [MaxSize: 25, 80]
+DEBUG: f_getvar: var=[height] value=[8] r=0
+DEBUG: f_getvar: var=[width] value=[54] r=0
+DEBUG: f_getvar: var=[rows] value=[1] r=0
+DEBUG: f_getvar: var=[selections] value=[ada0] r=0
+DEBUG: dialog_menu_layout: ZFSBOOT_DISKS=[ada0]
+DEBUG: f_getvar: var=[_struct_value_device_4_capacity] value=[17179869184] r=0
+DEBUG: f_getvar: var=[nonInteractive] value=[] r=1
+DEBUG: /usr/libexec/bsdinstall/zfsboot: Last Chance!
+DEBUG: zfs_create_boot: poolname=[zroot] vdev_type=[]
+DEBUG: zfs_create_boot: Initializing temporary fstab(5) file...
+DEBUG: zfs_create_boot: :> "/tmp/bsdinstall_etc/fstab"
+DEBUG: zfs_create_boot: retval=0 <no output>
+DEBUG: zfs_create_boot: printf "$FSTAB_FMT" "# Device" "Mountpoint" "FStype" "Options" "Dump" "Pass#" >> "/tmp/bsdinstall_etc/fstab"
+DEBUG: zfs_create_boot: retval=0 <no output>
+DEBUG: zfs_create_boot: Expanding supplied size values...
+DEBUG: zfs_create_boot: ZFSBOOT_SWAP_SIZE=[2g] swapsize=[2147483648]
+DEBUG: zfs_create_boot: ZFSBOOT_BOOT_POOL_SIZE=[2g] bootsize=[2147483648]
+DEBUG: zfs_create_boot: zpool destroy "zroot"
+DEBUG: zfs_create_boot: retval=1 <output below>
+cannot open 'zroot': no such pool
+DEBUG: zfs_create_boot: Preparing disk partitions for ZFS pool...
+DEBUG: zfs_create_boot: With 4K sectors...
+DEBUG: zfs_create_boot: sysctl vfs.zfs.min_auto_ashift=12
+DEBUG: zfs_create_boot: retval=0 <output below>
+vfs.zfs.min_auto_ashift: 9 -> 12
+DEBUG: zfs_create_diskpart: disk=[ada0] index=[0]
+DEBUG: zfs_create_diskpart: Exporting ZFS pools...
+DEBUG: zfs_create_diskpart: Detaching all GELI providers...
+geli: Command 'status' not available; try 'load' first.
+DEBUG: zfs_create_diskpart: Destroying all data/layouts on `ada0'...
+DEBUG: zfs_create_diskpart: gpart destroy -F "ada0"
+DEBUG: zfs_create_diskpart: retval=1 <output below>
+gpart: arg0 'ada0': Invalid argument
+DEBUG: zfs_create_diskpart: graid delete "ada0"
+DEBUG: zfs_create_diskpart: retval=1 <output below>
+graid: Array 'ada0' not found.
+DEBUG: zfs_create_diskpart: zpool labelclear -f "/dev/ada0"
+DEBUG: zfs_create_diskpart: retval=255 <output below>
+failed to clear label for /dev/ada0
+DEBUG: zfs_create_diskpart: gpart create -s gpt "ada0"
+DEBUG: zfs_create_diskpart: retval=0 <output below>
+ada0 created
+DEBUG: zfs_create_diskpart: gpart destroy -F "ada0"
+DEBUG: zfs_create_diskpart: retval=0 <output below>
+ada0 destroyed
+DEBUG: zfs_create_diskpart: Creating GPT layout...
+DEBUG: zfs_create_diskpart: gpart create -s gpt "ada0"
+DEBUG: zfs_create_diskpart: retval=0 <output below>
+ada0 created
+DEBUG: zfs_create_diskpart: gpart add -a 4k -l efiboot0 -t efi -s 260M "ada0"
+DEBUG: zfs_create_diskpart: retval=0 <output below>
+ada0p1 added
+DEBUG: zfs_create_diskpart: configuring ESP at [/dev/gpt/efiboot0]
+DEBUG: zfs_create_diskpart: newfs_msdos "/dev/gpt/efiboot0"
+DEBUG: zfs_create_diskpart: retval=0 <output below>
+/dev/gpt/efiboot0: 532288 sectors in 16634 FAT16 clusters (16384 bytes/cluster)
+BytesPerSec=512 SecPerClust=32 ResSectors=1 FATs=2 RootDirEnts=512 Media=0xf0 FATsecs=65 SecPerTrack=63 Heads=16 HiddenSecs=0 HugeSectors=532480
+DEBUG: zfs_create_diskpart: printf "$FSTAB_FMT" "/dev/gpt/efiboot0" "/boot/efi" "msdosfs" "rw" "2" "2" >> "/tmp/bsdinstall_etc/fstab"
+DEBUG: zfs_create_diskpart: retval=0 <no output>
+DEBUG: zfs_create_diskpart: gpart add -a 1m -l swap0 -t freebsd-swap -s 2147483648b "ada0"
+DEBUG: zfs_create_diskpart: retval=0 <output below>
+ada0p2 added
+DEBUG: zfs_create_diskpart: zpool labelclear -f "/dev/ada0p2"
+DEBUG: zfs_create_diskpart: retval=255 <output below>
+failed to clear label for /dev/ada0p2
+DEBUG: zfs_create_diskpart: gpart add -a 1m -l zfs0 -t freebsd-zfs "ada0"
+DEBUG: zfs_create_diskpart: retval=0 <output below>
+ada0p3 added
+DEBUG: zfs_create_diskpart: zpool labelclear -f "/dev/ada0p3"
+DEBUG: zfs_create_diskpart: retval=255 <output below>
+failed to clear label for /dev/ada0p3
+DEBUG: zfs_create_diskpart: printf "$FSTAB_FMT" "/dev/ada0p2.eli" "none" "swap" "sw" "0" "0" >> "/tmp/bsdinstall_etc/fstab"
+DEBUG: zfs_create_diskpart: retval=0 <no output>
+DEBUG: zfs_create_boot: kldload aesni
+DEBUG: zfs_create_boot: retval=1 <output below>
+kldload: can't load aesni: module already loaded or in kernel
+DEBUG: f_dialog_max_size: dialog --print-maxsize = [MaxSize: 25, 80]
+DEBUG: f_getvar: var=[height1] value=[8] r=0
+DEBUG: f_getvar: var=[width1] value=[80] r=0
+DEBUG: f_dialog_max_size: dialog --print-maxsize = [MaxSize: 25, 80]
+DEBUG: f_getvar: var=[height2] value=[8] r=0
+DEBUG: f_getvar: var=[width2] value=[56] r=0
+DEBUG: f_dialog_max_size: dialog --print-maxsize = [MaxSize: 25, 80]
+DEBUG: f_getvar: var=[height] value=[4] r=0
+DEBUG: f_getvar: var=[width] value=[46] r=0
+DEBUG: zfs_create_boot: geli init -bg -e AES-XTS -J - -l 256 -s 4096 "ada0p3"
+DEBUG: zfs_create_boot: retval=0 <output below>
+
+Metadata backup for provider ada0p3 can be found in /var/backups/ada0p3.eli
+and can be restored with the following command:
+
+	# geli restore /var/backups/ada0p3.eli ada0p3
+DEBUG: zfs_create_boot: geli attach -j - "ada0p3"
+DEBUG: zfs_create_boot: retval=0 <no output>
+DEBUG: zfs_create_boot: Creating root pool...
+DEBUG: zfs_create_boot: zpool create -o altroot=/mnt -O compress=lz4 -O atime=off -m none -f "zroot"   ada0p3.eli
+DEBUG: zfs_create_boot: retval=0 <no output>
+DEBUG: zfs_create_boot: Creating ZFS datasets...
+DEBUG: zfs_create_boot: zfs create -o mountpoint=none "zroot/ROOT"
+DEBUG: zfs_create_boot: retval=0 <no output>
+DEBUG: zfs_create_boot: zfs create -o mountpoint=/ "zroot/ROOT/default"
+DEBUG: zfs_create_boot: retval=0 <no output>
+DEBUG: zfs_create_boot: zfs create -o mountpoint=/home "zroot/home"
+DEBUG: zfs_create_boot: retval=0 <no output>
+DEBUG: zfs_create_boot: zfs create -o mountpoint=/tmp -o exec=on -o setuid=off "zroot/tmp"
+DEBUG: zfs_create_boot: retval=0 <no output>
+DEBUG: zfs_create_boot: zfs create -o mountpoint=/usr -o canmount=off "zroot/usr"
+DEBUG: zfs_create_boot: retval=0 <no output>
+DEBUG: zfs_create_boot: zfs create -o setuid=off "zroot/usr/ports"
+DEBUG: zfs_create_boot: retval=0 <no output>
+DEBUG: zfs_create_boot: zfs create  "zroot/usr/src"
+DEBUG: zfs_create_boot: retval=0 <no output>
+DEBUG: zfs_create_boot: zfs create -o mountpoint=/var -o canmount=off "zroot/var"
+DEBUG: zfs_create_boot: retval=0 <no output>
+DEBUG: zfs_create_boot: zfs create -o exec=off -o setuid=off "zroot/var/audit"
+DEBUG: zfs_create_boot: retval=0 <no output>
+DEBUG: zfs_create_boot: zfs create -o exec=off -o setuid=off "zroot/var/crash"
+DEBUG: zfs_create_boot: retval=0 <no output>
+DEBUG: zfs_create_boot: zfs create -o exec=off -o setuid=off "zroot/var/log"
+DEBUG: zfs_create_boot: retval=0 <no output>
+DEBUG: zfs_create_boot: zfs create -o atime=on "zroot/var/mail"
+DEBUG: zfs_create_boot: retval=0 <no output>
+DEBUG: zfs_create_boot: zfs create -o setuid=off "zroot/var/tmp"
+DEBUG: zfs_create_boot: retval=0 <no output>
+DEBUG: zfs_create_boot: Setting mountpoint for root of the pool...
+DEBUG: zfs_create_boot: zfs set "mountpoint=/zroot" "zroot"
+DEBUG: zfs_create_boot: retval=0 <no output>
+DEBUG: zfs_create_boot: Modifying directory permissions...
+DEBUG: zfs_create_boot: mkdir -p "/mnt/tmp"
+DEBUG: zfs_create_boot: retval=0 <no output>
+DEBUG: zfs_create_boot: chmod 1777 "/mnt/tmp"
+DEBUG: zfs_create_boot: retval=0 <no output>
+DEBUG: zfs_create_boot: mkdir -p "/mnt/var/tmp"
+DEBUG: zfs_create_boot: retval=0 <no output>
+DEBUG: zfs_create_boot: chmod 1777 "/mnt/var/tmp"
+DEBUG: zfs_create_boot: retval=0 <no output>
+DEBUG: zfs_create_boot: Setting bootfs property...
+DEBUG: zfs_create_boot: zpool set bootfs="zroot/ROOT/default" "zroot"
+DEBUG: zfs_create_boot: retval=0 <no output>
+DEBUG: zfs_create_boot: Configuring zpool.cache for zroot...
+DEBUG: zfs_create_boot: mkdir -p "/mnt/boot/zfs"
+DEBUG: zfs_create_boot: retval=0 <no output>
+DEBUG: zfs_create_boot: zpool set cachefile="/mnt/boot/zfs/zpool.cache" "zroot"
+DEBUG: zfs_create_boot: retval=0 <no output>
+DEBUG: zfs_create_boot: Set canmount=noauto for any datasets under the BE...
+DEBUG: zfs_create_boot: zfs set "canmount=noauto" "zroot/ROOT/default"
+DEBUG: zfs_create_boot: retval=0 <no output>
+DEBUG: zfs_create_boot: Configuring rc.conf(5)/loader.conf(5) additions...
+DEBUG: zfs_create_boot: echo "zfs_enable=\"YES\"" >> "/tmp/bsdinstall_etc/rc.conf.zfs"
+DEBUG: zfs_create_boot: retval=0 <no output>
+DEBUG: zfs_create_boot: echo "kern.geom.label.disk_ident.enable=\"0\"" >> "/tmp/bsdinstall_boot/loader.conf.zfs"
+DEBUG: zfs_create_boot: retval=0 <no output>
+DEBUG: zfs_create_boot: echo "kern.geom.label.gptid.enable=\"0\"" >> "/tmp/bsdinstall_boot/loader.conf.zfs"
+DEBUG: zfs_create_boot: retval=0 <no output>
+DEBUG: zfs_create_boot: echo "vfs.zfs.min_auto_ashift=12" >> "/tmp/bsdinstall_etc/sysctl.conf.zfs"
+DEBUG: zfs_create_boot: retval=0 <no output>
+DEBUG: zfs_create_boot: Configuring disk encryption...
+DEBUG: zfs_create_boot: echo "aesni_load=\"YES\"" >> "/tmp/bsdinstall_boot/loader.conf.aesni"
+DEBUG: zfs_create_boot: retval=0 <no output>
+DEBUG: zfs_create_boot: echo "geom_eli_load=\"YES\"" >> "/tmp/bsdinstall_boot/loader.conf.geli"
+DEBUG: zfs_create_boot: retval=0 <no output>
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: f_debug_init: ARGV=[mount] GETOPTS_STDARGS=[dD:]
+DEBUG: f_debug_init: debug=[1] debugFile=[/tmp/bsdinstall_log]
+DEBUG: Running installation step: mount 
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: f_debug_init: ARGV=[checksum] GETOPTS_STDARGS=[dD:]
+DEBUG: f_debug_init: debug=[1] debugFile=[/tmp/bsdinstall_log]
+DEBUG: Running installation step: checksum 
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: f_debug_init: ARGV=[distextract] GETOPTS_STDARGS=[dD:]
+DEBUG: f_debug_init: debug=[1] debugFile=[/tmp/bsdinstall_log]
+DEBUG: Running installation step: distextract 
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: f_debug_init: ARGV=[bootconfig] GETOPTS_STDARGS=[dD:]
+DEBUG: f_debug_init: debug=[1] debugFile=[/tmp/bsdinstall_log]
+DEBUG: Running installation step: bootconfig 
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: /usr/libexec/bsdinstall/bootconfig: loading_includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: dialog.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: strings.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/variable.subr]
+DEBUG: variable.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: variable.subr: New variable VAR_CONFIG_FILE -> configFile
+DEBUG: variable.subr: New variable VAR_DEBUG -> debug
+DEBUG: variable.subr: New variable VAR_DEBUG_FILE -> debugFile
+DEBUG: variable.subr: New variable VAR_DIRECTORY_PATH -> _directoryPath
+DEBUG: variable.subr: New variable VAR_DOMAINNAME -> domainname
+DEBUG: variable.subr: New variable VAR_EDITOR -> editor
+DEBUG: variable.subr: New variable VAR_EXTRAS -> ifconfig_
+DEBUG: variable.subr: New variable VAR_FTP_DIR -> ftpDirectory
+DEBUG: variable.subr: New variable VAR_FTP_HOST -> ftpHost
+DEBUG: variable.subr: New variable VAR_FTP_PASS -> ftpPass
+DEBUG: variable.subr: New variable VAR_FTP_PATH -> _ftpPath
+DEBUG: variable.subr: New variable VAR_FTP_PORT -> ftpPort
+DEBUG: variable.subr: New variable VAR_FTP_STATE -> ftpState
+DEBUG: variable.subr: New variable VAR_FTP_USER -> ftpUser
+DEBUG: variable.subr: New variable VAR_GATEWAY -> defaultrouter
+DEBUG: variable.subr: New variable VAR_GROUP -> group
+DEBUG: variable.subr: New variable VAR_GROUP_GID -> groupGid
+DEBUG: variable.subr: New variable VAR_GROUP_MEMBERS -> groupMembers
+DEBUG: variable.subr: New variable VAR_GROUP_PASSWORD -> groupPassword
+DEBUG: variable.subr: New variable VAR_HOSTNAME -> hostname
+DEBUG: variable.subr: New variable VAR_HTTP_DIR -> httpDirectory
+DEBUG: variable.subr: New variable VAR_HTTP_FTP_MODE -> httpFtpMode
+DEBUG: variable.subr: New variable VAR_HTTP_HOST -> httpHost
+DEBUG: variable.subr: New variable VAR_HTTP_PATH -> _httpPath
+DEBUG: variable.subr: New variable VAR_HTTP_PORT -> httpPort
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY -> httpProxy
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_HOST -> httpProxyHost
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_PATH -> _httpProxyPath
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_PORT -> httpProxyPort
+DEBUG: variable.subr: New variable VAR_IFCONFIG -> ifconfig_
+DEBUG: variable.subr: New variable VAR_IPADDR -> ipaddr
+DEBUG: variable.subr: New variable VAR_IPV6ADDR -> ipv6addr
+DEBUG: variable.subr: New variable VAR_IPV6_ENABLE -> ipv6_activate_all_interfaces
+DEBUG: variable.subr: New variable VAR_KEYMAP -> keymap
+DEBUG: variable.subr: New variable VAR_MEDIA_TIMEOUT -> MEDIA_TIMEOUT
+DEBUG: variable.subr: New variable VAR_MEDIA_TYPE -> mediaType
+DEBUG: variable.subr: New variable VAR_NAMESERVER -> nameserver
+DEBUG: variable.subr: New variable VAR_NETINTERACTIVE -> netInteractive
+DEBUG: variable.subr: New variable VAR_NETMASK -> netmask
+DEBUG: variable.subr: New variable VAR_NETWORK_DEVICE -> netDev
+DEBUG: variable.subr: New variable VAR_NFS_HOST -> nfsHost
+DEBUG: variable.subr: New variable VAR_NFS_PATH -> nfsPath
+DEBUG: variable.subr: New variable VAR_NFS_SECURE -> nfs_reserved_port_only
+DEBUG: variable.subr: New variable VAR_NFS_TCP -> nfs_use_tcp
+DEBUG: variable.subr: New variable VAR_NFS_V3 -> nfs_use_v3
+DEBUG: variable.subr: New variable VAR_NONINTERACTIVE -> nonInteractive
+DEBUG: variable.subr: New variable VAR_NO_CONFIRM -> noConfirm
+DEBUG: variable.subr: New variable VAR_NO_ERROR -> noError
+DEBUG: variable.subr: New variable VAR_NO_INET6 -> noInet6
+DEBUG: variable.subr: New variable VAR_PACKAGE -> package
+DEBUG: variable.subr: New variable VAR_PKG_TMPDIR -> PKG_TMPDIR
+DEBUG: variable.subr: New variable VAR_PORTS_PATH -> ports
+DEBUG: variable.subr: New variable VAR_RELNAME -> releaseName
+DEBUG: variable.subr: New variable VAR_SLOW_ETHER -> slowEthernetCard
+DEBUG: variable.subr: New variable VAR_TRY_DHCP -> tryDHCP
+DEBUG: variable.subr: New variable VAR_TRY_RTSOL -> tryRTSOL
+DEBUG: variable.subr: New variable VAR_UFS_PATH -> ufs
+DEBUG: variable.subr: New variable VAR_USER -> user
+DEBUG: variable.subr: New variable VAR_USER_ACCOUNT_EXPIRE -> userAccountExpire
+DEBUG: variable.subr: New variable VAR_USER_DOTFILES_CREATE -> userDotfilesCreate
+DEBUG: variable.subr: New variable VAR_USER_GECOS -> userGecos
+DEBUG: variable.subr: New variable VAR_USER_GID -> userGid
+DEBUG: variable.subr: New variable VAR_USER_GROUPS -> userGroups
+DEBUG: variable.subr: New variable VAR_USER_GROUP_DELETE -> userGroupDelete
+DEBUG: variable.subr: New variable VAR_USER_HOME -> userHome
+DEBUG: variable.subr: New variable VAR_USER_HOME_CREATE -> userHomeCreate
+DEBUG: variable.subr: New variable VAR_USER_HOME_DELETE -> userHomeDelete
+DEBUG: variable.subr: New variable VAR_USER_LOGIN_CLASS -> userLoginClass
+DEBUG: variable.subr: New variable VAR_USER_PASSWORD -> userPassword
+DEBUG: variable.subr: New variable VAR_USER_PASSWORD_EXPIRE -> userPasswordExpire
+DEBUG: variable.subr: New variable VAR_USER_SHELL -> userShell
+DEBUG: variable.subr: New variable VAR_USER_UID -> userUid
+DEBUG: variable.subr: New variable VAR_ZFSINTERACTIVE -> zfsInteractive
+DEBUG: variable.subr: VARIABLE_SELF_INITIALIZE=[1]
+DEBUG: f_variable_set_defaults: Initializing defaults...
+DEBUG: f_getvar: var=[debug] value=[1] r=0
+DEBUG: f_getvar: var=[editor] value=[/usr/bin/ee] r=0
+DEBUG: f_getvar: var=[ftpState] value=[auto] r=0
+DEBUG: f_getvar: var=[ftpUser] value=[ftp] r=0
+DEBUG: f_getvar: var=[hostname] value=[example] r=0
+DEBUG: f_getvar: var=[MEDIA_TIMEOUT] value=[300] r=0
+DEBUG: f_getvar: var=[nfs_reserved_port_only] value=[NO] r=0
+DEBUG: f_getvar: var=[nfs_use_tcp] value=[NO] r=0
+DEBUG: f_getvar: var=[nfs_use_v3] value=[YES] r=0
+DEBUG: f_getvar: var=[PKG_TMPDIR] value=[/var/tmp] r=0
+DEBUG: f_getvar: var=[releaseName] value=[14.3-RELEASE] r=0
+DEBUG: f_variable_set_defaults: Defaults initialized.
+DEBUG: variable.subr: Successfully loaded.
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/include/messages.subr] lang=[C.UTF-8]
+DEBUG: dialog.subr: DIALOG_SELF_INITIALIZE=[1]
+DEBUG: f_dialog_init: ARGV=[] GETOPTS_STDARGS=[dD:SX]
+DEBUG: f_dialog_init: SECURE=[] USE_XDIALOG=[]
+DEBUG: f_dialog_init: dialog(1) API initialized.
+DEBUG: dialog.subr: Successfully loaded.
+sysctl: unknown oid 'machdep.efi_arch'
+[: ==: unexpected operator
+DEBUG: Installing loader.efi onto ESP
+efibootmgr: efi variables not supported on this system. kldload efirt?
+DEBUG: Creating UEFI boot entry
+efibootmgr: efi variables not supported on this system. kldload efirt?
+DEBUG: Finished configuring ESP
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: f_debug_init: ARGV=[rootpass] GETOPTS_STDARGS=[dD:]
+DEBUG: f_debug_init: debug=[1] debugFile=[/tmp/bsdinstall_log]
+DEBUG: Running installation step: rootpass 
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: f_debug_init: ARGV=[netconfig] GETOPTS_STDARGS=[dD:]
+DEBUG: f_debug_init: debug=[1] debugFile=[/tmp/bsdinstall_log]
+DEBUG: Running installation step: netconfig 
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: f_debug_init: ARGV=[netconfig_ipv4 em0 ] GETOPTS_STDARGS=[dD:]
+DEBUG: f_debug_init: debug=[1] debugFile=[/tmp/bsdinstall_log]
+DEBUG: Running installation step: netconfig_ipv4 em0 
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: /usr/libexec/bsdinstall/netconfig_ipv4: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: dialog.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: strings.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/variable.subr]
+DEBUG: variable.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: variable.subr: New variable VAR_CONFIG_FILE -> configFile
+DEBUG: variable.subr: New variable VAR_DEBUG -> debug
+DEBUG: variable.subr: New variable VAR_DEBUG_FILE -> debugFile
+DEBUG: variable.subr: New variable VAR_DIRECTORY_PATH -> _directoryPath
+DEBUG: variable.subr: New variable VAR_DOMAINNAME -> domainname
+DEBUG: variable.subr: New variable VAR_EDITOR -> editor
+DEBUG: variable.subr: New variable VAR_EXTRAS -> ifconfig_
+DEBUG: variable.subr: New variable VAR_FTP_DIR -> ftpDirectory
+DEBUG: variable.subr: New variable VAR_FTP_HOST -> ftpHost
+DEBUG: variable.subr: New variable VAR_FTP_PASS -> ftpPass
+DEBUG: variable.subr: New variable VAR_FTP_PATH -> _ftpPath
+DEBUG: variable.subr: New variable VAR_FTP_PORT -> ftpPort
+DEBUG: variable.subr: New variable VAR_FTP_STATE -> ftpState
+DEBUG: variable.subr: New variable VAR_FTP_USER -> ftpUser
+DEBUG: variable.subr: New variable VAR_GATEWAY -> defaultrouter
+DEBUG: variable.subr: New variable VAR_GROUP -> group
+DEBUG: variable.subr: New variable VAR_GROUP_GID -> groupGid
+DEBUG: variable.subr: New variable VAR_GROUP_MEMBERS -> groupMembers
+DEBUG: variable.subr: New variable VAR_GROUP_PASSWORD -> groupPassword
+DEBUG: variable.subr: New variable VAR_HOSTNAME -> hostname
+DEBUG: variable.subr: New variable VAR_HTTP_DIR -> httpDirectory
+DEBUG: variable.subr: New variable VAR_HTTP_FTP_MODE -> httpFtpMode
+DEBUG: variable.subr: New variable VAR_HTTP_HOST -> httpHost
+DEBUG: variable.subr: New variable VAR_HTTP_PATH -> _httpPath
+DEBUG: variable.subr: New variable VAR_HTTP_PORT -> httpPort
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY -> httpProxy
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_HOST -> httpProxyHost
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_PATH -> _httpProxyPath
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_PORT -> httpProxyPort
+DEBUG: variable.subr: New variable VAR_IFCONFIG -> ifconfig_
+DEBUG: variable.subr: New variable VAR_IPADDR -> ipaddr
+DEBUG: variable.subr: New variable VAR_IPV6ADDR -> ipv6addr
+DEBUG: variable.subr: New variable VAR_IPV6_ENABLE -> ipv6_activate_all_interfaces
+DEBUG: variable.subr: New variable VAR_KEYMAP -> keymap
+DEBUG: variable.subr: New variable VAR_MEDIA_TIMEOUT -> MEDIA_TIMEOUT
+DEBUG: variable.subr: New variable VAR_MEDIA_TYPE -> mediaType
+DEBUG: variable.subr: New variable VAR_NAMESERVER -> nameserver
+DEBUG: variable.subr: New variable VAR_NETINTERACTIVE -> netInteractive
+DEBUG: variable.subr: New variable VAR_NETMASK -> netmask
+DEBUG: variable.subr: New variable VAR_NETWORK_DEVICE -> netDev
+DEBUG: variable.subr: New variable VAR_NFS_HOST -> nfsHost
+DEBUG: variable.subr: New variable VAR_NFS_PATH -> nfsPath
+DEBUG: variable.subr: New variable VAR_NFS_SECURE -> nfs_reserved_port_only
+DEBUG: variable.subr: New variable VAR_NFS_TCP -> nfs_use_tcp
+DEBUG: variable.subr: New variable VAR_NFS_V3 -> nfs_use_v3
+DEBUG: variable.subr: New variable VAR_NONINTERACTIVE -> nonInteractive
+DEBUG: variable.subr: New variable VAR_NO_CONFIRM -> noConfirm
+DEBUG: variable.subr: New variable VAR_NO_ERROR -> noError
+DEBUG: variable.subr: New variable VAR_NO_INET6 -> noInet6
+DEBUG: variable.subr: New variable VAR_PACKAGE -> package
+DEBUG: variable.subr: New variable VAR_PKG_TMPDIR -> PKG_TMPDIR
+DEBUG: variable.subr: New variable VAR_PORTS_PATH -> ports
+DEBUG: variable.subr: New variable VAR_RELNAME -> releaseName
+DEBUG: variable.subr: New variable VAR_SLOW_ETHER -> slowEthernetCard
+DEBUG: variable.subr: New variable VAR_TRY_DHCP -> tryDHCP
+DEBUG: variable.subr: New variable VAR_TRY_RTSOL -> tryRTSOL
+DEBUG: variable.subr: New variable VAR_UFS_PATH -> ufs
+DEBUG: variable.subr: New variable VAR_USER -> user
+DEBUG: variable.subr: New variable VAR_USER_ACCOUNT_EXPIRE -> userAccountExpire
+DEBUG: variable.subr: New variable VAR_USER_DOTFILES_CREATE -> userDotfilesCreate
+DEBUG: variable.subr: New variable VAR_USER_GECOS -> userGecos
+DEBUG: variable.subr: New variable VAR_USER_GID -> userGid
+DEBUG: variable.subr: New variable VAR_USER_GROUPS -> userGroups
+DEBUG: variable.subr: New variable VAR_USER_GROUP_DELETE -> userGroupDelete
+DEBUG: variable.subr: New variable VAR_USER_HOME -> userHome
+DEBUG: variable.subr: New variable VAR_USER_HOME_CREATE -> userHomeCreate
+DEBUG: variable.subr: New variable VAR_USER_HOME_DELETE -> userHomeDelete
+DEBUG: variable.subr: New variable VAR_USER_LOGIN_CLASS -> userLoginClass
+DEBUG: variable.subr: New variable VAR_USER_PASSWORD -> userPassword
+DEBUG: variable.subr: New variable VAR_USER_PASSWORD_EXPIRE -> userPasswordExpire
+DEBUG: variable.subr: New variable VAR_USER_SHELL -> userShell
+DEBUG: variable.subr: New variable VAR_USER_UID -> userUid
+DEBUG: variable.subr: New variable VAR_ZFSINTERACTIVE -> zfsInteractive
+DEBUG: variable.subr: VARIABLE_SELF_INITIALIZE=[1]
+DEBUG: f_variable_set_defaults: Initializing defaults...
+DEBUG: f_getvar: var=[debug] value=[1] r=0
+DEBUG: f_getvar: var=[editor] value=[/usr/bin/ee] r=0
+DEBUG: f_getvar: var=[ftpState] value=[auto] r=0
+DEBUG: f_getvar: var=[ftpUser] value=[ftp] r=0
+DEBUG: f_getvar: var=[hostname] value=[example] r=0
+DEBUG: f_getvar: var=[MEDIA_TIMEOUT] value=[300] r=0
+DEBUG: f_getvar: var=[nfs_reserved_port_only] value=[NO] r=0
+DEBUG: f_getvar: var=[nfs_use_tcp] value=[NO] r=0
+DEBUG: f_getvar: var=[nfs_use_v3] value=[YES] r=0
+DEBUG: f_getvar: var=[PKG_TMPDIR] value=[/var/tmp] r=0
+DEBUG: f_getvar: var=[releaseName] value=[14.3-RELEASE] r=0
+DEBUG: f_variable_set_defaults: Defaults initialized.
+DEBUG: variable.subr: Successfully loaded.
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/include/messages.subr] lang=[C.UTF-8]
+DEBUG: dialog.subr: DIALOG_SELF_INITIALIZE=[1]
+DEBUG: f_dialog_init: ARGV=[em0 ] GETOPTS_STDARGS=[dD:SX]
+DEBUG: f_dialog_init: SECURE=[] USE_XDIALOG=[]
+DEBUG: f_dialog_init: dialog(1) API initialized.
+DEBUG: dialog.subr: Successfully loaded.
+pkill: Cannot open pidfile `/var/run/dhclient/dhclient.em0.pid': No such file or directory
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: f_debug_init: ARGV=[time] GETOPTS_STDARGS=[dD:]
+DEBUG: f_debug_init: debug=[1] debugFile=[/tmp/bsdinstall_log]
+DEBUG: Running installation step: time 
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: f_debug_init: ARGV=[services] GETOPTS_STDARGS=[dD:]
+DEBUG: f_debug_init: debug=[1] debugFile=[/tmp/bsdinstall_log]
+DEBUG: Running installation step: services 
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: f_debug_init: ARGV=[hardening] GETOPTS_STDARGS=[dD:]
+DEBUG: f_debug_init: debug=[1] debugFile=[/tmp/bsdinstall_log]
+DEBUG: Running installation step: hardening 
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: f_debug_init: ARGV=[firmware] GETOPTS_STDARGS=[dD:]
+DEBUG: f_debug_init: debug=[1] debugFile=[/tmp/bsdinstall_log]
+DEBUG: Running installation step: firmware 
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: /usr/libexec/bsdinstall/firmware: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: dialog.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: strings.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/variable.subr]
+DEBUG: variable.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: variable.subr: New variable VAR_CONFIG_FILE -> configFile
+DEBUG: variable.subr: New variable VAR_DEBUG -> debug
+DEBUG: variable.subr: New variable VAR_DEBUG_FILE -> debugFile
+DEBUG: variable.subr: New variable VAR_DIRECTORY_PATH -> _directoryPath
+DEBUG: variable.subr: New variable VAR_DOMAINNAME -> domainname
+DEBUG: variable.subr: New variable VAR_EDITOR -> editor
+DEBUG: variable.subr: New variable VAR_EXTRAS -> ifconfig_
+DEBUG: variable.subr: New variable VAR_FTP_DIR -> ftpDirectory
+DEBUG: variable.subr: New variable VAR_FTP_HOST -> ftpHost
+DEBUG: variable.subr: New variable VAR_FTP_PASS -> ftpPass
+DEBUG: variable.subr: New variable VAR_FTP_PATH -> _ftpPath
+DEBUG: variable.subr: New variable VAR_FTP_PORT -> ftpPort
+DEBUG: variable.subr: New variable VAR_FTP_STATE -> ftpState
+DEBUG: variable.subr: New variable VAR_FTP_USER -> ftpUser
+DEBUG: variable.subr: New variable VAR_GATEWAY -> defaultrouter
+DEBUG: variable.subr: New variable VAR_GROUP -> group
+DEBUG: variable.subr: New variable VAR_GROUP_GID -> groupGid
+DEBUG: variable.subr: New variable VAR_GROUP_MEMBERS -> groupMembers
+DEBUG: variable.subr: New variable VAR_GROUP_PASSWORD -> groupPassword
+DEBUG: variable.subr: New variable VAR_HOSTNAME -> hostname
+DEBUG: variable.subr: New variable VAR_HTTP_DIR -> httpDirectory
+DEBUG: variable.subr: New variable VAR_HTTP_FTP_MODE -> httpFtpMode
+DEBUG: variable.subr: New variable VAR_HTTP_HOST -> httpHost
+DEBUG: variable.subr: New variable VAR_HTTP_PATH -> _httpPath
+DEBUG: variable.subr: New variable VAR_HTTP_PORT -> httpPort
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY -> httpProxy
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_HOST -> httpProxyHost
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_PATH -> _httpProxyPath
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_PORT -> httpProxyPort
+DEBUG: variable.subr: New variable VAR_IFCONFIG -> ifconfig_
+DEBUG: variable.subr: New variable VAR_IPADDR -> ipaddr
+DEBUG: variable.subr: New variable VAR_IPV6ADDR -> ipv6addr
+DEBUG: variable.subr: New variable VAR_IPV6_ENABLE -> ipv6_activate_all_interfaces
+DEBUG: variable.subr: New variable VAR_KEYMAP -> keymap
+DEBUG: variable.subr: New variable VAR_MEDIA_TIMEOUT -> MEDIA_TIMEOUT
+DEBUG: variable.subr: New variable VAR_MEDIA_TYPE -> mediaType
+DEBUG: variable.subr: New variable VAR_NAMESERVER -> nameserver
+DEBUG: variable.subr: New variable VAR_NETINTERACTIVE -> netInteractive
+DEBUG: variable.subr: New variable VAR_NETMASK -> netmask
+DEBUG: variable.subr: New variable VAR_NETWORK_DEVICE -> netDev
+DEBUG: variable.subr: New variable VAR_NFS_HOST -> nfsHost
+DEBUG: variable.subr: New variable VAR_NFS_PATH -> nfsPath
+DEBUG: variable.subr: New variable VAR_NFS_SECURE -> nfs_reserved_port_only
+DEBUG: variable.subr: New variable VAR_NFS_TCP -> nfs_use_tcp
+DEBUG: variable.subr: New variable VAR_NFS_V3 -> nfs_use_v3
+DEBUG: variable.subr: New variable VAR_NONINTERACTIVE -> nonInteractive
+DEBUG: variable.subr: New variable VAR_NO_CONFIRM -> noConfirm
+DEBUG: variable.subr: New variable VAR_NO_ERROR -> noError
+DEBUG: variable.subr: New variable VAR_NO_INET6 -> noInet6
+DEBUG: variable.subr: New variable VAR_PACKAGE -> package
+DEBUG: variable.subr: New variable VAR_PKG_TMPDIR -> PKG_TMPDIR
+DEBUG: variable.subr: New variable VAR_PORTS_PATH -> ports
+DEBUG: variable.subr: New variable VAR_RELNAME -> releaseName
+DEBUG: variable.subr: New variable VAR_SLOW_ETHER -> slowEthernetCard
+DEBUG: variable.subr: New variable VAR_TRY_DHCP -> tryDHCP
+DEBUG: variable.subr: New variable VAR_TRY_RTSOL -> tryRTSOL
+DEBUG: variable.subr: New variable VAR_UFS_PATH -> ufs
+DEBUG: variable.subr: New variable VAR_USER -> user
+DEBUG: variable.subr: New variable VAR_USER_ACCOUNT_EXPIRE -> userAccountExpire
+DEBUG: variable.subr: New variable VAR_USER_DOTFILES_CREATE -> userDotfilesCreate
+DEBUG: variable.subr: New variable VAR_USER_GECOS -> userGecos
+DEBUG: variable.subr: New variable VAR_USER_GID -> userGid
+DEBUG: variable.subr: New variable VAR_USER_GROUPS -> userGroups
+DEBUG: variable.subr: New variable VAR_USER_GROUP_DELETE -> userGroupDelete
+DEBUG: variable.subr: New variable VAR_USER_HOME -> userHome
+DEBUG: variable.subr: New variable VAR_USER_HOME_CREATE -> userHomeCreate
+DEBUG: variable.subr: New variable VAR_USER_HOME_DELETE -> userHomeDelete
+DEBUG: variable.subr: New variable VAR_USER_LOGIN_CLASS -> userLoginClass
+DEBUG: variable.subr: New variable VAR_USER_PASSWORD -> userPassword
+DEBUG: variable.subr: New variable VAR_USER_PASSWORD_EXPIRE -> userPasswordExpire
+DEBUG: variable.subr: New variable VAR_USER_SHELL -> userShell
+DEBUG: variable.subr: New variable VAR_USER_UID -> userUid
+DEBUG: variable.subr: New variable VAR_ZFSINTERACTIVE -> zfsInteractive
+DEBUG: variable.subr: VARIABLE_SELF_INITIALIZE=[1]
+DEBUG: f_variable_set_defaults: Initializing defaults...
+DEBUG: f_getvar: var=[debug] value=[1] r=0
+DEBUG: f_getvar: var=[editor] value=[/usr/bin/ee] r=0
+DEBUG: f_getvar: var=[ftpState] value=[auto] r=0
+DEBUG: f_getvar: var=[ftpUser] value=[ftp] r=0
+DEBUG: f_getvar: var=[hostname] value=[example] r=0
+DEBUG: f_getvar: var=[MEDIA_TIMEOUT] value=[300] r=0
+DEBUG: f_getvar: var=[nfs_reserved_port_only] value=[NO] r=0
+DEBUG: f_getvar: var=[nfs_use_tcp] value=[NO] r=0
+DEBUG: f_getvar: var=[nfs_use_v3] value=[YES] r=0
+DEBUG: f_getvar: var=[PKG_TMPDIR] value=[/var/tmp] r=0
+DEBUG: f_getvar: var=[releaseName] value=[14.3-RELEASE] r=0
+DEBUG: f_variable_set_defaults: Defaults initialized.
+DEBUG: variable.subr: Successfully loaded.
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/include/messages.subr] lang=[C.UTF-8]
+DEBUG: dialog.subr: DIALOG_SELF_INITIALIZE=[1]
+DEBUG: f_dialog_init: ARGV=[] GETOPTS_STDARGS=[dD:SX]
+DEBUG: f_dialog_init: SECURE=[] USE_XDIALOG=[]
+DEBUG: f_dialog_init: dialog(1) API initialized.
+DEBUG: dialog.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/mustberoot.subr]
+DEBUG: mustberoot.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/include/messages.subr] lang=[C.UTF-8]
+DEBUG: mustberoot.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/packages/packages.subr]
+DEBUG: /usr/libexec/bsdinstall/firmware: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/device.subr]
+DEBUG: device.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/geom.subr]
+DEBUG: geom.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/struct.subr]
+DEBUG: struct.subr: Successfully loaded.
+DEBUG: geom.subr: GEOM_SELF_SCAN_ALL=[1]
+DEBUG: geom.subr: Initialized 23 geom devices in 13 classes.
+DEBUG: geom.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/struct.subr]
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/include/messages.subr] lang=[C.UTF-8]
+DEBUG: device.subr: Initialized device catalog with 106 names/descriptions.
+DEBUG: device.subr: DEVICE_SELF_SCAN_ALL=[1]
+DEBUG: f_device_get_all: Probing devices...
+DEBUG: f_dialog_max_size: dialog --print-maxsize = [MaxSize: 25, 80]
+DEBUG: f_getvar: var=[height] value=[3] r=0
+DEBUG: f_getvar: var=[width] value=[59] r=0
+DEBUG: Found network device named em0
+DEBUG: Found network device named em1
+DEBUG: WARNING! Unable to classify GEOM device ada0p3.eli as media source
+DEBUG: WARNING! Unable to classify GEOM device ada0p3 as media source
+DEBUG: WARNING! Unable to classify GEOM device gptid/0ba6103d-5c6c-11f0-96fb-080027182046 as media source
+DEBUG: WARNING! Unable to classify GEOM device gpt/swap0 as media source
+DEBUG: WARNING! Unable to classify GEOM device ada0p2 as media source
+DEBUG: WARNING! Unable to classify GEOM device gpt/efiboot0 as media source
+DEBUG: WARNING! Unable to classify GEOM device ada0p1 as media source
+DEBUG: Found CDROM device labeled iso9660/14_3_RELEASE_AMD64_CD
+DEBUG: Found disk device named ada0
+DEBUG: Found CDROM device for disk cd0
+DEBUG: device.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/media/common.subr]
+DEBUG: media/common.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/device.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/media/any.subr]
+DEBUG: media/any.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/media/cdrom.subr]
+DEBUG: media/cdrom.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/device.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/media/common.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/struct.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/variable.subr]
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/include/messages.subr] lang=[C.UTF-8]
+DEBUG: media/cdrom.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/media/directory.subr]
+DEBUG: media/directory.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/device.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/media/common.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/struct.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/variable.subr]
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/include/messages.subr] lang=[C.UTF-8]
+DEBUG: media/directory.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/media/dos.subr]
+DEBUG: media/dos.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/device.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/media/common.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/struct.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/variable.subr]
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/include/messages.subr] lang=[C.UTF-8]
+DEBUG: media/dos.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/media/floppy.subr]
+DEBUG: media/floppy.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/device.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/media/common.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/struct.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/variable.subr]
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/include/messages.subr] lang=[C.UTF-8]
+DEBUG: media/floppy.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/media/ftp.subr]
+DEBUG: media/ftp.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/device.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/media/common.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/media/tcpip.subr]
+DEBUG: media/tcpip.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/device.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/struct.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/variable.subr]
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/include/messages.subr] lang=[C.UTF-8]
+DEBUG: media/tcpip.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/struct.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/variable.subr]
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/include/messages.subr] lang=[C.UTF-8]
+DEBUG: media/ftp.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/media/http.subr]
+DEBUG: media/http.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/device.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/media/common.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/media/tcpip.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/struct.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/variable.subr]
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/include/messages.subr] lang=[C.UTF-8]
+DEBUG: media/http.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/media/httpproxy.subr]
+DEBUG: media/httpproxy.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/media/ftp.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/media/tcpip.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/variable.subr]
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/include/messages.subr] lang=[C.UTF-8]
+DEBUG: media/httpproxy.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/media/nfs.subr]
+DEBUG: media/nfs.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/device.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/media/common.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/media/network.subr]
+DEBUG: media/network.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/media/tcpip.subr]
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/include/messages.subr] lang=[C.UTF-8]
+DEBUG: media/network.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/media/tcpip.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/struct.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/variable.subr]
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/include/messages.subr] lang=[C.UTF-8]
+DEBUG: media/nfs.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/media/options.subr]
+DEBUG: media/options.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/media/any.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/media/ftp.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/struct.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/variable.subr]
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/include/messages.subr] lang=[C.UTF-8]
+DEBUG: media/options.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/media/ufs.subr]
+DEBUG: media/ufs.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/device.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/media/common.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/struct.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/variable.subr]
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/include/messages.subr] lang=[C.UTF-8]
+DEBUG: media/ufs.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/media/usb.subr]
+DEBUG: media/usb.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/device.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/media/common.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/struct.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/variable.subr]
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/include/messages.subr] lang=[C.UTF-8]
+DEBUG: media/usb.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/struct.subr]
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/include/messages.subr] lang=[C.UTF-8]
+DEBUG: media/any.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/struct.subr]
+DEBUG: media/common.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/packages/categories.subr]
+DEBUG: packages/categories.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/include/messages.subr] lang=[C.UTF-8]
+DEBUG: packages/categories.subr: Initialized 92 package category descriptions.
+DEBUG: packages/categories.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/packages/index.subr]
+DEBUG: packages/index.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/device.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/media/common.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/packages/musthavepkg.subr]
+DEBUG: packages/musthavepkg.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/mustberoot.subr]
+DEBUG: packages/musthavepkg.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/include/messages.subr] lang=[C.UTF-8]
+DEBUG: packages/index.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/packages/musthavepkg.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/include/messages.subr] lang=[C.UTF-8]
+DEBUG: packages/packages.subr: Successfully loaded.
+DEBUG: f_dialog_max_size: dialog --print-maxsize = [MaxSize: 25, 80]
+DEBUG: f_getvar: var=[height] value=[8] r=0
+DEBUG: f_getvar: var=[width] value=[41] r=0
+DEBUG: f_getvar: var=[rows] value=[1] r=0
+DEBUG: f_getvar: var=[text] value=[] r=0
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: f_debug_init: ARGV=[adduser] GETOPTS_STDARGS=[dD:]
+DEBUG: f_debug_init: debug=[1] debugFile=[/tmp/bsdinstall_log]
+DEBUG: Running installation step: adduser 
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: f_debug_init: ARGV=[netconfig] GETOPTS_STDARGS=[dD:]
+DEBUG: f_debug_init: debug=[1] debugFile=[/tmp/bsdinstall_log]
+DEBUG: Running installation step: netconfig 
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: f_debug_init: ARGV=[netconfig_ipv4 em1 ] GETOPTS_STDARGS=[dD:]
+DEBUG: f_debug_init: debug=[1] debugFile=[/tmp/bsdinstall_log]
+DEBUG: Running installation step: netconfig_ipv4 em1 
+DEBUG: dialog.subr: DEBUG_SELF_INITIALIZE=[]
+DEBUG: UNAME_S=[FreeBSD] UNAME_P=[amd64] UNAME_R=[14.3-RELEASE]
+DEBUG: common.subr: Successfully loaded.
+DEBUG: /usr/libexec/bsdinstall/netconfig_ipv4: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: dialog.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: strings.subr: Successfully loaded.
+DEBUG: f_include: file=[/usr/share/bsdconfig/variable.subr]
+DEBUG: variable.subr: loading includes...
+DEBUG: f_include: file=[/usr/share/bsdconfig/dialog.subr]
+DEBUG: f_include: file=[/usr/share/bsdconfig/strings.subr]
+DEBUG: variable.subr: New variable VAR_CONFIG_FILE -> configFile
+DEBUG: variable.subr: New variable VAR_DEBUG -> debug
+DEBUG: variable.subr: New variable VAR_DEBUG_FILE -> debugFile
+DEBUG: variable.subr: New variable VAR_DIRECTORY_PATH -> _directoryPath
+DEBUG: variable.subr: New variable VAR_DOMAINNAME -> domainname
+DEBUG: variable.subr: New variable VAR_EDITOR -> editor
+DEBUG: variable.subr: New variable VAR_EXTRAS -> ifconfig_
+DEBUG: variable.subr: New variable VAR_FTP_DIR -> ftpDirectory
+DEBUG: variable.subr: New variable VAR_FTP_HOST -> ftpHost
+DEBUG: variable.subr: New variable VAR_FTP_PASS -> ftpPass
+DEBUG: variable.subr: New variable VAR_FTP_PATH -> _ftpPath
+DEBUG: variable.subr: New variable VAR_FTP_PORT -> ftpPort
+DEBUG: variable.subr: New variable VAR_FTP_STATE -> ftpState
+DEBUG: variable.subr: New variable VAR_FTP_USER -> ftpUser
+DEBUG: variable.subr: New variable VAR_GATEWAY -> defaultrouter
+DEBUG: variable.subr: New variable VAR_GROUP -> group
+DEBUG: variable.subr: New variable VAR_GROUP_GID -> groupGid
+DEBUG: variable.subr: New variable VAR_GROUP_MEMBERS -> groupMembers
+DEBUG: variable.subr: New variable VAR_GROUP_PASSWORD -> groupPassword
+DEBUG: variable.subr: New variable VAR_HOSTNAME -> hostname
+DEBUG: variable.subr: New variable VAR_HTTP_DIR -> httpDirectory
+DEBUG: variable.subr: New variable VAR_HTTP_FTP_MODE -> httpFtpMode
+DEBUG: variable.subr: New variable VAR_HTTP_HOST -> httpHost
+DEBUG: variable.subr: New variable VAR_HTTP_PATH -> _httpPath
+DEBUG: variable.subr: New variable VAR_HTTP_PORT -> httpPort
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY -> httpProxy
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_HOST -> httpProxyHost
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_PATH -> _httpProxyPath
+DEBUG: variable.subr: New variable VAR_HTTP_PROXY_PORT -> httpProxyPort
+DEBUG: variable.subr: New variable VAR_IFCONFIG -> ifconfig_
+DEBUG: variable.subr: New variable VAR_IPADDR -> ipaddr
+DEBUG: variable.subr: New variable VAR_IPV6ADDR -> ipv6addr
+DEBUG: variable.subr: New variable VAR_IPV6_ENABLE -> ipv6_activate_all_interfaces
+DEBUG: variable.subr: New variable VAR_KEYMAP -> keymap
+DEBUG: variable.subr: New variable VAR_MEDIA_TIMEOUT -> MEDIA_TIMEOUT
+DEBUG: variable.subr: New variable VAR_MEDIA_TYPE -> mediaType
+DEBUG: variable.subr: New variable VAR_NAMESERVER -> nameserver
+DEBUG: variable.subr: New variable VAR_NETINTERACTIVE -> netInteractive
+DEBUG: variable.subr: New variable VAR_NETMASK -> netmask
+DEBUG: variable.subr: New variable VAR_NETWORK_DEVICE -> netDev
+DEBUG: variable.subr: New variable VAR_NFS_HOST -> nfsHost
+DEBUG: variable.subr: New variable VAR_NFS_PATH -> nfsPath
+DEBUG: variable.subr: New variable VAR_NFS_SECURE -> nfs_reserved_port_only
+DEBUG: variable.subr: New variable VAR_NFS_TCP -> nfs_use_tcp
+DEBUG: variable.subr: New variable VAR_NFS_V3 -> nfs_use_v3
+DEBUG: variable.subr: New variable VAR_NONINTERACTIVE -> nonInteractive
+DEBUG: variable.subr: New variable VAR_NO_CONFIRM -> noConfirm
+DEBUG: variable.subr: New variable VAR_NO_ERROR -> noError
+DEBUG: variable.subr: New variable VAR_NO_INET6 -> noInet6
+DEBUG: variable.subr: New variable VAR_PACKAGE -> package
+DEBUG: variable.subr: New variable VAR_PKG_TMPDIR -> PKG_TMPDIR
+DEBUG: variable.subr: New variable VAR_PORTS_PATH -> ports
+DEBUG: variable.subr: New variable VAR_RELNAME -> releaseName
+DEBUG: variable.subr: New variable VAR_SLOW_ETHER -> slowEthernetCard
+DEBUG: variable.subr: New variable VAR_TRY_DHCP -> tryDHCP
+DEBUG: variable.subr: New variable VAR_TRY_RTSOL -> tryRTSOL
+DEBUG: variable.subr: New variable VAR_UFS_PATH -> ufs
+DEBUG: variable.subr: New variable VAR_USER -> user
+DEBUG: variable.subr: New variable VAR_USER_ACCOUNT_EXPIRE -> userAccountExpire
+DEBUG: variable.subr: New variable VAR_USER_DOTFILES_CREATE -> userDotfilesCreate
+DEBUG: variable.subr: New variable VAR_USER_GECOS -> userGecos
+DEBUG: variable.subr: New variable VAR_USER_GID -> userGid
+DEBUG: variable.subr: New variable VAR_USER_GROUPS -> userGroups
+DEBUG: variable.subr: New variable VAR_USER_GROUP_DELETE -> userGroupDelete
+DEBUG: variable.subr: New variable VAR_USER_HOME -> userHome
+DEBUG: variable.subr: New variable VAR_USER_HOME_CREATE -> userHomeCreate
+DEBUG: variable.subr: New variable VAR_USER_HOME_DELETE -> userHomeDelete
+DEBUG: variable.subr: New variable VAR_USER_LOGIN_CLASS -> userLoginClass
+DEBUG: variable.subr: New variable VAR_USER_PASSWORD -> userPassword
+DEBUG: variable.subr: New variable VAR_USER_PASSWORD_EXPIRE -> userPasswordExpire
+DEBUG: variable.subr: New variable VAR_USER_SHELL -> userShell
+DEBUG: variable.subr: New variable VAR_USER_UID -> userUid
+DEBUG: variable.subr: New variable VAR_ZFSINTERACTIVE -> zfsInteractive
+DEBUG: variable.subr: VARIABLE_SELF_INITIALIZE=[1]
+DEBUG: f_variable_set_defaults: Initializing defaults...
+DEBUG: f_getvar: var=[debug] value=[1] r=0
+DEBUG: f_getvar: var=[editor] value=[/usr/bin/ee] r=0
+DEBUG: f_getvar: var=[ftpState] value=[auto] r=0
+DEBUG: f_getvar: var=[ftpUser] value=[ftp] r=0
+DEBUG: f_getvar: var=[hostname] value=[example] r=0
+DEBUG: f_getvar: var=[MEDIA_TIMEOUT] value=[300] r=0
+DEBUG: f_getvar: var=[nfs_reserved_port_only] value=[NO] r=0
+DEBUG: f_getvar: var=[nfs_use_tcp] value=[NO] r=0
+DEBUG: f_getvar: var=[nfs_use_v3] value=[YES] r=0
+DEBUG: f_getvar: var=[PKG_TMPDIR] value=[/var/tmp] r=0
+DEBUG: f_getvar: var=[releaseName] value=[14.3-RELEASE] r=0
+DEBUG: f_variable_set_defaults: Defaults initialized.
+DEBUG: variable.subr: Successfully loaded.
+DEBUG: f_include_lang: file=[/usr/libexec/bsdconfig/include/messages.subr] lang=[C.UTF-8]
+DEBUG: dialog.subr: DIALOG_SELF_INITIALIZE=[1]
+DEBUG: f_dialog_init: ARGV=[em1 ] GETOPTS_STDARGS=[dD:SX]
+DEBUG: f_dialog_init: SECURE=[] USE_XDIALOG=[]
+DEBUG: f_dialog_init: dialog(1) API initialized.
+DEBUG: dialog.subr: Successfully loaded.
+pkill: Cannot open pidfile `/var/run/dhclient/dhclient.em1.pid': No such file or directory

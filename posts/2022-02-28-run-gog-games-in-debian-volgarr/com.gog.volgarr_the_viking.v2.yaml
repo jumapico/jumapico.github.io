@@ -1,0 +1,29 @@
+app-id: com.gog.volgarr_the_viking
+runtime: org.freedesktop.Platform
+runtime-version: '18.08'
+sdk: org.freedesktop.Sdk
+command: /app/start.sh
+
+finish-args:
+  - --allow=multiarch
+  - --socket=x11
+  - --share=ipc
+  - --socket=pulseaudio
+  - --device=all
+
+add-extensions:
+  org.freedesktop.Platform.Compat.i386:
+    directory: lib/i386-linux-gnu
+    version: '18.08'
+
+modules:
+  - name: game
+    buildsystem: simple
+    sources:
+      - type: archive
+        path: data.zip
+        sha256: 7b51930f5ab3885fb15da86880453e85e794603ec8f74259a0e84b987750154a
+    build-commands:
+      - mv /run/build/game/noarch/* /app
+      - rm -r /app/lib
+      - mkdir -p /app/lib/i386-linux-gnu

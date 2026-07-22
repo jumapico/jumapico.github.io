@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Modificar paquete privativo de debian | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Modificar paquete privativo de debian</h1>
+        <h2 class="date">2020-05-21</h2>
+      </div>
+<p>Pasos para modificar e instalar un paquete privativo -no se tiene el código
+fuente- de debian <strong>utilizando el usuario <code>root</code></strong>:</p>
+<ol>
+<li>
+<p>Desempaquetar</p>
+<pre><code># scratch=$(mktemp -d)
+# dpkg -x &lt;package&gt;.deb $scratch
+# dpkg -e &lt;package&gt;.deb $scratch/DEBIAN
+</code></pre>
+</li>
+<li>
+<p>Modificar contenido del paquete</p>
+<p>Se modifica el contenido del paquete; puede ser sus dependencias en el
+archivo de control (<code>$scratch/DEBIAN/control</code>) o scripts de
+<code>{pre,post}{inst,rm}</code> o archivos.
+<em>Conviene aumentar el número de versión.</em></p>
+<p><strong>Notas</strong>:</p>
+<ul>
+<li>Varios paquetes agregan repositorios y claves (utilizando <a href="https://manpages.debian.org/testing/apt/apt-key.8.en.html">apt-key</a>) en
+los scripts de <code>{pre,post}inst</code>.</li>
+<li>En paquetes que tengan un tiempo de haber sido creados varias veces se
+incluyen dependencias a paquetes que ya no existen o que cambiaron su
+nombre.  Una alternativa a tener que solucionar la dependencia de un
+paquete utilizando <a href="https://manpages.debian.org/testing/equivs/equivs-build.1.en.html">equivs</a> es modificarlas en el archivo
+<code>DEBIAN/control</code>.</li>
+</ul>
+</li>
+<li>
+<p>Reempaquetar</p>
+<pre><code># dpkg -b $scratch patched_&lt;package&gt;.deb
+</code></pre>
+</li>
+<li>
+<p>Instalar</p>
+<p>Ya que el paquete estaría fuera de un repositorio para instalarlo es
+necesario utilizar <code>dpkg</code> y luego asegurarse que se cumplen todas las
+dependencias del paquete con la opción <code>--fix-broken</code> de <code>apt-get install</code>:</p>
+<pre><code># dpkg -i pached_&lt;package&gt;.deb
+# apt-get install -V --fix-broken
+</code></pre>
+</li>
+</ol>
+<p>Fuente: <a href="https://hashman.ca/zoom/">https://hashman.ca/zoom/</a></p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

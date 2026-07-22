@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Errores de red en minishift | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Errores de red en minishift</h1>
+        <h2 class="date">2017-05-27</h2>
+      </div>
+<p>Intentando probar la <a href="https://github.com/minishift/minishift/releases/tag/v1.0.1">versión 1.0.1 de
+minishift</a> para
+linux con <a href="http://download.virtualbox.org/virtualbox/5.1.22/virtualbox-5.1_5.1.22-115126~Debian~stretch_amd64.deb">virtualbox
+5.1.22-115126~Debian~stretch</a>
+aparece el siguiente error en mi laptop (en la PC de escritorio no tuve el
+problema):</p>
+<pre><code>$ minishift start --vm-driver virtualbox
+Starting local OpenShift cluster using 'virtualbox' hypervisor...
+E0528 01:40:13.870597    1984 start.go:176] Error starting the VM: Error creating the VM. Error creating machine: Error checking the host: Error checking and/or regenerating the certs: There was an error validating certificates for host &quot;192.168.99.100:2376&quot;: dial tcp 192.168.99.100:2376: i/o timeout
+You can attempt to regenerate them using 'docker-machine regenerate-certs [name]'.
+Be advised that this will trigger a Docker daemon restart which might stop running containers.
+. Retrying.
+-- Checking OpenShift client ... OK
+-- Checking Docker client ... FAIL
+   Error: cannot communicate with Docker
+   Solution:
+
+     Ensure that Docker is installed and accessible in your environment.
+     Use your package manager or follow instructions at:
+
+        https://docs.docker.com/linux/
+
+   Caused By:
+     Error: Get https://192.168.99.100:2376/_ping: dial tcp 192.168.99.100:2376: i/o timeout
+Error starting the cluster.
+</code></pre>
+<p>Revisando las interfaces de red:</p>
+<pre><code>$ ip a
+...
+8: vboxnet0: &lt;BROADCAST,MULTICAST&gt; mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether 0a:00:27:00:00:00 brd ff:ff:ff:ff:ff:ff
+</code></pre>
+<p>Como se ve la interfaz <code>vboxnet0</code> creada por <code>minishift</code> en virtualbox no
+tiene asignada una ip o subred (<strong>BUSCAR EL MOTIVO</strong>). Debido a esto
+<code>minishift</code> no puede conectarse a la <code>vm</code> que acaba de crear y continuar su
+configuración.</p>
+<p>Para solucionar el problema se establece manualmente la subred correspondiente a
+la interfaz <code>vboxnet0</code> en <code>192.168.99.1/24</code> (la
+red utilizada por <code>minishift</code> por defecto):</p>
+<pre><code>$ sudo ip addr add 192.168.99.1/24 dev vboxnet0 \
+    &amp;&amp; sudo ip link set vboxnet0 up
+</code></pre>
+<p>A continuación se comprueba que quedó asignada correctamente la subred el
+dispositivo de red creado por virtualbox y también se prueba la conectividad con
+docker:</p>
+<pre><code>$ ip addr show vboxnet0
+8: vboxnet0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
+    link/ether 0a:00:27:00:00:00 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.99.1/24 scope global vboxnet0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::800:27ff:fe00:0/64 scope link
+       valid_lft forever preferred_lft forever
+$ telnet 192.168.99.100 2376
+Trying 192.168.99.100...
+Connected to 192.168.99.100.
+Escape character is '^]'.
+...
+</code></pre>
+<p>Se vuelve a iniciar <code>minishift</code>:</p>
+<pre><code>$ minishift start --vm-driver virtualbox
+Starting local OpenShift cluster using 'virtualbox' hypervisor...
+-- Checking OpenShift client ... OK
+-- Checking Docker client ... OK
+-- Checking Docker version ... OK
+-- Checking for existing OpenShift container ... OK
+-- Checking for openshift/origin:v1.5.0 image ...
+   Pulling image openshift/origin:v1.5.0
+...
+-- Server Information ...
+   OpenShift server started.
+   The server is accessible via web console at:
+       https://192.168.99.100:8443
+...
+</code></pre>
+<p>Y con lo anterior se comprueba que <code>minishift</code> inició exitosamente.</p>
+<h2>Notas</h2>
+<p>Puede ser útil utilizar los siguientes comandos para listar y eliminar las
+interfaces creadas por virtualbox:</p>
+<ul>
+<li>listar interfaces: <code>vboxmanage list hostonlyifs</code></li>
+<li>eliminar interfaz: <code>vboxmanage hostonlyif remove &lt;name&gt;</code></li>
+</ul>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

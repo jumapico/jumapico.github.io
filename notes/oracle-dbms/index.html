@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Oracle DBMS | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Oracle DBMS</h1>
+        <h2 class="date">2020-09-02</h2>
+      </div>
+<ul>
+<li>Documentación
+<ul>
+<li><a href="https://docs.oracle.com/en/database/oracle/oracle-database/">Oracle Database Documentation</a></li>
+<li><a href="https://docs.oracle.com/en/database/oracle/oracle-database/12.2/sqlrf/">SQL Language Reference - 12.2</a></li>
+<li><a href="https://docs.oracle.com/en/database/oracle/oracle-database/12.2/sqpug/">SQL*Plus- User's Guide and Reference (12.2)</a></li>
+</ul>
+</li>
+<li><a href="https://docs.oracle.com/en/database/oracle/oracle-database/12.2/refrn/ALL_TABLES.html">ALL_TABLES</a>:
+<blockquote>
+<p>ALL_TABLES describes the relational tables accessible to the current user.</p>
+</blockquote>
+</li>
+<li><a href="https://docs.oracle.com/en/database/oracle/oracle-database/12.2/sqpug/DESCRIBE.html">DESCRIBE</a>:
+<blockquote>
+<p>Lists the column definitions for the specified table, view or synonym, or
+the specifications for the specified function or procedure.</p>
+</blockquote>
+</li>
+<li>¿A que tablas se tiene acceso?
+<pre><code>SQL&gt; select table_name from all_tables order by 1;
+</code></pre>
+</li>
+<li>Generar archivo csv con resultado de select (sqlcl):
+<pre><code>set sqlformat csv
+spool consulta.csv
+select column as &quot;header_column_1&quot;, ...
+spool off
+</code></pre>
+</li>
+</ul>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

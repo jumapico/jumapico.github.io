@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Maven | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Maven</h1>
+        <h2 class="date">2020-04-22</h2>
+      </div>
+<h2>Introducción a maven</h2>
+<ul>
+<li><a href="https://maven.apache.org/guides/getting-started/maven-in-five-minutes.html">Maven in 5 Minutes</a>
+- primer vistazo a Maven.</li>
+<li><a href="https://www.baeldung.com/maven">Maven tutorial</a> - segundo vistazo a Maven.</li>
+<li><a href="https://maven.apache.org/pom.html">POM Reference</a> - explicación del archivo
+<code>pom.xml</code>.</li>
+<li><a href="https://maven.apache.org/ref/current/maven-model/maven.html">Reference for the Maven project descriptor</a>
+- detalles de tags del archivo <code>pom.xml</code>.</li>
+<li><a href="https://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html">Introduction to the Standard Directory Layout</a></li>
+</ul>
+<p>Luego de tener familiaridad con Maven es conveniente ver <a href="https://maven.apache.org/guides/"><em>toda</em> la
+documentación</a></p>
+<h2>Miscelanea</h2>
+<ol>
+<li>Builds reproducibles
+<ul>
+<li><a href="https://maven.apache.org/guides/mini/guide-reproducible-builds.html">configurando <code>project.build.outputTimestamp</code> en <code>pom.xml</code></a></li>
+<li><a href="https://zlika.github.io/reproducible-build-maven-plugin/">usando plugin <code>reproducible-build-maven-plugin</code></a></li>
+</ul>
+</li>
+<li>Instalar jar's en repositorio local (plugin <a href="https://maven.apache.org/plugins/maven-install-plugin/">maven-install-plugin</a>):
+<ul>
+<li><a href="https://maven.apache.org/plugins/maven-install-plugin/usage.html#The_install:install-file_goal">obteniendo información de la linea de comandos</a></li>
+<li><a href="https://www.element14.com/community/docs/DOC-82738/l/loading-non-repo-jars-with-maven">obteniendo información del archivo <code>pom.xml</code></a> (más de un jar).</li>
+</ul>
+</li>
+<li><a href="https://www.baeldung.com/maven-dependency-latest-version">Actualizar dependencias a última versión</a>
+usando <code>versions:display-dependency-updates</code>.</li>
+<li><a href="https://www.baeldung.com/maven-archetype">Creación y uso de arquetipos</a> (templates)</li>
+<li><a href="https://www.baeldung.com/maven-profiles">Introducción al uso de profiles</a></li>
+<li><a href="https://www.baeldung.com/maven-multi-module">Crear proyecto multi módulo</a></li>
+<li>Cuando se declara una dependencia como <code>provided</code> <a href="https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#dependency-scope">esta no es transitiva</a></li>
+<li>Al usar en la versión el sufijo <code>-SNAPSHOT</code>
+<ol>
+<li>Se indica que se esta trabajando en la <a href="https://maven.apache.org/guides/getting-started/index.html#What_is_a_SNAPSHOT_version">última versión del branch de
+desarrollo, indicando que el código no es estable</a></li>
+<li>El sufijo <a href="https://maven.apache.org/plugins/maven-deploy-plugin/index.html"><code>-SNAPSHOT</code> es reemplazado por un timestamp</a></li>
+<li>Se habilita la posibilidad de <a href="https://maven.apache.org/plugins/maven-deploy-plugin/usage.html">deployar en un repositorio de snapshots</a></li>
+</ol>
+</li>
+<li>Al utilizar un proyecto con varios módulos se utiliza <a href="https://maven.apache.org/guides/mini/guide-multiple-modules.html#the-reactor">el reactor</a>
+para determinar las dependencias entre módulos y poder construir el
+proyecto desde el directorio en que se encuentra el superpom.  Si se quiere
+construir <strong>solo</strong> un módulo del proyecto y este tiene dependencias a otros
+módulos, deben construirse inicialmente todos los módulos e instalarse en el
+repositorio local (<code>mvn clean install</code>).  Con esto maven puede resolver
+posteriormente las dependencias de un módulo utilizando el repositorio
+local.</li>
+</ol>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

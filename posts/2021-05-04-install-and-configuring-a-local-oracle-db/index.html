@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Instalación y configuración de base de datos oracle local | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Instalación y configuración de base de datos oracle local</h1>
+        <h2 class="date">2021-05-04</h2>
+      </div>
+<p>Durante la creación de aplicaciones que utilicen una <a href="https://www.oracle.com/database/">base de datos oracle</a>, es
+cómodo tener una instancia local para realizar pruebas.</p>
+<p>En el caso de que otra persona u equipo se encargue luego del mantenimiento de
+la aplicación, es necesario tener documentados los pasos a seguir para la
+instalación y configuración de la instancia local.</p>
+<p>Aprovechando que oracle disponibilizó una <em>container image</em> de <a href="https://hub.docker.com/_/oracle-database-enterprise-edition">Oracle Database
+12c en dockerhub</a>, decidí crear dos archivos <a href="https://docs.oracle.com/database/121/AEUTL/sql_rep.htm">sql script</a> para realizar la
+configuración y que estén autodocumentados:</p>
+<ul>
+<li>
+<p><code>00-initialize-db.sql</code>, contiene las instrucciones para descargar la imagen
+<code>oracle-database-enterprise-edition</code> de dockerhub, como conectarse a la base
+de datos como administrador y crear dos usuarios (que se editan según la
+aplicación):</p>
+<ul>
+<li><code>myschema</code>: utilizado para crear el esquema y los objetos en la base de
+datos.  Esto es necesario ya que <a href="https://blog.dbi-services.com/a-schema-and-a-user-are-not-the-same-in-postgresql/">a diferencia de postgresql</a> oracle no
+utiliza esquemas (<code>schema</code>) y para eso debe utilizarse un usuario.</li>
+<li><code>myapp</code>: el usuario con el que nos conectaremos desde la aplicación a la
+base de datos.</li>
+</ul>
+</li>
+<li>
+<p><code>01-create-tables.sql</code>, aquí es donde se deben crear los objetos de la base de
+datos, para lo cual se utiliza el usuario <code>myschema</code>.  Una vez creados los
+distintos objetos, se deben dar permisos (<code>grants</code>) al usuario <code>myapp</code> para
+que pueda accederlos.</p>
+</li>
+</ul>
+<p>Como se detalla más adelante, debe tenerse instalado <a href="https://podman.io/">podman</a> y <a href="https://www.oracle.com/database/technologies/appdev/sqlcl.html">sqlcl</a>.</p>
+<p>A continuación los sql scripts con las instrucciones.</p>
+<p><a href="./00-initialize-db.sql">00-initialize-db.sql</a>:</p>
+<pre><code>-- Pasos para descarga y configuración de base de datos oracle 12c local.
+--
+-- 1. Loguearse en [dockerhub](https://hub.docker.com/).
+-- 2. Ir a la página de la imagen
+--     [Oracle Database Enterprise Edition](https://hub.docker.com/_/oracle-database-enterprise-edition)
+--     y presionar el botón *Proceed to Checkout* para llenar el formulario y
+--     poder obtener acceso a la imagen luego de presionar el botón
+--     *Get Content*.
+-- 3. Loguearse a dockerhub con [podman](https://podman.io/) y descargar la
+--     imagen:
+--     ```
+--     $ podman login docker.io
+--     $ podman pull docker.io/store/oracle/database-enterprise:12.2.0.1-slim
+--     ```
+-- 4. Ejecutar la imagen
+--     ```
+--     $ podman run --detach --interactive --tty \
+--         --publish 1521:1521/tcp --publish 5500:5500/tcp \
+--         --env DB_MEMORY=1GB \
+--         --name oracledb \
+--         docker.io/store/oracle/database-enterprise:12.2.0.1-slim
+--     ```
+-- 5. Utilizando el cliente [sqlcl](https://www.oracle.com/database/technologies/appdev/sqlcl.html)
+--     conectarse a la *multitenant container database (CDB)*
+--     ```
+--     $ sql sys/Oradoc_db1@localhost:1521:ORCLCDB as sysdba
+--     ```
+-- 6. Ejecutar las sentencias sql de este archivo para crear usuario
+--     administrador para conectarse a la *pluggable database (PDB)* PDB1:
+--     ```
+--     SQL&gt; @00-initialize-db.sql;
+--     ```
+
+-- *Nota*: La base de datos oracle está funcionando como una multitenant
+-- container database (CDB).
+-- Ver: https://docs.oracle.com/database/121/CNCPT/cdbovrvw.htm
+
+-- TODO: para acceder a la PDB debe utilizarse `/ORCLPDB1.localdomain`; queda
+--       pendiente la configuración para utilizar `:ORCLPDB1`
+
+alter session set container=ORCLPDB1;
+
+-- Crear usuario local utilizado para definir el esquema.
+--
+-- NOTE: Al crear las tablas deben darse permiso de acceso al usuario de la
+--       aplicación.
+create user myschema identified by &quot;password&quot;;
+grant all privileges to myschema;
+
+-- Crear usuario local utilizado por la aplicación para conectarse
+create user myapp identified by &quot;password&quot;;
+grant connect to myapp;
+</code></pre>
+<p><a href="./01-create-tables.sql">01-create-tables.sql</a>:</p>
+<pre><code>-- Creación de tablas para aplicación `myapp` en esquema `myschema`
+--
+-- 1. Conectarse a la base de datos con usuario `myschema`
+--     ```
+--     $ sql myschema/password@localhost:1521/ORCLPDB1.localdomain
+--     ```
+-- 2. Ejecutar sentencias sql de este archivo
+--     ```
+--     SQL&gt; @01-create-tables.sql;
+--     ```
+
+-- NOTE: Realizar la creación de objetos en una misma transacción
+-- NOTE: Dar permisos de acceso y modificación al usuario `myapp`
+</code></pre>
+<!-- Referencias -->
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

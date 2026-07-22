@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Marcando mensajes como leidos en el sitio web de hsbc | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Marcando mensajes como leidos en el sitio web de hsbc</h1>
+        <h2 class="date">2020-02-12</h2>
+      </div>
+<p>Seguro que los usuarios del <a href="https://ibanca.hsbc.com.uy/">sitio web del banco HSBC (Uruguay)</a> ya se
+dieron cuenta de lo incómoda que es la funcionalidad de mensajes de la página
+web:</p>
+<p><img src="./hsbc-2.png" alt="" /></p>
+<ul>
+<li>Se envía una cantidad excesiva de propaganda como mensajes; aunque puede
+cambiarse en las preferencias luego de que nos damos cuenta (y nos contactamos
+con el banco al respecto), el problema es si ya fueron enviados muchos
+mensajes como es mi caso.</li>
+<li>Para leer los mensajes hay que entrar a cada uno; no hay forma de seleccionar
+varios a la vez y marcarlos todos como leídos (también confirmado con el
+banco).</li>
+<li>El scrolling de los mensajes se hace mediante un botón de <em>Ver más</em>, que carga
+algunos mensajes más por vez, pero que cuando se vuelve luego de seleccionar
+un mensaje debe escrolearse nuevamente.</li>
+</ul>
+<p>De lo anterior me encuentro con que tengo muchos mensajes, tengo que entrar a
+cada uno para marcarlo como leido y luego de volver a la lista de mensajes tengo
+que presionar más de siete veces el botón de <em>Ver más</em> para llegar a los
+mensajes no leídos.</p>
+<p>Ya que perdí unos cuantos minutos marcando como leídos los mensajes más
+recientes, al momento de hacer lo mismo con los mensajes de más de un año me
+encontré con que no me iba a llevar un tiempo razonable hacerlo.</p>
+<p>Por suerte intenté probar utilizando <em>javascript</em> para marcar los mensajes como
+leídos aprovechando que el sitio utiliza <a href="https://jquery.com/">jquery</a>, obteniendo los
+siguientes <a href="https://en.wikipedia.org/wiki/Snippet_(programming)">snippets de código</a>:</p>
+<ol>
+<li>Realizar scrolling del listado de mensajes
+<pre><code>$('.view_more_container a')[0].click();
+</code></pre>
+<img src="./hsbc-3.png" alt="" /></li>
+<li>Hacer click en un mensaje no leído
+<pre><code>$('.unread a')[0].onclick()
+</code></pre>
+<img src="./hsbc-4.png" alt="" /></li>
+<li>Volver a la lista de mensajes
+<pre><code>$('div.cTitle h3.communicationType_message').next()[0].click()
+</code></pre>
+<img src="./hsbc-6.png" alt="" /></li>
+</ol>
+<p>A partir de los snippets anteriores y utilizando la función <a href="https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/setTimeout">setTimeout</a> para esperar unos segundos por los cambios realizados en la página
+realicé el siguiente programa para marcar como leídos <em>todos</em> los mensajes:</p>
+<pre><code>function click_unread() {
+    var unreads = $('.unread a');
+    if (unreads.length &gt; 0) {
+        unreads[0].onclick()
+        setTimeout(click_back, 1000);
+    } else {
+        var viewmore = $('.view_more_container a');
+        if (viewmore.length &gt; 0) {
+            viewmore[0].click();
+            setTimeout(click_unread, 1000);
+        }
+        /* else end */
+    }
+}
+function click_back() {
+    var back = $('div.cTitle h3.communicationType_message').next();
+    if (back.length &gt; 0) {
+        back[0].click();
+        setTimeout(click_unread, 1000);
+    } else {
+        setTimeout(click_back, 1000);
+    }
+}
+click_unread();
+</code></pre>
+<p>Se tienen dos funciones:</p>
+<ul>
+<li><code>click_unread</code>, que realiza un scroll en la página de listado hasta encontrar
+un mensaje no leído para clickearlo y</li>
+<li><code>click_back</code>, que vuelve al listado.</li>
+</ul>
+<p>En el caso de <code>click_back</code> se encontró que <em>un segundo</em> en algunos casos no
+alcanzaba para que se renderizara completamente la página (el link a <em>Volver</em>),
+por lo que se utilizó la llamada <code>setTimeout(click_back, 1000);</code> para asegurarse
+de encontrar dicho elemento.</p>
+<p>Notar que la ejecución del programa debe realizarse desde la consola javascript
+en la página con el listado de los mensajes.</p>
+<p><strong>Hay que tener en cuenta que el programa anterior funciona ya que no se está
+cargando una nueva página, sinó que el contenido se está modificando mediante
+javascript.</strong></p>
+<p>En resumen, gratamente sorprendido de los resultados obtenidos.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tips de uso de maven para aplicaciones jee | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Tips de uso de maven para aplicaciones jee</h1>
+        <h2 class="date">2021-11-10</h2>
+      </div>
+<p>A continuación varios tips relativos al uso de <a href="https://maven.apache.org/">maven</a> para aplicaciones
+<a href="https://jakarta.ee/">jakarta ee</a>:</p>
+<ul>
+<li><a href="#creaci%C3%B3n-de-archivo-pomxml">Creación de archivo pom.xml</a></li>
+<li><a href="#instalaci%C3%B3n-de-maven-wrapper">Instalación de maven-wrapper</a></li>
+<li><a href="#prueba-de-descarga-de-dependencias">Prueba de descarga de dependencias</a></li>
+<li><a href="#creaci%C3%B3n-de-imagen-de-contenedores">Creación de imagen de contenedores</a></li>
+<li><a href="#creaci%C3%B3n-de-imagen-usando-un-multi-stage-build">Creación de imagen usando un multi-stage build</a></li>
+<li><a href="#uso-de-mirror-durante-la-creaci%C3%B3n-de-imagen-con-multi-stage-build">Uso de mirror durante la creación de imagen con multi-stage build</a></li>
+</ul>
+<h2>Creación de archivo pom.xml</h2>
+<p>Una de las formas usuales de crear un <a href="https://maven.apache.org/pom.html">archivo pom</a> es mediante <a href="https://maven.apache.org/guides/introduction/introduction-to-archetypes.html">arquetipo de
+maven</a>.  <em>En mi experiencia</em> el uso de arquetipos no es aconsejable, ya que o
+están desactualizados o es muy difícil de encontrar uno que cumpla con todos los
+criterios deseados para un proyecto.  Entre instanciar un arquetipo y tener que
+reescribir el archivo pom y las clases del proyecto, o escribir un pom de cero
+prefiero la última opción.</p>
+<p>A continuación se describirá un <a href="https://maven.apache.org/pom.html">archivo pom</a> de ejemplo que cuenta con las
+siguientes características:</p>
+<ol>
+<li>Se genera un artefacto war</li>
+<li>Se utilizan las especificaciones <a href="https://jakarta.ee/release/8/">jakarta ee 8</a> (jee8)</li>
+<li>Se utilizan las especificaciones <a href="https://github.com/eclipse/microprofile/releases/tag/4.1">microprofile 4.1</a> (mp4.1)</li>
+<li>Ya que utilizará <a href="https://www.wildfly.org/">wildfly</a> como <a href="https://en.wikipedia.org/wiki/Application_server">servidor de aplicaciones</a> se busca que las
+versiones de las librerías provistas estén disponibles, de forma tal de no
+tener que especificar la versión.  Esto aplica tanto a la especificación
+jee8 como a la especificación mp4.1</li>
+<li>Se utiliza el plugin <a href="https://github.com/coveooss/fmt-maven-plugin">fmt-maven-plugin</a> para formatear el código utilizando
+la <a href="https://google.github.io/styleguide/javaguide.html">guía de estilo para java de google</a> al generar el build.</li>
+<li>Se utiliza el plugin <a href="https://zlika.github.io/reproducible-build-maven-plugin/">reproducible-build-maven-plugin</a> para que el war
+generado <a href="https://reproducible-builds.org/">sea reproducible</a>.</li>
+<li>Se utiliza el plugin <a href="http://maven.apache.org/enforcer/maven-enforcer-plugin/">maven-enforcer-plugin</a> para asegurarse que se están
+usando las versiones de java y maven esperadas.</li>
+</ol>
+<p>A continuación el <a href="./demo/pom.xml">archivo pom.xml de ejemplo (demo)</a>:</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;project xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot;
+         xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+         xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;&gt;
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+    &lt;groupId&gt;uy.jumapico.demo&lt;/groupId&gt;
+    &lt;artifactId&gt;demo&lt;/artifactId&gt;
+    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+    &lt;packaging&gt;war&lt;/packaging&gt; ❶
+    &lt;name&gt;Demo&lt;/name&gt;
+    &lt;properties&gt;
+        &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
+        &lt;maven.compiler.source&gt;11&lt;/maven.compiler.source&gt;
+        &lt;maven.compiler.target&gt;11&lt;/maven.compiler.target&gt;
+        &lt;failOnMissingWebXml&gt;false&lt;/failOnMissingWebXml&gt;
+        &lt;!-- versions of dependencies --&gt;
+        &lt;version.wildfly-bom&gt;25.0.0.Final&lt;/version.wildfly-bom&gt;
+        &lt;!-- versions of plugins --&gt;
+        &lt;version.reproducible-build-maven-plugin&gt;0.14&lt;/version.reproducible-build-maven-plugin&gt;
+        &lt;version.fmt-maven-plugin&gt;2.12&lt;/version.fmt-maven-plugin&gt;
+    &lt;/properties&gt;
+    &lt;dependencyManagement&gt;
+        &lt;dependencies&gt;
+            &lt;dependency&gt; ❹
+                &lt;groupId&gt;org.wildfly.bom&lt;/groupId&gt;
+                &lt;artifactId&gt;wildfly-jakartaee8-with-tools&lt;/artifactId&gt;
+                &lt;version&gt;${version.wildfly-bom}&lt;/version&gt;
+                &lt;type&gt;pom&lt;/type&gt;
+                &lt;scope&gt;import&lt;/scope&gt;
+            &lt;/dependency&gt;
+            &lt;dependency&gt; ❹
+                &lt;groupId&gt;org.wildfly.bom&lt;/groupId&gt;
+                &lt;artifactId&gt;wildfly-microprofile&lt;/artifactId&gt;
+                &lt;version&gt;${version.wildfly-bom}&lt;/version&gt;
+                &lt;type&gt;pom&lt;/type&gt;
+                &lt;scope&gt;import&lt;/scope&gt;
+            &lt;/dependency&gt;
+        &lt;/dependencies&gt;
+    &lt;/dependencyManagement&gt;
+    &lt;dependencies&gt;
+        &lt;dependency&gt; ❷
+            &lt;groupId&gt;jakarta.platform&lt;/groupId&gt;
+            &lt;artifactId&gt;jakarta.jakartaee-api&lt;/artifactId&gt;
+            &lt;version&gt;8.0.0&lt;/version&gt;
+            &lt;scope&gt;provided&lt;/scope&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt; ❸
+            &lt;groupId&gt;org.eclipse.microprofile&lt;/groupId&gt;
+            &lt;artifactId&gt;microprofile&lt;/artifactId&gt;
+            &lt;version&gt;4.1&lt;/version&gt;
+            &lt;type&gt;pom&lt;/type&gt;
+            &lt;scope&gt;provided&lt;/scope&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+    &lt;build&gt;
+        &lt;plugins&gt;
+            &lt;!-- enforce jdk and maven versions --&gt;
+            &lt;plugin&gt; ❼
+                &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+                &lt;artifactId&gt;maven-enforcer-plugin&lt;/artifactId&gt;
+                &lt;version&gt;${version.maven-enforcer-plugin}&lt;/version&gt;
+                &lt;configuration&gt;
+                    &lt;rules&gt;
+                        &lt;requireMavenVersion&gt;
+                            &lt;version&gt;[3.8.3]&lt;/version&gt;
+                        &lt;/requireMavenVersion&gt;
+                        &lt;requireJavaVersion&gt;
+                            &lt;version&gt;[11,12)&lt;/version&gt;
+                        &lt;/requireJavaVersion&gt;
+                    &lt;/rules&gt;
+                &lt;/configuration&gt;
+                &lt;executions&gt;
+                    &lt;execution&gt;
+                        &lt;id&gt;enforce-versions&lt;/id&gt;
+                        &lt;goals&gt;
+                            &lt;goal&gt;enforce&lt;/goal&gt;
+                        &lt;/goals&gt;
+                    &lt;/execution&gt;
+                &lt;/executions&gt;
+            &lt;/plugin&gt;
+            &lt;!-- format code --&gt;
+            &lt;plugin&gt; ❺
+                &lt;groupId&gt;com.coveo&lt;/groupId&gt;
+                &lt;artifactId&gt;fmt-maven-plugin&lt;/artifactId&gt;
+                &lt;version&gt;${version.fmt-maven-plugin}&lt;/version&gt;
+                &lt;executions&gt;
+                    &lt;execution&gt;
+                        &lt;goals&gt;
+                            &lt;goal&gt;format&lt;/goal&gt;
+                        &lt;/goals&gt;
+                    &lt;/execution&gt;
+                &lt;/executions&gt;
+            &lt;/plugin&gt;
+            &lt;!-- make build reproducible --&gt;
+            &lt;plugin&gt; ❻
+                &lt;groupId&gt;io.github.zlika&lt;/groupId&gt;
+                &lt;artifactId&gt;reproducible-build-maven-plugin&lt;/artifactId&gt;
+                &lt;version&gt;${version.reproducible-build-maven-plugin}&lt;/version&gt;
+                &lt;executions&gt;
+                    &lt;execution&gt;
+                        &lt;id&gt;strip-jar&lt;/id&gt;
+                        &lt;phase&gt;package&lt;/phase&gt;
+                        &lt;goals&gt;
+                            &lt;goal&gt;strip-jar&lt;/goal&gt;
+                        &lt;/goals&gt;
+                    &lt;/execution&gt;
+                &lt;/executions&gt;
+            &lt;/plugin&gt;
+        &lt;/plugins&gt;
+    &lt;/build&gt;
+&lt;/project&gt;
+</code></pre>
+<p><em>Nota</em>: en el archivo anterior no se están configurando los tests.</p>
+<h2>Instalación de maven-wrapper</h2>
+<p><a href="https://maven.apache.org/wrapper/">maven-wrapper</a> permite descargar y ejecutar una versión específica de <a href="https://maven.apache.org/">maven</a>
+para un proyecto dado.  Su ventaja radica en poder fijar la versión de <a href="https://maven.apache.org/">maven</a> a
+utilizar, lo que implicitamente afecta las versiones de los plugins utilizados
+por defecto.</p>
+<p>A continuación los pasos a seguir para instalar <a href="https://maven.apache.org/wrapper/">maven-wrapper</a>.
+Se busca instalar <em>en un proyecto existente</em> (ya hay un archivo <code>pom.xml</code>) solo
+el script <code>mvnw</code> que descarga la versión de maven <code>3.9.6</code>:</p>
+<pre><code>$ mvn wrapper:wrapper -Dtype=only-script -Dmaven=3.9.6
+$ rm mvnw.cmd  # -- opcionalmente se borra el script de PowerShell
+</code></pre>
+<h2>Prueba de descarga de dependencias</h2>
+<p>Para probarse que se descargan correctamente las dependencias necesarias del
+proyecto se puede crear un archivo similar a
+<a href="./settings-local-repo.xml">settings-local-repo.xml</a> que defina un
+directorio alternativo para el cache local y utilizarlo durante la invocación de
+maven:</p>
+<pre><code>&lt;settings&gt;
+    &lt;localRepository&gt;${HOME}/.m2-alter&lt;/localRepository&gt;
+&lt;/settings&gt;
+</code></pre>
+<p>Para utilizar la preferencia basta hacer:</p>
+<pre><code>$ mvn -s settings-local-repo.xml clean package
+</code></pre>
+<h2>Creación de imagen de contenedores</h2>
+<p>La forma <em>más sencilla</em> para crear un contenedor con la aplicación es construir
+el war localmente y luego agregarlo al servidor de aplicaciones.  Ya que se está
+utilizando <a href="https://www.wildfly.org/">wildfly</a>, utilizamos la documentación en la <a href="https://hub.docker.com/r/jboss/wildfly/">página de la imagen de
+wildfly</a> en <a href="https://hub.docker.com/">dockerhub</a>.</p>
+<p>A continuación el <a href="https://docs.docker.com/engine/reference/builder/">Dockerfile</a> (<a href="./demo/Dockerfile.simple">Dockerfile.simple</a>):</p>
+<pre><code>FROM docker.io/jboss/wildfly:25.0.0.Final
+COPY --chown=jboss: ./target/*.war /opt/jboss/wildfly/standalone/deployments/
+</code></pre>
+<p>Y los pasos para construir la imagen:</p>
+<pre><code>$ ./mvnw clean package
+$ podman build -f Dockerfile.simple -t localhost/demo:latest .
+</code></pre>
+<h2>Creación de imagen usando un multi-stage build</h2>
+<p>El caso anterior tiene &quot;detalles&quot;, o directamente problemas:</p>
+<ul>
+<li>Si utilizamos CI/CD y el sistema encargado de generar la imagen es genérico
+pueden tenerse problemas con las dependencias utilizadas (jdk/maven)</li>
+<li>No hay certezas sobre el entorno que utiliza cada desarrollador, y por lo
+tando el war e imagen generados.</li>
+</ul>
+<p>Los problemas anteriores pueden subsanarse utilizando un Dockerfile que utilice
+<a href="https://docs.docker.com/develop/develop-images/multistage-build/">multi-stage builds</a>.</p>
+<p>Además, <em>se puede mejorar enormemente la velocidad del build</em> teniendo en cuenta
+la <a href="https://docs.podman.io/en/latest/markdown/podman-build.1.html#layers">opción --layers de podman build</a> (habilitada por defecto), la cual utiliza
+un <a href="https://en.wikipedia.org/wiki/Cache_(computing)">caché</a> de las imagenes intermedias durante el build.  Para ello debe
+separarse la invocación <code>./mvnw package</code> en dos etapas:
+<code>./mvnw dependency:go-offline</code> que descarga <strong>todas</strong> las dependencias del
+proyecto y <code>./mvnw package</code> que genera el war a partir del código.</p>
+<p>A continuación el Dockerfile
+(<a href="./demo-offline/Dockerfile.multi">Dockerfile.multi</a>):</p>
+<pre><code>FROM docker.io/library/openjdk:11.0.12-jdk-slim-bullseye AS build
+# -- setup build user --
+# A user is created to launch the build process.
+# The user UID is arbitrary, not commonly used by regular users.
+# The home of this user is used to build the app; we need to fix permissions.
+RUN useradd -u 7685 -r -g users -m -s /sbin/nologin -c &quot;Builder user&quot; builder
+WORKDIR /home/builder/app
+RUN chown -R builder:users /home/builder/app &amp;&amp; chmod -R 755 /home/builder/app
+USER builder
+
+# -- build artifact --
+# Use the fact that with cached layers we can speed up the build downloading
+# first the maven dependencies: copy maven-wrapper and pom.xml
+# to download the dependencies in one layer.
+COPY --chown=builder:users ./.mvn ./.mvn
+COPY --chown=builder:users ./pom.xml ./mvnw .
+RUN ./mvnw -B dependency:go-offline
+# Copy the code to build the package (the dependencies are already downloaded).
+COPY --chown=builder:users ./src ./src
+RUN ./mvnw -B -o package
+
+# -- build final image --
+FROM docker.io/jboss/wildfly:25.0.0.Final
+COPY --from=build --chown=jboss: /home/builder/app/target/*.war /opt/jboss/wildfly/standalone/deployments/
+</code></pre>
+<p>También se agrega un archivo <a href="./demo-offline/.dockerignore">.dockerignore</a>, ya que
+se van a estar copiando directorios (<code>.mvn</code>):</p>
+<pre><code>.mvn/wrapper/maven-wrapper.jar
+</code></pre>
+<p><strong>Para que lo anterior funcione deben realizarse dos modificaciones al
+archivo pom.xml</strong>.</p>
+<p>El primer cambio requerido es actualizar la versión del
+<a href="http://maven.apache.org/plugins/maven-dependency-plugin/">maven-dependency-plugin</a> utilizado para descargar las dependencias, ya que la
+versión por defecto que es obtenida del <a href="https://maven.apache.org/pom.html#the-super-pom">superpom base</a> no es la última y tiene
+<em>bugs</em> que impiden una correcta descarga de las dependencias.  Como ejemplo, el
+<a href="https://maven.apache.org/ref/3.8.3/maven-model-builder/super-pom.html">superpom base de maven 3.8.3</a> utiliza la versión <em>2.8</em> para el plugin cuando la
+versión actual es la <em>3.2.0</em>.</p>
+<p>A continuación la diferencia del pom.xml anterior y el
+<a href="./demo-offline/pom-v1.xml">primer cambio</a>:</p>
+<pre><code>--- demo/pom.xml
++++ demo-offline/pom-v1.xml
+@@ -16,6 +16,7 @@
+         &lt;!-- versions of dependencies --&gt;
+         &lt;version.wildfly-bom&gt;25.0.0.Final&lt;/version.wildfly-bom&gt;
+         &lt;!-- versions of plugins --&gt;
++        &lt;version.maven-enforcer-plugin&gt;3.0.0&lt;/version.maven-enforcer-plugin&gt;
+         &lt;version.reproducible-build-maven-plugin&gt;0.14&lt;/version.reproducible-build-maven-plugin&gt;
+         &lt;version.fmt-maven-plugin&gt;2.12&lt;/version.fmt-maven-plugin&gt;
+     &lt;/properties&gt;
+@@ -53,6 +54,15 @@
+         &lt;/dependency&gt;
+     &lt;/dependencies&gt;
+     &lt;build&gt;
++        &lt;pluginManagement&gt;
++            &lt;plugins&gt;
++                &lt;!-- Update version due issues with `dependency:go-offline` --&gt;
++                &lt;plugin&gt;
++                    &lt;artifactId&gt;maven-dependency-plugin&lt;/artifactId&gt;
++                    &lt;version&gt;3.2.0&lt;/version&gt;
++                &lt;/plugin&gt;
++            &lt;/plugins&gt;
++        &lt;/pluginManagement&gt;
+         &lt;plugins&gt;
+             &lt;!-- enforce jdk and maven versions --&gt;
+             &lt;plugin&gt;
+
+</code></pre>
+<p>El segundo cambio es un <a href="https://en.wikipedia.org/wiki/Kludge#Computer_science">hack</a>, ya que si se intenta construir la imagen
+actualizando solamente la versión de <a href="http://maven.apache.org/plugins/maven-dependency-plugin/">maven-dependency-plugin</a> (utilizando un
+<a href="./demo-offline/Dockerfile.multi-v1">Dockerfile que utilice el pom-v1</a>) se obtiene
+el siguiente error:</p>
+<pre><code>$ mkdir src
+$ podman build --layers=false -f Dockerfile.multi-v1 -t localhost/demo:latest .
+...
+[1/2] STEP 10/10: RUN ./mvnw -B -o -f pom-v1.xml package
+[INFO] Scanning for projects...
+[INFO]
+[INFO] -----------------------&lt; uy.jumapico.demo:demo &gt;------------------------
+[INFO] Building Demo 1.0-SNAPSHOT
+[INFO] --------------------------------[ war ]---------------------------------
+[WARNING] The POM for jakarta.inject:jakarta.inject-api:jar:1.0.3 is missing, no dependency information available
+[WARNING] The POM for org.eclipse.microprofile.jwt:microprofile-jwt-auth-api:jar:1.2.1 is missing, no dependency information available
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  0.559 s
+[INFO] Finished at: 2021-11-11T03:32:50Z
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal on project demo: Could not resolve dependencies for project uy.jumapico.demo:demo:war:1.0-SNAPSHOT: The following artifacts could not be resolved: jakarta.inject:jakarta.inject-api:jar:1.0.3, org.eclipse.microprofile.jwt:microprofile-jwt-auth-api:jar:1.2.1: Cannot access central (https://repo.maven.apache.org/maven2) in offline mode and the artifact jakarta.inject:jakarta.inject-api:jar:1.0.3 has not been downloaded from it before. -&gt; [Help 1]
+[ERROR]
+...
+</code></pre>
+<p><em>Nota</em> se crea el directorio <code>src</code> para evitar que el build falle con el mensaje
+<code>Error: error building at STEP &quot;COPY --chown=builder:users ./src ./src&quot;: checking on sources under &quot;.../demo-offline&quot;: copier: stat: &quot;/src&quot;: no such file or directory</code>.</p>
+<p>Para solucionar esto se agregan las dependencias faltantes, o no resueltas
+correctamente por el plugin <a href="http://maven.apache.org/plugins/maven-dependency-plugin/">maven-dependency-plugin</a>, con scope de test.  De
+esta forma no son agregados como dependencias del war y tampoco se resuelven
+dependencias transitivas.</p>
+<p>A continuación nuevamente la diferencia y el
+<a href="./demo-offline/pom.xml">archivo pom.xml completo</a> (esta vez el definitivo):</p>
+<pre><code>--- demo-offline/pom-v1.xml
++++ demo-offline/pom.xml
+@@ -52,6 +52,25 @@
+             &lt;type&gt;pom&lt;/type&gt;
+             &lt;scope&gt;provided&lt;/scope&gt;
+         &lt;/dependency&gt;
++
++        &lt;!-- HACK: Errors after `dependency:go-offline` using `-o` --&gt;
++        &lt;!--
++            [WARNING] The POM for jakarta.inject:jakarta.inject-api:jar:1.0.3 is missing, no dependency information available
++            [WARNING] The POM for org.eclipse.microprofile.jwt:microprofile-jwt-auth-api:jar:1.2.1 is missing, no dependency information available
++            ...
++            [ERROR] Failed to execute goal on project demo: Could not resolve dependencies for project uy.jumapico.demo:demo:war:1.0-SNAPSHOT: The following artifacts could not be resolved: jakarta.inject:jakarta.inject-api:jar:1.0.3, org.eclipse.microprofile.jwt:microprofile-jwt-auth-api:jar:1.2.1: Cannot access central (https://repo.maven.apache.org/maven2) in offline mode and the artifact jakarta.inject:jakarta.inject-api:jar:1.0.3 has not been downloaded from it before. -&gt; [Help 1]
++        --&gt;
++        &lt;dependency&gt;
++            &lt;groupId&gt;jakarta.inject&lt;/groupId&gt;
++            &lt;artifactId&gt;jakarta.inject-api&lt;/artifactId&gt;
++            &lt;scope&gt;test&lt;/scope&gt;
++        &lt;/dependency&gt;
++        &lt;dependency&gt;
++            &lt;groupId&gt;org.eclipse.microprofile.jwt&lt;/groupId&gt;
++            &lt;artifactId&gt;microprofile-jwt-auth-api&lt;/artifactId&gt;
++            &lt;scope&gt;test&lt;/scope&gt;
++        &lt;/dependency&gt;
++
+     &lt;/dependencies&gt;
+     &lt;build&gt;
+         &lt;pluginManagement&gt;
+</code></pre>
+<p>Por ultimo, para construir la imagen se utiliza:</p>
+<pre><code>$ podman build -f Docker.multi -t localhost/demo:latest .
+</code></pre>
+<h2>Uso de mirror durante la creación de imagen con multi-stage build</h2>
+<p>Una opción recomentable al momento de utilizar un pipeline de CI/CD es descargar
+las dependencias de maven de un mirror local.  Esto tiene dos razones:</p>
+<ol>
+<li>Se acelera la velocidad de descarga de las dependencias</li>
+<li>Nos aseguramos que el build no falla debido a fallas en las conexiones a los
+repositorios externos.</li>
+</ol>
+<p><em>Nota</em>: aquí se utilizará el mirror configurado siguiendo las instrucciones del
+<a href="/posts/2021-10-04-configure-maven-local-mirror/">post Configurar mirror local de maven</a>.</p>
+<p>En la página <a href="https://maven.apache.org/guides/mini/guide-mirror-settings.html">Using Mirrors for Repositories</a> se indica la forma que debe tener
+el archivo de settings que indique como definir el mirror de un repositorio.</p>
+<p>A continuación el contenido del archivo
+<a href="./demo-mirror/settings.xml">settings.xml</a>:</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;settings&gt;
+    &lt;mirrors&gt;
+        &lt;mirror&gt;
+            &lt;id&gt;mirror-central&lt;/id&gt;
+            &lt;name&gt;Local mirror repository for central&lt;/name&gt;
+            &lt;url&gt;http://mvn-mirror.example.com:8081/repository/maven-central/&lt;/url&gt;
+            &lt;mirrorOf&gt;central&lt;/mirrorOf&gt;
+        &lt;/mirror&gt;
+    &lt;/mirrors&gt;
+&lt;/settings&gt;
+</code></pre>
+<p>Este archivo lo utilizaremos en el Dockerfile al invocar maven wrapper con la
+opción <code>-s settings.xml</code>.</p>
+<p>A continuación la diferencia entre el Dockerfile anterior y el <a href="./demo-mirror/Dockerfile.multi">que utiliza
+el mirror local</a>:</p>
+<pre><code>--- demo-offline/Dockerfile.multi	2021-11-10 20:51:04.315527817 -0300
++++ demo-mirror/Dockerfile.multi	2021-11-10 21:03:05.339638205 -0300
+@@ -10,14 +10,14 @@
+
+ # -- build artifact --
+ # Use the fact that with cached layers we can speed up the build downloading
+-# first the maven dependencies: copy maven-wrapper and pom.xml
++# first the maven dependencies: copy maven-wrapper, pom.xml and settings.xml
+ # to download the dependencies in one layer.
+ COPY --chown=builder:users ./.mvn ./.mvn
+-COPY --chown=builder:users ./pom.xml ./mvnw .
+-RUN ./mvnw -B dependency:go-offline
++COPY --chown=builder:users ./mvnw ./pom.xml ./settings.xml .
++RUN ./mvnw -B -s settings.xml dependency:go-offline
+ # Copy the code to build the package (the dependencies are already downloaded).
+ COPY --chown=builder:users ./src ./src
+-RUN ./mvnw -B -o package
++RUN ./mvnw -B -o -s settings.xml package
+
+ # -- build final image --
+ FROM docker.io/jboss/wildfly:25.0.0.Final
+</code></pre>
+<p>También debe modificarse el archivo
+<a href="./demo-mirror/.mvn/wrapper/maven-wrapper.properties">maven-wrapper.properties</a> para que se
+descargue <a href="https://maven.apache.org/">maven</a> del mirror:</p>
+<pre><code>$ sed -i 's#https://repo.maven.apache.org/maven2#http://mvn-mirror.example.com:8081/repository/maven-central#' \
+    .mvn/wrapper/maven-wrapper.properties
+</code></pre>
+<p>Una vez realizados los cambios anteriores conviene verificar que efectivamente
+se esten descargando los artefactos del mirror.  Para ello lo mejor es construir
+la imagen del contenedor y revisar el log, ya que si utilizamos maven
+directamente en el sistema este utiliza los artefactos que se encuentren en el
+caché local (<code>$HOME/.m2</code>):</p>
+<pre><code>$ podman build -f Dockerfile.multi -t localhost/demo:latest . |&amp; tee build.out
+...
+Successfully tagged localhost/demo:latest
+...
+</code></pre>
+<p>Una vez creada la imagen exitosamente se obtienen los mirrors utilizados:</p>
+<pre><code>$ grep -oP 'Download[^ ]* from \K[^:]*' build.out  | sort -u
+mirror-central
+</code></pre>
+<p>Otra forma de corroborar lo anterior es filtrar por la url del mirror:</p>
+<pre><code>$ grep 'Download[^ ]*' build.out | grep -v 'http://mvn-mirror.example.com:8081/'
+- Downloader started
+- Downloading to: /home/builder/app/.mvn/wrapper/maven-wrapper.jar
+</code></pre>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Obtener token OTP del BROU | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Obtener token OTP del BROU</h1>
+        <h2 class="date">2022-04-05</h2>
+      </div>
+<h2>Motivación</h2>
+<p>El <a href="https://www.brou.com.uy/">BROU</a> posee una aplicación de llave digital para realizar transacciones que
+permite generar un <a href="https://en.wikipedia.org/wiki/One-time_password">one-time password</a>.</p>
+<p>Ya que no deseo tener instalada la aplicación en un dispositivo android..., ¿es
+posible replicar la generación del token en una aplicación de escritorio como
+<a href="https://keepassxc.org/">KeePassXC</a> que utilizo para gestionar mis contraseñas?</p>
+<h2>Inspección de la aplicación</h2>
+<p>Para inspeccionar la aplicación primero se debe descargar la aplicación.  Para
+ello se me ocurren dos alternativas:</p>
+<ol>
+<li>
+<p>Instalar en un celular android la aplicación <a href="https://f-droid.org/en/packages/com.aurora.store/">Aurora Store</a>.  Desde allí
+buscar la aplicación <em>brou llave digital</em>.  Una vez encontrada, elegir la
+opción <em>Manual download</em> y cuando aparezca la opción de instalar la
+aplicación elegir <em>Cancel</em>.</p>
+<p>Luego conectamos el celular al PC y utilizando el programa <a href="https://developer.android.com/studio/command-line/adb">adb</a> copiamos al
+pc el apk descargado:</p>
+<pre><code>$ doas apt-get install -Vy adb
+$ mkdir aurorastore;  cd aurorastore
+$ adb pull /sdcard/Android/data/com.aurora.store/files/Downloads/uy.com.brou.token/17/uy.com.brou.token.apk .
+/sdcard/Android/data/com.aurora.store/files/Downloa...led, 0 skipped. 18.3 MB/s (4955654 bytes in 0.258s)
+</code></pre>
+<p><strong>Nota:</strong> ya que confiamos en la aplicación <em>Aurora Store</em> confiamos en que
+el apk haya sido descargado directamente del <em>Play Store</em> y la aplicación no
+haya sido adulterada agregandole malware.</p>
+</li>
+<li>
+<p>Se busca en internet el apk en base al nombre del paquete.  Para ello vamos
+primero al <em>Play Store</em> y buscamos la página de la aplicación:
+<a href="https://play.google.com/store/apps/details?id=uy.com.brou.token">https://play.google.com/store/apps/details?id=uy.com.brou.token</a>.  Luego
+buscamos en internet el apk de la aplicación <code>uy.com.brou.token</code>.  Como
+ejemplo se encuentra el link
+<a href="https://apkdownload.com/down_BROU-Llave-Digital/uy.com.brou.token.v7a.html">https://apkdownload.com/down_BROU-Llave-Digital/uy.com.brou.token.v7a.html</a>
+desde el cual descargamos la aplicación guardandola en un directorio que
+llamaremos <code>apkdownload</code>.</p>
+<p><strong>Nota: hay que tener en cuenta que un apk descargado de una fuente que no
+sea confiable puede haber sido adulterado y contener malware</strong>.</p>
+</li>
+</ol>
+<p>Por curiosidad se comparan los apk's descargados, confirmandose que son el
+mismo:</p>
+<pre><code>$ sha256sum $(find aurorastore apkdownload -type f | sort)
+d6608fd47be228bd81ed706e4438682346dd4ac116d8c6af8c01a0fa21071eec  apkdownload/uy.com.brou.token.17.v7a.apk
+d6608fd47be228bd81ed706e4438682346dd4ac116d8c6af8c01a0fa21071eec  aurorastore/uy.com.brou.token.apk
+</code></pre>
+<p>(O sea, ya que confiamos en <em>Aurora Store</em> confirmamos que <strong>en este caso</strong> el
+apk no fué modificado por <em>APK Downloader</em>.)</p>
+<p>A continuación se descarga y extrae la aplicación con <a href="https://ibotpeaches.github.io/Apktool/">apktool</a>:</p>
+<pre><code>$ wget 'https://bitbucket.org/iBotPeaches/apktool/downloads/apktool_2.6.1.jar'
+$ java -jar apktool_2.6.1.jar d aurorastore/uy.com.brou.token.apk
+I: Using Apktool 2.6.1 on uy.com.brou.token.apk
+I: Loading resource table...
+I: Decoding AndroidManifest.xml with resources...
+I: Loading resource table from file: /home/jmpc/.local/share/apktool/framework/1.apk
+I: Regular manifest package...
+I: Decoding file-resources...
+I: Decoding values */* XMLs...
+I: Baksmaling classes.dex...
+I: Copying assets and libs...
+I: Copying unknown files...
+I: Copying original files...
+</code></pre>
+<p>Ya se puede inspeccionar el código.</p>
+<p>Lo primero que se nota es que es una aplicación hecha en <a href="https://cordova.apache.org/">cordova</a>, o sea, es
+una aplicación que está escrita en parte utilizando HTML, CSS y JavaScript.</p>
+<p>Se comienza a inspeccionar el código fuente javascript de la aplicación.</p>
+<p>Código relacionado a la registración:</p>
+<ul>
+<li>
+<p>Comenzando por los archivos <code>assets/www/js/app/first_registration.js</code> y
+<code>assets/www/js/app/registration.js</code> que son prácticamente idénticos
+(espacio más espacio menos a excepción de la función
+<code>disablePasscodeOnActivation</code> en <code>first_registration.js</code>) se encuentran las
+funciones <code>FirstReg.getSeedFromCupon</code> y <code>Register.getSeedFromCupon</code> (según
+el archivo) que contiene el siguiente código:</p>
+<pre><code>//  TEST MODE!
+if (cupon == &quot;99999999&quot; &amp;&amp; (priv.password == &quot;999999&quot; || priv.password == &quot;999998&quot;)) {
+  seedObtained(&quot;jNnbU15eXl5dMsxWZ5alkd9nFoWo1Eb1t0Izj4nh5PKVMGI0hOQLBQMv8k2t&quot;, cupon);
+} else if (priv.lastCuponUsed == null || priv.lastCuponUsed != cupon) {
+  VURest.getSeed(priv.url, cupon, priv.responseDiv, seedObtained);
+} else {
+  seedObtained(priv.lastSeedObtained, cupon);
+}
+</code></pre>
+<p><strong>NOTA</strong>: ¡se encuentran datos de test!.</p>
+</li>
+<li>
+<p>La función <code>VURest.getSeed</code> se encuentra en el archivo
+<code>/assets/www/js/app/vurest.js</code> y es utilizada para intercambiar el código de
+asociación enviado por el banco vía email por una semilla (que despues
+veremos que está codificada) mediante el servicio
+&lt;https://servicios.brou.com.uy/etoken/a.php?cupon={código de asociación}&amp;callback=?&gt;:</p>
+<pre><code>var data;
+$.ajax({
+  url: Config.baseUrl() + &quot;cupon=&quot; + cupon + Config.getBankCode() + &quot;&amp;callback=?&quot;,
+  dataType: 'json',
+  data: data,
+  timeout: Config.connectionTimeout
+}).done(function (data) {
+</code></pre>
+</li>
+<li>
+<p>Si bien en el caso anterior se adelantó el valor de <code>Config.baseUrl()</code>, este
+se encuentra en el archivo <code>/assets/www/js/app/common.js</code>:</p>
+<pre><code>Config.baseUrl = function () {
+  if (Config.vuDebug) {
+    return &quot;https://vuas5.dev.vusecurity.com/vuserver/a.php?&quot;;
+    //return &quot;http://demo.cloud.vusecurity.com//vuserver/a.php?&quot;;
+  } else {
+    //return &quot;https://ds-ap-b9.intra.brou.com.uy:8080/vuserver/a.php?&quot;
+    return &quot;https://servicios.brou.com.uy/etoken/a.php?&quot;;
+    //return &quot;https://servicios.brou.com.uy/etokentest/a.php?&quot;;
+  }
+}
+</code></pre>
+</li>
+<li>
+<p>La función <code>seedObtained</code> (en <code>first_registration.js</code>/<code>registration.js</code>)
+almacena la semilla codificada utilizando <code>VUStorage.store</code> y
+<code>VUStorage.storeTempAccount</code>.</p>
+<p>Aquí se encuentra una referencia a <code>VUCrypto.decodeSeed</code> pero el valor
+obtenido -<code>decryptedSeed</code>- no se almacena sinó que se utiliza para confirmar
+que se tiene una semilla válida.</p>
+<p>Aquí también se encuentra que se llama a <code>VURest.timeSyncAuto</code>.</p>
+</li>
+<li>
+<p><code>VUCrypto.decodeSeed</code> se encuentra en el archivo
+<code>/assets/www/js/app/vucrypto.js</code>.  Esta función decodifica la semilla a
+partir de la semilla codificada y la clave del usuario de cuatro dígitos.</p>
+<pre><code>VUCrypto.decodeSeed = function(account, clave) {
+  if (account.seed != null) {
+    var decrypted = Aes.Ctr.decrypt(account.seed, clave, 256);
+    var decrypted_seed = decrypted.split(&quot; &quot;)[1];
+    var decrypted_crc = decrypted.split(&quot; &quot;)[0];
+    if (clave != &quot;&quot; &amp;&amp; decrypted_seed != undefined &amp;&amp; decrypted_crc == crc32(decrypted_seed)) {
+      return decrypted_seed;
+    }
+  }
+
+  return null;
+}
+</code></pre>
+</li>
+<li>
+<p><code>VURest.timeSync</code> es llamada por <code>VURest.timeSyncAuto</code> y
+<code>VURest.timeSyncManual</code>.  Esta llama a
+<a href="https://servicios.brou.com.uy/etoken/a.php?timesyncauto=do&amp;callback=?">https://servicios.brou.com.uy/etoken/a.php?timesyncauto=do&amp;callback=?</a> o
+<a href="https://servicios.brou.com.uy/etoken/a.php?timesyncmanual=do&amp;callback=?">https://servicios.brou.com.uy/etoken/a.php?timesyncmanual=do&amp;callback=?</a>
+para obtener la hora (comparar con la salida de <code>date +%s</code>):</p>
+<pre><code>$ curl -X POST 'https://servicios.brou.com.uy/etoken/a.php?timesyncauto=do&amp;callback=?'
+?([1649339854542,5])
+</code></pre>
+<p>Una vez obtenida la hora del servidor, se calcula el desfazaje existente con
+la hora del sistema y se almacena dicho valor para ser utilizado más
+adelante para corregir la hora al momento de generar el password:</p>
+<pre><code>var time_differential = parseInt(new Date().getTime()) - data[0];
+VUStorage.setTimeDiff(time_differential);
+</code></pre>
+</li>
+</ul>
+<p>Código relacionado a la generación del password:</p>
+<ul>
+<li>
+<p><code>Users.loadLoginToken</code> en <code>/assets/www/js/app/users.js</code>: se decodifica la
+semilla llamando a <code>VUCrypto.decodeSeed</code> para luego generar y mostrar el
+token llamando a <code>nextToken</code>.  La función <code>Users.auth</code> es similar pero
+agrega lógica para borrar el token cuando se sobrepase una cantidad dada de
+errores al ingresar el <em>PIN</em> para decodificar la semilla.</p>
+</li>
+<li>
+<p><code>nexToken</code> en <code>users.js</code> llama periódicamente a <code>loopToken</code> que genera el
+password y lo muestra.  La lógica de generación del password es la
+siguiente:</p>
+<pre><code>VUStorage.getTimeDiff(function(value){
+  delta = value;
+
+  var time = new Date().getTime() - delta;
+  var step = time/40000;
+  var T = parseInt(step);
+  priv.otp = hotp(priv.seed,T,&quot;dec6&quot;);
+</code></pre>
+<p>Aquí <code>VUStorage.getTimeDiff</code> es utilizada para cargar la diferencia
+calculada entre la hora del sistema y la NTP (obtenida del servicio del
+banco).  Si no hubiera diferencia en el tiempo, <code>time</code> contendría la hora
+actual.</p>
+</li>
+<li>
+<p><code>hotp</code> en <code>assets/www/js/lib/crypto/hotp-min.js</code> <strong>suponemos</strong> que calcula el
+<a href="https://en.wikipedia.org/wiki/HMAC-based_one-time_password">HOTP</a>.  ¿El parámetro &quot;dec6&quot; indica que se devuelvan seis
+carácteres (el largo del password)?</p>
+</li>
+</ul>
+<h2>Prueba de generación del código HOTP usando información de test</h2>
+<p>En este paso se instala la aplicación y se confirma que el cupón y password
+(pin) de pruebas funcionan y generan un token.  Se va a <em>Configuración &gt; Gestión
+de Cuentas &gt; +Agregar</em>.  Se aceptan los términos y condiciones y en la pantalla
+de <em>Nuevo Usuario</em> se ingresa:</p>
+<ul>
+<li>Alias: Test</li>
+<li>PIN: 999999</li>
+<li>Código de asociación: 99999999</li>
+</ul>
+<p>Al aceptar aparece un mensaje que indica que el token se ha activado
+correctamente.  Ahora podemos elegir el usuario <em>Test</em>, ingresar como pin
+<code>999999</code> y se genera un código de seguridad.</p>
+<p>Lo que se busca ahora es, partiendo de que se tiene el código y
+que tenemos el seed codificado correspondiente al token,
+<code>jNnbU15eXl5dMsxWZ5alkd9nFoWo1Eb1t0Izj4nh5PKVMGI0hOQLBQMv8k2t</code>, encontrar si es
+posible generar el mismo código de seguridad.</p>
+<h2>Tests utilizando código hardcoded en programa</h2>
+<p>Se codifica un script en <a href="https://nodejs.org/">nodejs</a> para replicar la funcionalidad de generación
+del password.</p>
+<p><strong>NOTA</strong>: No he encontrado los parámetros ni la librería para reemplazar la
+funcionalidad del archivo <code>assets/www/js/lib/crypto/aes-ctr-min.js</code>, por lo que
+este se utilizará en el código de prueba pero no se agrega al post ya que se
+desconoce la licencia que posee.</p>
+<p>Para realizar el código se utiliza <a href="https://github.com/nvm-sh/nvm">nvm</a> para manejar las versiones de node,
+la versión de node <code>lts/gallium</code> y las utilidades <a href="https://nodemon.io/">nodemon</a> y <a href="https://github.com/beautify-web/js-beautify">js-beautify</a>:</p>
+<pre><code>$ nvm install lts/gallium
+$ echo `lts/gallium` &gt; .nvmrc
+$ nvm use
+$ npm install --global nodemon
+$ npm install --global js-beautify
+</code></pre>
+<p>Se genera el archivo <code>aes.js</code>:</p>
+<pre><code>{
+    cat uy.com.brou.token/assets/www/js/lib/crypto/utf8-min.js
+    cat uy.com.brou.token/assets/www/js/lib/crypto/base64-min.js
+    cat uy.com.brou.token/assets/www/js/lib/crypto/aes-min.js
+    cat &lt;&lt;'END'
+var ctrTxt = &quot;&quot;;
+END
+    cat uy.com.brou.token/assets/www/js/lib/crypto/aes-ctr-min.js
+    cat &lt;&lt;'END'
+export { Aes };
+END
+} | js-beautify - &gt; aes.js
+</code></pre>
+<p>Aquí agregamos las dependencias necesarias para utilizar <code>Aes.Ctr.decrypt</code> y
+desofuscamos el código para que sea más legible al momento de querer ver que
+acciones realiza.</p>
+<p>Se crea el archivo <a href="./package.json">package.json</a> para importar los módulos e incluir
+dependencias que serán utilizadas más adelante:</p>
+<pre><code>{
+  &quot;name&quot;: &quot;replicate-brou&quot;,
+  &quot;version&quot;: &quot;0.0.1&quot;,
+  &quot;type&quot;: &quot;module&quot;,
+  &quot;dependencies&quot;: {
+    &quot;crc-32&quot;: &quot;^1.2.2&quot;,
+    &quot;node-fetch&quot;: &quot;^3.2.3&quot;,
+    &quot;otplib&quot;: &quot;^12.0.1&quot;
+  }
+}
+</code></pre>
+<p>Se instalan las dependencias:</p>
+<pre><code>$ npm install
+</code></pre>
+<p>El código de prueba para generar el token se escribe en el archivo <a href="./test.js">test.js</a>:</p>
+<pre><code>import { Aes } from &quot;./aes.js&quot;;
+import crc32 from 'crc-32/crc32.js';
+import { hotp } from 'otplib';
+
+const key = &quot;999999&quot;;
+const ciphertext = &quot;jNnbU15eXl5dMsxWZ5alkd9nFoWo1Eb1t0Izj4nh5PKVMGI0hOQLBQMv8k2t&quot;;
+
+// validate seed
+const plaintext = Aes.Ctr.decrypt(ciphertext, key, 256);
+const [ crc, seed ] = plaintext.split(&quot; &quot;);
+
+if (crc != crc32.str(seed)) {
+    console.log(&quot;Invalid seed - abort&quot;);
+    process.exit(1);
+}
+console.log(&quot;Seed: &quot; + seed);
+
+// generate token
+const counter = Math.floor(new Date().getTime() / 40000)
+const token = hotp.generate(seed, counter);
+console.log(&quot;Code: &quot; + token);
+</code></pre>
+<p>Confirmamos que el token generado es correcto, o sea, que teniendo la semilla
+codificada y el pin se puede generar el mismo token que genera la aplicación del
+banco ejecutando a la vez la aplicación android y haciendo en la consola:</p>
+<pre><code>$ node test.js
+</code></pre>
+<p>para ejecutar el código anterior.</p>
+<h2>Replicación de aplicación android</h2>
+<p>En el archivo <a href="./script.js">script.js</a> se crea el programa para la obtención de la semilla a
+partír del código de activación y la posterior generación del password a partir
+de la semilla.</p>
+<p>Durante las pruebas se constató que:</p>
+<ol>
+<li>El banco permite cambiar la <em>llave virtual</em> la cantidad de veces que se
+desee.</li>
+<li>En caso de error al capturar la salida del <em>response</em> al servicio del banco
+durante el intercambio del código de activación por la semilla codificada no
+hay otra opción más que ir al cajero más cercano a resetear la <em>llave
+virtual</em>.</li>
+</ol>
+<h3>Generación del password</h3>
+<p>A partir del código anterior, si tenemos el valor de la semilla es trivial
+generar el password:</p>
+<pre><code>function generatePassword(seed) {
+  const counter = Math.floor(new Date().getTime() / 40000)
+  return hotp.generate(seed, counter);
+}
+</code></pre>
+<h3>Decodificación de la semilla</h3>
+<p>Como se vió en el ejemplo previo del test, para decodificar la semilla se puede
+utilizar el siguiente código:</p>
+<pre><code>function obtainSeed(encryptedSeed, key) {
+  // decrypt seed and validate
+  const decryptedSeed = Aes.Ctr.decrypt(encryptedSeed, key, 256);
+  const [ crc, seed ] = decryptedSeed.split(&quot; &quot;);
+
+  if (crc != crc32.str(seed)) {
+    console.error(&quot;Decrypted invalid seed: &quot; + decryptedSeed);
+    process.exit(1);
+  }
+  return seed;
+}
+</code></pre>
+<p>Aquí nos interesa que en caso de error se nos muestre el valor decodificado de
+la semilla que consiste en la salida del <a href="https://en.wikipedia.org/wiki/Cyclic_redundancy_check">CRC</a> y el valor de la
+semilla.</p>
+<h3>Intercambio del código de activación por la semilla codificada</h3>
+<p>Los dos pasos previos los pudimos realizar sin necesitar invocar ningún servicio
+del banco y (<em>por suerte</em>) con la información de test que se encontraba en el
+código.</p>
+<p>El paso que nos queda es obtener la semilla a partir del <em>código de asociación</em>
+que nos envía el banco vía email invocando un servicio web.</p>
+<p>Ya se vió del código javascript de la aplicación que se realiza un request GET a
+&lt;https://servicios.brou.com.uy/etoken/a.php?cupon={código de asociación}&amp;callback=?&gt;
+el cual devuelve el seed codificado.</p>
+<p>Aquí es importante imprimir en caso de error la respuesta del servicio, ya que
+<em>el código de activación solo puede ser utilizado una vez</em> y si ocurre algún
+error en el programa hay que pedir otro <em>código de activación</em> y confirmar el
+pedido yendo a un <a href="https://en.wikipedia.org/wiki/Automated_teller_machine">cajero</a>.</p>
+<p>La respuesta esperada al intercambiar un código de activación es algo como esto:</p>
+<pre><code>?([&quot;jNnbU15eXl5dMsxWZ5alkd9nFoWo1Eb1t0Izj4nh5PKVMGI0hOQLBQMv8k2t&quot;])
+</code></pre>
+<p>A continuación el código:</p>
+<pre><code>async function retrieveEncryptedSeed(activationCode) {
+  // retrieve encrypted seed
+  const response = await fetch(`https://servicios.brou.com.uy/etoken/a.php?cupon=${activationCode}&amp;callback=?`);
+  const body = await response.text();
+
+  // extract from response
+  try {
+    const [ , encryptedSeed ] = /&quot;([^\&quot;]+)&quot;/.exec(body);
+    return encryptedSeed;
+  } catch(error) {
+    console.error(`Error extracting encrypted seed from: \`${body}\``);
+    console.error(error);
+    process.exit(1);
+  }
+}
+</code></pre>
+<p>Como se indicó previamente, en caso de error al extraer la semilla codificada se
+muestra el contenido del mensaje.</p>
+<h2>Conclusiones</h2>
+<p>Positivo:</p>
+<ul>
+<li>Debido a que la aplicación de llave digital estaba codificada en javascript
+fué sencillo poder determinar su funcionamiento y replicarlo.</li>
+<li>La práctica en decompilar, modificar y generar aplicaciones android.</li>
+</ul>
+<p>Negativo:</p>
+<ul>
+<li>Con el escaso tiempo dedicado no me fué posible encontrar un reemplazo a las
+funciones <a href="https://en.wikipedia.org/wiki/Advanced_Encryption_Standard">AES</a> <a href="https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#Counter_(CTR)">CTR</a>, por lo que terminé utilizando las
+de la aplicación.  Esto último condicionó a que el script utilizara <a href="https://nodejs.org/">nodejs</a>.</li>
+<li>Quedó pendiente el modificar la semilla para poder utilizarla directamente en
+<a href="https://keepassxc.org/">KeePassXC</a> y que este genere el código <a href="https://en.wikipedia.org/wiki/Time-based_one-time_password">TOTP</a>.</li>
+</ul>
+<h2>Apendice - origen de la aplicación</h2>
+<p>A partir de la url <em>inválida</em>:
+&lt;http://www.comafi.com.ar/tokenempresas /descarga/solucionpc.aspx&gt; que se
+encuentra en los archivos <code>first_registration.js</code>, <code>help-terms.js</code>, <code>help.js</code> y
+<code>registration.js</code> del directorio <code>/assets/www/js/app</code> suponemos que la
+aplicación fué adquirida a <a href="https://www.comafi.com.ar/">BANCO COMAFI</a>.  Siguiendo el link a la aplicación
+android en <a href="https://www.comafi.com.ar/tokenempresas/">https://www.comafi.com.ar/tokenempresas/</a> y comparando las pantallas
+de las aplicaciones <a href="https://play.google.com/store/apps/details?id=com.vusecurity.comafiEmpresas.token.android">Comafi Token Empresas</a> y <a href="https://play.google.com/store/apps/details?id=uy.com.brou.token">BROU Llave Digital</a> se encuentra
+un parecido importante.</p>
+<h2>Apendice - modificación de aplicación cordova</h2>
+<p>Una alternativa que finalmente no fué utilizada consiste en decompilar,
+modificar, construir y ejecutar un apk modificado de la aplicación.</p>
+<p>Para ello los pasos a seguir son:</p>
+<ol>
+<li>
+<p>Extraer archivos con <a href="https://ibotpeaches.github.io/Apktool/">apktool</a>.</p>
+</li>
+<li>
+<p>Renombrar directorio de trabajo y nombre de archivo apk generado.</p>
+</li>
+<li>
+<p>Modificar nombre del paquete en el <a href="https://developer.android.com/guide/topics/manifest/manifest-intro">manifest</a> y hacer la aplicación
+<a href="https://developer.android.com/guide/topics/manifest/application-element#debug">debuggable</a> para <a href="https://developer.android.com/studio/debug#systemLog">poder inspeccionar los logs</a> mediante <a href="https://developer.android.com/studio/command-line/logcat">logcat</a>.
+También modificar el nombre de la aplicación en los recursos para no
+confundirla si se tiene la original instalada.</p>
+<p>Los cambios anteriores están resumidos en el archivo
+<a href="./01-change-app-name.patch">01-change-app-name.patch</a>.</p>
+</li>
+<li>
+<p>Modificar el código de la aplicación.</p>
+<p>El cambio está resumido en el archivo <a href="./02-show-log-message.patch">02-show-log-message.patch</a>.</p>
+</li>
+<li>
+<p>Construir el apk correspondiente a la aplicación modificada.</p>
+</li>
+<li>
+<p>Crear <a href="https://developer.android.com/studio/publish/app-signing#debug-mode">debug keystore</a> y firmar la aplicación.</p>
+</li>
+<li>
+<p>Instalar la aplicación, ejecutar utilizando <a href="https://developer.android.com/studio/command-line/adb.html#am">am</a> y ver la salida de logcat.</p>
+</li>
+</ol>
+<p>Se creó el script <a href="./modify.sh">modify.sh</a> que realiza los pasos 1. a 6.
+Para el paso 7. se utilizan los comandos:</p>
+<pre><code>$ adb logcat -c
+$ adb install uy.jumapico.brou.token/dist/uy.jumapico.brou.token-signed.apk
+Performing Streamed Install
+Success
+$ adb shell am start -D -n uy.jumapico.brou.token/uy.com.brou.token.MainActivity
+$ adb logcat 2&gt;&amp;1 | tee logcat.out
+</code></pre>
+<h2>Apendice - generación de código</h2>
+<p>Mientras no investigue como cargar el seed para generar el OTP con <a href="https://keepassxc.org/">KeePassXC</a>
+es posible utilizar la aplicación javascript de esta sección:</p>
+<script src="https://unpkg.com/@otplib/preset-browser@12.0.1/buffer.js"></script>
+<script src="https://unpkg.com/@otplib/preset-browser@12.0.1/index.js"></script>
+<script>
+const show_code = (seedElem, codeElem) => {
+  if (seedElem.timeoutId !== null) {
+    // cancel previously scheduled updates
+    clearTimeout(seedElem.timeoutId);
+  }
+  const seed = seedElem.value;
+  if (seed !== "") {
+    // calculate
+    const counter = Math.floor(new Date().getTime() / 40000);
+    const code = window.otplib.hotp.generate(seed, counter);
+    // show and schedule and update
+    codeElem.textContent = code;
+    seedElem.timeoutId = setTimeout(show_code, 1000, seedElem, codeElem);
+  } else {
+    // clear code
+    codeElem.textContent = "";
+    seedElem.timeoutId = null;
+  }
+};
+window.addEventListener('DOMContentLoaded', (event) => {
+  // bind
+  const seedElem = document.getElementById("seed");
+  const codeElem = document.getElementById("code");
+  // events
+  seedElem.addEventListener("input", (event) => { show_code(seedElem, codeElem); });
+});
+</script>
+<p>
+<input id="seed" type="text" placeholder="Enter seed" />
+Code: <span id="code"></span>
+</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

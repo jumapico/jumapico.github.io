@@ -1,0 +1,21 @@
+#!/bin/bash
+set -e
+show_error() {
+    if [[ $(readlink -f /proc/$(ps -o ppid:1= -p $$)/exe) = $(readlink -f "$SHELL") ]]; then
+        echo -e "$1"
+    elif [ -x /usr/bin/zenity ]; then
+        zenity --warning --width=500 --text "$1"
+    fi
+}
+
+if [ ! -d "$HOME/.chromium-private" ]; then
+    show_error "Directory $HOME/.chromium-private don't exist\nCreate it and reopen tomb file\n"
+    exit 1
+elif ! mountpoint -q "$HOME/.chromium-private"; then
+    show_error "Directory $HOME/.chromium-private is not a mount point\nTry open tomb file\n"
+    exit 1
+elif [ ! -x /usr/bin/chromium ]; then
+    show_error "Missing binary /usr/bin/chromium\nTry installing chromium package\n"
+    exit 1
+fi
+/usr/bin/chromium --incognito --user-data-dir="$HOME/.chromium-private" "$@"

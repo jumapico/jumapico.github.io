@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Instalar F-Droid desde un PC | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Instalar F-Droid desde un PC</h1>
+        <h2 class="date">2019-03-22</h2>
+      </div>
+<p>Se busca descargar, validar e instalar <a href="https://f-droid.org/">F-Droid</a> utilizando un PC.
+Como sistema operativo se utilizará <a href="https://wiki.debian.org/DebianBuster">debian buster</a> (en full-freeze al
+momento de escribir el post).</p>
+<h2>Descarga de archivos</h2>
+<p>Primero se descarga la aplicación y la firma PGP del <a href="https://f-droid.org/">sitio web</a>:</p>
+<pre><code>$ wget 'https://f-droid.org/FDroid.apk'
+$ wget 'https://f-droid.org/FDroid.apk.asc'
+</code></pre>
+<h2>Validación de archivos</h2>
+<p>Para validar la integridad de los archivos primero debe obtenerse la clave
+pública con la que fué realizada la firma.</p>
+<p>En la página <a href="https://f-droid.org/en/docs/Release_Channels_and_Signing_Keys/">Release Channels and Signing Keys</a> se indica la clave PGP:</p>
+<blockquote>
+<p>the 1DBA2E89 admin@f-droid.org PGP key</p>
+</blockquote>
+<pre><code>$ gpg --keyid-format long --keyserver hkp://keyserver.ubuntu.com:80 \
+    --recv-keys 1DBA2E89
+gpg: key 41E7044E1DBA2E89: 36 signatures not checked due to missing keys
+gpg: key 41E7044E1DBA2E89: public key &quot;F-Droid &lt;admin@f-droid.org&gt;&quot; imported
+gpg: no ultimately trusted keys found
+gpg: Total number processed: 1
+gpg:               imported: 1
+</code></pre>
+<p>No olvidar confirmar la clave:</p>
+<pre><code>$ gpg --finger 1DBA2E89
+pub   rsa4096 2014-04-25 [C]
+      37D2 C987 89D8 3119 4839  4E3E 41E7 044E 1DBA 2E89
+uid           [ unknown] F-Droid &lt;admin@f-droid.org&gt;
+sub   rsa3072 2014-04-25 [S] [expires: 2019-04-24]
+sub   rsa3072 2014-04-25 [E] [expires: 2019-04-24]
+</code></pre>
+<p>Ya se tiene la clave pública utilizada al crear la firma del archivo y esta fué
+confirmada, pero todavía no se confió en ella.  Si no se confía en la clave
+pública al verificar el archivo se obtendrán advertencias, por lo cual se le
+indica a gpg que confíe en la clave pública:</p>
+<pre><code>$ echo -e &quot;trust\n5\ny\nq\n&quot; | gpg --command-fd 0 --edit-key 1DBA2E89
+gpg (GnuPG) 2.2.12; Copyright (C) 2018 Free Software Foundation, Inc.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+
+pub  rsa4096/41E7044E1DBA2E89
+     created: 2014-04-25  expires: never       usage: C
+     trust: unknown       validity: unknown
+sub  rsa3072/7A029E54DD5DCE7A
+     created: 2014-04-25  expires: 2019-04-24  usage: S
+sub  rsa3072/5DCCB667F9BF9046
+     created: 2014-04-25  expires: 2019-04-24  usage: E
+[ unknown] (1). F-Droid &lt;admin@f-droid.org&gt;
+
+pub  rsa4096/41E7044E1DBA2E89
+     created: 2014-04-25  expires: never       usage: C
+     trust: unknown       validity: unknown
+sub  rsa3072/7A029E54DD5DCE7A
+     created: 2014-04-25  expires: 2019-04-24  usage: S
+sub  rsa3072/5DCCB667F9BF9046
+     created: 2014-04-25  expires: 2019-04-24  usage: E
+[ unknown] (1). F-Droid &lt;admin@f-droid.org&gt;
+
+Please decide how far you trust this user to correctly verify other users' keys
+(by looking at passports, checking fingerprints from different sources, etc.)
+
+  1 = I don't know or won't say
+  2 = I do NOT trust
+  3 = I trust marginally
+  4 = I trust fully
+  5 = I trust ultimately
+  m = back to the main menu
+
+
+pub  rsa4096/41E7044E1DBA2E89
+     created: 2014-04-25  expires: never       usage: C
+     trust: ultimate      validity: unknown
+sub  rsa3072/7A029E54DD5DCE7A
+     created: 2014-04-25  expires: 2019-04-24  usage: S
+sub  rsa3072/5DCCB667F9BF9046
+     created: 2014-04-25  expires: 2019-04-24  usage: E
+[ unknown] (1). F-Droid &lt;admin@f-droid.org&gt;
+Please note that the shown key validity is not necessarily correct
+unless you restart the program.
+</code></pre>
+<p>Finalmente se valida la firma del archivo utilizando la clave pública:</p>
+<pre><code>$ gpg --verify FDroid.apk.asc FDroid.apk
+gpg: Signature made Fri 10 Aug 2018 03:53:03 PM -03
+gpg:                using RSA key 7A029E54DD5DCE7A
+gpg: checking the trustdb
+gpg: marginals needed: 3  completes needed: 1  trust model: pgp
+gpg: depth: 0  valid:   1  signed:   0  trust: 0-, 0q, 0n, 0m, 0f, 1u
+gpg: Good signature from &quot;F-Droid &lt;admin@f-droid.org&gt;&quot; [ultimate]
+</code></pre>
+<h2>Instalación en teléfono celular</h2>
+<p>Para instalar la aplicación en el celular debe utilizarse el programa <a href="https://manpages.debian.org/testing/adb/adb.1.en.html">adb</a>
+disponible en el paquete del mismo nombre:</p>
+<pre><code>$ sudo apt-get install -V adb
+$ adb install FDroid.apk
+</code></pre>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

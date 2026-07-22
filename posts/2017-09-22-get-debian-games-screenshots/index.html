@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Obtener screenshots para juegos de debian | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Obtener screenshots para juegos de debian</h1>
+        <h2 class="date">2017-09-22</h2>
+      </div>
+<p>El otro día pensé en instalar algún juego para linux.</p>
+<p>Lo malo que juegos libres no hay muchos y gráficamente no son muy bonitos.
+Por eso pensé en ver screenshots de juegos disponibles para <strong>debian</strong>, a ver si
+había alguno que llamara mi atención para instalarlo.
+Para <em>automatizar</em> el ver los screenshots de los paquetes seguí los siguientes
+pasos:</p>
+<p>Primero se listan los paquetes en la sección games:</p>
+<pre><code class="language-console">$ aptitude search -F %p '?section(games)'
+0ad
+0ad-data
+0ad-data-common
+...
+</code></pre>
+<p>Luego, según <a href="https://screenshots.debian.net/about">https://screenshots.debian.net/about</a>, para obtener el screenshot
+de un paquete se debe utilizar la url
+<a href="http://screenshots.debian.net/screenshot/PACKAGENAME">http://screenshots.debian.net/screenshot/PACKAGENAME</a>. Si el paquete posee una
+screenshot se devuelve un <em>response http 200</em> y un archivo en formato png. En
+caso de que no se posea una screenshot se devuelve un <em>response http 404</em>.</p>
+<p>Para descargar las imagenes en el directorio actual se utiliza un bucle con un
+<a href="https://www.gnu.org/software/bash/manual/html_node/Redirections.html#Here-Strings">here string</a>
+de bash:</p>
+<pre><code class="language-console">$ while read package; do
+    wget -O &quot;$package.png&quot; -c &quot;http://screenshots.debian.net/screenshot/$package&quot;
+done &lt;&lt;&lt; $(aptitude search -F %p '?section(games)')
+</code></pre>
+<p>Queda manejar el caso de los paquetes sin screenshots que devuelven <code>404</code> y
+debido a ello <code>wget</code> crea un archivo vacio.</p>
+<p>Para eliminar los archivos vacíos se puede utilizar <code>find</code> y <code>xargs</code>:</p>
+<pre><code class="language-console">$ find /tmp/screenshots -size 0 -print0 | xargs -0 rm
+</code></pre>
+<p>Finalmente se puede utilizar un visor de imagenes para ver las screenshots de
+los distintos juegos disponibles en <strong>debian</strong>.</p>
+<p>A continuación el script completo:</p>
+<pre><code class="language-bash">#!/bin/bash
+#
+# Download in the current directory the screenshots for games in debian
+# repository
+#
+set -e
+
+while read package; do
+    wget --show-progress -q -O &quot;$package.png&quot; \
+        -c &quot;http://screenshots.debian.net/screenshot/$package&quot; || :
+done &lt;&lt;&lt; $(aptitude search -F %p '?section(games)')
+find /tmp/screenshots -size 0 -print0 | xargs -0 rm
+</code></pre>
+<p>Cambios realizados en el script:</p>
+<ol>
+<li>Se mejora la salida de wget para que no sea tan verbosa pero muestre el
+estado de la descarga de las imagenes utilizando <code>--show-progress -q</code>.</li>
+<li>Cuando una url devuelve <code>404</code> wget devuelve un código de error <code>8: Server issued an error response</code>, lo cual interrumpe el programa, por lo cual se
+utiliza <code>|| :</code> que no hace nada cuando se obtiene un error de <code>wget</code>.</li>
+</ol>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

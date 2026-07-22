@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Entendiendo la salida de dpkg-query status | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Entendiendo la salida de dpkg-query status</h1>
+        <h2 class="date">2018-08-21</h2>
+      </div>
+<h1>Entendiendo la salida de dpkg-query status</h1>
+<p>Estoy interesado en saber si un paquete está instalado en el sistema (debian).</p>
+<p>Para ello se puede utilizar <code>dpkg -l</code>, por ejemplo consultando el estado del
+paquete <code>network-manager</code>:</p>
+<pre><code>$ dpkg -l network-manager
+Desired=Unknown/Install/Remove/Purge/Hold
+| Status=Not/Inst/Conf-files/Unpacked/halF-conf/Half-inst/trig-aWait/Trig-pend
+|/ Err?=(none)/Reinst-required (Status,Err: uppercase=bad)
+||/ Name                              Version               Architecture          Description
++++-=================================-=====================-=====================-========================================================================
+ii  network-manager                   1.12.2-2              amd64                 network management framework (daemon and userspace tools)
+</code></pre>
+<p>Ahora, interesa obtener la misma información para utilizar en un script sin
+tener que utilizar expresiones regulares para parsear la salida.</p>
+<p>Para ello se pueden utilizar los comandos <code>dpkg</code> o <code>dpkg-query</code>.</p>
+<p>La diferencia entre ellos está descrita en la página del <a href="https://manpages.debian.org/testing/dpkg/dpkg.1.en.html">manual de
+dpkg</a>:</p>
+<blockquote>
+<p>dpkg can also be used as a front-end to dpkg-deb(1) and dpkg-query(1). The
+list of supported actions can be found later on in the ACTIONS section. If any
+such action is encountered dpkg just runs dpkg-deb or dpkg-query with the
+parameters given to it, but no specific options are currently passed to them,
+to use any such option the back-ends need to be called directly.</p>
+</blockquote>
+<p>Ya que se desea controlar lo más posible la salida del comando se utilizará
+<code>dpkg-query</code>:</p>
+<pre><code>$ dpkg-query -W -f '${Status}\n' network-manager
+install ok installed
+</code></pre>
+<p>Para entender la salida conviene utilizar la <a href="https://manpages.debian.org/testing/dpkg/dpkg.1.en.html">página del manual de
+<code>dpkg</code></a> que explica las
+<strong>flags</strong> que puede tener un paquete:</p>
+<blockquote>
+<p><strong>Package flags</strong></p>
+<p><strong>ok</strong> A package marked ok is in a known state, but might need further
+processing.</p>
+<p><strong>reinstreq</strong> A package marked reinstreq is broken and requires
+reinstallation. These packages cannot be removed, unless forced with option
+--force-remove-reinstreq.</p>
+</blockquote>
+<p>En comparación, la <a href="https://manpages.debian.org/testing/dpkg/dpkg-query.1.en.html">página del manual de <code>dpkg-query</code></a> no
+es tan clara:</p>
+<blockquote>
+<p><strong>Error flags:</strong></p>
+<p>&lt;empty&gt; = (none)</p>
+<p>R = Reinst-require</p>
+</blockquote>
+<p>Ambas páginas listan de forma similar los <em>Package states</em> y los <em>Package
+selection states</em>, pero solo la <a href="https://manpages.debian.org/testing/dpkg/dpkg.1.en.html">página del manual de <code>dpkg</code></a> los
+explica.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

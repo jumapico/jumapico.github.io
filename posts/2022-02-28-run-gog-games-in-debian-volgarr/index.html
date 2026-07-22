@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ejecutando juegos de gog en debian - Volgarr the Viking | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Ejecutando juegos de gog en debian - Volgarr the Viking</h1>
+        <h2 class="date">2022-02-28</h2>
+      </div>
+<p>A continuación los pasos seguidos para instalar el juego <a href="http://www.volgarrtheviking.com/">Volgarr the Viking</a>
+distribuido por <a href="https://www.gog.com">GOG</a> en debian.</p>
+<p><img src="./volgarr_intro.jpg" alt="volgarr intro" /></p>
+<p>El instalador es el archivo <code>gog_volgarr_the_viking_2.1.0.3.sh</code> y <a href="https://www.gog.com/en/game/volgarr_the_viking">según la
+página de gog</a> el juego es un binario de 32 bits, por lo cual para ejecutarlo se
+debe tener habilitada la arquitectura <code>i386</code>.  En la página también se indica
+que funciona en <em>Ubuntu 18.04 32bits</em>.</p>
+<p>Vale la pena aclarar que tengo varias PC's con distintas versiones y
+configuraciones de debian, por lo cual se indicarán los pasos seguidos
+en cada PC.</p>
+<h2>storm: debian 11 (bullseye) - <a href="https://wiki.debian.org/Multiarch/HOWTO">multiarch</a> (amd64/i386)</h2>
+<p>Se ejecuta el instalador, se acepta el EULA, se elige el directorio
+<code>~/GOG Games/Volgarr the Viking</code> para realizar la instalación y se crea el ícono
+en el escritorio y la entrada en el menú.</p>
+<p>Al ejecutar se obtiene el siguiente error:</p>
+<pre><code>$ &quot;$HOME/GOG Games/Volgarr the Viking/start.sh&quot;
+Running Volgarr the Viking
+libGL error: MESA-LOADER: failed to open i965: /home/ivan/GOG Games/Volgarr the Viking/lib/libstdc++.so.6: version `CXXABI_1.3.8' not found (required by /usr/lib/dri/i965_dri.so) (search paths /usr/lib/i386-linux-gnu/dri:\$${ORIGIN}/dri:/usr/lib/dri)
+libGL error: failed to load driver: i965
+libGL error: MESA-LOADER: failed to open i965: /home/ivan/GOG Games/Volgarr the Viking/lib/libstdc++.so.6: version `CXXABI_1.3.8' not found (required by /usr/lib/dri/i965_dri.so) (search paths /usr/lib/i386-linux-gnu/dri:\$${ORIGIN}/dri:/usr/lib/dri)
+libGL error: failed to load driver: i965
+libGL error: MESA-LOADER: failed to open swrast: /home/ivan/GOG Games/Volgarr the Viking/lib/libstdc++.so.6: version `CXXABI_1.3.8' not found (required by /usr/lib/dri/swrast_dri.so) (search paths /usr/lib/i386-linux-gnu/dri:\$${ORIGIN}/dri:/usr/lib/dri)
+libGL error: failed to load driver: swrast
+X Error of failed request:  GLXBadContext
+  Major opcode of failed request:  152 (GLX)
+  Minor opcode of failed request:  6 (X_GLXIsDirect)
+  Serial number of failed request:  111
+  Current serial number in output stream:  110
+</code></pre>
+<p>No recuerdo el post donde se da como solución borrar el directorio <code>lib</code> del
+juego, pero siguiendo el consejo:</p>
+<pre><code>$ mv &quot;$HOME/GOG Games/Volgarr the Viking/lib&quot; &quot;$HOME/GOG Games/Volgarr the Viking/lib.old&quot;
+</code></pre>
+<p>Ejecutando nuevamente el juego se obtiene una ventana con el siguiente mensaje:</p>
+<p><img src="./storm-udev-error.png" alt="Could not initialize SDL Joystick due to the following error: Unable to init SDL SubSystem: Could not initialize UDEV Click Yes to try the following instead: SDL Audio Sfx Or click No to quit the program and try to resolve the above error." /></p>
+<p>Nuevamente, buscando en internet se encuentra en los <a href="https://steamcommunity.com/app/20920/discussions/0/522728268693247542/">foros de steam</a> la
+sugerencia de instalar <code>libudev1:i386</code> para solucionar el problema.</p>
+<p>En mi caso la versión instalada para la arquitectura amd64 era mayor a la
+disponible para la versión i386, por lo que debí hacer un downgrade -ya que al
+utilizar multiarch las librerías deben tener la misma versión en todas las
+arquitecturas- y resolver dependencias de paquetes que se rompieron al
+realizar el downgrade.</p>
+<p>Se vuelve a ejecutar y <strong>EXITO</strong>.</p>
+<p>Sin duda que no es el primer juego de GOG que instalo, por lo cual es probable
+que ya tuviera dependencias instaladas que no estaban documentadas.</p>
+<p>Se vuelcan al archivo <a href="./volgarr-deps.txt">volgarr-deps.txt</a> los paquetes que son necesarios
+instalar en base al listado de las dependencias del juego obtenidas del binario
+mediante <a href="https://manpages.debian.org/bullseye/manpages/ldd.1.en.html">ldd</a>:</p>
+<pre><code>$ dpkg -S $(ldd &quot;$HOME/GOG Games/Volgarr the Viking/game/Volgarr&quot; | awk '/ =&gt; / { print $1 }') \
+    | awk '/:i386:/ { print substr($1, 1, length($1)-1) }' | sort -u &gt; volgarr-deps.txt
+</code></pre>
+<p>Para instalar los paquetes basta hacer:</p>
+<pre><code>$ doas apt-get install -Vy $(cat volgarr-deps.txt)
+</code></pre>
+<h2>thunder: debian testing (bookworm/sid) - amd64</h2>
+<p>Evidentemente el juego no puede ejecutarse de forma <em>normal</em>: no está habilitada
+la arquitectura <code>i386</code> en este PC.</p>
+<p>Las alternativas que se me ocurren a configurar multiarch agregando la
+arquitectura <code>i386</code> son:</p>
+<ol>
+<li>Utilizar las librerías (y el <a href="https://manpages.debian.org/testing/manpages/ld.so.8.en.html">dynamic loader</a>) de un sistema ubuntu creado
+localmente utilizando <a href="https://manpages.debian.org/testing/debootstrap/debootstrap.8.en.html">debootstrap</a></li>
+<li>Utilizar [flatpack].  Para ello se utiliza un runtime que posea las
+dependencias del programa y luego se crea una aplicación con los archivos
+del juego que posean todas las librerías necesarias.</li>
+</ol>
+<p>Vale la pena notar que ambas alternativas en el fondo son similares: implican
+descargar los archivos de un sistema en el cual funcione el juego y luego
+ejecutar el binario utilizando los archivos del sistema descargado, sea mediante
+debootstrap o flatpak.</p>
+<h3>Uso de librerías con debootstrap</h3>
+<p>La idea es obtener los archivos de un sistema <em>Ubuntu 18.04 i386</em> utilizando el
+programa <a href="https://manpages.debian.org/testing/debootstrap/debootstrap.8.en.html">debootstrap</a> y luego definir la variable de entorno <code>LD_LIBRARY_PATH</code>
+para que apunte a las librerías, utilizando tambien el <a href="https://manpages.debian.org/testing/manpages/ld.so.8.en.html">dynamic loader</a> del
+sistema Ubuntu descargado.</p>
+<p>Comenzamos instalando el juego, lo cual es posible ya que el instalador funciona
+tanto en la arquitectura <code>i386</code> como en la <code>amd64</code>: se ejecuta el instalador, se
+acepta el EULA, se elige el directorio <code>~/GOG Games/Volgarr the Viking</code> para
+realizar la instalación y se crea el ícono en el escritorio y la entrada en el
+menú.</p>
+<p>Para obtener los archivos del sistema Ubuntu utilizamos la herramienta
+<a href="https://manpages.debian.org/testing/debootstrap/debootstrap.8.en.html">debootstrap</a>, habilitando el caché local (la experiencia indica que cuando se
+prueba a instalar sistemas se suele tener que descargar los archivos varias
+veces hasta dar con el resultado que estamos buscando; <em>es difícil dar en la
+tecla de entrada</em>):</p>
+<pre><code>$ doas apt-get install -Vy debootstrap
+$ doas /usr/sbin/debootstrap --arch=i386 --cache-dir=/srv/cache \
+    bionic /srv/chroot_ubuntu_1804_i386 http://archive.ubuntu.com/ubuntu/
+</code></pre>
+<p>Aquí se obtuvieron los archivos correspondientes a un sistema base, pero no
+sabemos si están todas las librerías necesarias por el juego.  Para ello
+buscamos el ejecutable del juego y lo copiamos al directorio <code>/tmp</code> del sistema
+creado:</p>
+<pre><code>$ find &quot;$HOME/GOG Games/Volgarr the Viking&quot; -exec file {} \; | grep -i 'ELF .* executable'
+/home/jmpc/GOG Games/Volgarr the Viking/game/Volgarr: ELF 32-bit LSB executable, Intel 80386, version 1 (GNU/Linux), dynamically linked, interpreter /lib/ld-linux.so.2, for GNU/Linux 2.6.24, BuildID[sha1]=d1a376cd93a84efb64f863b6da8f9956213af4b3, not stripped
+/home/jmpc/GOG Games/Volgarr the Viking/.mojosetup/mojosetup: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 2.6.18, BuildID[sha1]=68ba16387126921693bcd8a88b5638cb4b8c3937, stripped
+$ doas cp &quot;$HOME/GOG Games/Volgarr the Viking/game/Volgarr&quot; /srv/chroot_ubuntu_1804_i386/tmp
+</code></pre>
+<p>Luego verificamos las dependencias faltantes utilizando <em>solo</em> los archivos
+obtenidos, para lo cual se usa el comando <code>chroot</code>:</p>
+<pre><code>$ doas /sbin/chroot /srv/chroot_ubuntu_1804_i386
+# ldd /tmp/Volgarr | grep -F 'not found'
+	libGL.so.1 =&gt; not found
+	libSDL2-2.0.so.0 =&gt; not found
+</code></pre>
+<p>Se pasan a buscar los paquetes correspondientes a las librerías faltantes en el
+sitio de ubuntu:</p>
+<ul>
+<li><code>libGL.so.1</code>: <a href="https://packages.ubuntu.com/search?suite=bionic&amp;keywords=libgl">https://packages.ubuntu.com/search?suite=bionic&amp;keywords=libgl</a>
+y siguiendo <em>el olfato</em> se busca en el paquete <code>libgl1</code> la lista de archivos,
+<a href="https://packages.ubuntu.com/bionic/i386/libgl1/filelist">https://packages.ubuntu.com/bionic/i386/libgl1/filelist</a>, en la que se
+encuentra <code>/usr/lib/i386-linux-gnu/libGL.so.1</code>, por lo cual es el paquete
+correcto.</li>
+<li><code>libSDL2-2.0.so.0</code>: <a href="https://packages.ubuntu.com/search?suite=bionic&amp;keywords=libsdl2">https://packages.ubuntu.com/search?suite=bionic&amp;keywords=libsdl2</a>
+y encontramos que el paquete buscado se llama <code>libsdl2-2.0-0</code> pero se
+encuentra en el repositorio <em>universe</em>, por lo cual hay que agregar el
+repositorio en el chroot para instalar el paquete.</li>
+</ul>
+<p>Se instalan los paquetes utilizando la información anterior en el chroot:</p>
+<pre><code># echo 'deb http://archive.ubuntu.com/ubuntu bionic main universe' &gt; /etc/apt/sources.list
+# apt-get update
+# apt-get install -V libgl1 libsdl2-2.0-0
+</code></pre>
+<p>y ahora haciendo nuevamente <code>ldd /tmp/Volgarr</code> se encuentra que no hay
+dependencias faltantes, por lo que solo falta probar la ejecución.</p>
+<p>Para la ejecución se va a utilizar la instalación realizada en el directorio
+<code>$HOME</code> del usuario en el sistema, pero se van a referenciar a las librerías de
+32 bits (arquitectura i386) que se encuentran en el chroot, por lo cual primero
+se obtienen las rutas de las librerías a utilizar mediante <code>ldd</code> en el chroot:</p>
+<pre><code># dirname $(ldd /tmp/Volgarr | awk '/ =&gt; / { print $3 }') | sort -u
+/lib/i386-linux-gnu
+/usr/lib/i386-linux-gnu
+/usr/lib/i386-linux-gnu/pulseaudio
+</code></pre>
+<p>Sabiendo que los directorios anteriores deben ser prefijados por
+<code>/srv/chroot_ubuntu_1804_i386</code> ejecutamos el juego utilizando:</p>
+<pre><code>$ cd &quot;$HOME/GOG Games/Volgarr the Viking&quot;
+$ LD_LIBRARY_PATH=/srv/chroot_ubuntu_1804_i386/lib/i386-linux-gnu:/srv/chroot_ubuntu_1804_i386/usr/lib/i386-linux-gnu:/srv/chroot_ubuntu_1804_i386/usr/lib/i386-linux-gnu/pulseaudio ./start.sh
+Running Volgarr the Viking
+support/gog_com.shlib: line 94: 62724 Segmentation fault      ./&quot;${bin_64}&quot;
+</code></pre>
+<p>Error..., pero <em>recordando</em> la solución aplicada anterioremente de borrar el
+directorio <code>lib</code> y volviendo a probar se tiene:</p>
+<pre><code>$ mv &quot;$HOME/GOG Games/Volgarr the Viking/lib&quot; &quot;$HOME/GOG Games/Volgarr the Viking/lib.old&quot;
+$ LD_LIBRARY_PATH=/srv/chroot_ubuntu_1804_i386/lib/i386-linux-gnu:/srv/chroot_ubuntu_1804_i386/usr/lib/i386-linux-gnu:/srv/chroot_ubuntu_1804_i386/usr/lib/i386-linux-gnu/pulseaudio ./start.sh
+Running Volgarr the Viking
+support/gog_com.shlib: line 94: 62652 Segmentation fault      ./&quot;${bin_64}&quot;
+</code></pre>
+<p>Luego de un rato de pensar cual puede ser el problema, recuerdo que el binario
+en realidad es un <code>ELF 32-bit</code>:</p>
+<pre><code>$ file &quot;$HOME/GOG Games/Volgarr the Viking/game/Volgarr&quot;
+/home/jmpc/GOG Games/Volgarr the Viking/game/Volgarr: ELF 32-bit LSB executable, Intel 80386, version 1 (GNU/Linux), dynamically linked, interpreter /lib/ld-linux.so.2, for GNU/Linux 2.6.24, BuildID[sha1]=d1a376cd93a84efb64f863b6da8f9956213af4b3, not stripped
+</code></pre>
+<p>y el sistema está usando el <a href="https://manpages.debian.org/testing/manpages/ld.so.8.en.html">dynamic loader</a> de debian <code>amd64</code>, por lo que se
+intenta cambiar el <a href="https://manpages.debian.org/testing/manpages/ld.so.8.en.html">dynamic loader</a> para utilizar el del sistema descargado
+(Ubuntu i386):</p>
+<pre><code>$ cd &quot;$HOME/GOG Games/Volgarr the Viking/game&quot;
+$ LD_LIBRARY_PATH=/srv/chroot_ubuntu_1804_i386/lib/i386-linux-gnu:/srv/chroot_ubuntu_1804_i386/usr/lib/i386-linux-gnu:/srv/chroot_ubuntu_1804_i386/usr/lib/i386-linux-gnu/pulseaudio /srv/chroot_ubuntu_1804_i386/lib/ld-linux.so.2 ./Volgarr
+</code></pre>
+<p>Ahora se obtiene una ventana con el mensaje de error:</p>
+<p><img src="./thunder-resources-not-found.png" alt="FATAL ERROR Resource file not found (resources.xml)!" /></p>
+<p>Esto sin duda da la idea de que no se estarían encontrando los archivos del
+recursos del juego, por lo que se busca el proceso (sin cerrar la ventana):</p>
+<pre><code>$ ps aux | grep Volgarr
+jmpc       60363  0.7  0.2 605172 25928 pts/0    Sl+  23:22   0:00 /srv/chroot_ubuntu_1804_i386/lib/i386-linux-gnu/ld-2.27.so ./Volgarr
+jmpc       60368  0.0  0.1 605332 13696 pts/0    S+   23:22   0:00 /srv/chroot_ubuntu_1804_i386/lib/i386-linux-gnu/ld-2.27.so ./Volgarr
+jmpc       60391  0.0  0.0   8952  2468 pts/2    S+   23:24   0:00 grep --color=auto Volgarr
+</code></pre>
+<p>y se inspecciona cual es el directorio actual de este utilizando el
+pseudo-filesystem <a href="https://man7.org/linux/man-pages/man5/proc.5.html">proc(5)</a>:</p>
+<pre><code>$ ls -l /proc/60363/cwd /proc/60368/cwd
+lrwxrwxrwx 1 jmpc jmpc 0 Feb 28 23:22 /proc/60363/cwd -&gt; /srv/chroot_ubuntu_1804_i386/lib/i386-linux-gnu
+lrwxrwxrwx 1 jmpc jmpc 0 Feb 28 23:28 /proc/60368/cwd -&gt; /srv/chroot_ubuntu_1804_i386/lib/i386-linux-gnu
+</code></pre>
+<p>De lo anterior, <strong>sospecho</strong> que el problema está en que el programa realiza un
+<a href="https://man7.org/linux/man-pages/man2/chdir.2.html">chdir</a> al directorio del ejecutable, y este es:</p>
+<pre><code>$ cat /proc/60363/cmdline | tr '\0' ' '
+/srv/chroot_ubuntu_1804_i386/lib/ld-linux.so.2 ./Volgarr
+</code></pre>
+<p>Aquí se tiene que el directorio del ejecutable en la linea de comandos,
+<code>/srv/chroot_ubuntu_1804_i386/lib</code> no se corresponde con el <em>current working
+directory</em> <code>srv/chroot_ubuntu_1804_i386/lib/i386-linux-gnu</code>.  Revisando &quot;un poco
+mejor&quot; encontramos que:</p>
+<pre><code>$ ls -lh /srv/chroot_ubuntu_1804_i386/lib/ld-linux.so.2
+lrwxrwxrwx 1 root root 25 Apr 16  2018 /srv/chroot_ubuntu_1804_i386/lib/ld-linux.so.2 -&gt; i386-linux-gnu/ld-2.27.so
+$ realpath /srv/chroot_ubuntu_1804_i386/lib/ld-linux.so.2
+/srv/chroot_ubuntu_1804_i386/lib/i386-linux-gnu/ld-2.27.so
+$ file /srv/chroot_ubuntu_1804_i386/lib/i386-linux-gnu/ld-2.27.so
+/srv/chroot_ubuntu_1804_i386/lib/i386-linux-gnu/ld-2.27.so: ELF 32-bit LSB shared object, Intel 80386, version 1 (SYSV), dynamically linked, BuildID[sha1]=7a59ed1836f27b66ffd391d656da6435055f02f8, stripped
+</code></pre>
+<p>Ahora se copia el dynamic loader <code>ld-2.27.so</code> al directorio local y se prueba
+nuevamente para corroborar si la suposición es acertada o no:</p>
+<pre><code>$ cp /srv/chroot_ubuntu_1804_i386/lib/i386-linux-gnu/ld-2.27.so .
+$ LD_LIBRARY_PATH=/srv/chroot_ubuntu_1804_i386/lib/i386-linux-gnu:/srv/chroot_ubuntu_1804_i386/usr/lib/i386-linux-gnu:/srv/chroot_ubuntu_1804_i386/usr/lib/i386-linux-gnu/pulseaudio ./ld-2.27.so ./Volgarr
+</code></pre>
+<p><strong>¡EXITO!</strong></p>
+<h3>flatpak</h3>
+<p>Si bien el programa ya funcionó descargando un sistema <em>Ubuntu 18.04 i386</em> se
+tienen los problemas de que es necesario utilizar <code>root</code> para ello, parchear el
+binario y definir variables de entorno.</p>
+<p>A continuación se dejan unas notas relativas a intentar empaquetar el juego con
+<a href="https://flatpak.org/">flatpak</a>.</p>
+<p><strong>TL;DR: en mi experiencia no me pareció una buena idea utilizar flatpak</strong></p>
+<p>Para comenzar, la idea sería utilizar un [runtime] que corresponda (o por lo
+menos se acerque lo más posible) a <em>Ubuntu 18.04</em> y que utilice 32 bits.  Luego,
+se buscaría crear una aplicación flatpak que consista en los archivos del juego
+y las dependencias necesarias.</p>
+<p>Se comienza instalando <code>flatpak</code> y <code>flatpak-builder</code></p>
+<pre><code>$ doas apt-get install -Vy flatpak flatpak-builder
+</code></pre>
+<p><strong>Primer problema</strong>: los <a href="https://docs.flatpak.org/en/latest/available-runtimes.html">runtimes disponibles</a> no tienen una correspondencia a
+ningún sistema, entre ellos <em>Ubuntu</em>.</p>
+<p>Agregando el repositorio oficial y listando los runtimes disponibles utilizando
+la tecla <code>&lt;tab&gt;</code> sin aceptar el comando:</p>
+<pre><code>$ flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+$ flatpak install --user --runtime flathub org.freedesktop.Platform&lt;tab&gt;
+Display all 446 possibilities? (y or n)
+</code></pre>
+<p>encontramos que pueden interesarnos los repositorios:</p>
+<ul>
+<li><code>org.freedesktop.Platform</code> - Runtime</li>
+<li><code>org.freedesktop.Platform.Compat.i386</code> - 32 bits compatible extension</li>
+<li><code>org.freedesktop.Platform.GL32.default</code> - Mesa drivers (extension)</li>
+</ul>
+<p>En la documentación, bajo la sección de <a href="https://docs.flatpak.org/en/latest/multiarch.html">multiarch support</a> encontramos que es
+posible que tengamos que utilizar los runtime <code>org.freedesktop.Platform.Compat.i386</code>
+y <code>org.freedesktop.Platform.GL32.default</code> por lo cual ya los vamos instalando:</p>
+<pre><code>$ flatpak install --user --runtime flathub org.freedesktop.Platform
+Looking for matches…
+Similar refs found for ‘org.freedesktop.Platform’ in remote ‘flathub’ (user):
+
+   1) runtime/org.freedesktop.Platform/x86_64/19.08
+   2) runtime/org.freedesktop.Platform/x86_64/1.6
+   3) runtime/org.freedesktop.Platform/x86_64/20.08
+   4) runtime/org.freedesktop.Platform/x86_64/21.08
+   5) runtime/org.freedesktop.Platform/x86_64/18.08
+
+Which do you want to use (0 to abort)? [0-5]:
+</code></pre>
+<p>Aquí tenemos el problema de que a priori no sabemos que plataforma pueda
+corresponder a Ubuntu 18.04 o en su defecto acercarse lo suficiente.  Se supone
+que las versiones corresponden al año y mes de creación del runtime, a excepción
+de la versión 1.6.</p>
+<p><em>Por las dudas</em>, elegimos la versión 18.08 (opción <code>5</code>) ya que si esta
+corresponde a una fecha sería la más cercana a Ubuntu 18.04.</p>
+<p>Si quisieramos instalar dicha versión directamente se puede utilizar:</p>
+<pre><code>$ flatpak install --user --runtime --noninteractive flathub org.freedesktop.Platform/x86_64/18.08
+</code></pre>
+<p>Ya que queremos construir aplicaciones flatpak debemos instalar el <em>Sdk</em> y los
+runtimes correspondientes para aplicaciones <code>i386</code>:</p>
+<pre><code>$ flatpak install --user --runtime --noninteractive flathub org.freedesktop.Sdk/x86_64/18.08
+$ flatpak install --user --runtime --noninteractive flathub org.freedesktop.Platform.Compat.i386/x86_64/18.08
+$ flatpak install --user --runtime --noninteractive flathub org.freedesktop.Platform.GL32.default/x86_64/18.08
+error: Nothing matches org.freedesktop.Platform.GL32 in remote flathub
+</code></pre>
+<p>Problemas... Para la versión <code>18.08</code> no está disponible
+<code>org.freedesktop.Platform.GL32.default</code>:</p>
+<pre><code>$ flatpak install --user --runtime --noninteractive flathub org.freedesktop.Platform.GL32.default
+Similar refs found for ‘org.freedesktop.Platform.GL32.default’ in remote ‘flathub’ (user):
+
+   1) runtime/org.freedesktop.Platform.GL32.default/x86_64/19.08
+   2) runtime/org.freedesktop.Platform.GL32.default/x86_64/20.08
+   3) runtime/org.freedesktop.Platform.GL32.default/x86_64/21.08
+
+Which do you want to use (0 to abort)? [0-3]:
+</code></pre>
+<p>Ya que se está &quot;explorando&quot; por ahora ignoramos el hecho de que no esté
+disponible el runtime con los drivers de mesa - aceleración gráfica.
+<em>Es probable que de esto nos vayamos a arrepentir despues :) pero la opción
+sería probar con otra versión del runtime, por ejemplo la 19.08, que tampoco
+sabemos que tan compatible sería con Ubuntu 18.04.</em></p>
+<p>Ni que hablar que al realizar todas las instalaciones anteriores nos vemos
+inundados con mensajes del tipo:</p>
+<blockquote>
+<p>Info: org.freedesktop.Platform//18.08 is end-of-life, with reason:
+The Freedesktop SDK 18.08 runtime is no longer supported as of 31th August
+2020. Please ask your application developer to migrate to a supported
+platform.</p>
+</blockquote>
+<p>Tampoco nos importa..., seguimos adelante, o recordando a <a href="https://es.wikipedia.org/wiki/Les_Luthiers">Les Luthiers</a>, en la
+<a href="https://www.youtube.com/watch?v=0FZoPwOu9cE">candonga de los colectiveros</a>:</p>
+<blockquote>
+<p><a href="https://youtu.be/0FZoPwOu9cE?t=106">Corro siempre, nunca aflojo, con coraje y con valor<br/>Si el semáforo está en rojo, acelero sin temor</a></p>
+</blockquote>
+<p>En resumen, hasta ahora tenemos instalado lo siguiente:</p>
+<pre><code>$ flatpak --user --runtime list
+Name                         Application ID                                Version         Branch
+Freedesktop Platform         org.freedesktop.Platform                      18.08.39        18.08
+i386                         org.freedesktop.Platform.Compat.i386                          18.08
+Intel                        org.freedesktop.Platform.VAAPI.Intel                          18.08
+html5-codecs                 org.freedesktop.Platform.html5-codecs                         18.08
+Freedesktop SDK              org.freedesktop.Sdk                           18.08.39        18.08
+</code></pre>
+<p>Previo a crear el manifiesto de la aplicación, hay que tener en cuenta que la
+instalación de la aplicación -extracción de archivos-, debe realizarse de forma
+desatendida, por lo cual no puede ejecutarse directamente el instalador.</p>
+<p>Para ello se utilizará el script <a href="https://github.com/Yepoleb/gogextract">gogextract</a> mediante el cual se obtiene un
+archivo zip con los archivos del juego:</p>
+<pre><code>$ mkdir /tmp
+$ wget -P /tmp 'https://raw.githubusercontent.com/Yepoleb/gogextract/master/gogextract.py'
+$ python3 /tmp/gogextract.py gog_volgarr_the_viking_2.1.0.3.sh /tmp
+</code></pre>
+<p>Ahora en <code>/tmp/data.zip</code> se encuentran los archivos del juego, los cuales
+podemos simplemente descomprimir dentro del entorno de la aplicación flatpak:</p>
+<pre><code>$ unzip -l /tmp/data.zip
+Archive:  /tmp/data.zip
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+        0  2015-06-15 14:27   data/
+        0  2016-02-17 06:24   data/noarch/
+      811  2015-07-27 08:51   data/noarch/start.sh
+       33  2016-02-17 06:24   data/noarch/gameinfo
+        0  2016-02-17 06:23   data/noarch/game/
+    21111  2016-02-08 15:07   data/noarch/game/Readme.txt
+172902739  2016-01-13 22:38   data/noarch/game/Data.pk
+     9264  2015-11-24 16:28   data/noarch/game/icon.png
+  2666722  2016-02-08 15:49   data/noarch/game/Volgarr
+        0  2014-10-31 06:45   data/noarch/lib/
+...
+</code></pre>
+<p>A partir de la documentación encontrada en</p>
+<ul>
+<li><a href="https://docs.flatpak.org/en/latest/manifests.html">https://docs.flatpak.org/en/latest/manifests.html</a></li>
+<li><a href="https://docs.flatpak.org/en/latest/flatpak-builder-command-reference.html">https://docs.flatpak.org/en/latest/flatpak-builder-command-reference.html</a></li>
+<li><a href="https://docs.flatpak.org/en/latest/multiarch.html">https://docs.flatpak.org/en/latest/multiarch.html</a></li>
+<li><a href="https://docs.flatpak.org/en/latest/debugging.html">https://docs.flatpak.org/en/latest/debugging.html</a></li>
+</ul>
+<p>pasamos a crear el manifiesto para construir la aplicación flatpak, el cual
+llamaremos <a href="./com.gog.volgarr_the_viking.v1.yaml">com.gog.volgarr_the_viking.v1.yaml</a> (obtenido luego de varias
+iteraciones...):</p>
+<pre><code>app-id: com.gog.volgarr_the_viking
+runtime: org.freedesktop.Platform
+runtime-version: '18.08'
+sdk: org.freedesktop.Sdk
+command: /app/start.sh
+
+finish-args:
+  - --allow=multiarch
+  - --socket=x11
+  - --share=ipc
+  - --socket=pulseaudio
+  - --device=all
+
+add-extensions:
+  org.freedesktop.Platform.Compat.i386:
+    directory: lib/i386-linux-gnu
+    version: '18.08'
+
+modules:
+  - name: game
+    buildsystem: simple
+    sources:
+      - type: archive
+        path: data.zip
+        sha256: 7b51930f5ab3885fb15da86880453e85e794603ec8f74259a0e84b987750154a
+    build-commands:
+      - mv /run/build/game/noarch/* /app
+      - mkdir /app/lib/i386-linux-gnu
+</code></pre>
+<p><strong>TIPS</strong>:</p>
+<ul>
+<li>
+<p>Hay que agregar la extensión <code>org.freedesktop.Platform.Compat.i386</code> para que
+se pueda ejecutar la aplicación en 32 bits, en caso contrario se obtiene el
+error: <code>support/gog_com.shlib: line 106: ./Volgarr: No such file or directory</code></p>
+</li>
+<li>
+<p>Es necesario crear el directorio <code>/app/lib/i386-linux-gnu</code> donde se montarán
+los archivos de la extensión anterior, ya que en caso contrario se obtiene:</p>
+<pre><code>bwrap: Can't mkdir /app/lib/i386-linux-gnu: Read-only file system
+error: ldconfig failed, exit status 256
+</code></pre>
+</li>
+</ul>
+<p>Luego, para construir la aplicación, instalarla localmente y ejecutarla se
+utiliza:</p>
+<pre><code>$ mkdir -p ~/tmp
+$ ln -s /tmp/data.zip
+$ flatpak-builder --user --install --state-dir=$HOME/tmp ~/tmp/build-dir com.gog.volgarr_the_viking.yaml
+$ flatpak run --user com.gog.volgarr_the_viking
+Running Volgarr the Viking
+</code></pre>
+<p>Obteniendose una ventana con el mensaje de error:</p>
+<p><img src="./thunder-rendering-context-error.png" alt="FATAL ERROR Could not initialize OpenGL 1.3 due to the following error: Unable to create rendering context! No other supported interfaces found." /></p>
+<p>Para depurar el problema anterior se ejecuta un shell en el flatpak:</p>
+<pre><code>$ flatpak run --user --command=sh com.gog.volgarr_the_viking
+[📦 com.gog.volgarr_the_viking ~]$ cd /app/game
+[📦 com.gog.volgarr_the_viking game]$ ldd Volgarr
+	linux-gate.so.1 (0xf7ef2000)
+	libGL.so.1 =&gt; /usr/lib/i386-linux-gnu/libGL.so.1 (0xf7e77000)
+	libSDL2-2.0.so.0 =&gt; /usr/lib/i386-linux-gnu/libSDL2-2.0.so.0 (0xf7d37000)
+	libstdc++.so.6 =&gt; /app/lib/libstdc++.so.6 (0xf7c4e000)
+	libm.so.6 =&gt; /usr/lib/i386-linux-gnu/libm.so.6 (0xf7b44000)
+	libgcc_s.so.1 =&gt; /usr/lib/i386-linux-gnu/libgcc_s.so.1 (0xf7b25000)
+	libc.so.6 =&gt; /usr/lib/i386-linux-gnu/libc.so.6 (0xf7941000)
+	libGLX.so.0 =&gt; /usr/lib/i386-linux-gnu/libGLX.so.0 (0xf791d000)
+	libX11.so.6 =&gt; /app/lib/libX11.so.6 (0xf77e9000)
+	libXext.so.6 =&gt; /app/lib/libXext.so.6 (0xf77d6000)
+	libGLdispatch.so.0 =&gt; /usr/lib/i386-linux-gnu/libGLdispatch.so.0 (0xf7774000)
+	libdl.so.2 =&gt; /usr/lib/i386-linux-gnu/libdl.so.2 (0xf776c000)
+	libpthread.so.0 =&gt; /usr/lib/i386-linux-gnu/libpthread.so.0 (0xf774a000)
+	libwayland-egl.so.1 =&gt; /usr/lib/i386-linux-gnu/libwayland-egl.so.1 (0xf7745000)
+	libwayland-client.so.0 =&gt; /usr/lib/i386-linux-gnu/libwayland-client.so.0 (0xf7735000)
+	libwayland-cursor.so.0 =&gt; /usr/lib/i386-linux-gnu/libwayland-cursor.so.0 (0xf772a000)
+	libxkbcommon.so.0 =&gt; /usr/lib/i386-linux-gnu/libxkbcommon.so.0 (0xf76e3000)
+	librt.so.1 =&gt; /usr/lib/i386-linux-gnu/librt.so.1 (0xf76d7000)
+	/lib/ld-linux.so.2 (0xf7ef4000)
+	libxcb.so.1 =&gt; /app/lib/libxcb.so.1 (0xf76b5000)
+	libffi.so.6 =&gt; /usr/lib/i386-linux-gnu/libffi.so.6 (0xf76ab000)
+	libXau.so.6 =&gt; /app/lib/libXau.so.6 (0xf76a7000)
+	libXdmcp.so.6 =&gt; /app/lib/libXdmcp.so.6 (0xf769e000)
+</code></pre>
+<p>Aquí no nos falta ninguna librería sin resolver, pero puede verse que algunas
+son resueltas al directorio <code>/app/lib</code>, y otras a <code>/usr/lib/i386-linux-gnu</code>.
+Recordando la solución previa de borrar el directorio <code>lib</code>, modificamos el
+manifiesto anterior creando <a href="./com.gog.volgarr_the_viking.v2.yaml">com.gog.volgarr_the_viking.v2.yaml</a> que se
+diferencia con el manifiesto anterior en:</p>
+<pre><code>$ diff -u com.gog.volgarr_the_viking.v1.yaml com.gog.volgarr_the_viking.v2.yaml
+--- com.gog.volgarr_the_viking.v1.yaml	2022-02-29 02:06:34.190864765 -0300
++++ com.gog.volgarr_the_viking.v2.yaml	2022-02-29 02:06:29.938855509 -0300
+@@ -26,4 +26,5 @@
+         sha256: 7b51930f5ab3885fb15da86880453e85e794603ec8f74259a0e84b987750154a
+     build-commands:
+       - mv /run/build/game/noarch/* /app
+-      - mkdir /app/lib/i386-linux-gnu
++      - rm -r /app/lib
++      - mkdir -p /app/lib/i386-linux-gnu
+</code></pre>
+<p>Volvemos a compilar, instalar y ejecutar:</p>
+<pre><code>$ flatpak-builder --user --install --state-dir=$HOME/tmp --force-clean ~/tmp/build-dir com.gog.volgarr_the_viking.final.yaml
+$ flatpak run --user com.gog.volgarr_the_viking
+Running Volgarr the Viking
+</code></pre>
+<p><strong>¡EXITO!</strong> (y no tuvimos que lamentar la falta de
+<code>org.freedesktop.Platform.GL32.default</code>)</p>
+<h2>Conclusiones</h2>
+<ul>
+<li>
+<p>Que funcionara en debian 11 multiarch <em>fué una casualidad</em>, pero en cuanto a
+instalación fué la más sencilla de todas.</p>
+</li>
+<li>
+<p>El utilizar flatpak y que funcionara con una versión elegida al azar <em>fué una
+casualidad</em>.  Una forma de evitar esto sería crear un runtime a partir de
+Ubuntu 18.04 configurado con multiarch para amd64 e i386.</p>
+<p>Luego de probar flatpak puedo decir que no me agrada:</p>
+<ul>
+<li>las versiones de los runtimes no se corresponden a ningún sistema</li>
+<li>hay que aprenderse <a href="https://www.buildstream.build/">otro sistema</a> para construir las aplicaciones y los
+runtimes</li>
+<li>coincido en varios de los puntos dados en posts como <a href="https://ludocode.com/blog/flatpak-is-not-the-future">Flatpak Is Not the
+Future</a></li>
+</ul>
+</li>
+<li>
+<p>El crear un sistema con debootstrap a partir de Ubuntu 18.04 i386 fué el
+enfoque más sistemático: se eligió descargar explícitamente las librerías del
+sistema operativo soportado por el juego.</p>
+<p>No me agrada que la creación del sistema pueda realizarse solamente con el
+usuario root -a diferencia de flatpak que puede crearse completamente con el
+usuario normal-, pero es cierto que si en el sistema faltara una dependencia
+hay que utilizar root para instalarla.</p>
+<p>Quizás una alternativa a estudiar a futuro podría ser utilizar <a href="https://github.com/containers/bubblewrap">bubblewrap</a>
+para ejecutar la aplicación haciendo chroot en lugar de estar copiando el
+interprete y definiendo la variable de entorno <code>LD_LIBRARY_PATH</code>.</p>
+</li>
+<li>
+<p>El realizar la instalación en PC's con una configuración ligeramente diferente
+fué una gran ayuda, ya que se pudo realizar el troubleshooting de una forma
+más gradual y sencilla.</p>
+</li>
+</ul>
+<h2>Apendice - cambio del interprete de un binario con patchelf</h2>
+<p>Una alternativa a copiar el dynamic loader al directorio del juego es modificar
+el binario con <a href="https://manpages.debian.org/testing/patchelf/patchelf.1.en.html">patchelf</a> para cambiar el interprete por defecto utilizando la
+ruta del sistema ubuntu:</p>
+<pre><code>$ doas apt-get install -Vy patchelf
+$ cp Volgarr Volgarr.patched
+$ patchelf --set-interpreter /srv/chroot_ubuntu_1804_i386/lib/ld-linux.so.2 Volgarr.patched
+</code></pre>
+<p>Y para ejecutar el juego se hace:</p>
+<pre><code>$ LD_LIBRARY_PATH=/srv/chroot_ubuntu_1804_i386/lib/i386-linux-gnu:/srv/chroot_ubuntu_1804_i386/usr/lib/i386-linux-gnu:/srv/chroot_ubuntu_1804_i386/usr/lib/i386-linux-gnu/pulseaudio ./Volgarr.patched
+</code></pre>
+<p><em>Nota</em>: Esta fué una alternativa previo a encontrar que copiar el interprete al
+directorio del programa solucionaba el problema.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

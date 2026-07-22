@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Replicar entorno perl usando perlbrew | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Replicar entorno perl usando perlbrew</h1>
+        <h2 class="date">2019-10-25</h2>
+      </div>
+<h2>Introducción</h2>
+<p>Durante el desarrollo, test y deploy de aplicaciones es conveniente poder
+replicar el mismo entorno en los diferentes pc's y servidores con los que se
+trabaje.  Además, es doblemente conveniente el poder realizar la configuración
+del entorno de forma <em>offline</em>, ya que esto disminuye el tiempo utilizado en
+descarga de archivos y también se mitiga el riesgo de no poder crear el entorno
+en caso de que sea imposible descargar alguna dependencia por falta de
+disponibilidad de algún servidor <a href="#nota-python">*</a>.</p>
+<p>En el caso de <a href="https://www.perl.org/">Perl</a>, las herramientas que se utilizarán para replicar un
+entorno serán las siguientes:</p>
+<ol>
+<li>
+<p><a href="https://metacpan.org/release/App-perlbrew">perlbrew</a>: permite gestionar entornos y descargar distintas
+utilidades.</p>
+<p>Entre las ventajas se encuentran:</p>
+<ul>
+<li>
+<p>Autoinstalarse desde un archivo descargado previamente utilizando el
+comando <code>self-install</code>.</p>
+</li>
+<li>
+<p>Instalar (compilar) versiones de Perl a partir de tarballs descargados
+previamente con el comando <code>install</code>.</p>
+<p><strong>Nota:</strong> en <strong>Debian</strong> se necesita tener instalado en el sistema el
+paquete <code>build-essentials</code> para poder compilar perl.</p>
+<p><strong>Nota:</strong> se necesita tener instalado <a href="https://metacpan.org/release/Devel-PatchPerl">patchperl</a>, el cual
+parchea versiones <em>viejas</em> de perl para poder compilarlas en sistemas
+operativos nuevos.</p>
+<p><strong>Nota:</strong> hay <a href="https://github.com/gugod/App-perlbrew/issues/658">versiones de perlbrew</a> que no
+permiten instalar Perl desde un tarball de forma offline.  La versión
+0.87 que se utilizará no tiene dicho problema.</p>
+</li>
+<li>
+<p>Crear <em>librerías</em> las cuales permiten tener más de un conjunto distinto
+de módulos instalados para una misma versión de perl.</p>
+</li>
+</ul>
+<p>Por otro lado, como desventajas se tienen:</p>
+<ul>
+<li>No es posible instalar <a href="https://metacpan.org/release/Devel-PatchPerl">patchperl</a> de forma offline
+utilizando el comando <code>install-patchperl</code>.  Como alternativa a dicho
+comando se puede descargar manualmente el archivo, modificarlo, copiarlo
+al directorio destino y darle permisos de ejecución siguiendo los pasos
+indicados en el <a href="https://github.com/gugod/App-perlbrew/blob/release-0.87/lib/App/perlbrew.pm#L2280">código fuente</a> del
+comando <code>install-patchperl</code>.  Los pasos quedarían como sigue:
+<pre><code>wget -q -O patchperl 'https://raw.githubusercontent.com/gugod/patchperl-packing/master/patchperl'
+cat patchperl \
+    | sed '1 s,#!.*,#!/usr/bin/perl,' \
+    &gt; $PERLBREW_ROOT/bin/patchperl
+chmod +x $PERLBREW_ROOT/bin/patchperl
+</code></pre>
+</li>
+<li>No es posible instalar <a href="https://metacpan.org/release/App-cpanminus">cpanminus</a> de forma offline mediante
+el comando <code>install-cpanm</code>.  Igual que en el caso de <code>patchperl</code>,
+inspeccionando el <a href="https://github.com/gugod/App-perlbrew/blob/release-0.87/lib/App/perlbrew.pm#L2293">código fuente</a> del
+comando <code>install-cpanm</code> vemos que se puede instalar el programa <code>cpanm</code>
+de la siguiente forma:
+<pre><code>wget -q -O cpanm 'https://raw.githubusercontent.com/miyagawa/cpanminus/master/cpanm'
+cp cpanm $PERLBREW_ROOT/bin/
+chmod +x $PERLBREW_ROOT/bin/cpanm
+</code></pre>
+</li>
+</ul>
+</li>
+<li>
+<p><a href="https://metacpan.org/release/App-cpanminus">cpanminus</a>: permite instalar módulos de Perl desde <a href="https://www.cpan.org/">CPAN</a>
+(<em>Comprehensive Perl Archive Network</em>).
+La principal ventaja que utilizaremos del comando <code>cpanm</code> es que permite
+definir un directorio caché donde almacenar y donde buscar módulos para
+instalar.
+Lamentablemente no hay forma de especificar las versiones de las
+dependencias entre módulos como hacer <em>Carton</em>.
+Se utilizará únicamente para instalar <em>Carton</em>.</p>
+</li>
+<li>
+<p><a href="https://metacpan.org/release/Carton">Carton</a>: gestor de dependencias de módulos Perl, será la
+herramienta utilizada a la hora de instalar los distintos módulos ya que
+registra las versiones de todos los módulos instalados en el entorno.</p>
+<p>Los dos comandos que nos interesarán particularmente serán:</p>
+<ul>
+<li>
+<p><code>bundle</code>: permite almacenar los tarball de los módulos especificados en
+el archivo <code>cpanfile.snapshot</code> en el directorio <code>vendor/cache</code>.</p>
+</li>
+<li>
+<p><code>install --cached</code> (en <em>DEPLOYMENT MODE</em>): instala las versiones de los
+módulos especificados en el archivo <code>cpanfile.snapshot</code> utilizando los
+tarball del directorio <code>vendor/cache</code> sin acceder a los mirror de
+<em>CPAN</em>.</p>
+<p><strong>Nota:</strong> en la <a href="https://metacpan.org/pod/Carton#Bundling-modules">documentación de <code>Carton</code></a> se
+indica que es posible almacenar los modulos que utiliza un proyecto de
+forma tal que puedan ser instalados directamente por <code>cpanm</code> (evitando
+tener que instalar <code>Carton</code>).  <em>No se utilizará dicha opción</em>.</p>
+</li>
+</ul>
+</li>
+</ol>
+<p>Se comenzara describiendo como crear un entorno y luego como replicarlo de forma
+offline, utilizando para ello el contenido del directorio <code>vendor</code>, el cual
+podrá copiarse entre los equipos en los que se desee replicar el entorno.</p>
+<h2>Aplicación de ejemplo</h2>
+<p>Como aplicación de ejemplo se utilizará una aplicación realizada con
+<a href="http://perldancer.org/">Dancer2</a> a la que llamaremos <em>dancer2-demo</em>, más exactamente la que
+aparece en la página web como ejemplo, que será ejecutada por la versión 5.28.2
+de perl y que constará de los siguientes archivos:</p>
+<ul>
+<li>
+<p><code>app.pl</code>: aplicación de ejemplo:</p>
+<pre><code>#!/usr/bin/env perl
+use Dancer2;
+
+get '/' =&gt; sub {
+    &quot;Hello World!&quot;
+};
+
+dance;
+</code></pre>
+</li>
+<li>
+<p><code>cpanfile</code>: dependencias de la aplicación a instalar utilizando <em>Carton</em>:</p>
+<pre><code>requires &quot;Dancer2&quot;, &quot;0.208001&quot;;
+</code></pre>
+</li>
+<li>
+<p><code>cpanfile.snapshot</code>: archivo generado por <em>Carton</em> al momento de instalar
+las dependencias de la aplicación.  Se debe guardar ya que contiene los
+módulos que fueron instalados junto a sus versiones.</p>
+</li>
+<li>
+<p><code>vendor</code>: directorio en el que se almacenarán las dependencias de la
+aplicación para realizar un deploy en forma <em>offline</em> que será creado
+durante la <em>etapa de creación</em> del entorno.  Se recomienda excluir del
+repositorio y manejar por separado.</p>
+</li>
+</ul>
+<p>El motivo de la aplicación de ejemplo es tener un ejemplo concreto para realizar
+la creación y replicación de un entorno.  Se elijió una aplicación hecha en
+<a href="http://perldancer.org/">Dancer2</a> ya que tiene un número interesante de dependencias, la
+implementación es bastante corta y puede probarse fácilmente utilizando <code>wget</code> o
+<code>curl</code> desde linea de comandos.</p>
+<h2>Creación del entorno</h2>
+<p>A continuación se listarán los pasos seguidos para crear un entorno con la
+versión <em>5.28.2</em> de perl.</p>
+<p>La estructura de directorios será la siguiente:</p>
+<pre><code>$PERLBREW_ROOT: archivos relacionados a perlbrew, es donde se instalan las
+                distintas versiones de perl y sus dependencias
+$WORKDIR:       directorio de la aplicación en desarrollo
++- vendor:      directorio donde se almacenarán los archivos de forma offline
+   +- perlbrew: archivos relacionados a la instalación de perlbrew
+   +- cpanm:    archivos utilizados por cpanm para descargar Carton
+   +- cache:    archivos de módulos guardados por `carton bundle`
+</code></pre>
+<ol>
+<li>
+<p>Establecer variables de entorno.  Se utilizará la variable de entorno
+<code>PERLBREW_ROOT</code> para indicar donde se instalará la versión de perl a
+utilizar.
+Por defecto su valor es <code>$HOME/perl5/perlbrew</code>.
+Para evitar conflictos en el caso de que <code>perlbrew</code>
+ya se encuentre instalado en el sistema se agrega <strong>al principio</strong> del
+<code>PATH</code> la ruta al programa donde se instalar <code>perlbrew</code>.
+Por último, la variable <code>WORKDIR</code> será utilizada para indicar el directorio
+de trabajo donde se encuentra la aplicación que contiene el directorio
+<code>vendor</code> que es donde se
+almacenarán los archivos para recrear el entorno de manera offline:</p>
+<pre><code>export PERLBREW_ROOT=${PERLBREW_ROOT:-$HOME/perl5/perlbrew}
+export PATH=&quot;$PERLBREW_ROOT/bin:$PATH&quot;
+export WORKDIR=$HOME/dancer2-demo
+</code></pre>
+</li>
+<li>
+<p>Creación de directorios de cache.  Estos se utilizarán para almacenar los
+fuentes de los programas y librerías que luego sea necesario instalar para
+replicar el entorno.  Se utilizará la siguiente estructura de directorios:</p>
+<pre><code>mkdir -p $WORKDIR/vendor/{perlbrew,cpanm,cache} || :
+</code></pre>
+</li>
+<li>
+<p>Descarga e instalación de <a href="https://metacpan.org/release/App-perlbrew">perlbrew</a>:</p>
+<pre><code>wget -P $WORKDIR/vendor/perlbrew https://raw.githubusercontent.com/gugod/App-perlbrew/release-0.87/perlbrew
+perl $WORKDIR/vendor/perlbrew/perlbrew self-install
+</code></pre>
+<p><strong>Nota:</strong> aquí no hay que olvidar agregar la linea
+<code>source $PERLBREW_ROOT/etc/bashrc</code> en el archivo <code>~/.profile</code> como indica la
+salida del comando <code>self-install</code>.  Para ya habilitar el shell que se está
+utilizando ejecutar en la consola <code>source $PERLBREW_ROOT/etc/bashrc</code>.</p>
+</li>
+<li>
+<p>Descarga y copia en el caché de una versión particular de perl.  Como
+versión a instalar se utiliza alguna de las devueltas por el comando
+<code>perlbrew available</code> el cual lista las versiones disponibles de perl.</p>
+<pre><code>perlbrew download perl-5.28.2
+cp $PERLBREW_ROOT/dists/perl-5.28.2.tar.* $WORKDIR/vendor/perlbrew/
+</code></pre>
+<p><strong>Nota:</strong> se utiliza <a href="https://www.tldp.org/LDP/abs/html/globbingref.html">globbing</a> ya que las versiones de perl
+están comprimidas en más de un formato (.tar.gz/.tar.xz; ver
+<a href="http://www.cpan.org/authors/id/S/SH/SHAY/">http://www.cpan.org/authors/id/S/SH/SHAY/</a>).</p>
+</li>
+<li>
+<p>Instalar <code>patchperl</code>.  Como se indicó previamente en las contras de usar
+perlbrew, ya se indicó que no es conveniente utilizar el comando
+<code>install-patchperl</code>.  En su lugar se instalará manualmente:</p>
+<pre><code>wget -q -P $WORKDIR/vendor/perlbrew 'https://raw.githubusercontent.com/gugod/patchperl-packing/a9fc33a47253bca890c68905fcb79ad0305c5c5e/patchperl'
+cat $WORKDIR/vendor/perlbrew/patchperl \
+    | sed '1 s,#!.*,#!/usr/bin/perl,' &gt; $PERLBREW_ROOT/bin/patchperl
+chmod +x $PERLBREW_ROOT/bin/patchperl
+</code></pre>
+<p><strong>Nota:</strong> aquí se supone que existe un interprete de perl instalado en el
+sistema en el directorio <code>/usr/bin/perl</code>.  Si la ruta fuera otra se deben
+modificar los comandos anteriores.</p>
+<p><strong>Nota:</strong> ya que <code>patchperl</code> no tiene <em>releases</em> o <em>tags</em>, se utilizará un
+commit específico.</p>
+</li>
+<li>
+<p>Instalar versión de perl.  Ahora que fué instalado <code>patchperl</code> podemos
+instalar una versión específica de perl:</p>
+<pre><code>perlbrew install $WORKDIR/vendor/perlbrew/perl-5.28.2.tar.*
+</code></pre>
+<p><strong>Nota:</strong> como está reportado en el <a href="https://github.com/gugod/App-perlbrew/issues/658">issue 658</a>, hay
+versiones de <code>perlbrew</code> en los cuales no funciona el instalar perl usando la
+ruta del tarball.  Como ejemplo, en la versión <em>0.86</em> el comando anterior
+falla y en la versión <em>0.87</em> funciona.</p>
+<p><strong>Nota:</strong> para una compilación rápida (sin realizar tests) puede utilizarse
+el flag <code>--notest</code></p>
+</li>
+<li>
+<p>Crear <em>lib</em> y establecerla por defecto.  Esto permite tener más de un
+conjunto distinto de librerías para una misma versión de perl.</p>
+<pre><code>perlbrew lib create perl-5.28.2@dancer2-demo
+perlbrew use perl-5.28.2@dancer2-demo
+</code></pre>
+<p><strong>Nota:</strong> esto es útil para el caso de estar trabajando en distintas
+aplicaciones que posean distintas dependencias.</p>
+</li>
+<li>
+<p>Instalar y configurar <a href="https://metacpan.org/release/App-cpanminus">cpanm</a>.  Como se mencionó anteriormente en
+la introducción, lo haremos para poder instalar <a href="https://metacpan.org/release/Carton">Carton</a>.</p>
+<p>Al igual que en el caso del comando <code>install-patchperl</code>, el comando
+<code>install-cpanm</code> solo funciona con acceso a internet, por lo cual se
+ejecutará un comando equivalente pero esta vez utilizando un número de
+release en lugar de un commit, ya que cpanm versiona sus releases:</p>
+<pre><code>wget -q -P $WORKDIR/vendor/perlbrew 'https://raw.githubusercontent.com/miyagawa/cpanminus/1.7044/cpanm'
+cp $WORKDIR/vendor/perlbrew/cpanm $PERLBREW_ROOT/bin
+chmod +x $PERLBREW_ROOT/bin/cpanm
+</code></pre>
+<p>Luego hay que establecer la variable de entorno <code>PERL_CPANM_OPT</code> para
+indicarle a <code>cpanm</code> que guarde en un caché los módulos descargados y que
+al momento de instalar un módulo primero lo busque en el caché y luego en
+<a href="http://www.cpan.org">http://www.cpan.org</a>:</p>
+<pre><code>export PERL_CPANM_OPT=&quot;--cascade-search --save-dists=$WORKDIR/vendor/cpanm --mirror=file://$WORKDIR/vendor/cpanm --mirror=http://www.cpan.org&quot;
+</code></pre>
+</li>
+<li>
+<p>Instalar <code>Carton</code>:</p>
+<pre><code>cpanm install Carton
+</code></pre>
+</li>
+<li>
+<p>Ya que en la aplicación de ejemplo se tiene un archivo de nombre
+<a href="https://metacpan.org/pod/cpanfile">cpanfile</a> con la lista de módulos a instalar, se instalarán estos
+utilizando Carton:</p>
+<pre><code>carton install
+</code></pre>
+<p><strong>Nota:</strong> el comando anterior crea el archivo <code>cpanfile.snapshot</code> el cual
+contiene la lista de todos los módulos instalados junto a su versión.</p>
+</li>
+<li>
+<p>Para probar que todo fué instalado correctamente se ejecutará la aplicación
+de ejemplo:</p>
+<p>a.  <code>carton exec ./app.pl</code>
+b.  <code>perl -Ilocal/lib/perl5 app.pl</code></p>
+</li>
+<li>
+<p>Por último se utiliza el comando <code>bundle</code> para obtener todas las
+dependencias instaladas por <code>carton</code> en el directorio <code>vendor/cache</code>:</p>
+<pre><code>carton bundle
+</code></pre>
+</li>
+</ol>
+<p>En este punto ya se puede almacenar el contenido del directorio <code>vendor</code> e ir
+a la siguiente etapa: <em>replicar el entorno</em>.</p>
+<h2>Replicación del entorno</h2>
+<p>A continuación se listarán los pasos seguidos para replicar de forma <em>offline</em>
+el entorno creado en el punto anterior utilizando los archivos del directorio
+<code>vendor</code>.</p>
+<ol>
+<li>
+<p>Establecer variables de entorno.  Al igual que en el paso anterior se
+establecerán las variables de entorno:</p>
+<pre><code>export PERLBREW_ROOT=${PERLBREW_ROOT:-$HOME/perl5/perlbrew}
+export PATH=&quot;$PERLBREW_ROOT/bin:$PATH&quot;
+export WORKDIR=$(pwd)
+</code></pre>
+</li>
+<li>
+<p>Instalación y activación de <a href="https://metacpan.org/release/App-perlbrew">perlbrew</a>:</p>
+<pre><code>perl $WORKDIR/vendor/perlbrew/perlbrew self-install
+</code></pre>
+<p>Como se hizo en el punto 3. de la instalación, se debe agregar en el archivo
+<code>~/.profile</code> la linea <code>source $PERLBREW_ROOT/etc/bashrc</code>.</p>
+<pre><code>grep -q $PERLBREW_ROOT/etc/bashrc ~/.profile || cat &gt;&gt; ~/.profile &lt;&lt;END
+
+if [ -e ${PERLBREW_ROOT}/etc/bashrc ]; then
+    source ${PERLBREW_ROOT}/etc/bashrc
+fi
+END
+</code></pre>
+</li>
+<li>
+<p>Como se hizo anteriormente, se instalará la versión de <code>patchperl</code>
+previamente descargada:</p>
+<pre><code>cat $WORKDIR/vendor/perlbrew/patchperl \
+    | sed '1 s,#!.*,#!/usr/bin/perl,' &gt; $PERLBREW_ROOT/bin/patchperl
+chmod +x $PERLBREW_ROOT/bin/patchperl
+</code></pre>
+</li>
+<li>
+<p>Instalar versión específica de perl.  Para ello se utiliza el tarball
+previamente descargado que se encuentra en <code>vendor/perlbrew</code>:</p>
+<pre><code>perlbrew install $WORKDIR/vendor/perlbrew/perl-5.28.2.tar.*
+</code></pre>
+</li>
+<li>
+<p>Crear <em>lib</em> y establecerla por defecto:</p>
+<pre><code>perlbrew lib create perl-5.28.2@dancer2-demo
+perlbrew use perl-5.28.2@dancer2-demo
+</code></pre>
+</li>
+<li>
+<p>Instalar y configurar <a href="https://metacpan.org/release/App-cpanminus">cpanm</a>.  Igual a como se hizo con
+<code>patchperl</code>, se instala la versión descargada previamente:</p>
+<pre><code>cp $WORKDIR/vendor/perlbrew/cpanm $PERLBREW_ROOT/bin
+chmod +x $PERLBREW_ROOT/bin/cpanm
+</code></pre>
+<p>Se configurará <code>cpanm</code> de forma tal de utilizar solamente el caché
+previamente creado en <code>vendor/cpanm</code>:</p>
+<pre><code>export PERL_CPANM_OPT=&quot;--mirror=file://$WORKDIR/vendor/cpanm&quot;
+</code></pre>
+</li>
+<li>
+<p>Instalación de Carton:</p>
+<pre><code>cpanm install Carton
+</code></pre>
+</li>
+<li>
+<p>Instalación de dependencias en caché utilizando Carton:</p>
+<pre><code>carton install --cached
+</code></pre>
+</li>
+<li>
+<p>Prueba de la aplicación para determinar que el entorno fué correctamente
+replicado:</p>
+<pre><code>carton exec ./app.pl
+</code></pre>
+</li>
+</ol>
+<h2>Pendientes</h2>
+<ol>
+<li>
+<p>Scripts para replicar el entorno</p>
+<p>Hay pasos durante la replicación del entorno que lanzan un <em>subshell</em>, por
+ejemplo <code>perlbrew use</code>.  Sería necesario para escribir el script ver como
+modificar el entorno sin lanzar el subshell.</p>
+</li>
+<li>
+<p>Evaluación de <a href="https://github.com/tokuhirom/plenv">plenv</a> en lugar de perlbrew</p>
+<p>Entre las alternativas a perlbrew se encuentra plenv.  Vale la pena evaluar
+las ventajas y desventajas de utilizar plenv.</p>
+</li>
+<li>
+<p>Uso de cpanm en lugar de carton en producción</p>
+<p>En la documentación de carton, una alternativa a <code>carton install --cached</code>
+es:</p>
+<pre><code>cpanm -L local --from &quot;$PWD/vendor/cache&quot; --installdeps --notest --quiet .
+</code></pre>
+<p>Esto último puede ser útil <strong>en producción</strong> para evitar tener que instalar
+carton, ya que no sería necesario.  En los equipos de desarrollo no
+ayudaría, ya que es posible que se quiera agregar un nuevo módulo y se
+necesitaría carton para instalar el módulo y las dependencias.</p>
+</li>
+</ol>
+<h2 id="nota-python">Notas</h2>
+<ul>
+<li>Hace años me ocurrió que no pude realizar el deploy de
+una aplicación de python porque el servidor del que se extraía una dependencia
+estaba <em>offline</em>.  ¡El problema es real!.</li>
+</ul>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

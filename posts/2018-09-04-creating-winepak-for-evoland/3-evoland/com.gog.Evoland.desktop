@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Evoland
+Comment=Evoland is a journey through the history of action/adventure gaming.
+Exec=/app/bin/entrypoint.sh
+Type=Application
+Icon=com.gog.Evoland
+Categories=Game;ArcadeGame;
+MimeType=application/x-ms-dos-executable;application/x-msi;application/x-ms-shortcut;
+StartupNotify=true
+Terminal=false

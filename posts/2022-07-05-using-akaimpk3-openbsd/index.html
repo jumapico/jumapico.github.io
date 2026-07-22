@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Usando controlador midi AKAI MPK mini mk3 en OpenBSD | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Usando controlador midi AKAI MPK mini mk3 en OpenBSD</h1>
+        <h2 class="date">2022-07-05</h2>
+      </div>
+<p>Se intenta utilizar un <a href="https://en.wikipedia.org/wiki/MIDI_controller">controlador midi</a> <a href="https://www.akaipro.com/mpk-mini-mk3">AKAI MPK mini mk3</a> en <a href="https://www.openbsd.org/71.html">OpenBSD 7.1</a>
+(-current).</p>
+<h2>Detección</h2>
+<p>Se busca verificar que el teclado funciona con OpenBSD, o sea, que es detectado
+por el kernel.</p>
+<p>Para ello se enchufa el teclado y se usa <code>dmesg</code> para ver si el kernel generó
+algún evento:</p>
+<pre><code>$ dmesg
+...
+uhidev0 at uhub0 port 1 configuration 1 interface 0 &quot;AKAI MPK mini 3&quot; rev 2.00/2.00 addr 5
+uhidev0: iclass 3/0
+uhid0 at uhidev0: input=32, output=32, feature=0
+umidi0 at uhub0 port 1 configuration 1 interface 2 &quot;AKAI MPK mini 3&quot; rev 2.00/2.00 addr 5
+umidi0: (genuine USB-MIDI)
+umidi0: out=1, in=1
+midi0 at umidi0: &lt;USB MIDI I/F&gt;
+ugen2 at uhub0 port 1 configuration 1 &quot;AKAI MPK mini 3&quot; rev 2.00/2.00 addr
+</code></pre>
+<p>De la salida anterior vemos que reconoce una interfaz <code>umidi</code> y <code>midi</code>.</p>
+<p>Buscando en las páginas del manual se encuentra:</p>
+<ul>
+<li><a href="https://man.openbsd.org/umidi.4">man umidi(4)</a>: indica que este driver es accesible a través del driver
+<code>midi</code>.</li>
+<li><a href="https://man.openbsd.org/midi.4">man midi(4)</a>: indica que el dispositivo corresponde a dos puertos midi, uno
+de <em>solo lectura</em> y otro de <em>solo escritura</em> y que solo un proceso podrá abrir
+el dispositivo a la vez.  Se indica que el dispositivo midi se accede bajo
+<code>/dev/rmidi*</code> y se muestran ejemplos que utilizaremos para verificar que
+<em>se lee</em> información del teclado.</li>
+</ul>
+<p>Para leer información del controlador midi revisamos primero los permisos del
+dispositivo, que por la salida de <code>dmesg</code> sabemos que es <code>umidi0</code>:</p>
+<pre><code>$ ls -lh /dev/rmidi0
+crw-rw----  1 root  _sndiop   52,   0 Jun 28 08:41 /dev/rmidi0
+</code></pre>
+<p>Verificando los permisos con <code>groups</code> se encuentra que el usuario no tiene
+permisos para acceder al dispositivo.  Esto se soluciona agregando al usuario
+al grupo <code>_sndiop</code>:</p>
+<pre><code>$ doas usermod -G _sndiop jmpc
+</code></pre>
+<p>Aquí hay que abrir una nueva sesión, por ejemplo, haciendo <code>login</code> en una
+terminal y verificar que en la lista de grupos esta <code>_sndiop</code>.</p>
+<p>Una vez que tenemos los permisos probamos leer el dispositivo y presionar
+algunas teclas del controlador:</p>
+<pre><code>$ cat -u /dev/rmidi0 | hexdump -v -e '/1 &quot;%02X\n&quot;'
+90
+30
+50
+80
+30
+00
+99
+2A
+69
+89
+2A
+00
+B0
+4A
+07
+B0
+4A
+08
+</code></pre>
+<p>También se puede utilizar <a href="https://man.openbsd.org/midicat.1">midicat(1)</a>:</p>
+<pre><code>$ midicat -d -i /dev/rmidi0
+96 3e 37
+86 3e 00
+96 3e 32
+86 3e 00
+96 3e 30
+86 3e 00
+</code></pre>
+<p>con lo que ya comprobamos que OpenBSD recibe información del controlador.</p>
+<h2>Uso - fluidsynth</h2>
+<p>Una característica de un <a href="https://en.wikipedia.org/wiki/MIDI_controller">controlador midi</a> es que este <strong>solo</strong> genera eventos,
+los que luego deben ser procesados por otro sistema para que se genere el
+sonido.</p>
+<p>Se elegirá <a href="https://www.fluidsynth.org/">fluidsynth</a> para que sintetice el sonido y un conjunto de
+<a href="https://en.wikipedia.org/wiki/SoundFont">soundfonts</a> disponibles en el sistema:</p>
+<pre><code>$ doas pkg_add fluidsynth generaluser-gs-soundfont
+</code></pre>
+<p>Siguiendo las <a href="https://github.com/FluidSynth/fluidsynth/wiki/GettingStarted">indicaciones en la wiki de fluidsynth</a>, probamos
+usar una soundfont con un archivo midi.  Por suerte podemos encontrar todo esto
+en el contenido del paquete <code>generaluser-gs-soundfont</code>:</p>
+<pre><code>$ fluidsynth /usr/local/share/generaluser-gs/GeneralUser_GS.sf2 /usr/local/share/examples/generaluser-gs/GUTest.mid
+</code></pre>
+<p>Ahora nos queda &quot;enganchar&quot; el teclado midi a fluidsynth.
+Esto lo hacemos siguiendo en la <a href="https://www.openbsd.org/faq/faq13.html">FAQ Multimedia de OpenBSD</a> la
+indicación del <a href="https://www.openbsd.org/faq/faq13.html#midi">uso de instrumentos midi</a>.</p>
+<p>Se ejecuta en una consola fluidsynth:</p>
+<pre><code>$ fluidsynth /usr/local/share/generaluser-gs/GeneralUser_GS.sf2
+</code></pre>
+<p>y en otra consola se utiliza <a href="https://man.openbsd.org/midicat.1">midicat(1)</a> para enviar los
+eventos desde <code>midi/0</code> (el controlador) hacia <code>midithru/0</code>
+(ver <a href="https://man.openbsd.org/sndio.7">sndio(7)</a>):</p>
+<pre><code>$ midicat -q midi/0 -q midithru/0
+</code></pre>
+<p>Con esto al presionar las teclas del controlador midi ya podemos escuchar notas.</p>
+<p>Para utilizar directamente <code>midi/0</code> en lugar de <code>midithru/0</code> creada por defecto
+por sndio:</p>
+<pre><code>$ fluidsynth -o midi.sndio.device=midi/0 /usr/local/share/generaluser-gs/GeneralUser_GS.sf2
+</code></pre>
+<h2>Uso - qsynth</h2>
+<p>Una alternativa a usar fluidsynth es utilizar la interfaz gráfica <a href="https://qsynth.sourceforge.io/">qsynth</a>:</p>
+<pre><code>$ doas pkg_add qsynth
+</code></pre>
+<p>Al ejecutar la aplicación ir a <em>Setup</em> y:</p>
+<ul>
+<li>en la pestaña <em>MIDI</em>, en <em>MIDI Device</em> utilizar el valor <code>midi/0</code></li>
+<li>en la pestaña <em>Soundfonts</em>, presionar <em>Open</em> y elegir el archivo
+<code>/usr/local/share/generaluser-gs/GeneralUser_GS.sf2</code>.</li>
+</ul>
+<h2>Uso - lmms</h2>
+<p>Ya envalentonados vamos por todas... <a href="https://lmms.io/">lmms</a>.</p>
+<p>Para instalar:</p>
+<pre><code>$ doas pkg_add lmms zynaddsubfx
+</code></pre>
+<p>Al ejecutar <code>lmms</code> por primera vez se elige <em>sndio MIDI</em> en <em>MIDI Settings</em> y se
+vuelve a reiniciar el programa para que se tomen los settings.</p>
+<p>Para probar que funcionara el teclado seguí el video
+<a href="https://www.youtube.com/watch?v=kamDECicDos">software - LMMS - recording your MIDI device (im using a MIDI keyboard)</a>
+que pude reproducir y obtener los sonidos del teclado.</p>
+<p>Nota: hay que ejecutar en otra consola</p>
+<pre><code>$ midicat -q midi/0 -q midithru/0
+</code></pre>
+<p>para que lmms reciba los eventos midi.</p>
+<h2>Conclusiones</h2>
+<ul>
+<li>¡Funciona el controlador <em>AKAI MPK mini mk3</em> con OpenBSD!</li>
+<li><strong>TODO</strong>: entender mejor el midithru</li>
+<li>Me dió la sensación de que fué más sencillo de configurar el uso de qsynth con
+OpenBSD que en debian.  Quizás porque ya tenía más práctica (lo hice
+previamente en linux), pero también porque en OpenBSD <strong>solo</strong> utilicé
+<a href="https://man.openbsd.org/sndiod.8">sndiod(8)</a> y en linux utilicé <code>alsa -&gt; pulseaudio -&gt; jack</code>.</li>
+</ul>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

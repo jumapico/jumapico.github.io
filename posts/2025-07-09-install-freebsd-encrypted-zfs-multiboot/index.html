@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Instalación de FreeBSD con partición zfs encriptada en sistema multiboot | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Instalación de FreeBSD con partición zfs encriptada en sistema multiboot</h1>
+        <h2 class="date">2025-07-09</h2>
+      </div>
+
+<p>Tengo un <a href="https://en.wikipedia.org/wiki/Multi-booting">sistema multiboot</a> en mi computadora con <a href="https://www.debian.org/">Debian</a> y <a href="https://www.openbsd.org/">OpenBSD</a>
+y quiero agregar <a href="https://www.freebsd.org/">FreeBSD</a>.</p>
+<p>Los requerimientos que tengo para la instalación:</p>
+<ol>
+<li>
+El sistema debe estar encriptado para evitar el acceso a los datos en caso de
+perdida o hurto del equipo.
+</li>
+<li>
+Quiero utilizar <a href="https://docs.freebsd.org/en/books/handbook/zfs/">ZFS</a> como filesystem, ya que uno de los motivos para
+instalar FreeBSD es practicar el uso de ZFS así como <a href="https://docs.freebsd.org/en/books/handbook/jails/">jails</a> y <a href="https://docs.freebsd.org/en/books/handbook/virtualization/index.html#virtualization-host-bhyve">bhyve</a>.
+</li>
+<li>
+La computadora está configurada para <a href="https://docs.freebsd.org/en/books/handbook/boot/">bootear</a> utilizando <a href="https://en.wikipedia.org/wiki/GUID_Partition_Table">GPT</a> y
+<a href="https://en.wikipedia.org/wiki/UEFI">UEFI</a>.
+</li>
+</ol>
+<p>FreeBSD cumple con todos los puntos anteriores si se elige un sistema de
+archivos ZFS encriptado con <a href="https://docs.freebsd.org/en/books/handbook/disks/index.html#disks-encrypting-geli">GELI</a>.</p>
+<p><strong>El problema</strong> comienza al momento de querer instalar FreeBSD, ya que el
+instalador no posee una opción de instalación multiboot que encripte la
+partición utilizada por FreeBSD.
+A continuación puede verse el
+<a href="https://docs.freebsd.org/en/books/handbook/bsdinstall/#bsdinstall-partitioning">menú de particionado del instalador de FreeBSD</a> con las opciones
+disponibles:</p>
+<p><img alt="Instalador de FreeBSD - menú de particionado" src="./bsdinstall-zfs-partmenu.png"></p>
+<p>Aquí la única opción que podemos utilizar para nuestro caso es la opción
+<code>Shell</code>:</p>
+<blockquote>
+<p>Shell opens a shell prompt where advanced users can create customized
+partitions using command-line utilities like gpart(8), fdisk(8), and
+bsdlabel(8).</p>
+</blockquote>
+<p>Para usar esta opción debemos conocer cual es el esquema de particiones
+necesario para la configuración del sistema FreeBSD usando ZFS+GELI.</p>
+<p>Aquí realicé dos caminos:</p>
+<ol>
+<li>
+<p>Inspeccionar el código fuente que se encuentra en
+<a href="https://cgit.freebsd.org/src/tree/usr.sbin/bsdinstall/scripts/zfsboot?h=releng/14.3">https://cgit.freebsd.org/src/tree/usr.sbin/bsdinstall/scripts/zfsboot?h=releng/14.3</a>.</p>
+</li>
+<li>
+<p>Ejecutar la instalación guiada <a href="https://docs.freebsd.org/en/books/handbook/bsdinstall/#bsdinstall-part-zfs">Root-on-ZFS</a> en una máquina virtual
+eligiendo:</p>
+<ul>
+<li>
+un pool de discos de tipo stripe
+</li>
+<li>
+encriptación de discos
+</li>
+<li>
+esquema de particiones <code>GPT (UEFI)</code>
+</li>
+<li>
+encriptación de swap
+</li>
+</ul>
+<p><img alt="bsdinstall zfs configuration menu 1" src="./bsdinstall-zfs-configuration-1.png">
+<img alt="bsdinstall zfs configuration menu 2" src="./bsdinstall-zfs-configuration-2.png"></p>
+<p>Cuando termine la instalación y antes de apagar o reiniciar el equipo
+presionar <code>Alt-F4</code> para ir a un shell y allí obtener el log de la instalación
+que se encuentra en el archivo <code>/tmp/bsdinstall_log</code>.</p>
+<p>Para extraer los comandos que fueron ejecutados puede utilizarse:</p>
+<pre><code># sed -n '/installation step: zfsboot/,/installation step: mount/p' /tmp/bsdinstall_log &gt; /tmp/steps.txt
+# sed 's/^DEBUG: //' /tmp/steps.txt | grep -v 'retval=0' | grep -A3 zfs_create &gt; /tmp/commands-zfs_create.txt
+</code></pre>
+</li>
+</ol>
+<p>De los dos caminos, el segundo fué el que me dió más resultado ya que en el
+código fuente se tiene que estar reemplazando variables mentalmente mientras que
+en el log del instalador se tienen los comandos directamente.</p>
+<p>Como ejemplo, en el código fuente del instalador se tiene:</p>
+<pre><code>if ! echo "$pw_password" | f_eval_catch \
+        $funcname geli \
+        "$GELI_PASSWORD_GELIBOOT_INIT" \
+        AES-XTS $disk$targetpart
+then
+</code></pre>
+<p>y en el log la linea correspondiente aparece como:</p>
+<pre><code>DEBUG: zfs_create_boot: geli init -bg -e AES-XTS -J - -l 256 -s 4096 "ada0p3"
+</code></pre>
+<p>A continuación la lista de comandos extraidos del archivo
+<a href="./bsdinstall_log">/tmp/bsdinstall_log</a>:</p>
+<pre><code>zfs_create_boot: Preparing disk partitions for ZFS pool...
+zfs_create_boot: With 4K sectors...
+zfs_create_boot: sysctl vfs.zfs.min_auto_ashift=12
+zfs_create_diskpart: Creating GPT layout...
+zfs_create_diskpart: printf "$FSTAB_FMT" "/dev/gpt/efiboot0" "/boot/efi" "msdosfs" "rw" "2" "2" &gt;&gt; "/tmp/bsdinstall_etc/fstab"
+zfs_create_diskpart: gpart add -a 1m -l swap0 -t freebsd-swap -s 2147483648b "ada0"
+zfs_create_diskpart: gpart add -a 1m -l zfs0 -t freebsd-zfs "ada0"
+zfs_create_diskpart: printf "$FSTAB_FMT" "/dev/ada0p2.eli" "none" "swap" "sw" "0" "0" &gt;&gt; "/tmp/bsdinstall_etc/fstab"
+zfs_create_boot: geli init -bg -e AES-XTS -J - -l 256 -s 4096 "ada0p3"
+zfs_create_boot: geli attach -j - "ada0p3"
+zfs_create_boot: Creating root pool...
+zfs_create_boot: zpool create -o altroot=/mnt -O compress=lz4 -O atime=off -m none -f "zroot"   ada0p3.eli
+zfs_create_boot: Creating ZFS datasets...
+zfs_create_boot: zfs create -o mountpoint=none "zroot/ROOT"
+zfs_create_boot: zfs create -o mountpoint=/ "zroot/ROOT/default"
+zfs_create_boot: zfs create -o mountpoint=/home "zroot/home"
+zfs_create_boot: zfs create -o mountpoint=/tmp -o exec=on -o setuid=off "zroot/tmp"
+zfs_create_boot: zfs create -o mountpoint=/usr -o canmount=off "zroot/usr"
+zfs_create_boot: zfs create -o setuid=off "zroot/usr/ports"
+zfs_create_boot: zfs create  "zroot/usr/src"
+zfs_create_boot: zfs create -o mountpoint=/var -o canmount=off "zroot/var"
+zfs_create_boot: zfs create -o exec=off -o setuid=off "zroot/var/audit"
+zfs_create_boot: zfs create -o exec=off -o setuid=off "zroot/var/crash"
+zfs_create_boot: zfs create -o exec=off -o setuid=off "zroot/var/log"
+zfs_create_boot: zfs create -o atime=on "zroot/var/mail"
+zfs_create_boot: zfs create -o setuid=off "zroot/var/tmp"
+zfs_create_boot: Setting mountpoint for root of the pool...
+zfs_create_boot: zfs set "mountpoint=/zroot" "zroot"
+zfs_create_boot: Modifying directory permissions...
+zfs_create_boot: mkdir -p "/mnt/tmp"
+zfs_create_boot: chmod 1777 "/mnt/tmp"
+zfs_create_boot: mkdir -p "/mnt/var/tmp"
+zfs_create_boot: chmod 1777 "/mnt/var/tmp"
+zfs_create_boot: Setting bootfs property...
+zfs_create_boot: zpool set bootfs="zroot/ROOT/default" "zroot"
+zfs_create_boot: Configuring zpool.cache for zroot...
+zfs_create_boot: mkdir -p "/mnt/boot/zfs"
+zfs_create_boot: zpool set cachefile="/mnt/boot/zfs/zpool.cache" "zroot"
+zfs_create_boot: Set canmount=noauto for any datasets under the BE...
+zfs_create_boot: zfs set "canmount=noauto" "zroot/ROOT/default"
+zfs_create_boot: Configuring rc.conf(5)/loader.conf(5) additions...
+zfs_create_boot: echo "zfs_enable=\"YES\"" &gt;&gt; "/tmp/bsdinstall_etc/rc.conf.zfs"
+zfs_create_boot: echo "kern.geom.label.disk_ident.enable=\"0\"" &gt;&gt; "/tmp/bsdinstall_boot/loader.conf.zfs"
+zfs_create_boot: echo "kern.geom.label.gptid.enable=\"0\"" &gt;&gt; "/tmp/bsdinstall_boot/loader.conf.zfs"
+zfs_create_boot: echo "vfs.zfs.min_auto_ashift=12" &gt;&gt; "/tmp/bsdinstall_etc/sysctl.conf.zfs"
+zfs_create_boot: Configuring disk encryption...
+zfs_create_boot: echo "aesni_load=\"YES\"" &gt;&gt; "/tmp/bsdinstall_boot/loader.conf.aesni"
+zfs_create_boot: echo "geom_eli_load=\"YES\"" &gt;&gt; "/tmp/bsdinstall_boot/loader.conf.geli"
+</code></pre>
+<p>Los cuales generan el esquema de particiones siguiente:</p>
+<pre><code>root@host:~ # gpart show ada0
+=&gt;      40  33554352  ada0  GPT  (16G)
+        40    532480     1  efi  (260M)
+    532520      2008        - free -  (1.0M)
+    534528   4194304     2  freebsd-swap  (2.0G)
+   4728832  28823552     3  freebsd-zfs  (14G)
+  33552384      2008        - free -  (1.0M)
+
+root@host:~ # gpart show -l ada0
+=&gt;      40  33554352  ada0  GPT  (16G)
+        40    532480     1  efiboot0  (260M)
+    532520      2008        - free -  (1.0M)
+    534528   4194304     2  swap0  (2.0G)
+   4728832  28823552     3  zfs0  (14G)
+  33552384      2008        - free -  (1.0M)
+</code></pre>
+<p>Ahora que ya se como el instalador crea las tablas de particiones puedo empezar
+la instalación en mi equipo.</p>
+<p>Comienzo descargando el <a href="https://download.freebsd.org/releases/amd64/amd64/ISO-IMAGES/14.3/FreeBSD-14.3-RELEASE-amd64-memstick.img">instalador de FreeBSD</a> y copiandolo a un pendrive
+(en linux, sdX es la unidad donde fué montado el pendrive):</p>
+<pre><code>$ wget 'https://download.freebsd.org/releases/amd64/amd64/ISO-IMAGES/14.3/FreeBSD-14.3-RELEASE-amd64-memstick.img.xz'
+$ unxz FreeBSD-14.3-RELEASE-amd64-memstick.img.xz
+$ doas dd if=FreeBSD-14.3-RELEASE-amd64-memstick.img of=/dev/sdX bs=1M
+</code></pre>
+<p>En mi caso, debo configurar el laptop para que pueda bootear el instalador desde
+el pendrive:</p>
+<p><img alt="Configuración bios 1" src="./config-bios-1.jpg">
+<img alt="Configuración bios 2" src="./config-bios-2.jpg"></p>
+<p>Luego se inicia el instalador y entramos al <a href="https://download.freebsd.org/releases/amd64/amd64/ISO-IMAGES/14.3/FreeBSD-14.3-RELEASE-amd64-memstick.img">Shell Mode Paritioning</a>.</p>
+<p>Aquí inspeccionamos la tabla de particiones existentes:</p>
+<pre><code>gpart show ada0
+=&gt;        34  3907029101  ada0  GPT  (1.8T)
+          34        2014        - free -  (1.0M)
+        2048      260096     1  efi  (127M)
+      262144     2097152     2  linux-data  (1.0G)
+     2359296   878905344     3  linux-data  (419G)
+   881264640   878905344     4  openbsd-data  (419G)
+  1760169984   878905344     5  ms-basic-data  (419G)
+  2639075328  1267953807        - free -  (605G)
+gpart show -l ada0
+=&gt;        34  3907029101  ada0  GPT  (1.8T)
+          34        2014        - free -  (1.0M)
+        2048      260096     1  efi  (127M)
+      262144     2097152     2  debian-boot  (1.0G)
+     2359296   878905344     3  debian  (419G)
+   881264640   878905344     4  openbsd  (419G)
+  1760169984   878905344     5  data  (419G)
+  2639075328  1267953807        - free -  (605G)
+</code></pre>
+<p>A partir de la información anterior se elige crear las particiones:</p>
+<table>
+<tr>
+<th>index</th>
+<th>type</th>
+<th>label</th>
+<th>size</th>
+</tr>
+<tr>
+<td>6</td>
+<td>freebsd-swap</td>
+<td>freebsd-swap0</td>
+<td>2g</td>
+</tr>
+<tr>
+<td>7</td>
+<td>freebsd-zfs</td>
+<td>freebsd-zfs0</td>
+<td>400g</td>
+</tr>
+</table>
+<p>Para ello se adaptan los comandos vistos más arriba:</p>
+<pre><code>- Write GELI password to file (avoid prompt) ①
+# vi /tmp/passphrase
+
+- Load kernel modules ②
+# kldload zfs
+
+- Preparing disk partitions for ZFS pool...
+- With 4K sectors...
+# sysctl vfs.zfs.min_auto_ashift=12
+
+- Creating GPT layout...
+
+# echo "# Device Mountpoint FStype Options Dump Pass#" &gt;&gt; /tmp/bsdinstall_etc/fstab ③
+# echo "/dev/gpt/efi /boot/efi msdosfs rw 2 2" &gt;&gt; /tmp/bsdinstall_etc/fstab ④
+# gpart add -t freebsd-swap -a 1m -s 2g -i 6 -l freebsd-swap0 ada0 ⑤
+# gpart add -t freebsd-zfs -a 1m -s 400g -i 7 -l freebsd-zfs0 ada0
+# echo "/dev/gpt/freebsd-swap0.eli none swap sw 0 0" &gt;&gt; /tmp/bsdinstall_etc/fstab
+
+# geli init -bg -e AES-XTS -J /tmp/passphrase -l 256 -s 4096 /dev/gpt/freebsd-zfs0 ⑥
+# geli attach -j /tmp/passphrase /dev/gpt/freebsd-zfs0
+
+- Creating root pool...
+# zpool create -o altroot=/mnt -O compress=lz4 -O atime=off -m none -f zroot /dev/gpt/freebsd-zfs0.eli
+
+- Creating ZFS datasets...
+# zfs create -o mountpoint=none "zroot/ROOT"
+# zfs create -o mountpoint=/ "zroot/ROOT/default"
+# zfs create -o mountpoint=/home "zroot/home"
+# zfs create -o mountpoint=/tmp -o exec=on -o setuid=off "zroot/tmp"
+# zfs create -o mountpoint=/usr -o canmount=off "zroot/usr"
+# zfs create -o setuid=off "zroot/usr/ports"
+# zfs create  "zroot/usr/src"
+# zfs create -o mountpoint=/var -o canmount=off "zroot/var"
+# zfs create -o exec=off -o setuid=off "zroot/var/audit"
+# zfs create -o exec=off -o setuid=off "zroot/var/crash"
+# zfs create -o exec=off -o setuid=off "zroot/var/log"
+# zfs create -o atime=on "zroot/var/mail"
+# zfs create -o setuid=off "zroot/var/tmp"
+# zfs set "mountpoint=/zroot" "zroot"
+
+- Modifying directory permissions...
+# mkdir -p "/mnt/tmp"
+# chmod 1777 "/mnt/tmp"
+# mkdir -p "/mnt/var/tmp"
+# chmod 1777 "/mnt/var/tmp"
+
+- Setting bootfs property...
+# zpool set bootfs="zroot/ROOT/default" "zroot"
+
+- Configuring zpool.cache for zroot...
+# mkdir -p "/mnt/boot/zfs"
+# zpool set cachefile="/mnt/boot/zfs/zpool.cache" "zroot"
+
+- Set canmount=noauto for any datasets under the BE...
+# zfs set "canmount=noauto" "zroot/ROOT/default"
+
+- Configuring rc.conf(5)/loader.conf(5) additions...
+# echo "zfs_enable=\"YES\"" &gt;&gt; "/tmp/bsdinstall_etc/rc.conf.zfs"
+# echo "kern.geom.label.disk_ident.enable=\"0\"" &gt;&gt; "/tmp/bsdinstall_boot/loader.conf.zfs"
+# echo "kern.geom.label.gptid.enable=\"0\"" &gt;&gt; "/tmp/bsdinstall_boot/loader.conf.zfs"
+# echo "vfs.zfs.min_auto_ashift=12" &gt;&gt; "/tmp/bsdinstall_etc/sysctl.conf.zfs"
+
+- Configuring disk encryption...
+# echo "aesni_load=\"YES\"" &gt;&gt; "/tmp/bsdinstall_boot/loader.conf.aesni"
+# echo "geom_eli_load=\"YES\"" &gt;&gt; "/tmp/bsdinstall_boot/loader.conf.geli"
+
+- Mount EFI partition ⑦
+# mkdir -p /mnt/boot/efi
+# mount -t msdosfs /dev/gpt/efi /mnt/boot/efi
+</code></pre>
+<p>En ① comenzamos creando el archivo donde guardaremos la password que será
+utilizada para encriptar la partición ZFS con GELI y así evitar que esta sea
+pedida en la entrada estandar.</p>
+<p>En ② se carga el módulo del kernel <code>zfs</code>, ya que en caso contrario la ejecución
+de <code>sysctl</code> da error.</p>
+<p>En ③ se agrega el encabezado al archivo <code>/tmp/bsdinstall_etc/fstab</code> que fué
+omitido previamente y aparece en la linea:</p>
+<pre><code>zfs_create_boot: printf "$FSTAB_FMT" "# Device" "Mountpoint" "FStype" "Options" "Dump" "Pass#" &gt;&gt; "/tmp/bsdinstall_etc/fstab"
+</code></pre>
+<p>Como puede apreciarse en ④ se utiliza un <code>echo</code> en lugar de un <code>printf</code> y a
+partir de este punto las particiones se referenciarán utilizando su <code>label</code> (no
+se utilizará el número de partición como puede ser ada0p6).</p>
+<p>En los comandos <code>gpart</code> ⑤ se elige explicitar el número de partición y se
+agregan los tamaños.  Vale la pena mencionar que como hay varios sistemas
+operativos en el equipo se agrega el prefijo <code>freebsd-</code> para los label generados
+por el instalador, de aquí que se tenga <code>freebsd-swap0</code> y <code>freebsd-zfs0</code> en
+lugar de <code>swap0</code> y <code>zfs0</code>.</p>
+<p>Para la configuración de <code>geli</code> ⑥ en lugar de ingresar el password en la entrada
+estandar se utiliza el archivo <code>/tmp/passphrase</code> que fué creado al principio de
+la instalación.</p>
+<p>Es necesario montar la partición EFI ⑦ en <code>/mnt/boot/efi</code> ya que si bien no
+aparece en el log es allí donde el instalador copiará el loader.</p>
+<p>Aquí ya podemos escribir <code>exit</code> y continuar con la instalación.</p>
+<p>Al terminar la instalación y antes de apagar o reiniciar el equipo se debe
+corregir las variables de EFI, ya que el instalardor al crear la entrada para
+FreeBSd en las variables EFI del sistema modifica el orden de booteo.
+Para ello hay que ir a un shell del instalador (presionando <code>Alt-F4</code>) y ejecutar
+<code>efibootmgr -v</code> para conocer el estado de las variables EFI y
+<code>efibootmgr -o ...</code> para corregir el orden.</p>
+<p>En mi caso, que utilizo <a href="https://www.rodsbooks.com/refind/">rEFInd</a> para elegir el sistema a inciar tengo:</p>
+<pre><code># efibootmgr -v
+Boot to FW : false
+BootCurrent: 000c
+Timeout    : 0 seconds
+BootOrder  : 0013, 0023, 0022, 0021, 000B, 000D, 000A, 0009, 0008, 0007, 000C, 0012
+ Boot0013* FreeBSD HD(1,GPT,f405b33f-e1b5-46e0-80c1-2ac7f88fafe1,0x800,0x3f800)/File(\EFI\freebsd\loader.efi)
+                      gpt/efi:/EFI/freebsd/loader.efi /mnt/boot/efi//EFI/freebsd/loader.efi
+ Boot0023* rEFInd HD(1,GPT,f405b33f-e1b5-46e0-80c1-2ac7f88fafe1,0x800,0x3f800)/File(\EFI\refind\refind_x64.efi)
+                     gpt/efi:/EFI/refind/refind_x64.efi /mnt/boot/efi//EFI/refind/refind_x64.efi
+ Boot0022* openbsd HD(1,GPT,f405b33f-e1b5-46e0-80c1-2ac7f88fafe1,0x800,0x3f800)/File(\EFI\openbsd\bootx64.efi)
+                      gpt/efi:/EFI/openbsd/bootx64.efi /mnt/boot/efi//EFI/openbsd/bootx64.efi
+ Boot0021* debian HD(1,GPT,f405b33f-e1b5-46e0-80c1-2ac7f88fafe1,0x800,0x3f800)/File(\EFI\debian\shimx64.efi)
+                     gpt/efi:/EFI/debian/shimx64.efi /mnt/boot/efi//EFI/debian/shimx64.efi
+ Boot000B  ATA HDD2 VenMsg(bc7838d2-0f82-4d60-8316-c068ee79d25b,91af625956449f41a7b91f4f892ab0f602)
+ Boot000D  PCI LAN VenMsg(bc7838d2-0f82-4d60-8316-c068ee79d25b,78a84aaf2b2afc4ea79cf5cc8f3d3803)
+ Boot000A  ATA HDD1 VenMsg(bc7838d2-0f82-4d60-8316-c068ee79d25b,91af625956449f41a7b91f4f892ab0f601)
+ Boot0009  ATA HDD0 VenMsg(bc7838d2-0f82-4d60-8316-c068ee79d25b,91af625956449f41a7b91f4f892ab0f600)
+ Boot0008* USB FDD VenMsg(bc7838d2-0f82-4d60-8316-c068ee79d25b,6ff015a28830b543a8b8641009461e49)
+ Boot0007* USB CD VenMsg(bc7838d2-0f82-4d60-8316-c068ee79d25b,86701296aa5a7848b66cd49dd3ba6a55)
++Boot000C* USB HDD VenMsg(bc7838d2-0f82-4d60-8316-c068ee79d25b,33e821aaaf33bc4789bd419f88c50803)
+ Boot0012* PCI LAN VenMsg(bc7838d2-0f82-4d60-8316-c068ee79d25b,78a84aaf2b2afc4ea79cf5cc8f3d3803)
+
+
+Unreferenced Variables:
+ Boot0001  Boot Menu FvFile(126a762d-5758-4fca-8531-201a7f57f850)
+ Boot0000  Setup FvFile(721c8b66-426c-4e86-8e99-3457c46ab0b9)
+ Boot0002  Diagnostic Splash Screen FvFile(a7d8d9a6-6ab0-4aeb-ad9d-163e59a7a380)
+ Boot0011* ATAPI CD VenMsg(bc7838d2-0f82-4d60-8316-c068ee79d25b,aea2090adfde214e8b3a5e471856a354)
+ Boot0010* ATA HDD VenMsg(bc7838d2-0f82-4d60-8316-c068ee79d25b,91af625956449f41a7b91f4f892ab0f6)
+ Boot000F* IDER BOOT Floppy PciRoot(0x0)/Pci(0x16,0x2)/Ata(Primary,Master,0x0)
+ Boot000E* IDER BOOT CDROM PciRoot(0x0)/Pci(0x16,0x2)/Ata(Primary,Slave,0x0)
+ Boot0006  MEBx Hot Key FvFile(ac6fd56a-3d41-4efd-a1b9-870293811a28)
+ Boot0005  Rescue and Recovery FvFile(665d3f60-ad3e-4cad-8e26-db46eee9f1b5)
+ Boot0004  Startup Interrupt Menu FvFile(f46ee6f4-4785-43a3-923d-7f786c3c8479)
+ Boot0003  Lenovo Diagnostics FvFile(3f7e615b-0d45-4f80-88dc-26b234958560)
+</code></pre>
+<p>Y para que por defecto se ejecute rEFInd debe ajustarse el orden ejecutando:</p>
+<pre><code>$ efibootmgr -o 0023,0022,0021,0013,000B,000D,000A,0009,0008,0007,000C,0012
+</code></pre>
+<p>Otro detalle es que junto a <code>/mnt/boot/efi/EFI/freebsd/loader.efi</code> se crea
+<code>/mnt/boot/efi/EFI/boot/bootx64.efi</code> como está documentado en la
+<a href="https://man.freebsd.org/cgi/man.cgi?query=loader.efi&amp;sektion=8&amp;manpath=FreeBSD+14.3-RELEASE">página del manual de loader.efi</a>:</p>
+<blockquote>
+<p>bsdinstall(8) copies loader.efi to the default name if there wasn’t one there
+before.</p>
+</blockquote>
+<p>por lo que en mi caso también elimino el default bootloader
+(<code>/EFI/boot/bootx64.efi</code>):</p>
+<pre><code>rm -r /mnt/boot/efi/EFI/boot
+</code></pre>
+<p>Al fin, se reinicia el equipo y ya se puede elegir FreeBSD:</p>
+<p><img alt="Start FreeBSD - rEFInd menu" src="./start-freebsd-1-refind-menu.jpg">
+<img alt="Start FreeBSD - GELI passphrase" src="./start-freebsd-2-geli-passphrase.jpg">
+<img alt="Start FreeBSD - FreeBSD boot menu" src="./start-freebsd-3-freebsd-boot-menu.jpg">
+<img alt="Start FreeBSD - Logged in" src="./start-freebsd-4-logged-in.jpg"></p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

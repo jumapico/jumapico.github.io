@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Blink en Hifive1 utilizando ensamblador | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Blink en Hifive1 utilizando ensamblador</h1>
+        <h2 class="date">2019-12-01</h2>
+      </div>
+<p>En este post se busca implementar el <a href="https://wiki.analog.com/resources/eval/user-guides/eval-adicup360/reference_designs/demo_blink">programa blink</a> en una placa
+<a href="https://www.sifive.com/boards/hifive1-rev-b">hifive1 rev b</a> utilizando ensamblador.  Vale la pena mencionar
+que la placa posee un led RGB, por lo que el blink se hará utilizando el <em>color
+blanco</em>, formado al encender los tres leds simultaneamente.</p>
+<p>La idea de hacer el post surge a partir de la <em>imperdible</em> charla
+<a href="https://archive.fosdem.org/2019/schedule/event/microcontroller_firmware_from_scratch/">Microcontroller Firmware from Scratch</a> dada por
+Nikolai Kondrashov en el FOSDEM 2019, sumado a mis ganas de programar en
+ensamblador de RISC-V.</p>
+<p><em>Notas</em>:</p>
+<ol>
+<li>El post <a href="https://jonasdn.blogspot.com/2020/08/getting-to-know-risc-v-through-hifive1.html">Getting to know RISC-V through the hifive1-revb board</a> de Jonas
+Danielsson aborda detalles que no fueron tomados en cuenta en este post como
+ser un mejor control del tiempo utilizando el Real Time Clock.</li>
+<li>En caso de por error sobreescribir el bootloader (<code>0x20000000</code>~<code>0x20010000</code>)
+se puede utilizar <a href="https://github.com/riscv-rust/hifive1-recover">hifive1-recover</a> para volver a escribir el bootloader de
+sifive.</li>
+</ol>
+<h2>Materiales</h2>
+<p>A continuación se detallan los materiales utilizados:</p>
+<h3>Hardware</h3>
+<ol>
+<li>Placa <a href="https://www.sifive.com/boards/hifive1-rev-b">hifive1 rev b</a> la cual se desea programar, es el
+<em>target</em>.</li>
+<li>Cable usb para conectar la placa a la pc proveyendo la alimentación de la
+placa y posibilitando la carga del programa.</li>
+<li>PC con sistema operativo <em>debian buster</em>, el <em>host</em> en el que se realizarán
+las tareas de programación.</li>
+</ol>
+<h3>Software</h3>
+<ol start="4">
+<li>Programa <a href="https://github.com/npat-efault/picocom">picocom</a> utilizado para comunicarse con el <em>target</em>
+utilizando <a href="https://en.wikipedia.org/wiki/Universal_asynchronous_receiver-transmitter">uart</a> (para instalarlo hacer <code>sudo apt-get install -Vy picocom</code>).</li>
+<li>Compilador <a href="https://gcc.gnu.org/">gcc</a> con soporte para <a href="https://riscv.org/">RISC-V</a> 32-bits.  El paquete
+a instalar en debian es <code>gcc-riscv64-unknown-elf</code> - ver
+<a href="#ref-apendice1">Apendice1</a> para detalles de instalación</li>
+</ol>
+<h3>Documentación</h3>
+<h4>ISA RISC-V</h4>
+<ol start="6">
+<li><a href="https://content.riscv.org/wp-content/uploads/2019/12/riscv-spec-20191213.pdf">The RISC-V Instruction Set Manual Volume I: Unprivileged ISA</a></li>
+<li><a href="https://content.riscv.org/wp-content/uploads/2019/08/riscv-privileged-20190608-1.pdf">The RISC-V Instruction Set Manual Volume II: Privileged Architecture</a></li>
+<li><a href="http://riscvbook.com/spanish/">Guía Práctica de RISC-V: El Atlas de una Arquitectura Abierta</a></li>
+<li><a href="https://github.com/riscv/riscv-asm-manual/blob/master/riscv-asm.md">RISC-V Assembly Programmer's Manual</a></li>
+<li><a href="https://web.archive.org/web/20200217135225/https://rv8.io/asm">rv8's RISC-V Assembler Reference</a></li>
+<li><a href="https://web.archive.org/web/20200226023811/https://rv8.io/isa">rv8's RISC-V Instruction Set Reference</a></li>
+</ol>
+<h4>Placa</h4>
+<ol start="12">
+<li><a href="https://sifive.cdn.prismic.io/sifive/4f5a7851-1b52-463b-a293-f352036bc809_hifive1b-getting-started-guide_v1.1.pdf">HiFive1 Rev B Getting Started Guide</a></li>
+<li><a href="https://sifive.cdn.prismic.io/sifive/a4546ced-0922-4d87-9334-e97c1a9fd9a5_hifive1.b01.schematics.pdf">HiFive1 Rev B01 Schematics</a></li>
+<li><a href="https://sifive.cdn.prismic.io/sifive/9ecbb623-7c7f-4acc-966f-9bb10ecdb62e_fe310-g002.pdf">Freedom E310-G002 Manual</a></li>
+<li><a href="https://sifive.cdn.prismic.io/sifive/3d777659-a0dd-49ed-a011-5bebba17aecf_fe310-g002-ds.pdf">Freedom E310-G002 Datasheet</a></li>
+</ol>
+<h4>Programas</h4>
+<ol start="16">
+<li><a href="https://sourceware.org/binutils/docs-2.33.1/as/index.html">Manual de GNU as</a></li>
+<li><a href="https://www.segger.com/downloads/jlink/UM08001">J-Link User Guide</a></li>
+</ol>
+<h2>Programa blink</h2>
+<h3>Codificación</h3>
+<p>La codificación del programa <em>blink</em> se encuentra en el archivo <a href="./blink.s">blink.s</a>
+y a continuación se pasará a explicar el código.</p>
+<p>En el preámbulo se indica que el programa se encontrará en la <em>sección de texto</em>
+y se define el simbolo global <code>_start</code>, el cual será además el <em>entry point</em> del
+programa.</p>
+<pre><code>.section .text
+.global _start
+_start:
+</code></pre>
+<p>Se encenderán los leds <em>RED</em>, <em>GREEN</em> y <em>BLUE</em> simultaneamente para realizar el
+parpadeo (blink) del led en color blanco.  De <a href="https://sifive.cdn.prismic.io/sifive/a4546ced-0922-4d87-9334-e97c1a9fd9a5_hifive1.b01.schematics.pdf">HiFive1 Rev B01
+Schematics</a> los leds se encuentran conectados a <em>GPIO_22</em>,
+<em>GPIO_19</em> y <em>GPIO_21</em> respectivamente.</p>
+<p><img src="./images/leds-schematics.png" alt="" /></p>
+<p>Hay que tener en cuenta que los leds están conectados a 3.3V (señalado en el
+diagrama por el rectángulo rojo), por lo cual la lógica para encenderlos es
+<em>active low</em>.</p>
+<p>Para habilitar las salidas GPIO hay que indicar en la <em>GPIO Instance 0</em>, que se
+encuentra en la dirección de memoria <em>0x10012000</em>, cuales salidas se
+habilitarán.</p>
+<p><img src="./images/gpio-instance.png" alt="" /></p>
+<p>Esto se hace escribiendo en el offset <em>0x08</em> un entero con los bits a 1 en las
+posiciones correspondientes al número de pin que se desea habilitar para
+escritura.</p>
+<p><img src="./images/gpio-offset.png" alt="" /></p>
+<p>Para utilizar una lógica <em>active high</em> en lugar de una <em>active low</em> es posible
+indicar que se desea invertir la salida utilizando el offset <em>0x40</em>.  Al igual
+que con el caso anterior, hay que escribir un entero indicando los pines en los
+que se desee habilitar el <em>xor</em> o inversión.</p>
+<p><img src="./images/gpio-invert.png" alt="" /></p>
+<p>Por último, en el offset <em>0x0C</em> se escribe el valor que tendrá la salida.</p>
+<p>A partir de aquí se utilizará la directiva de ensamblador <a href="https://sourceware.org/binutils/docs-2.33.1/as/Set.html#Set">.set</a> para
+definir símbolos en el programa y de esa forma evitar el uso de constantes
+numéricas, que si bien por el tamaño del código no sería un problema es una
+buena práctica a utilizar en programas de mayor porte:</p>
+<pre><code>.set GPIO_INSTANCE_0, 0x10012000
+.set OUTPUT_EN, 0x08
+.set OUTPUT_XOR, 0x40
+.set OUTPUT_VAL, 0x0c
+</code></pre>
+<p>En nuestro caso los pines GPIO a habilitar son el 19 (verde), 21 (azul) y
+22 (rojo), con lo cual nos queda (en binario y hexadecimal):</p>
+<pre><code>  0000 0000 0000 1000 0000 0000 0000 0000  verde  0x00080000
++ 0000 0000 0010 0000 0000 0000 0000 0000  azul   0x00200000
+  0000 0000 0100 0000 0000 0000 0000 0000  rojo   0x00400000
+-----------------------------------------         ----------
+  0000 0000 0110 1000 0000 0000 0000 0000         0x00680000
+</code></pre>
+<p>Lo anterior es más fácil de expresar utilizando la directiva de ensamblador
+<code>.set</code>, la cual, aparte de una constante permite utilizar <a href="https://sourceware.org/binutils/docs-2.33.1/as/Expressions.html#Expressions">expresiones</a>:</p>
+<pre><code>.set ALL_LEDS, (1 &lt;&lt; 19) | (1 &lt;&lt; 21) | (1 &lt;&lt; 22)  # Green/Blue/Red
+</code></pre>
+<p>De lo anterior, el código de <em>setup</em> del controlador GPIO queda:</p>
+<pre><code>li x2, GPIO_INSTANCE_0
+li x3, ALL_LEDS
+sw x3, OUTPUT_EN(x2)
+sw x3, OUTPUT_XOR(x2)
+</code></pre>
+<p>donde se aprovecha que la instrucción <code>sw</code> permite utilizar un inmediato como
+offset.</p>
+<p>Como ya se indicó previamente, para prender los leds en blanco se debe escribir
+el valor <code>0x00680000</code> en <code>0x10012000</code> + <code>0x0c</code>, o utilizando los valores
+previamente cargados en los registros x2 y x3 en el <em>setup</em>:</p>
+<pre><code>sw x3, OUTPUT_VAL(X2)
+</code></pre>
+<p>Para apagar los leds se escribe el valor <code>0</code> en la dirección anterior:</p>
+<pre><code>sw x0, OUTPUT_VAL(x2)
+</code></pre>
+<p>El último detalle es que luego de cada cambio al valor de salida de los pines
+GPIO se realiza un retardo.  Para ello se salta a una rutina que simplemente
+decrementa un contador en un loop.  Se desea conocer la cantidad de iteraciones
+necesarias para provocar un retardo de aproximadamente <em>1 segundo</em>.</p>
+<p>De <a href="https://sifive.cdn.prismic.io/sifive/9ecbb623-7c7f-4acc-966f-9bb10ecdb62e_fe310-g002.pdf">Freedom E310-G002 Manual</a> se obtiene la frecuencia del
+reloj por defecto</p>
+<p><img src="./images/clock-1.png" alt="" />
+<img src="./images/clock-2.png" alt="" /></p>
+<p>El <em>detalle</em> es que por defecto la frecuencia tiene un valor de <strong>13.8MHz</strong> y
+una precisión de <strong>¡±50%!</strong>.</p>
+<p>Ya que no se necesita un valor muy preciso y para simplificar la codificación de
+este primer ejemplo, se supondrá que la frecuencia de la placa es de
+<strong>13.8MHz</strong>.</p>
+<p>De allí que para contar un segundo se utilizará un loop de la forma:</p>
+<pre><code>delay:
+    li x4, ONE_SECOND
+delay_loop:
+    addi x4, x4, -1
+    bne x4, x0, delay_loop
+</code></pre>
+<p>siendo <code>ONE_SECOND</code> la constante que se desea calcular.  Como el loop consta
+solo de las instrucciones <code>addi</code> y <code>bne</code>, las cuales no están incluidas entre
+las excepciones que utilizan más de un ciclo por instrucción</p>
+<p><img src="./images/peak-execution.png" alt="" /></p>
+<p>se tiene que, aproximadamente, la cantidad de iteraciones del loop para
+acercarnos a un retarde de un segundo deben ser de
+<code>13.8 x 10^6 / 2 = 6.9 x 10^6</code></p>
+<h3>Compilación</h3>
+<p>Para compilar el programa <code>blink.s</code> se utiliza el script <a href="./build.sh">build.sh</a>.</p>
+<p>En este se realizan varias etapas:</p>
+<ol>
+<li>
+<p>Se ensambla el archivo <code>blink.s</code>, obteniendo <code>blink.o</code>.</p>
+</li>
+<li>
+<p>Se <a href="https://en.wikipedia.org/wiki/Linker_(computing)">linkea</a> el archivo <code>blink.o</code> para obtener <code>blink.elf</code>.
+Para este paso debe utilizarse un <a href="https://sourceware.org/binutils/docs-2.33.1/ld/Scripts.html">linker script</a>,
+creado en <a href="./blink.ld"><code>blink.ld</code></a>, que indique que la sección de texto
+comienza en <code>0x20010000</code> y la de datos (que en este caso particular no
+utilizaremos) comienza en <code>0x80000000</code>.  También se indicará el tipo de
+memoria (lectura/escritura/ejecución) y su tamaño.</p>
+<p>Si se utilizara un segmento de datos habría que <a href="https://web.archive.org/web/2/http://www.bravegnu.org/gnu-eprog/data-in-ram.html#_copying_literal_data_literal_to_ram">copiar los datos del
+segmento .data almacenados en la memoria flash a la memoria RAM</a>.</p>
+<p><strong>¿Porqué se utiliza 0x20010000 para cargar el programa?</strong></p>
+<p>De <a href="https://sifive.cdn.prismic.io/sifive/4f5a7851-1b52-463b-a293-f352036bc809_hifive1b-getting-started-guide_v1.1.pdf">HiFive1 Rev B Getting Started Guide</a>:</p>
+<p><img src="./images/bootloader.png" alt="" /></p>
+<p>El código del bootloader ya no está disponible, pero en el <a href="https://forums.sifive.com/t/bootloader-restore/2429">foro de
+sifive</a> se indica que puede encontrarse en una
+versión antigua de freedom-e-sdk, bajo el nombre
+<a href="https://github.com/sifive/freedom-e-sdk/blob/v1_0/software/double_tap_dontboot/double_tap_dontboot.c">double_tap_dontboot</a>.</p>
+</li>
+<li>
+<p>Se convierte el archivo <code>blink.elf</code> a <code>blink.hex</code> en formato <a href="https://en.wikipedia.org/wiki/Intel_HEX">iHex</a> ya que es el utilizado por defecto por el programa <code>JLinkExe</code>
+para cargar el programa en la placa <em>hifive1b</em>.</p>
+</li>
+</ol>
+<h3>Upload</h3>
+<p>Por último, se sube el programa a la placa utilizando el script <a href="./upload.sh">upload.sh</a>
+y se puede apreciar el script parpadeando:</p>
+<p><video id="video" src="./images/hifive1b-blink.mp4" controls="controls"></video></p>
+<h2>Conclusiones</h2>
+<p>Como bien suele indicarse, el programa <code>blink</code> es de los más sencillos,
+radicando su utilidad en permitirnos probar que las herramientas necesarias para
+compilar y cargar a la placa estén funcionando.</p>
+<p>Personalmente prefiero obtener el <em>RISC-V GNU Toolchain</em> de los repositorios de
+debian en lugar de estar descargandolos de la página de sifive.  Las contras de
+este enfoque son:</p>
+<ul>
+<li>A la fecha el paquete <code>gcc-riscv64-unknown-elf</code> se encuentra en los
+repositorios de <code>unstable</code>, y es probable que la próxima estable, <code>bullseye</code>
+esté disponible dentro de tres años, lo que no es muy alentador.</li>
+<li>La versión de gcc provista por sifive parece estar más actualizada que la
+provista por debian testing.  Inicialmente sifive utilizaba un fork de gcc al
+cual agregó soporte para RISC-V.  Se supone que al día de hoy el código
+relativo a RISC-V ya está diponible en gcc pero es de esperar que los fixes o
+nuevas funcionalidades primero se encuentren en la versión provista por
+sifive.</li>
+</ul>
+<p>Si bien para no complicar más el setup del entorno se utiliza el paquete <code>jlink</code>
+provisto por <em>SEGGER</em> (privativo), un pendiente es utilizar <code>openocd</code> en su
+lugar que es open source.</p>
+<p>Se realizó el programa en ensamblador para probar de usar directamente el ISA
+RISC-V en lugar de hacer el programa C, lo que hubiera quitado la posibilidad de
+practicar el uso de instrucciones RISC-V.</p>
+<h2 id="ref-apendice1">Apendice 1 - instalación de gcc-riscv64-unknown-elf</h2>
+<p>Se desea instalar el paquete <code>gcc-riscv64-unknown-elf</code> en debian buster (10). El
+problema es que el paquete se encuentra en el repositorio de testing (bullseye),
+por lo cual para agregarlo se debe:</p>
+<ol>
+<li>
+<p>Agregar repositorio de testing</p>
+<pre><code>$ sudo tee /etc/apt/sources.list.d/testing.list &lt;&lt;'END'
+deb http://deb.debian.org/debian testing main
+END
+</code></pre>
+</li>
+<li>
+<p>Agregar configuración de <a href="https://wiki.debian.org/AptConfiguration">pinning en apt</a> para evitar que
+se actualicen los paquetes con sus versiones en testing:</p>
+<pre><code>$ sudo tee /etc/apt/preferences.d/99-testing-repository &lt;&lt;'END'
+Package: *
+Pin: release a=testing
+Pin-Priority: -100
+END
+</code></pre>
+</li>
+<li>
+<p>Actualizar lista de paquetes e instalar <code>gcc-riscv64-unknown-elf</code>:</p>
+<pre><code>$ sudo apt-get update
+$ sudo apt-get install -Vy gcc-riscv64-unknown-elf
+</code></pre>
+</li>
+<li>
+<p>Remover el repositorio de testing, la configuración de pinning y borrar las
+listas de paquetes obtenidas de testing:</p>
+<pre><code>$ sudo rm /etc/apt/sources.list.d/testing.list /etc/apt/preferences.d/99-testing-repository
+$ sudo apt-get clean
+</code></pre>
+</li>
+</ol>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

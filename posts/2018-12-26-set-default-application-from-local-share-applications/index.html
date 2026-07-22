@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Elegir aplicación por defecto de ~/.local/share/applications | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Elegir aplicación por defecto de ~/.local/share/applications</h1>
+        <h2 class="date">2018-12-26</h2>
+      </div>
+<p>Se desea elegir el navegador web por defecto de un archivo <em>.desktop</em> al que se
+le modificó la linea <em>Exec</em> para customizar los parámetros del navegador web
+<em>Firefox</em> y que se encuentra en el directorio <code>~/.local/share/applications</code>.</p>
+<p>Este cambio se quiere realizar en el entorno de escritorio <a href="https://mate-desktop.org/">mate</a>, pero
+es un error conocido reportado en el <a href="https://github.com/mate-desktop/mate-control-center/issues/150">issue 150</a> de
+<em>mate-control-center</em> que no es posible elegir aplicaciones de
+<code>~/.local/share/applications</code> como aplicaciones por defecto.</p>
+<p>En <a href="https://github.com/mate-desktop/mate-control-center/issues/150#issuecomment-352087828">uno de los comentarios del issue</a> se indica que el problema
+parece ser la función <a href="https://developer.gnome.org/gio/2.58/GAppInfo.html#g-app-info-get-all-for-type">g_app_info_get_all_for_type</a>
+de la librería <a href="https://developer.gnome.org/gio/stable/">gio</a>.</p>
+<p>Revisando el código fuente de <em>mate-control-center</em>, en particular el que
+<a href="https://github.com/mate-desktop/mate-control-center/blob/1.20/capplets/default-applications/mate-da-capplet.c#L77-L83">establece el navegador web por defecto</a> se
+encuentra que efectivamente el problema correspondería a la función antes
+mencionada:</p>
+<pre><code>                        case DA_TYPE_WEB_BROWSER:
+                                g_app_info_set_as_default_for_type(item, &quot;x-scheme-handler/http&quot;, NULL);
+                                g_app_info_set_as_default_for_type(item, &quot;x-scheme-handler/https&quot;, NULL);
+                                g_app_info_set_as_default_for_type(item, &quot;text/html&quot;, NULL);
+                                /* about:config is used by firefox and others */
+                                g_app_info_set_as_default_for_type(item, &quot;x-scheme-handler/about&quot;, NULL);
+                                break;
+</code></pre>
+<p>Como workaround se puede usar el comando <code>gio</code> que se encuentra disponible en el
+paquete <code>libglib2.0-bin</code> de <em>Debian</em> y <a href="https://manpages.debian.org/stretch/libglib2.0-bin/gio.1.en.html">cuya descripción de la página del manual</a>
+es la siguiente:</p>
+<blockquote>
+<p>gio is a utility that makes many of the GIO features available from the
+commandline.</p>
+</blockquote>
+<p>Para instalar el paquete se utiliza:</p>
+<pre><code>$ sudo apt-get install -Vy libglib2.0-bin
+</code></pre>
+<p>El workaround implica establecer manualmente el archivo <em>.desktop</em> a utilizar
+mediante la opción <code>mime</code> del comando <code>gio</code>. El parámetro <em>MIMETYPE</em> se
+corresponde a los parámetros utilizados en el código anterior por la función
+<em>g_app_info_set_as_default_for_type</em>.</p>
+<p>En el caso de que el archivo <em>.desktop</em> de la aplicación es
+<code>firefox-private.desktop</code> (ver <a href="/posts/2018-12-24-browsers-setup-firefox/">post anterior</a>), el
+comando a introducir es el siguiente:</p>
+<pre><code>$ for mimetype in x-scheme-handler/http x-scheme-handler/https text/html x-scheme-handler/about; do
+    gio mime $mimetype firefox-private.desktop
+done
+</code></pre>
+<p><em>Nota</em>: Es probable que en <em>gnome</em> ocurra el mismo problema, por lo que el
+workaround anterior debería ser útil también en dicho escritorio.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

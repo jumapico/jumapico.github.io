@@ -1,0 +1,8 @@
+image: debian/buster
+arch: amd64
+shell: true
+sources:
+  - https://git.sr.ht/~jumapico/jumapico.ws
+tasks:
+- wait-for-ssh: |
+    sleep 60

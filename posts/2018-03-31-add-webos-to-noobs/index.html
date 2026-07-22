@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Agregar webOS OSE a NOOBS | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Agregar webOS OSE a NOOBS</h1>
+        <h2 class="date">2018-03-31</h2>
+      </div>
+<h1>Agregar webOS OSE a NOOBS</h1>
+<p>Instrucciones para agregar SO a noobs:
+<a href="https://github.com/raspberrypi/noobs#how-to-create-a-custom-os-version">https://github.com/raspberrypi/noobs#how-to-create-a-custom-os-version</a></p>
+<h2>Generación de tarballs</h2>
+<p>Crear directorios de trabajo:</p>
+<pre><code>$ mkdir -p ~/noobs-webos/mnt
+</code></pre>
+<p>Descargar imagen de webOS OSE (se utiliza la disponible en
+<a href="https://github.com/webosose/build-webos/issues/1">https://github.com/webosose/build-webos/issues/1</a>):</p>
+<pre><code>$ wget -P ~/noobs-webos &quot;https://www.rvdboorn.nl/webos-image-raspberrypi3.rootfs.rpi-sdimg&quot;
+</code></pre>
+<p>Crear loop devices para las particiones dentro de la imagen:</p>
+<pre><code>$ sudo losetup --partscan --read-only --find --show ~/noobs-webos/webos-image-raspberrypi3.rootfs.rpi-sdimg
+/dev/loop0
+</code></pre>
+<p>La salida del comando anterior indica que se estará utilizando el dispositivo
+<code>/dev/loop0</code>.</p>
+<p>Generar el tarball correspondiente a la partición <em>boot</em> (montar la partición
+<em>boot</em>, generar tarball con su contenido y desmontar la partición):</p>
+<pre><code>$ sudo mount -o ro /dev/loop0p1 ~/noobs-webos/mnt
+$ cd ~/noobs-webos/mnt
+$ sudo tar --sort=name --numeric-owner --one-file-system -cpf ~/noobs-webos/boot.tar .
+$ xz -9 -e ~/noobs-webos/boot.tar
+$ cd; sudo umount ~/noobs-webos/mnt
+</code></pre>
+<p>Generar el tarball correspondiente a la partición <em>root</em> (siguiendo los pasos
+utilizados para generar el tarball de <em>boot</em>):</p>
+<pre><code>$ sudo mount -o ro /dev/loop0p2 ~/noobs-webos/mnt
+$ cd ~/noobs-webos/mnt
+$ sudo tar --sort=name --numeric-owner --one-file-system -cpf ~/noobs-webos/root.tar .
+$ xz -9 -e ~/noobs-webos/root.tar
+$ cd; sudo umount ~/noobs-webos/mnt
+</code></pre>
+<p>Realizar el <em>detach</em> del loop device utilizado:</p>
+<pre><code>$ sudo losetup -d /dev/loop0
+</code></pre>
+<p>En este punto se tienen los tarballs correspondientes a la partición boot y a la
+root: <code>boot.tar.xz</code> y <code>root.tar.xz</code>.</p>
+<h2>Creación de archivos para el <em>custom OS</em> de NOOBS</h2>
+<p>Se descarga imagen de NOOBS (actualmente es la versión <em>2.7.0</em>) y se
+descomprime:</p>
+<pre><code>$ wget -P ~/noobs-webos &quot;https://downloads.raspberrypi.org/NOOBS/images/NOOBS-2018-03-14/NOOBS_v2_7_0.zip&quot;
+$ unzip -d ~/noobs-webos/noobs ~/noobs-webos/NOOBS_v2_7_0.zip
+</code></pre>
+<p>Se crea el directorio en el que irán los archivos que definen el OS <em>webOS OSE</em>:</p>
+<pre><code>$ mkdir ~/noobs-webos/noobs/os/webos-ose/
+</code></pre>
+<p>Aquí conviene ver los archivos <code>os.json</code>, <code>partitions.json</code> y
+<code>partition_setup.sh</code> del directorio <code>Raspbian</code> para hacerse una idea del formato
+general.</p>
+<p>Se crea el archivo <code>os.json</code> con el siguiente contenido:</p>
+<pre><code>{
+    &quot;name&quot;: &quot;webOS OSE&quot;,
+    &quot;description&quot;: &quot;webOS Open Source Edition&quot;,
+    &quot;url&quot;: &quot;http://webosose.org/&quot;,
+    &quot;username&quot;: &quot;root&quot;,
+    &quot;password&quot;: &quot;&quot;,
+    &quot;version&quot;: &quot;1.0&quot;
+}
+</code></pre>
+<p>Este archivo es creado utilizando como base el archivo <code>os.json</code> de <code>Raspbian</code>.
+Los valores de <code>username</code> y <code>password</code> utilizados son obtenidos de
+<a href="http://webosose.org/discover/setting/setting-up-networking/">http://webosose.org/discover/setting/setting-up-networking/</a>:</p>
+<pre><code>The default account information is as follows. (ID: root, password: none)
+</code></pre>
+<p>Se crea el archivo <code>partitions.json</code> con el siguiente contenido:</p>
+<pre><code>{
+    &quot;partitions&quot;: [
+        {
+            &quot;filesystem_type&quot;: &quot;FAT&quot;,
+            &quot;label&quot;: &quot;boot&quot;,
+            &quot;mkfs_options&quot;: &quot;-F 32&quot;,
+            &quot;partition_size_nominal&quot;: 69,
+            &quot;uncompressed_tarball_size&quot;: 22,
+            &quot;want_maximised&quot;: false
+        },
+        {
+            &quot;filesystem_type&quot;: &quot;ext4&quot;,
+            &quot;label&quot;: &quot;root&quot;,
+            &quot;mkfs_options&quot;: &quot;-O ^huge_file&quot;,
+            &quot;partition_size_nominal&quot;: 4470,
+            &quot;uncompressed_tarball_size&quot;: 436,
+            &quot;want_maximised&quot;: true
+        }
+    ]
+}
+</code></pre>
+<p>Este archivo es creado utilizando como base el archivo <code>partitions.json</code> de
+<code>Raspbian</code> y reemplazando los valores de <code>uncompressed_tarball_size</code> con los
+obtenidos mediante el comando <code>xz -l</code>:</p>
+<pre><code>$ xz -l ~/noobs-webos/noobs/os/webos-ose/*.tar.xz
+Strms  Blocks   Compressed Uncompressed  Ratio  Check   Filename
+    1       1  6,269.2 KiB     21.4 MiB  0.286  CRC64   /home/xxx/noobs-webos/noobs/os/webos-ose/boot.tar.xz
+    1       1    128.6 MiB    435.3 MiB  0.295  CRC64   /home/xxx/noobs-webos/noobs/os/webos-ose/root.tar.xz
+-------------------------------------------------------------------------------
+    2       2    134.7 MiB    456.8 MiB  0.295  CRC64   2 files
+</code></pre>
+<p>Se copian los archivos <code>Raspbian.png</code> y <code>partition_setup.sh</code> del directorio
+<code>Raspbian</code>:</p>
+<pre><code>$ cp ~/noobs-webos/noobs/os/{Raspbian,webos-ose}/partition_setup.sh
+$ cp ~/noobs-webos/noobs/os/Raspbian/Raspbian.png ~/noobs-webos/noobs/os/webos-ose/webos-ose.png
+</code></pre>
+<p>Por último se mueven los tarballs creados previamente:</p>
+<pre><code>$ mv ~/noobs-webos/{boot.tar.xz,root.tar.xz} ~/noobs-webos/noobs/os/webos-ose/
+</code></pre>
+<p>Por último se siguen los pasos detallados en
+<a href="https://github.com/raspberrypi/noobs#setup">https://github.com/raspberrypi/noobs#setup</a> para instalar la versión
+customizada de <em>NOOBS</em> en una sdcard.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

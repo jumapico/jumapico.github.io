@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mejorar velocidad del storage en podman | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Mejorar velocidad del storage en podman</h1>
+        <h2 class="date">2022-08-26</h2>
+      </div>
+<h2>Problema</h2>
+<p><a href="https://podman.io/">podman</a> funciona <em>demasiado</em> lento.</p>
+<p>El sistema operativo es debian testing (Debian GNU/Linux bookworm/sid)</p>
+<h2>Diagnóstico</h2>
+<p>Una pista al problema se encuentra en los issues de podman,
+particularmente el <a href="https://github.com/containers/podman/issues/13226">issue 13226</a>,
+el cual indica que el problema puede ser debido al driver utilizado por el
+storage.
+Allí se indica que el storage driver utilizado por el usuario que creó la
+incidencia puede ser <code>vfs</code> en lugar de <code>overlay</code> y que esto afecta
+significativamente la performance.</p>
+<p>Buscando en la [documentacion de podman]
+se indica que el <a href="https://docs.podman.io/en/latest/markdown/podman.1.html#storage-driver-value">storage driver por defecto</a></p>
+<blockquote>
+<p>is vfs for non-root users when fuse-overlayfs is not available</p>
+</blockquote>
+<p>Si bien de lo anterior no queda muy claro que por defecto el storage driver
+utilizado vaya a ser <code>overlay</code>, esto se aclara en la <a href="https://docs.podman.io/en/latest/markdown/podman.1.html#note-unsupported-file-systems-in-rootless-mode">nota al final</a>:</p>
+<blockquote>
+<p>The fuse-overlayfs package is a tool that provides the functionality of
+OverlayFS in user namespace that allows mounting file systems in rootless
+environments. It is recommended to install the fuse-overlayfs package.</p>
+</blockquote>
+<p>Por lo tanto, buscamos cual es el storage utilizado por podman
+y si está instalado el paquete <code>fuse-overlayfs</code>:</p>
+<pre><code>$ podman info | grep graphDriverName
+  graphDriverName: vfs
+$ dpkg -s fuse-overlayfs | grep -e Status -e Version
+Status: install ok installed
+Version: 1.9-1
+</code></pre>
+<p>O sea, storage driver incorrecto (queremos utilizar el overlay)
+y paquete <code>fuse-overlayfs</code> instalado correctamente.</p>
+<h2>Intento de solución</h2>
+<p>Pasamos a eliminar (y confirmar) los archivos de podman que almacena el usuario
+local:</p>
+<pre><code>$ podman system reset --force
+$ ls -lha $HOME/.local/share/containers
+total 8.0K
+drwx------  2 jmpc jmpc 4.0K Aug 26 20:46 .
+drwx------ 23 jmpc jmpc 4.0K Aug 26 20:41 ..
+</code></pre>
+<p>Ahora, <strong>en teoría</strong>, ya que el default debería ser <code>overlay</code> lo comprobamos
+nuevamente:</p>
+<pre><code>$ podman info | grep graphDriverName
+  graphDriverName: vfs
+</code></pre>
+<h2>Solución</h2>
+<p>Buscando en el archivo <a href="https://github.com/containers/podman/blob/main/troubleshooting.md">troubleshooting</a> en el código fuente de podman se
+encuentra que es posible utilizar el archivo <code>~/.config/containers/storage.conf</code>
+para modificar la configuración del storage de podman (<a href="https://github.com/containers/podman/blob/main/troubleshooting.md#7-permission-denied-when-running-podman-commands">punto 7</a>).</p>
+<p>En este caso se utiliza:</p>
+<pre><code>$ mkdir -p ~/.config/containers/
+$ cat &gt; ~/.config/containers/storage.conf &lt;&lt;'END'
+[storage]
+driver = &quot;overlay&quot;
+END
+</code></pre>
+<p>para configurar podman y corroboramos que el cambio fué aplicado correctamente
+utilizando:</p>
+<pre><code>$ podman info | grep graphDriverName
+  graphDriverName: overlay
+</code></pre>
+<h2>Determinación del problema</h2>
+<p><strong>TODO</strong>.</p>
+<p>Notas:</p>
+<ul>
+<li>
+<p>El código de podman, <a href="https://github.com/containers/podman">https://github.com/containers/podman</a>, utiliza
+<a href="https://github.com/containers/storage">https://github.com/containers/storage</a> el cual tiene la utilidad
+<code>containers-storage</code> que puede utilizarse para confirmar el <code>graphdriver</code> por
+defecto:</p>
+<pre><code>$ doas apt-get install -V containers-storage
+$ containers-storage --debug status
+DEBU[0000] Root: /home/jmpc/.local/share/containers/storage
+DEBU[0000] Run Root: /run/user/1000/containers
+DEBU[0000] Driver Name: vfs
+DEBU[0000] Driver Options: []
+DEBU[0000] [graphdriver] trying provided driver &quot;vfs&quot;
+error initializing: chown /home/jmpc/.local/share/containers/storage/vfs: operation not permitted
+</code></pre>
+</li>
+<li>
+<p>Ver como a partir del comando <code>podman info</code> se llama a la función
+<a href="https://github.com/containers/storage/blob/5d7035ffcf554703be40d30511705bcbc7e79223/types/options.go#L205">getRootlessStorageOpts</a> donde se asigna por defecto el driver <code>vfs</code>.</p>
+</li>
+</ul>
+<!--
+
+* <https://github.com/containers/podman>
+  * cmd/podman/system/info.go
+    * infoCommand = &cobra.Command{
+    * info, err := registry.ContainerEngine().Info(registry.GetContext())
+  * cmd/podman/registry/registry.go
+    * context
+  * pkg/bindings/system/info.go
+    * response, err := conn.DoRequest(ctx, nil, http.MethodGet, "/info", nil, nil)
+  * pkg/api/server/register_info.go
+    * r.Handle(VersionedPath("/libpod/info"), s.APIHandler(libpod.GetInfo)).Methods(http.MethodGet)
+  * pkg/api/handlers/libpod/info.go
+    * runtime := r.Context().Value(api.RuntimeKey).(*libpod.Runtime)
+      containerEngine := abi.ContainerEngine{Libpod: runtime}
+      info, err := containerEngine.Info(r.Context())
+  * vendor/github.com/containers/buildah/info.go
+    * storeInfo, err := storeInfo(store)
+    * func storeInfo(store storage.Store) (map[string]interface{}, error) {
+    * info["GraphDriverName"] = store.GraphDriverName()
+* <https://github.com/containers/storage>
+  * store.go
+    * type Store interface {
+        // RunRoot, GraphRoot, GraphDriverName, and GraphOptions retrieve
+        // settings that were passed to GetStore() when the object was created.
+    * func GetStore(options types.StoreOptions) (Store, error) {
+        defaultOpts, err := types.Options()
+  * cmd/containers-storage/main.go
+    * func main() {
+          options := types.StoreOptions{}
+              if debug {
+                  logrus.SetLevel(logrus.DebugLevel)
+                  logrus.Debugf("Root: %s", options.GraphRoot)
+                  logrus.Debugf("Run Root: %s", options.RunRoot)
+                  logrus.Debugf("Driver Name: %s", options.GraphDriverName)
+                  logrus.Debugf("Driver Options: %s", options.GraphDriverOptions)
+  * types/options.go
+    * func Options() (StoreOptions, error) {
+        defaultStoreOptionsOnce.Do(loadDefaultStoreOptions)
+
+    * func loadDefaultStoreOptions() {
+
+-->
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

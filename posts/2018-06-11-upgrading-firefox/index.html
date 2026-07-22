@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Actualizando Firefox Quantum | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Actualizando Firefox Quantum</h1>
+        <h2 class="date">2018-06-11</h2>
+      </div>
+<h2>Objetivo</h2>
+<p>Script para actualizar <em>Firefox</em> a partir de <em>Firefox Quantum</em>.</p>
+<p><strong>TL;DR</strong>: Instalar en <code>/usr/local/sbin</code> el script
+<a href="./upgrade-firefox">upgrade-firefox</a>.</p>
+<h2>Historia y motivación</h2>
+<p>La actualización utilizando <code>sudo</code> ya no funciona.</p>
+<p>Hace tiempo <a href="https://www.mozilla.org/en-US/firefox/download/thanks/">descargué Firefox</a> en <code>/opt</code> y cada vez que
+aparecía el mensaje indicando que <em>Firefox</em> no podía actualizarse
+automáticamente (debido a falta de permisos)</p>
+<p><img src="./upgrade-available.png" alt="Actualización disponible para Firefox" /></p>
+<p>realizaba la actualización ejecutando <em>Firefox</em> desde consola con <code>sudo</code>:</p>
+<pre><code>$ mkdir /tmp/asdf
+$ sudo /opt/firefox/firefox --no-remote --profile /tmp/asdf
+</code></pre>
+<p>y luego gráficamente yendo a <em>menú &gt; Help &gt; About Firefox</em>. Allí debía esperar
+a que <em>Firefox</em> descargara los archivos necesarios y luego reiniciaba la
+aplicación.
+Por último, al terminar la instalación se eliminaban los archivos generados
+durante la actualización con <code>sudo</code>:</p>
+<pre><code>$ sudo rm -fr /tmp/asdf /root/.mozilla
+</code></pre>
+<p><em>NOTA</em>: el sistema operativo utilizado es debian testing (buster), y los
+permisos de <code>/opt/firefox</code> son <code>root:root</code> (no modificable por usuarios
+normales).</p>
+<p>Ahora, a partir de la versión <em>60.0</em>, los pasos anteriores ya no son posibles
+debido al <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1323302">bug 1323302: Disallow Firefox from running as sudo</a>, ya
+que se obtiene el siguiente mensaje de error al intentar ejecutar <em>Firefox</em> con
+<code>sudo</code>:</p>
+<blockquote>
+<p>Running Firefox as root in a regular user's session is not supported.
+($XAUTHORITY is /home/XXX/.Xauthority which is owned by XXX.)</p>
+</blockquote>
+<h2>Solución: Creación de script para actualizar <em>Firefox</em></h2>
+<p>A partir del problema anterior se busca crear un script que permita actualizar
+<em>Firefox</em>.</p>
+<p>Para ello se realizará un cambio en la estructura de directorios utilizada
+actualmente:</p>
+<ol>
+<li>
+<p>En lugar de tener la última versión de <em>Firefox</em> en <code>/opt/firefox</code> e ir
+actualizando dicho directorio, se instalarán las distintas versiones de
+<em>Firefox</em> en el directorio <code>/opt</code>, utilizando como sufijo del directorio
+el número de versión (el contenido del tar de <em>Firefox</em> tiene siempre
+como directorio raiz <code>firefox</code>).</p>
+</li>
+<li>
+<p>La última versión de <em>Firefox</em> estará disponible en el directorio
+<code>/opt/firefox-latest</code> como un enlace simbólico al directorio de prefijo
+<code>/opt/firefox-</code> cuya versión se corresponda a la más reciente.</p>
+</li>
+</ol>
+<p>Para utilizar el script de actualización, al que se llamará <code>upgrade-firefox</code>,
+se deberá descargar manualmente una versión del sitio de <em>Firefox</em> y utilizar
+esta con el script. Como ejemplo, si se descarga la versión <em>62.0.3</em> hay que
+ejecutar el siguiente comando para instalarlo:</p>
+<pre><code>$ sudo upgrade-firefox firefox-62.0.3.tar.bz2
+</code></pre>
+<p>Por lo anterior, el script debe instalar el contenido del tar en <code>/opt</code> y
+actualizar el link simbólico <code>/opt/firefox-latest</code>, lo que se realizará en
+las siguientes etapas:</p>
+<ol>
+<li>
+<p>Obtener la versión de <em>Firefox</em> del archivo (<code>$1</code> corresponde al nombre de
+archivo):</p>
+<pre><code>version=$(basename &quot;$1&quot;)
+version=${version#firefox-}
+version=${version%.tar.bz2}
+</code></pre>
+</li>
+<li>
+<p>Descomprimir la nueva versión de <em>Firefox</em> en <code>/opt</code>:</p>
+<pre><code>tar xf firefox-$version.tar.bz2 -C /opt/ --transform 's/^firefox/firefox-'$version'/'
+</code></pre>
+</li>
+<li>
+<p>Actualizar el link simbólico <code>/opt/firefox-latest</code>:</p>
+<pre><code>ln -sf -T firefox-$version /opt/firefox-latest
+</code></pre>
+</li>
+</ol>
+<p>Para que los pasos anteriores puedan ejecutarse sin problemas debe verificarse
+previamente que:</p>
+<ol>
+<li>
+<p>El script se esté ejecutando con permisos de administrador:</p>
+<pre><code>if [ $EUID -ne 0 ]; then
+    echo &quot;Run with root permissions&quot; &gt;&amp;2
+    exit 1
+fi
+</code></pre>
+</li>
+<li>
+<p>El script sea invocado con un solo parametro, que se corresponde al tar con
+la nueva versión de <em>Firefox</em> (¡y que el archivo exista!):</p>
+<pre><code>if [ $# -ne 1 ] || ! [[ &quot;$1&quot; =~ ^(.*/)?firefox-[0-9.]*.tar.bz2$ ]]; then
+    echo &quot;Usage: upgrade-firefox /path/to/firefox-&lt;version&gt;.tar.bz2&quot; &gt;&amp;2
+    exit 1
+fi
+if ! [ -f &quot;$1&quot; ]; then
+    echo &quot;File not exist&quot; &gt;&amp;2
+    exit 1
+fi
+</code></pre>
+</li>
+<li>
+<p>Que la versión a instalar no esté ya instalada:</p>
+<pre><code>if [ -d /opt/firefox-$version ]; then
+    echo &quot;This version of Firefox is already installed&quot; &gt;&amp;2
+    exit 1
+fi
+</code></pre>
+</li>
+<li>
+<p>Que la versión a instalar sea efectivamente más reciente que la ya
+existente. Aquí se utiliza el comando <code>dpkg --compare-versions</code> para
+comparar las versiones de <em>Firefox</em> ya que al hacer el script para <em>Debian</em>
+estamos seguros que el comando está disponible:</p>
+<pre><code>current=$(find /opt -maxdepth 1 | grep -oP '/opt/firefox-\K\d.*' \
+    | LC_ALL=C sort -rn | head -1)
+if dpkg --compare-versions $current ge $version; then
+    echo &quot;This version of Firefox is not the latest&quot; &gt;&amp;2
+    exit 1
+fi
+</code></pre>
+</li>
+</ol>
+<p>Adicionalmente y para evitar que se acumulen distintas versiones de <em>Firefox</em> en
+el directorio <code>/opt</code> cada vez que se instale una nueva versión de <em>Firefox</em> se
+eliminarán todas las versiones anteriores excepto la <em>anterior versión más
+reciente</em> y todas aquellas que no posean un archivo de nombre <code>CAN-BE-REMOVED</code>
+que se creará automáticamente luego de la instalación. Esto es así porque es
+posible que se agreguen manualmente versiones específicas de <em>Firefox</em> en un
+futuro y no se desea que sean borradas al instalar una nueva versión utilizando
+el script.</p>
+<p>Para realizar lo anterior se utilizará el siguiente código:</p>
+<pre><code>for old in $(find /opt -maxdepth 1 -name 'firefox-[1-9]*' | LC_ALL=C sort -rV | tail +3); do
+    [ -e &quot;$old/CAN-BE-REMOVED&quot; ] &amp;&amp; rm -fr &quot;$old&quot;
+done
+</code></pre>
+<p>El script completo se puede descargar del
+<a href="./upgrade-firefox">siguiente link</a>.</p>
+<p><strong>Nota</strong>: el script contiene las modificaciones descriptas en el post
+<a href="/posts/2018-12-17-disabling-updates-in-firefox/">Deshabilitando updates en firefox</a>.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Uso de codewars offline | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Uso de codewars offline</h1>
+        <h2 class="date">2017-04-16</h2>
+      </div>
+<p>En lo siguiente se describe como ejecutar los <strong>katas</strong> de
+<a href="https://codewars.com">codewars</a> de forma <em>offline</em>.</p>
+<p>Para ello se utilizará el proyecto <code>codewars-runner-cli</code>, el cual permite la
+ejecución de código en distintos lenguajes mediante el uso de <code>docker-compose</code>
+(<code>docker</code>) y es desarrollado por <em>codewars</em>.</p>
+<p>Se descarga el repositorio del proyecto:</p>
+<pre><code>$ mkdir -p ~/src
+$ cd ~/src
+$ git clone --depth=1 git@github.com:Codewars/codewars-runner-cli.git
+</code></pre>
+<p>Se crea un directorio en el cual se descargará la información del kata.</p>
+<p><strong>Esto se realiza utilizando el script
+<a href="./codewars-kata-download">codewars-kata-download</a>
+descrito en el post
+<a href="/posts/2017-05-07-codewars-kata-download/">Descarga de katas de codewars</a></strong></p>
+<p>Como ejemplo se descarga el kata <em>a-rule-of-divisibility-by-13</em> en lenguaje <em>C</em>:</p>
+<pre><code>$ mkdir -p ~/workspace/kata
+$ cd ~/workspace/kata
+$ codewars-kata-download &lt;access-token&gt; a-rule-of-divisibility-by-13 c
+$ cd a-rule-of-divisibility-by-13_c
+</code></pre>
+<p>Se prueba la solución del kata utilizando <code>codewars-runner-cli</code>:</p>
+<pre><code>$ docker-compose -f ~/src/codewars-runner-cli/docker-compose.yml \
+    run --rm c -c &quot;$(cat solution.c)&quot; -f &quot;$(cat tests.c)&quot;
+
+&lt;DESCRIBE::&gt;CoreTests
+
+&lt;IT::&gt;ShouldPassAllTheTestsProvided
+Error. Expected 79 but got 140289692680224
+
+&lt;FAILED::&gt;The expression (exp) == (act) is false.
+
+&lt;COMPLETEDIN::&gt;0.034098
+
+&lt;COMPLETEDIN::&gt;
+
+</code></pre>
+<p>Luego de implementar la función en el archivo <code>solution.c</code>:</p>
+<pre><code>$ cat &gt; solution.c &lt;&lt;'END'
+long long calculate(long long n)
+{
+    static int remainders[] = {1, 10, 9, 12, 3, 4};
+    static int size = sizeof(remainders)/sizeof(int);
+    long long result = 0;
+    int index = 0;
+
+    while (n &gt; 0) {
+        result += (n % 10) * remainders[index++];
+        n /= 10;
+        if (index &gt;= size) {
+            index = 0;
+        }
+    }
+    return result;
+}
+
+long long thirt(long long n)
+{
+    long long current;
+    while (1) {
+        current = calculate(n);
+        if (n == current) {
+            return current;
+        }
+        n = current;
+    }
+}
+END
+$ docker-compose -f ~/src/codewars-runner-cli/docker-compose.yml \
+    run --rm c -c &quot;$(cat solution.c)&quot; -f &quot;$(cat tests.c)&quot;
+
+&lt;DESCRIBE::&gt;CoreTests
+
+&lt;IT::&gt;ShouldPassAllTheTestsProvided
+
+&lt;PASSED::&gt;Test Passed
+
+&lt;PASSED::&gt;Test Passed
+
+&lt;PASSED::&gt;Test Passed
+
+&lt;PASSED::&gt;Test Passed
+
+&lt;PASSED::&gt;Test Passed
+
+&lt;COMPLETEDIN::&gt;0.013810
+
+&lt;COMPLETEDIN::&gt;
+</code></pre>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

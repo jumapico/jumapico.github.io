@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Creando imagen oci para wildfly con datasource de oracle | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Creando imagen oci para wildfly con datasource de oracle</h1>
+        <h2 class="date">2021-03-11</h2>
+      </div>
+<p><strong>Update 1</strong>: se agrega script <a href="./generate-wildfly-patch.sh">generate-wildfly-patch.sh</a>
+para generar los parches necesarios a partir de un tarball de wildfly.</p>
+<p><strong>Update 2</strong>: se agrega script <a href="./patch-add-ojdbc-to-wildfly.sh">patch-add-ojdbc-to-wildfly.sh</a>
+para modificar wildfly agregando ojdbc.</p>
+<p>Se busca crear una <a href="https://github.com/opencontainers/image-spec">imagen oci</a> utilizando <a href="https://podman.io/">podman</a> a partir de la
+<a href="https://hub.docker.com/r/jboss/wildfly">imagen oficial de wildfly en dockerhub</a> y que esté configurada para utilizar un
+datasource que se conecte a una base de datos oracle.</p>
+<h2>Verificar imagen</h2>
+<p>Suele ocurrir que durante la creación de las imagenes los scripts descargan
+aplicaciones y modifican parte de los archivos descargados, por lo que se desea
+conocer si la imagen que se utilizará es un caso de estos.</p>
+<h3>Inspeccionar la creación de la imagen</h3>
+<p>Para ello se inspeccionan los Dockerfile de las imagenes.
+En este caso, inspeccionando el <a href="https://github.com/jboss-dockerfiles/wildfly/blob/7851e1a6d3e02e1f843d93af96b0237c5b845cbe/Dockerfile">Dockerfile de jboss/wildfly:22.0.1.Final</a> se
+comprueba que no fué modificado ningún archivo.</p>
+<h3>Inspeccionar los archivos en la imagen</h3>
+<p>Hay veces que puede ser engorroso inspeccionar los distintos Dockerfiles que
+forman una imagen y resulta más sencillo extraer directamente el o los archivos
+deseados que pueden ser relevantes si cambió una imagen.</p>
+<p>Para esos casos alcanza con ejecutar un shell en el contenedor y confirmar la
+existencia y contenido de los archivos.</p>
+<p>Si no se sabe exactamente que buscar puede utilizarse un shell para inspeccionar
+la imagen:</p>
+<pre><code>$ podman pull docker.io/jboss/wildfly:22.0.1.Final
+$ podman run -it --name wildfly docker.io/jboss/wildfly:22.0.1.Final /bin/bash
+</code></pre>
+<p>Una alternativa a lo anterior es copiar directamente los archivos de la imagen.
+Utilizando como ejemplo la imagen que estamos interesados:</p>
+<pre><code>$ podman create --name wildfly docker.io/jboss/wildfly:22.0.1.Final
+$ podman cp wildfly:/opt/jboss/wildfly/standalone/configuration/standalone.xml /tmp/standalone.xml
+</code></pre>
+<p>Una vez extraido el archivo, se puede eliminar el contenedor utilizando:</p>
+<pre><code>$ podman rm wildfly
+</code></pre>
+<h2>Configuración de datasource oracle</h2>
+<p>Si bien en la <a href="https://docs.wildfly.org/22/">documentación de wildfly 22</a> no se encuentra información
+relacionada a como configurar un datasource para oracle, esta se puede encontrar
+en <a href="https://access.redhat.com/documentation/en-us/red_hat_jboss_enterprise_application_platform/7.3/html/configuration_guide/datasource_management#example_oracle_datasource">Example Oracle Datasource (JBoss EAP 7.3)</a>.  Conviene recordar -se nos
+recuerda en la <a href="https://www.wildfly.org/downloads/">página de descargas de wildfly</a>- que:</p>
+<blockquote>
+<p>The technology behind WildFly is also available in JBoss Enterprise
+Application Platform 7. JBoss EAP is a hardened enterprise subscription with
+Red Hat’s world-class support, long multi-year maintenance cycles, and
+exclusive content.</p>
+</blockquote>
+<p>Este ejemplo es replicado en varios sitios de internet, donde se indica la
+creación del archivo <code>module.xml</code> de forma manual o utilizando <code>jboss-cli.sh</code>,
+pero suele perderse la indicación:</p>
+<blockquote>
+<p>Important</p>
+<p>Using the module management CLI command to add and remove modules is provided
+as Technology Preview only. This command is not appropriate for use in a
+managed domain or when connecting to the management CLI remotely. Modules
+should be added and removed manually in a production environment.</p>
+</blockquote>
+<p>Tomando en cuenta la advertencia anterior, se generará el archivo <code>modules.xml</code>
+de forma local utilizando <code>jboss-cli.sh</code> y se verán las diferencias con un
+servidor wildfly sin modificar, extrayendo los archivos para generar la imagen
+docker.</p>
+<h3>Descarga de wildfly</h3>
+<p>Se comienza descargando el archivo <a href="https://download.jboss.org/wildfly/22.0.1.Final/wildfly-22.0.1.Final.tar.gz">wildfly-22.0.1.Final.tar.gz</a> y realizando un
+respaldo para luego poder ver los cambios ocurridos:</p>
+<pre><code>$ DIR=&quot;$HOME/ws-customize-wildfly-oracle&quot;; mkdir &quot;$DIR&quot;; cd &quot;$DIR&quot;
+$ wget -P . 'https://download.jboss.org/wildfly/22.0.1.Final/wildfly-22.0.1.Final.tar.gz'
+$ tar xf wildfly-22.0.1.Final.tar.gz
+$ cp -a wildfly-22.0.1.Final wildfly-22.0.1.Final.orig
+$ cd wildfly-22.0.1.Final
+</code></pre>
+<h3>Ejecución de wildfly</h3>
+<p>Para que funcione correctamente la configuración del datasource <strong>hay truco</strong>.
+Se busca utilizar para la configuración variables de entorno, similar a como se
+utiliza en la definición de los <a href="https://github.com/wildfly-extras/wildfly-datasources-galleon-pack/blob/master/src/main/resources/layers/standalone/oracle-datasource/layer-spec.xml">layers extra de galleon para oracle</a>.  Copiando
+un extracto:</p>
+<pre><code>&lt;param name=&quot;data-source&quot; value=&quot;OracleDS&quot;/&gt;
+&lt;param name=&quot;jndi-name&quot; value=&quot;java:jboss/datasources/${env.ORACLE_DATASOURCE,env.OPENSHIFT_ORACLE_DATASOURCE:OracleDS}&quot;/&gt;
+&lt;param name=&quot;connection-url&quot; value=&quot;${env.ORACLE_URL, env.OPENSHIFT_ORACLE_URL}&quot;/&gt;
+</code></pre>
+<p>El problema que podemos tener es que si no están definidas las variables de
+entorno para la instancia en ejecución de wildfly a la que se conectará
+<code>jboss-cli.sh</code> nos aparece un mensaje similar al siguiente al querer utilizar
+variables de entorno en la definición del datasource:</p>
+<pre><code>$ ./bin/jboss-cli.sh -c
+[standalone@localhost:9990 /] data-source add --name=OracleDS \
+    --driver-name=oracle \
+    --jndi-name=java:jboss/datasources/${env.ORACLE_DATASOURCE:OracleDS} \
+    --connection-url=${env.ORACLE_URL}
+{&quot;WFLYCTL0062: Composite operation failed and was rolled back. Steps that failed:&quot; =&gt; {&quot;Operation step-1&quot; =&gt; &quot;W
+FLYCTL0211: Cannot resolve expression '${env.ORACLE_URL}'&quot;}}
+</code></pre>
+<p>Para evitar esto alcanza con definir previamente las variables de entorno que se
+utilizarán.</p>
+<p>Tomando como ejemplo la definición de los <a href="https://github.com/wildfly-extras/wildfly-datasources-galleon-pack/blob/master/src/main/resources/layers/standalone/oracle-datasource/layer-spec.xml">layers extra de galleon para oracle</a>
+y obviando las variables de entorno relacionadas a openshift, se definirán las
+siguientes variables:</p>
+<ul>
+<li><code>ORACLE_DATASOURCE</code> - opcional; se utiliza el valor <code>OracleDS</code> por defecto.</li>
+<li><code>ORACLE_URL</code></li>
+<li><code>ORACLE_USER</code></li>
+<li><code>ORACLE_PASSWORD</code></li>
+</ul>
+<p>quedando la invocación a wildfly de la siguiente forma (los valores de las
+variables de entorno no necesitan ser válidos):</p>
+<pre><code>$ ORACLE_URL=localhost
+$ ORACLE_USER=user
+$ ORACLE_PASSWORD=pass
+$ ./bin/standalone.sh
+</code></pre>
+<h3>Descarga del driver jdbc de oracle</h3>
+<p>Por otro lado en la <a href="https://www.oracle.com/database/technologies/appdev/jdbc-downloads.html">página de descargas de oracle jdbc</a> se indica que los
+drivers pueden descargarse del <a href="https://search.maven.org/classic/">repositorio de maven central</a>, por lo cual el
+driver se descarga usando <a href="https://maven.apache.org/plugins/maven-dependency-plugin/">maven-dependency-plugin</a>:</p>
+<pre><code>$ mvn dependency:copy -Dartifact=com.oracle.database.jdbc:ojdbc11:21.1.0.0 -DoutputDirectory=&quot;$DIR&quot;
+</code></pre>
+<h3>Eliminación de datasource de ejemplo <code>ExampleDS</code></h3>
+<p>El archivo <code>standalone.xml</code> tiene como ejemplo el datasource <code>ExampleDS</code>, el
+cual utiliza como base de datos <a href="https://www.h2database.com">h2</a>.
+Como no se piensa utilizar a futuro dicho datasource se eliminará, teniendo
+cuidado de modificar el <code>default-binding</code> para el datasource, ya que según la
+seccion <a href="https://docs.wildfly.org/22/Admin_Guide.html#EE_Default_Bindings_Configuration">Default EE Bindings</a>:</p>
+<blockquote>
+<p>The Jakarta EE Specification mandates the existence of a default instance for
+each of the following resources:</p>
+<ul>
+<li>Datasource</li>
+</ul>
+</blockquote>
+<p>El valor que se utilizará corresponderá al nombre del datasource de oracle que
+se agregará más adelante.</p>
+<p>Para realizar todo lo anterior se utilizará <code>jboss-cli.sh</code>:</p>
+<pre><code>$ cat &lt;&lt;'END' | ./bin/jboss-cli.sh -c
+/subsystem=ee/service=default-bindings:write-attribute(name=&quot;datasource&quot;, \
+    value=&quot;java:jboss/datasources/${env.ORACLE_DATASOURCE:OracleDS}&quot;)
+
+data-source remove --name=ExampleDS
+reload
+
+/subsystem=datasources/jdbc-driver=h2:remove()
+END
+</code></pre>
+<h3>Creación del módulo oracle y el datasource</h3>
+<p>La creación del módulo y el datasource se agrega utilizando <code>jboss-cli.sh</code>,
+siguiendo las indicaciones de <a href="https://access.redhat.com/documentation/en-us/red_hat_jboss_enterprise_application_platform/7.3/html/configuration_guide/datasource_management#example_oracle_datasource">Example Oracle Datasource (JBoss EAP 7.3)</a> y las
+variables de entorno del <a href="https://github.com/wildfly-extras/wildfly-datasources-galleon-pack/blob/master/src/main/resources/layers/standalone/oracle-datasource/layer-spec.xml">layers extra de galleon para oracle</a>.</p>
+<pre><code>$ cat &lt;&lt;'END' | ./bin/jboss-cli.sh -c
+module add \
+    --name=com.oracle \
+    --resources=../ojdbc11-21.1.0.0.jar \
+    --dependencies=javax.api,javax.transaction.api
+
+/subsystem=datasources/jdbc-driver=oracle:add( \
+    driver-name=oracle, \
+    driver-module-name=com.oracle, \
+    driver-xa-datasource-class-name=oracle.jdbc.xa.client.OracleXADataSource)
+
+data-source add \
+    --name=OracleDS \
+    --driver-name=oracle \
+    --jndi-name=java:jboss/datasources/${env.ORACLE_DATASOURCE:OracleDS} \
+    --connection-url=${env.ORACLE_URL} \
+    --user-name=${env.ORACLE_USER} \
+    --password=${env.ORACLE_PASSWORD} \
+    --enabled=true \
+    --jta=true \
+    --use-ccm=false \
+    --min-pool-size=2 \
+    --max-pool-size=5 \
+    --pool-prefill=true \
+    --share-prepared-statements=false
+END
+</code></pre>
+<p><em>Nota</em>: en el agregado del datasource y el driver de oracle es donde pueden
+cambiarse las opciones según las necesidades de la aplicación que utilizará la
+imagen.</p>
+<h3>Extracción de archivos</h3>
+<p>Una vez realizados los cambios con <code>jboss-cli.sh</code>, <em>se termina</em> la ejecución de
+wildfly y se comparan los archivos para determinar los cambios:</p>
+<pre><code>$ cd &quot;$DIR&quot;
+$ diff -qr wildfly
+$ diff -qr wildfly-22.0.1.Final{.orig,}
+Only in wildfly-22.0.1.Final/modules: com
+Files wildfly-22.0.1.Final.orig/standalone/configuration/logging.properties and wildfly-22.0.1.Final/standalone/configuration/logging.properties differ
+Files wildfly-22.0.1.Final.orig/standalone/configuration/standalone.xml and wildfly-22.0.1.Final/standalone/configuration/standalone.xml differ
+Only in wildfly-22.0.1.Final/standalone/configuration: standalone_xml_history
+Only in wildfly-22.0.1.Final/standalone: data
+Only in wildfly-22.0.1.Final/standalone: log
+Only in wildfly-22.0.1.Final/standalone/tmp: vfs
+</code></pre>
+<p>Aquí se utilizó la opción <code>-q</code> ya que como se ve existen diferencias debido a la
+ejecución de wildfly (<code>data</code>, <code>log</code>, <code>tmp</code>) y los cambios en el archivo
+<code>standalone.xml</code> (<code>standalone_xml_history</code>, <code>logging.properties</code>).</p>
+<p>Descartando los directorios y archivos que no nos interesan, los cambios
+realizados se pueden inspeccionar ejecutando:</p>
+<pre><code>$ diff -urN -x standalone_xml_history -x data -x log -x tmp \
+    -x logging.properties wildfly-22.0.1.Final{.orig,}
+</code></pre>
+<p>Para listar solamente los archivos en los cuales estamos interesados se utiliza:</p>
+<pre><code>$ diff -qrN -x standalone_xml_history -x data -x log -x tmp \
+    -x logging.properties wildfly-22.0.1.Final{.orig,}
+Files wildfly-22.0.1.Final.orig/modules/com/oracle/main/module.xml and wildfly-22.0.1.Final/modules/com/oracle/main/module.xml differ
+Files wildfly-22.0.1.Final.orig/modules/com/oracle/main/ojdbc11-21.1.0.0.jar and wildfly-22.0.1.Final/modules/com/oracle/main/ojdbc11-21.1.0.0.jar differ
+Files wildfly-22.0.1.Final.orig/standalone/configuration/standalone.xml and wildfly-22.0.1.Final/standalone/configuration/standalone.xml differ
+</code></pre>
+<p>De lo anterior, se extraen los archivos que serán copiados a la nueva imagen,
+utilizando la ruta correspondiente en la <a href="https://hub.docker.com/r/jboss/wildfly">imagen oficial de wildfly en
+dockerhub</a>:</p>
+<pre><code>$ mkdir -p ./opt/jboss/wildfly/standalone/configuration \
+    ./opt/jboss/wildfly/modules
+$ cp wildfly-22.0.1.Final/standalone/configuration/standalone.xml \
+    ./opt/jboss/wildfly/standalone/configuration
+$ cp -a wildfly-22.0.1.Final/modules/com/ ./opt/jboss/wildfly/modules
+</code></pre>
+<h2>Creación de imagen oci</h2>
+<p>Para crear la imagen del nuevo container se crea el archivo <code>Containerfile</code>
+indicando que la nueva imagen deriva de la <a href="https://hub.docker.com/r/jboss/wildfly">imagen oficial de wildfly en
+dockerhub</a>, agregandole los archivos extraidos previamente y ajustando permisos:</p>
+<pre><code>$ cat &gt; Containerfile &lt;&lt;'END'
+FROM docker.io/jboss/wildfly:22.0.1.Final
+ADD opt /opt
+USER root
+RUN chown -R jboss:0 ${JBOSS_HOME} &amp;&amp; chmod -R g+rw ${JBOSS_HOME}
+USER jboss
+</code></pre>
+<p><em>Nota</em>: los archivos deben copiarse con usuario <code>jboss</code>, en caso contrario luego
+al intentar ejecutar el servidor no se pueden crear archivos en los directorios
+ya que los archivos por defecto se copian como <code>root</code>.</p>
+<p>Luego se crea la imagen utilizando <code>podman</code>:</p>
+<pre><code>$ podman image build --tag=jumapico/wildfly-oracle-datastore:22.0.1.Final-11 .
+</code></pre>
+<h2>Prueba de la imagen</h2>
+<p>Para ejecutar la imagen creada hay que recordar el definir las variables de
+entorno prefijadas por <code>ORACLE_</code>:</p>
+<pre><code>$ podman run --detach --name wildfly \
+    -e ORACLE_DATASOURCE=oracleds \
+    -e ORACLE_URL=localhost \
+    -e ORACLE_USER=user \
+    -e ORACLE_PASSWORD=pass \
+    jumapico/wildfly-oracle-datastore:22.0.1.Final-11
+$ podman logs -f wildfly
+</code></pre>
+<h2>Conclusiones</h2>
+<ul>
+<li>En internet se repite mucho la misma receta para crear los datasources, pero
+ninguno de los posts que leí referencian la fuente (<a href="https://access.redhat.com/documentation/en-us/red_hat_jboss_enterprise_application_platform/7.3/html/configuration_guide/datasource_management#example_oracle_datasource">Example Oracle
+Datasource (JBoss EAP 7.3)</a>), la cual indica que se deben copiar archivos y
+no utilizar <code>jboss-cli.sh</code>.</li>
+<li>Si bien el <a href="https://github.com/wildfly-extras/wildfly-datasources-galleon-pack">repositorio wildfly-datasources-galleon-pack</a> es un buen punto de
+partida, no se utilizó directamente ya que los datasources definidos poseen
+muchas opciones, lo cual implica que es impráctico definirlas todas mediante
+variables de entorno.  De allí que vale la pena crear una imagen
+customizada.</li>
+<li>Realmente es un proceso tedioso por solo dos archivos (<code>standalone.xml</code> y
+<code>modules/com/oracle/main/module.xml</code>).</li>
+</ul>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

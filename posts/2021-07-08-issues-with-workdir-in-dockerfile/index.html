@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Problemas con WORKDIR en Dockerfile | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Problemas con WORKDIR en Dockerfile</h1>
+        <h2 class="date">2021-07-08</h2>
+      </div>
+<p><strong>Como recordatorio.</strong></p>
+<p>Escribiendo un <a href="https://docs.docker.com/develop/develop-images/multistage-build/">multistage Dockerfile</a> para crear una <a href="https://developers.redhat.com/blog/2018/02/22/container-terminology-practical-introduction#container_image">container image</a> obtenida
+usando <a href="https://podman.io/">podman</a>:</p>
+<pre><code>...
+# The user UID is arbitrary, non common used by regular users.
+RUN useradd -u 7685 -r -g users -m -s /sbin/nologin -c &quot;Builder user&quot; builder
+# Set the working directory to the `app` directory inside builder home directory
+WORKDIR /home/builder/app
+# Specify the user which should be used to execute all commands below
+USER builder
+
+# -- Warm maven cache --
+# Copy pom file and mvnw
+COPY --chown=builder:users ./pom.xml ./mvnw .
+COPY --chown=builder:users ./.mvn ./.mvn
+# FIXME: Not all plugins and dependencies are downloaded.
+# FIXME: See bug &lt;https://issues.apache.org/jira/browse/MDEP-82&gt;
+RUN ./mvnw -B dependency:resolve-plugins dependency:go-offline
+
+# -- Build war --
+# Copy project and build
+COPY --chown=builder:users ./ ./
+RUN ./mvnw -B package
+...
+</code></pre>
+<p>funciona sin problemas con un usuario normal utilizando:</p>
+<pre><code>$ podman build -t myapp:latest .
+</code></pre>
+<p>Por motivos de infraestructura -dígase, una imposición externa-, es necesario
+que la imagen anterior se genere utilizando <a href="https://buildah.io/">buildah</a>, más exactamente el
+comando <code>buildah bud</code>.  Pero ejecutando este con un usuario normal se obtiene:</p>
+<pre><code>$ buildah bud -t myapp:latest .
+...
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  19.264 s
+[INFO] Finished at: 2021-07-08T19:12:33Z
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-resources-plugin:2.6:resources (default-resources) on project myapp: Cannot create resource output directory: /home/builder/app/target/classes -&gt; [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException
+error building at STEP &quot;RUN ./mvnw -B package&quot;: error while running runtime: exit status 1
+level=error msg=&quot;exit status 1&quot;
+</code></pre>
+<p>Despues de un buen rato de depurar, se encuentra que el problema está en que
+<code>WORKDIR</code>, al crear el directorio <code>/home/builder/app</code>, lo hace con dueño y grupo
+<code>root</code> y con permisos <code>rwxr-xr-x</code>.</p>
+<p>Obviamente, alcanza con cambiar el dueño del directorio <code>/home/builder/app</code> que
+es creado por <code>WORKDIR</code>, utilizando luego de su uso:</p>
+<pre><code>RUN chown builder:users /home/builder/app &amp;&amp; chmod 755 /home/builder/app
+</code></pre>
+<p>En el comando anterior se utiliza también <code>chmod</code> para explicitar los permisos
+del directorio.</p>
+<p>Con lo anterior dicha sección del <code>Dockerfile</code> queda en la forma:</p>
+<pre><code>...
+# The user UID is arbitrary, non common used by regular users.
+RUN useradd -u 7685 -r -g users -m -s /sbin/nologin -c &quot;Builder user&quot; builder
+# Set the working directory to the `app` directory inside builder home directory
+# and set the correct permissions for user builder
+WORKDIR /home/builder/app
+RUN chown builder:users /home/builder/app &amp;&amp; chmod 755 /home/builder/app
+# Specify the user which should be used to execute all commands below
+USER builder
+
+# -- Warm maven cache --
+# Copy pom file and mvnw
+COPY --chown=builder:users ./pom.xml ./mvnw .
+COPY --chown=builder:users ./.mvn ./.mvn
+# FIXME: Not all plugins and dependencies are downloaded.
+# FIXME: See bug &lt;https://issues.apache.org/jira/browse/MDEP-82&gt;
+RUN ./mvnw -B dependency:resolve-plugins dependency:go-offline
+
+# -- Build war --
+# Copy project and build
+COPY --chown=builder:users ./ ./
+RUN ./mvnw -B package
+...
+</code></pre>
+<p>Luego de haber detectado el problema es más sencillo de encontrar los bugs
+relacionados al problema que lo describen:</p>
+<ul>
+<li><a href="https://github.com/containers/buildah/issues/2323">https://github.com/containers/buildah/issues/2323</a></li>
+<li><a href="https://github.com/moby/moby/issues/36677">https://github.com/moby/moby/issues/36677</a></li>
+</ul>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

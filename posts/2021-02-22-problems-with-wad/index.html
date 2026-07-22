@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Problemas con WAD | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Problemas con WAD</h1>
+        <h2 class="date">2021-02-22</h2>
+      </div>
+<p>Leí sobre la utilidad <a href="https://wad.sh/">watch and deploy (WAD)</a> para realizar el
+redeploy de aplicaciones <a href="https://jakarta.ee/">JEE</a> de forma automática a
+distintos servidores al cambiar el código fuente.</p>
+<h2>Pruebas</h2>
+<p>A partir de aquí las pruebas realizadas con un proyecto de ejemplo.
+Para preparar el entorno se descarga el servidor wildfly, ejemplos de código y
+wad:</p>
+<pre><code>$ DIR=$HOME/workspace/pruebas-wad
+$ mkdir -p $DIR &amp;&amp; cd $DIR
+
+$ wget 'https://download.jboss.org/wildfly/22.0.1.Final/wildfly-22.0.1.Final.tar.gz'
+$ tar xf wildfly-22.0.1.Final.tar.gz
+
+$ git clone --branch 22.x --depth 1 https://github.com/wildfly/quickstart.git
+
+$ wget 'https://github.com/AdamBien/wad/releases/download/0.1.1/wad.jar'
+</code></pre>
+<p>Se realizaran las pruebas con el ejemplo <code>quickstart/helloworld-rs</code>:</p>
+<ul>
+<li>
+<p>Prueba 1 - ejecución.</p>
+<pre><code>$ cd quickstart/helloworld-rs
+$ java -jar $DIR/wad.jar $DIR/wildfly-22.0.1.Final/standalone/deployments
+wad 0.1.1
+command line argument  '/home/jmpc/workspace/pruebas-wad/wildfly-22.0.1.Final/standalone/deployments'
+resulting deployment folders are:
+ '/home/jmpc/workspace/pruebas-wad/wildfly-22.0.1.Final/standalone/deployments'
+WAD is watching ./src/main, deploying target/helloworld-rs.war to [/home/jmpc/workspace/pruebas-wad/wildfly-22.0.1.Final/standalone/deployments/helloworld-rs.war]
+[02:46:43]Exception in thread &quot;main&quot; java.lang.IllegalStateException: Maven application directory was not specified, and ${maven.home} is not provided in the system properties. Please specify at least on of these.
+        at org.apache.maven.shared.invoker.MavenCommandLineBuilder.checkRequiredState(MavenCommandLineBuilder.java:126)
+        at org.apache.maven.shared.invoker.MavenCommandLineBuilder.build(MavenCommandLineBuilder.java:61)
+        at org.apache.maven.shared.invoker.DefaultInvoker.execute(DefaultInvoker.java:100)
+        at com.airhacks.wad.control.Builder.build(Builder.java:41)
+        at com.airhacks.wad.boundary.WADFlow.build(WADFlow.java:70)
+        at com.airhacks.wad.boundary.WADFlow.buildAndDeploy(WADFlow.java:62)
+        at com.airhacks.wad.boundary.WADFlow.&lt;init&gt;(WADFlow.java:42)
+        at wad.App.main(App.java:75)
+</code></pre>
+<p>El error anterior <a href="https://github.com/AdamBien/wad/issues/5">es uno ya conocido</a>
+aunque la solución de asignar la variable de entorno <code>MAVEN_HOME</code> no
+funcionó.  En su lugar funciona establecer la propiedad <code>maven.home</code> al
+ejecutar <code>wad.jar</code>.
+Dicho valor, en Debian, lo obtenemos haciendo <code>dpkg -L maven</code> y constatando
+que la mayoría de los archivos de maven se encuentran en el directorio
+<code>/usr/share/maven</code>:</p>
+<pre><code>$ java -jar -Dmaven.home=/usr/share/maven $DIR/wad.jar $DIR/wildfly-22.0.1.Final/standalone/deployments
+wad 0.1.1
+command line argument  '/home/jmpc/workspace/pruebas-wad/wildfly-22.0.1.Final/standalone/deployments'
+resulting deployment folders are:
+ '/home/jmpc/workspace/pruebas-wad/wildfly-22.0.1.Final/standalone/deployments'
+WAD is watching ./src/main, deploying target/helloworld-rs.war to [/home/jmpc/workspace/pruebas-wad/wildfly-22.0.1.Final/standalone/deployments/helloworld-rs.war]
+[03:13:32][1]👍 built in 6358 ms
+Copying 6kB ThinWAR to  (...)standalone/deployments/helloworld-rs.war
+🚀  copied in 2 ms
+</code></pre>
+</li>
+<li>
+<p>Prueba 2 - nombre del directorio del proyecto es distinto al del war generado.
+Renombrando el proyecto y ejecutando wad:</p>
+<pre><code>$ cd $DIR
+$ mv quickstart/helloworld-rs{,-changed}
+$ cd quickstart/helloworld-rs-changed
+$ java -jar -Dmaven.home=/usr/share/maven $DIR/wad.jar $DIR/wildfly-22.0.1.Final/standalone/deployments
+wad 0.1.1
+command line argument  '/home/jmpc/workspace/pruebas-wad/wildfly-22.0.1.Final/standalone/deployments'
+resulting deployment folders are:
+ '/home/jmpc/workspace/pruebas-wad/wildfly-22.0.1.Final/standalone/deployments'
+WAD is watching ./src/main, deploying target/helloworld-rs-changed.war to [/home/jmpc/workspace/pruebas-wad/wildfly-22.0.1.Final/standalone/deployments/helloworld-rs-changed.war]
+[03:19:27][1]👍 built in 6202 ms
+Exception in thread &quot;main&quot; java.lang.IllegalStateException: target/helloworld-rs-changed.war
+        at com.airhacks.wad.control.Copier.copySingle(Copier.java:53)
+        at com.airhacks.wad.control.Copier.lambda$copy$0(Copier.java:41)
+        at java.base/java.util.ArrayList.forEach(ArrayList.java:1541)
+        at com.airhacks.wad.control.Copier.copy(Copier.java:41)
+        at com.airhacks.wad.boundary.WADFlow.deploy(WADFlow.java:91)
+        at com.airhacks.wad.boundary.WADFlow.buildAndDeploy(WADFlow.java:63)
+        at com.airhacks.wad.boundary.WADFlow.&lt;init&gt;(WADFlow.java:42)
+        at wad.App.main(App.java:75)
+Caused by: java.nio.file.NoSuchFileException: target/helloworld-rs-changed.war
+        at java.base/sun.nio.fs.UnixException.translateToIOException(UnixException.java:92)
+        at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:111)
+        at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:116)
+        at java.base/sun.nio.fs.UnixFileAttributeViews$Basic.readAttributes(UnixFileAttributeViews.java:55)
+        at java.base/sun.nio.fs.UnixFileSystemProvider.readAttributes(UnixFileSystemProvider.java:149)
+        at java.base/sun.nio.fs.LinuxFileSystemProvider.readAttributes(LinuxFileSystemProvider.java:99)
+        at java.base/java.nio.file.Files.readAttributes(Files.java:1764)
+        at java.base/java.nio.file.Files.size(Files.java:2381)
+        at com.airhacks.wad.control.Copier.copySingle(Copier.java:47)
+        ... 7 more
+</code></pre>
+<p>Ya que el problema anterior no tiene solución se vuelve el directorio al
+nombre anterior:</p>
+<pre><code>$ cd $DIR
+$ mv quickstart/helloworld-rs{-changed,}
+</code></pre>
+</li>
+<li>
+<p>Prueba 3 - incluir versión en el war generado.
+Para ello, se debe eliminar la linea
+<code>&lt;finalName&gt;${project.artifactId}&lt;/finalName&gt;</code> del archivo
+<code>quickstart/pom.xml</code> (superpom):</p>
+<pre><code>$ sed -i.orig '/&lt;finalName&gt;${project.artifactId}&lt;\/finalName&gt;/d' quickstart/pom.xml
+$ cd quickstart/helloworld-rs
+$ java -jar -Dmaven.home=/usr/share/maven $DIR/wad.jar $DIR/wildfly-22.0.1.Final/standalone/deployments
+wad 0.1.1
+command line argument  '/home/jmpc/workspace/pruebas-wad/wildfly-22.0.1.Final/standalone/deployments'
+resulting deployment folders are:
+ '/home/jmpc/workspace/pruebas-wad/wildfly-22.0.1.Final/standalone/deployments'
+WAD is watching ./src/main, deploying target/helloworld-rs.war to [/home/jmpc/workspace/pruebas-wad/wildfly-22.0.1.Final/standalone/deployments/helloworld-rs.war]
+[03:34:01][1]👍 built in 6314 ms
+Exception in thread &quot;main&quot; java.lang.IllegalStateException: target/helloworld-rs.war
+        at com.airhacks.wad.control.Copier.copySingle(Copier.java:53)
+        at com.airhacks.wad.control.Copier.lambda$copy$0(Copier.java:41)
+        at java.base/java.util.ArrayList.forEach(ArrayList.java:1541)
+        at com.airhacks.wad.control.Copier.copy(Copier.java:41)
+        at com.airhacks.wad.boundary.WADFlow.deploy(WADFlow.java:91)
+        at com.airhacks.wad.boundary.WADFlow.buildAndDeploy(WADFlow.java:63)
+        at com.airhacks.wad.boundary.WADFlow.&lt;init&gt;(WADFlow.java:42)
+        at wad.App.main(App.java:75)
+Caused by: java.nio.file.NoSuchFileException: target/helloworld-rs.war
+        at java.base/sun.nio.fs.UnixException.translateToIOException(UnixException.java:92)
+        at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:111)
+        at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:116)
+        at java.base/sun.nio.fs.UnixFileAttributeViews$Basic.readAttributes(UnixFileAttributeViews.java:55)
+        at java.base/sun.nio.fs.UnixFileSystemProvider.readAttributes(UnixFileSystemProvider.java:149)
+        at java.base/sun.nio.fs.LinuxFileSystemProvider.readAttributes(LinuxFileSystemProvider.java:99)
+        at java.base/java.nio.file.Files.readAttributes(Files.java:1764)
+        at java.base/java.nio.file.Files.size(Files.java:2381)
+        at com.airhacks.wad.control.Copier.copySingle(Copier.java:47)
+        ... 7 more
+</code></pre>
+<p>Lo anterior no funciona ya que el war generado es:</p>
+<pre><code>$ find target/ -name '*.war'
+target/helloworld-rs-22.0.2.Final-SNAPSHOT.war
+</code></pre>
+<p>Al igual que el caso anterior este problema no tiene solución, por lo que
+debe volverse a agregar el tag <code>finalName</code> al archivo <code>pom.xml</code>:</p>
+<pre><code>$ cd $DIR
+$ mv quickstart/pom.xml{.orig,}
+</code></pre>
+<p><em>Nota</em>: este es un caso similar al anterior, ya que el war generado que se
+va a deployar no tiene el mismo nombre que el directorio del proyecto.  Si
+se renombra el directorio <code>helloword-rs</code> a
+<code>helloworld-rs-22.0.2.Final-SNAPSHOT</code> wad funciona correctamente.</p>
+</li>
+<li>
+<p>Prueba 4 - workaround
+Se intenta crear un link simbólico al directorio del proyecto cuyo nombre
+corresponda al del artefacto que se generará, el cual incluye número de
+versión:</p>
+<pre><code>$ cd $DIR
+$ ln -s helloworld-rs quickstart/helloworld-rs-22.0.2.Final-SNAPSHOT
+$ cd quickstart/helloworld-rs-22.0.2.Final-SNAPSHOT
+$ java -jar -Dmaven.home=/usr/share/maven $DIR/wad.jar $DIR/wildfly-22.0.1.Final/standalone/deployments
+wad 0.1.1
+command line argument  '/home/jmpc/workspace/pruebas-wad/wildfly-22.0.1.Final/standalone/deployments'
+resulting deployment folders are:
+ '/home/jmpc/workspace/pruebas-wad/wildfly-22.0.1.Final/standalone/deployments'
+WAD is watching ./src/main, deploying target/helloworld-rs.war to [/home/jmpc/workspace/pruebas-wad/wildfly-22.0.1.Final/standalone/deployments/helloworld-rs.war]
+[03:46:44][1]👍 built in 6364 ms
+Exception in thread &quot;main&quot; java.lang.IllegalStateException: target/helloworld-rs.war
+        at com.airhacks.wad.control.Copier.copySingle(Copier.java:53)
+        at com.airhacks.wad.control.Copier.lambda$copy$0(Copier.java:41)
+        at java.base/java.util.ArrayList.forEach(ArrayList.java:1541)
+        at com.airhacks.wad.control.Copier.copy(Copier.java:41)
+        at com.airhacks.wad.boundary.WADFlow.deploy(WADFlow.java:91)
+        at com.airhacks.wad.boundary.WADFlow.buildAndDeploy(WADFlow.java:63)
+        at com.airhacks.wad.boundary.WADFlow.&lt;init&gt;(WADFlow.java:42)
+        at wad.App.main(App.java:75)
+Caused by: java.nio.file.NoSuchFileException: target/helloworld-rs.war
+        at java.base/sun.nio.fs.UnixException.translateToIOException(UnixException.java:92)
+        at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:111)
+        at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:116)
+        at java.base/sun.nio.fs.UnixFileAttributeViews$Basic.readAttributes(UnixFileAttributeViews.java:55)
+        at java.base/sun.nio.fs.UnixFileSystemProvider.readAttributes(UnixFileSystemProvider.java:149)
+        at java.base/sun.nio.fs.LinuxFileSystemProvider.readAttributes(LinuxFileSystemProvider.java:99)
+        at java.base/java.nio.file.Files.readAttributes(Files.java:1764)
+        at java.base/java.nio.file.Files.size(Files.java:2381)
+        at com.airhacks.wad.control.Copier.copySingle(Copier.java:47)
+        ... 7 more
+</code></pre>
+<p>Como se ve el programa está usando el nombre real del directorio (al que se
+apunta) y no el nombre del link simbólico, por lo cual no es posible el
+workaround propuesto.</p>
+</li>
+</ul>
+<h2>Resumen de problemas encontrados</h2>
+<p>De las pruebas anteriores, los problemas encontrados fueron:</p>
+<ol>
+<li>
+<p>Escasa documentación en la <a href="https://wad.sh/">página web</a>, por lo menos en lo
+relacionado al error por falta de la property <code>maven.home</code>.  El
+requerimiento de maven no es mencionado tampoco.</p>
+</li>
+<li>
+<p>El nombre del directorio donde está el proyecto debe tener el mismo nombre
+que el war generado por maven.</p>
+<p>Lo último se debe a que leyendo el <a href="https://github.com/AdamBien/wad">código fuente de wad</a>
+este <a href="https://maven.apache.org/shared/maven-invoker/apidocs/org/apache/maven/shared/invoker/package-summary.html">utiliza la api</a>
+de <a href="https://maven.apache.org/shared/maven-invoker/">maven-invoker</a>, la cual
+no expone una forma de obtener el nombre del artefacto generado, por lo cual
+tiene sentido que se utilice el nombre del directorio como forma
+determinista de conocer el nombre del artefacto a deployar.</p>
+</li>
+</ol>
+<h1>Conclusiones</h1>
+<p>Si bien la utilidad se ve interesante, se ve como una restricción importante el
+que el war generado deba tener el mismo nombre del directorio del proyecto y es
+una limitante que el workaround propuesto no funcione.</p>
+<p>Quizás una alternativa interesante para evaluar sea <a href="https://eradman.com/entrproject/">entr</a>.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+
