@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Embeber fuentes en pdf | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Embeber fuentes en pdf</h1>
+        <h2 class="date">2019-03-27</h2>
+      </div>
+<p>Asegurarse que los programas necesarios se encuenten instalados.
+En <em>Debian</em> hacer:</p>
+<pre><code>$ sudo apt-get install -Vy poppler-utils ghostscript
+</code></pre>
+<p>Para verificar que el archivo tenga fuentes no embebidas utilizar <code>pdffonts</code>:</p>
+<pre><code>$ pdffonts input.pdf
+name                                 type              encoding         emb sub uni object ID
+------------------------------------ ----------------- ---------------- --- --- --- ---------
+Helvetica                            Type 1            WinAnsi          no  no  no       2  0
+</code></pre>
+<p>Para embeber las fuentes utilizar <code>gs</code>:</p>
+<pre><code>gs \
+  -sFONTPATH=/path/to/fonts:/another/dir/with/more/fonts \
+  -o output.pdf \
+  -sDEVICE=pdfwrite \
+  -dPDFSETTINGS=/prepress \
+    input.pdf
+</code></pre>
+<p><em>Nota</em>: si no se encuentran las fuentes utilizadas por el pdf en los directorios
+listados en <code>FONTPATH</code>, <code>gs</code> utilizará una fuente substituta.</p>
+<blockquote>
+<p>Agregar las fuentes puede ser una solución al problema de que un pdf no se
+visualice correctamente en lector de libros como los Kindle E-ink.</p>
+</blockquote>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

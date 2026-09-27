@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Usando nodejs en OpenBSD | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Usando nodejs en OpenBSD</h1>
+        <h2 class="date">2022-05-25</h2>
+      </div>
+<p><strong>TL;DR</strong>:</p>
+<pre><code>$ doas pkg_add node
+$ cat &gt; ~/.npmrc &lt;&lt;'END'
+prefix = ${HOME}/.npm-packages
+END
+# agregar la linea `PATH=&quot;$PATH:$HOME/.npm-packages/bin&quot;` en el archivo `~/.profile`
+</code></pre>
+<h2>Instalando nodejs en OpenBSD</h2>
+<p>Por suerte <a href="https://nodejs.org/">nodejs</a> se encuentra entre los <a href="https://www.openbsd.org/faq/ports/index.html">ports</a> de <a href="https://www.openbsd.org/">OpenBSD</a>, por lo cual se
+instala haciendo:</p>
+<pre><code>$ doas pkg_add node
+</code></pre>
+<p>Probamos que funcione:</p>
+<pre><code>$ node
+Welcome to Node.js v16.14.2.
+Type &quot;.help&quot; for more information.
+&gt;
+$ npm version
+{
+  npm: '8.5.0',
+  node: '16.14.2',
+  v8: '9.4.146.24-node.20',
+  uv: '1.44.1',
+  zlib: '1.2.12',
+  brotli: '1.0.9',
+  ares: '1.18.1',
+  modules: '93',
+  nghttp2: '1.47.0',
+  napi: '8',
+  llhttp: '6.0.4',
+  openssl: '1.1.1o',
+  cldr: '41.0',
+  icu: '71.1',
+  tz: '2022a',
+  unicode: '14.0'
+}
+</code></pre>
+<h2>Configurando prefijo global para el usuario</h2>
+<p>Ahora, a instalar algunos utilitario, por ejemplo <a href="https://browsersync.io/">browser-sync</a>:</p>
+<pre><code>$ npm install -g browser-sync
+...
+npm ERR! code EACCES
+npm ERR! syscall mkdir
+npm ERR! path /usr/local/lib/node_modules/browser-sync
+npm ERR! errno -13
+npm ERR! Error: EACCES: permission denied, mkdir '/usr/local/lib/node_modules/browser-sync'
+npm ERR!  [Error: EACCES: permission denied, mkdir '/usr/local/lib/node_modules/browser-sync'] {
+npm ERR!   errno: -13,
+npm ERR!   code: 'EACCES',
+npm ERR!   syscall: 'mkdir',
+npm ERR!   path: '/usr/local/lib/node_modules/browser-sync'
+npm ERR! }
+...
+</code></pre>
+<p>Se comienza a buscar en las preferencias de <a href="https://www.npmjs.com/">npm</a> el porqué se intenta instalar
+bajo <code>/usr/local/lib/node_modules</code> en lugar de bajo <code>$HOME</code>:</p>
+<pre><code>$ npm config list -l | grep /usr/local
+globalconfig = &quot;/usr/local/etc/npmrc&quot;
+prefix = &quot;/usr/local&quot;
+shell = &quot;/usr/local/bin/bash&quot;
+</code></pre>
+<p>El valor <code>prefix</code> es <em>sospechoso</em>, ya que en la <a href="https://docs.npmjs.com/cli/v8/commands/npm">documentación de npm</a>
+lo primero que se ve lee es:</p>
+<blockquote>
+<p>Directories</p>
+<p>See folders to learn about where npm puts stuff.</p>
+<p>In particular, npm has two modes of operation:</p>
+<pre><code>local mode: npm installs packages into the current project directory, which defaults to the current working directory. Packages install to ./node_modules, and bins to ./node_modules/.bin.
+global mode: npm installs packages into the install prefix at $npm_config_prefix/lib/node_modules and bins to $npm_config_prefix/bin.
+</code></pre>
+<p>Local mode is the default. Use -g or --global on any command to run in global mode instead.</p>
+</blockquote>
+<p>Por esto es que debemos cambiar el valor del prefix para que apunte a nuestro
+<code>$HOME</code>.</p>
+<p>La configuración de npm se almacena usando <a href="https://docs.npmjs.com/cli/v8/configuring-npm/npmrc">archivos npmrc</a> de la
+siguiente forma:</p>
+<blockquote>
+<p>Files</p>
+<p>The four relevant files are:</p>
+<pre><code>per-project config file (/path/to/my/project/.npmrc)
+per-user config file (~/.npmrc)
+global config file ($PREFIX/etc/npmrc)
+npm builtin config file (/path/to/npm/npmrc)
+</code></pre>
+</blockquote>
+<p>Por lo que se crea el archivo <code>~/.npmrc</code> de la siguiente forma:</p>
+<pre><code>$ cat &gt; ~/.npmrc &lt;&lt;'END'
+prefix = ${HOME}/.npm-packages
+END
+</code></pre>
+<p><em>Nota</em>: si tratamos de crear el archivo con <code>npm</code> obtenemos el siguiente error:</p>
+<pre><code>$ npm config -g set prefix '${HOME}/.npmrc'
+npm ERR! code EACCES
+npm ERR! syscall mkdir
+npm ERR! path /usr/local/etc
+npm ERR! errno -13
+npm ERR! Error: EACCES: permission denied, mkdir '/usr/local/etc'
+npm ERR!  [Error: EACCES: permission denied, mkdir '/usr/local/etc'] {
+npm ERR!   errno: -13,
+npm ERR!   code: 'EACCES',
+npm ERR!   syscall: 'mkdir',
+npm ERR!   path: '/usr/local/etc'
+npm ERR! }
+</code></pre>
+<h2>Probando instalación global</h2>
+<p>Luego volvemos a instalar <a href="https://browsersync.io/">browser-sync</a>:</p>
+<pre><code>$ npm install -g browser-sync
+
+added 169 packages, and audited 170 packages in 29s
+
+6 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+</code></pre>
+<p>y vemos que esta vez funcionó sin problemas.</p>
+<p>Para ejecutar <a href="https://browsersync.io/">browser-sync</a> primero hay que agregar la ruta donde <code>npm</code> instala
+los binarios que la obtenemos también de <a href="https://docs.npmjs.com/cli/v8/configuring-npm/folders">la documentación</a>:</p>
+<blockquote>
+<p>Executables</p>
+<p>When in global mode, executables are linked into {prefix}/bin on Unix, or directly into {prefix} on Windows. Ensure that path is in your terminal's PATH environment to run them.</p>
+<p>When in local mode, executables are linked into ./node_modules/.bin so that they can be made available to scripts run through npm. (For example, so that a test runner will be in the path when you run npm test.)</p>
+</blockquote>
+<p>Se edita <code>~/.profiles</code> para agregar la linea
+<code>PATH=&quot;$PATH:$HOME/.npm-packages/bin&quot;</code>, se recarga el profile (no hay problemas
+si es <a href="https://en.wikipedia.org/wiki/Idempotence">idempotente</a>) y confirmamos que el comando
+<a href="https://browsersync.io/">browser-sync</a> funciona:</p>
+<pre><code>$ browser-sync --version
+2.27.10
+</code></pre>
+<p>Para probar hacemos:</p>
+<pre><code>$ cat &gt; index.html &lt;&lt;'END'
+&lt;body&gt;
+&lt;h1&gt;Hello world!&lt;/h1&gt;
+END
+$ browser-sync -w
+</code></pre>
+<p>y vemos que se abre una nueva pestaña en el navegador web y recarga el archivo
+luego de modificado.</p>
+<p>¿Porqué ese ejemplo para <code>index.html</code>?</p>
+<ol>
+<li>Para recordar que actualmente los navegadores parsean casi cualquier cosa
+como <a href="https://en.wikipedia.org/wiki/HTML">HTML</a> (y lamentar que no se requiera un parsing más exacto
+usando <a href="https://en.wikipedia.org/wiki/XHTML">XHTML</a>).</li>
+<li>Porque en la <a href="https://browsersync.io/docs">documentación de browser-sync</a> se indica que
+tiene que haber por lo menos un tag <code>&lt;body&gt;</code> donde se inyecta un script
+utilizado por <code>browser-sync</code> para hacer la recarga de la página.</li>
+</ol>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

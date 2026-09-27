@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Comprimir binarios | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Comprimir binarios</h1>
+        <h2 class="date">2019-01-21</h2>
+      </div>
+<p>En varias competiciones de demoscene lo que importa es el tamaño: 1k, 4k, 64k
+por nombrar algunas.</p>
+<p>Suponiendo que ya se tiene el binario, minimizado (ver
+<a href="https://files.scene.org/view/resources/in4k/linux_4k_intro_coding_asm06.pdf">linux_4k_intro_coding_asm06</a>)
+es común comprimirlo.</p>
+<p>Las dos formas más comunes que suelen encontrarse difieren en quien realiza la
+descompresión:</p>
+<ol>
+<li>La descompresión la realiza el ELF</li>
+<li>La descompresión se realiza mediante un script que se encuentra en el header</li>
+</ol>
+<p>A continuación se verán las distintas alternativas mediante ejemplos encontrados
+en distintas demos, centrandose en las del caso 2.</p>
+<h2>Descompresión realizada por el archivo ELF</h2>
+<h3>Mediante <a href="https://upx.github.io/">upx</a> - <a href="https://files.scene.org/view/parties/2008/sundown08/demo/about_time.zip">About Time</a></h3>
+<p>En el archivo <code>synth_src/bin/strip.sh</code> se encuentran los pasos para preparar el
+archivo:</p>
+<pre><code>strip -s -R .comment -R .gnu.version demo
+sstrip demo
+upx-nrv --ultra-brute --overlay=strip --all-methods --all-filters --no-mode --no-owner --no-time --lzma demo
+sstrip demo
+</code></pre>
+<p>Aparte de los programas <a href="https://www.gnu.org/software/binutils/">strip</a> y
+<a href="http://www.muppetlabs.com/~breadbox/software/elfkickers.html">sstrip</a>
+utilizados para reducir el tamaño del binario, se utiliza
+<a href="https://upx.github.io/">upx</a> para realizar la descompresión a memoria en tiempo
+de ejecución.</p>
+<p><strong>Notar que el uso de <code>strip</code> y <code>sstrip</code> se realiza siempre, no solamente al
+utilizar <code>upx</code></strong>.</p>
+<h2>Descompresión realizada mediante script en el header</h2>
+<h3>Uso de sed - <a href="https://files.scene.org/view/parties/2018/assembly18/1k/geelimanipulaatio_by_gib3__tix0.zip">geelimanipulaatio</a></h3>
+<p>En la cabecera del archivo <code>geelimanipulaatio_1920x1080</code> se encuentra:</p>
+<pre><code>cp $0 /tmp/M;(sed 1d $0|lzcat)&gt;$_;$_;exit
+</code></pre>
+<p><strong>Tamaño</strong>: <em>42 bytes</em>.</p>
+<p>Esta es la cabecera de menor tamaño entre las estudiadas.</p>
+<p>Se utiliza <code>sed</code> para borrar la primer linea del archivo y <code>lzcat</code> para
+descomprimirlo. Aquí <a href="https://www.thegeekstuff.com/2010/05/bash-shell-special-parameters/">$_</a>
+hace referencia al último argumento del comando anterior, con lo que se ahorran
+<em>4 bytes</em> con cada uso.</p>
+<p>Si bien el contenido de la copia (<code>cp $0 /tmp/M</code>) es reemplazado con el
+siguiente comando (<code>(sed 1d $0|lzcat)&gt;$_</code>), su motivo está relacionado con el
+permiso de ejecución del archivo, el cual se mantiene del archivo original y
+evita tener que utilizar el comando <code>chmod +x</code>.</p>
+<h3>Uso de sed - <a href="https://files.scene.org/view/parties/2018/revision18/pc-4k-intro/rodybohe.tar.xz">lo jai rodybo'e nunco'e fai paki'orevo poi'i no'a kaike'a</a></h3>
+<p>En el directorio <code>src/src/stub</code> se encuentran alternativas del header a
+utilizar, por ejemplo, <code>src/src/stub/stub2-outer-xz</code>:</p>
+<pre><code>sed 1d $0|xzcat&gt;j;chmod +x j;./j;rm j;exit
+</code></pre>
+<p><strong>Tamaño</strong>: <em>43 bytes</em>.</p>
+<p>Similar a la anterior, borra la primera linea del archivo en que se encuentra
+el header, descomprime el binario, le da permisos de ejecución, lo ejecuta y lo
+elimina.</p>
+<p>Si no se eliminara el archivo sería la cabecera de menor tamaño entre las
+estudiadas, pero es razonable que se borre el archivo si se descomprime en un
+directorio que no sea <code>/tmp</code>.</p>
+<h3>Uso de tail - <a href="https://files.scene.org/view/parties/2013/assembly13/in1k/bioterrorism_by_below_absolute_zero.zip">bioterrorism</a></h3>
+<p>En el archivo <code>bioterrorism/src/unpack.header</code>:</p>
+<pre><code>a=/tmp/a;tail -n+2 $0|zcat&gt;$a;chmod +x $a;$a;exit
+</code></pre>
+<p><strong>Tamaño</strong>: <em>50 bytes</em>.</p>
+<p>Otra alternativa, comparada con el uso de <code>sed</code>, se pierden <em>2 bytes</em>. La única
+ventaja de utilizar <code>tail</code> en lugar de <code>sed</code> es la velocidad, pero para estos
+casos no es apreciable.</p>
+<h3>Uso de dd - <a href="https://files.scene.org/view/parties/2003/assembly03/in4k/yellow_rose_of_texas_by_fit___bandwagon.tgz">Yellow Rose of Texas</a></h3>
+<p>En el archivo <code>src/unpack.header</code> se encuentra:</p>
+<pre><code>dd bs=1 skip=83&lt;$0|gunzip&gt;/tmp/T;cd /tmp;chmod +x T;__GL_FSAA_MODE=4 ./T;rm T;exit
+</code></pre>
+<p>En este caso el truco consiste en las opciones al comando <code>dd</code>: <code>bs=1 skip=83</code> copia el resto del archivo a partir del final del texto <code>exit</code>, ya
+que la linea ocupa <strong>exactamente</strong> 83 bytes (contando la <em>nueva linea</em>).</p>
+<p>Si se omite la variable de entorno utilizada se obtiene:</p>
+<pre><code>dd bs=1 skip=66&lt;$0|gunzip&gt;/tmp/T;cd /tmp;chmod +x T;./T;rm T;exit
+</code></pre>
+<p><strong>Tamaño</strong>: <em>66 bytes</em>.</p>
+<h2>Conclusión</h2>
+<p>Como se indicó anteriormente nos centramos en el caso de descompresión basada en
+script en el header.</p>
+<p>Para obtener una conclusión de que script conviene utilizar se normalizarán los
+scripts anteriores:</p>
+<ul>
+<li>Como nombre del programa extraído se utiliza <code>P</code></li>
+<li>Se utiliza como decompresor <code>zcat</code></li>
+</ul>
+<p>Y se tendrán en cuenta las siguientes combinaciones:</p>
+<ol>
+<li>El archivo se extrae en el directorio actual y debe borrarse al terminar la
+ejecución.</li>
+<li>El archivo se extrae en el directorio <code>/tmp</code> y no debe borrarse al terminar
+la ejecución.</li>
+</ol>
+<p>A continuación los scritps:</p>
+<ol>
+<li>
+<p>Se extrae en el directorio actual, se borra</p>
+<pre><code>cp $0 P;(sed 1d $0|zcat)&gt;P;./P;rm P;exit
+sed 1d $0|zcat&gt;P;chmod +x P;./P;rm P;exit
+tail -n+2 $0|zcat&gt;P;chmod +x P;./P;rm P;exit
+dd bs=1 skip=46&lt;$0|zcat&gt;P;chmod +x P;./P;exit
+</code></pre>
+</li>
+<li>
+<p>Se extrae en <code>/tmp</code>, no se borra</p>
+<pre><code>cp $0 /tmp/P;(sed 1d $0|zcat)&gt;$_;$_;exit
+sed 1d $0|zcat&gt;/tmp/P;chmod +x $_;$_;exit
+tail -n+2 $0|zcat&gt;/tmp/P;chmod +x $_;$_;rm $_;exit
+dd bs=1 skip=57&lt;$0|zcat&gt;/tmp/T;chmod +x $_;$_;rm $_;exit
+</code></pre>
+</li>
+</ol>
+<p>En ambos casos el primer script es el ganador (por <em>1 byte</em>) con un tamaño de
+<em>41 bytes</em> totales, contando la nueva linea.</p>
+<p><em>Nota</em>: En los scripts que utilizan <code>dd</code> se saltan la cantidad de carácteres de
+la linea.</p>
+<p><strong>Por último, conviene recordar que no es posible calcular con antelación que
+método será el más efectivo para obtener un tamaño menor del ejecutable, por lo
+que conviene utilizar los dos anteriores (ELF, script) y ver con cual se obtiene
+un archivo de menor tamaño.</strong></p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

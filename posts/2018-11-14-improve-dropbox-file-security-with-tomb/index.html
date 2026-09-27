@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mejorar la seguridad de archivos de Dropbox con tomb | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Mejorar la seguridad de archivos de Dropbox con tomb</h1>
+        <h2 class="date">2018-11-14</h2>
+      </div>
+<p>En lo que sigue se intenta mejorar la seguridad de los archivos descargados
+mediante Dropbox a un PC, de tal forma que si un <a href="https://ssd.eff.org/en/glossary/adversary">adversario</a>
+tiene acceso al disco duro los archivos no son accesibles.</p>
+<p>Se supone que se tiene permisos de administrador en el PC y que el disco <a href="https://ssd.eff.org/en/module/keeping-your-data-safe">no
+posee una encriptación completa</a>.</p>
+<h2>Programa tomb</h2>
+<p><a href="https://www.dyne.org/software/tomb/">tomb</a> es un programa utilizado para encriptar archivos en linux.</p>
+<p>De la <a href="https://manpages.debian.org/unstable/tomb/tomb.1.en.html">página del manual</a>:</p>
+<blockquote>
+<p>Tomb generates encrypted storage files to be opened and closed using their
+associated keys, which are also protected with a password chosen by the user.</p>
+</blockquote>
+<p>También en la página del manual se indica, en los ejemplos, como utilizarlo.</p>
+<p>Hay que notar que <em>tomb</em> tiene dos tipos de hooks: <em>bind-hooks</em> y <em>exec-hooks</em>.</p>
+<p>Los <em>bind-hooks</em>, como su nombre lo indica, son utilizados para montar
+(utilizando la opción <em>bind</em> de <code>mount</code>) en el directorio <code>$HOME</code> del usuario
+archivos y directorios al <em>abrir el archivo tomb</em>. Los directorios a montar se
+indican mediante el archivo <code>bind-hooks</code> que se encuentra en la <em>raiz</em> del tomb.
+Con <em>abrir el archivo tomb</em> se hace referencia a montar el archivo encriptado en
+un directorio para que se accesible.</p>
+<p>Por otro lado, los <em>exec-hooks</em> son scripts que deben ser ejecutables y en
+contrarse en la raíz del <em>tomb</em> y que reciben el parámetro <code>open</code> o <code>close</code>,
+según se esté montando o desmontando el archivo encriptado.</p>
+<h2>Uso con <em>Dropbox</em></h2>
+<p>Para proteger los archivos descargados mediante <em>Dropbox</em> se debe configurar
+adecuadamente <code>tomb</code>.
+Para ello se debe crear un archivo contenedor mediante los comandos <code>dig</code>,
+<code>forge</code> y <code>lock</code> de <code>tomb</code> como se indica en el manual.</p>
+<p><strong>NOTA</strong>: Para realizar los pasos siguientes se supone que se tiene instalado el
+cliente de <em>Dropbox</em> mediante el paquete <code>nautilus-dropbox</code> o <code>caja-dropbox</code> y
+que ya hay archivos sincronizados en el disco.</p>
+<ol>
+<li>
+<p>Se crea el archivo a utilizar con <code>tomb</code> y se le asocia una clave. Se elige
+como tamaño de archivo <strong>6GB</strong> ya que es el tamaño máximo de una cuenta
+gratuita (por defecto) de <em>Dropbox</em>:</p>
+<pre><code>$ mkdir -p ~/graveyard
+$ tomb dig -s 6144 ~/graveyard/dropbox.tomb
+$ tomb forge -f ~/dropbox.tomb.key
+$ tomb lock -k ~/dropbox.tomb.key ~/graveyard/dropbox.tomb
+</code></pre>
+<p><strong>NOTA</strong>: Se utiliza la opción <code>-f</code> para forzar la operación, ya que al no
+tener una partición (o archivo) <em>swap encriptado</em>, <code>tomb</code> lanza warnings
+respecto a la falta de seguridad de la configuración.</p>
+<p>En mi caso particular practicamente no se está utilizando la swap
+(<code>free -h</code>) y estoy en duda de encriptar la partición swap ya que utilizo
+un <em>disco SSD</em>, por lo que por ahora se ignora el aviso de tomb.</p>
+</li>
+<li>
+<p>Se copian los archivos de <em>Dropbox</em> al tomb.</p>
+<p>Primeramente se detiene el cliente de <em>Dropbox</em> para evitar problemas al
+mover los archivos:</p>
+<pre><code>$ dropbox stop
+</code></pre>
+<p>Luego se mueven los archivos y directorios relacionados a <em>Dropbox</em>:</p>
+<pre><code>$ tomb open -f -k ~/dropbox.tomb.key ~/graveyard/dropbox.tomb /run/media/$USER/dropbox
+$ mv ~/Dropbox /media/dropbox/
+$ mv ~/.dropbox /media/dropbox/_dropbox
+$ mv ~/.dropbox-dist /media/dropbox/_dropbox-dist
+</code></pre>
+<p><strong>NOTA</strong>: No se desea copiar los directorios ocultos utilizados como tales
+dentro del tomb, sinó que se los quiere hacer visibles por defecto
+utilizando <code>_</code> en lugar de <code>.</code> como prefijo del nombre.</p>
+<p>Es necesario volver a crear los directorios movidos para utilizar como
+puntos de montaje al abrir el archivo tomb:</p>
+<pre><code>$ mkdir ~/Dropbox ~/.dropbox ~/.dropbox-dist
+</code></pre>
+</li>
+<li>
+<p>Configurar <em>Dropbox</em> para que no inicie cuando se loguea un usuario, ya que
+hasta no abrir el archivo tomb no se tiene acceso a los archivos utilizados
+por <em>Dropbox</em>:</p>
+<p>Mediante la interfaz gráfica del cliente de <em>Dropbox</em>, deshabilitar en
+<em>Preferencias...</em> la opción <em>Start Dropbox on system startup</em> para evitar
+que se inicie el cliente de <em>Dropbox</em> y muestre un diálogo sugiriendo que
+nos logueemos para sincronizar los datos.</p>
+</li>
+<li>
+<p>Se crean los hooks a utilizar por tomb:</p>
+<p>Primero el <em>bind-hooks</em> para montar automaticamente mediante <em>bind mount</em>
+los directorios utilizados por el cliente de <em>Dropbox</em> en el <code>$HOME</code>.</p>
+<pre><code>$ cat &gt; /media/dropbox/bind-hooks &lt;&lt;END
+Dropbox Dropbox
+_dropbox .dropbox
+_dropbox-dist .dropbox-dist
+END
+</code></pre>
+<p>Luego el <em>exec-hooks</em> para iniciar o terminar el cliente de <em>Dropbox</em> cuando
+se abre o cierra el archivo tomb:</p>
+<pre><code>$ cat &gt; /media/dropbox/exec-hooks &lt;&lt;END
+#!/bin/sh
+if [ &quot;$1&quot; = open ]; then
+    dropbox start 1&gt;/dev/null 2&gt;&amp;1
+elif [ &quot;$1&quot; = close ]; then
+    dropbox stop
+fi
+END
+$ chmod +x /media/dropbox/exec-hooks
+</code></pre>
+</li>
+</ol>
+<h2>Conclusiones</h2>
+<p><code>tomb</code> es útil para encriptar datos particulares de programas y almacenarlos en
+dispositivos usb o archivos en el filesystem como alternativa a utilizar una
+partición totalmente encriptada.</p>
+<p>Lo que no me da buen olfato es agregar permisos de <code>sudo</code> mediante una linea de
+la forma:</p>
+<pre><code>username ALL=NOPASSWD: /usr/bin/tomb
+</code></pre>
+<p>en <code>/etc/sudoers</code> como se indica en el manual, por lo que solo le encuentro
+utilidad en sistemas en los que se tengan priviliegios de administrador
+utilizando <code>sudo</code> - digase la PC personal y con suerte la PC del trabajo.</p>
+<p>También es de hacer notar que los datos no están ocultos:</p>
+<ol>
+<li>
+<p>Se puede encontrar en la historia del shell los parámetros de los comandos
+utilizados por tomb. Si bien es cierto que anteponiendo un espacio el
+comando no se guarda en el historial, es posible que por error se hayan
+omitido alguna vez y no se haya borrado ese comando del historial.</p>
+</li>
+<li>
+<p>El tipo de archivo utilizado por tomb no está oculto:</p>
+<pre><code>$ file ~/graveyard/dropbox.tomb
+/home/&lt;user&gt;/graveyard/dropbox.tomb: LUKS encrypted file, ver 1 [aes, xts-plain64:sha256, sha256] UUID: 2126e723-ee60-4a9b-a9c6-fab1d7bb895c
+</code></pre>
+<p>o sea, si se ordenan de forma decreciente los archivos por tamaño y se
+aplica el comando <code>file</code> a los primeros es posible encontrar fácilmente los
+archivos tomb.</p>
+</li>
+</ol>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

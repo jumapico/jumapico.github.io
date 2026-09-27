@@ -1,0 +1,176 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: ISC
+"""
+Generador de OTP para BROU Llave Digital (uy.com.brou.token).
+
+Para más información:
+
+  * <https://blog.jumapico.uy/posts/2022-04-05-get-brou-otp/>
+  * <https://blog.jumapico.uy/posts/2026-08-30-revisiting-brou-otp/>
+
+El cifrado de la semilla usa la implementacion de AES-256-CTR de Chris Veness
+cuyos detalles son mencionados en
+<https://codeandlife.com/2023/02/05/recreating-chris-veness-aes256-ctr-decryption-with-cryptojs-for-fun-and-profit/>
+
+Requiere los paquetes: pycryptodome pyotp requests
+"""
+
+import argparse
+import base64
+import re
+import sys
+import urllib.parse
+import zlib
+from pathlib import Path
+
+import pyotp
+import requests
+from Crypto.Cipher import AES
+from Crypto.Util import Counter
+
+BASE_URL = "https://servicios.brou.com.uy/etoken/a.php"
+STEP_SECONDS = 40  # ventana del TOTP (users.js: counter = floor(tiempo_ms / 40000))
+
+
+def ctr_decrypt(ciphertext_b64: str, password: str, key_bits: int = 256) -> str:
+    """
+    Replica Aes.Ctr.decrypt() de Chris Veness que difiere de un AES-CTR
+    estandar en dos puntos:
+
+    * Key derivation no estandar: en vez de un KDF (PBKDF2/scrypt), la
+      password truncada/rellenada a key_bits se usa como key AES para
+      cifrar los primeros 16 bytes (ECB de un solo bloque); ese bloque
+      se concatena consigo mismo hasta completar key_bits.
+    * El nonce (8 bytes, no un IV/counter-block de 16 como en un CTR
+      normal) va embebido como prefijo del ciphertext en vez de
+      transmitirse aparte; los 8 bytes restantes del counter-block son un
+      contador de 64 bits big-endian que empieza en 0.
+    """
+    raw = base64.b64decode(ciphertext_b64)
+    nonce, ct = raw[:8], raw[8:]
+
+    nbytes = key_bits // 8
+    pw_bytes = password.encode("utf-8")[:nbytes].ljust(nbytes, b"\x00")
+    block = AES.new(pw_bytes, AES.MODE_ECB).encrypt(pw_bytes[:16])
+    key = block + block[: nbytes - 16]
+
+    counter = Counter.new(64, prefix=nonce, initial_value=0, little_endian=False)
+    plaintext = AES.new(key, AES.MODE_CTR, counter=counter).decrypt(ct)
+    return plaintext.decode("utf-8")
+
+
+def decode_seed(ciphertext_b64: str, pin: str) -> str:
+    plaintext = ctr_decrypt(ciphertext_b64, pin, 256)
+    crc, seed = (plaintext.split(" ") + ["", ""])[:2]
+    if not crc.isdigit() or int(crc) != (zlib.crc32(seed.encode("utf-8")) & 0xFFFFFFFF):
+        raise ValueError("CRC invalido: PIN incorrecto o seed cifrado corrupto")
+    return seed
+
+
+def to_totp(seed: str) -> pyotp.TOTP:
+    # El seed real es texto plano ASCII; se codifica en base32 porque es
+    # el formato que esperan las apps TOTP (pyotp, KeePassXC, otpauth://).
+    secret_b32 = base64.b32encode(seed.encode("utf-8")).decode("ascii")
+    return pyotp.TOTP(secret_b32, digits=6, interval=STEP_SECONDS, issuer="BROU", name="accountname")
+
+
+def totp_uri(totp: pyotp.TOTP) -> str:
+    # pyotp.provisioning_uri() omite algorithm/digits cuando coinciden con
+    # el default de la RFC (SHA1/6), que es nuestro caso. Se arma la URI a
+    # mano para que quede explicita y autocontenida.
+    label = urllib.parse.quote(totp.name)
+    params = urllib.parse.urlencode({
+        "secret": totp.secret,
+        "issuer": totp.issuer,
+        "algorithm": "SHA1",
+        "digits": totp.digits,
+        "period": totp.interval,
+    })
+    return f"otpauth://totp/{label}?{params}"
+
+
+def fetch_encrypted_seed(cupon: str, verbose: bool = False) -> str:
+    r = requests.get(BASE_URL, params={"cupon": cupon, "callback": "?"}, timeout=45)
+    if verbose:
+        print(f"> GET {r.request.url}", file=sys.stderr)
+        print(f"< {r.status_code} {r.text}", file=sys.stderr)
+    r.raise_for_status()
+    match = re.search(r'"([^"]+)"', r.text)
+    if not match:
+        raise RuntimeError(f"Respuesta inesperada del servidor: {r.text!r}")
+    return match.group(1)
+
+
+def cmd_activate(args):
+    print(fetch_encrypted_seed(args.cupon, verbose=args.verbose))
+
+
+def cmd_token(args):
+    seed = decode_seed(args.encrypted_seed, args.pin)
+    totp = to_totp(seed)
+    if args.verbose:
+        crc = zlib.crc32(seed.encode("utf-8")) & 0xFFFFFFFF
+        print(f"CRC:                {crc}", file=sys.stderr)
+        print(f"Seed:               {seed}", file=sys.stderr)
+        print(f"Codigo TOTP actual: {totp.now()}", file=sys.stderr)
+    print(totp_uri(totp))
+
+
+PROG = Path(sys.argv[0]).name
+
+
+def main():
+    if len(sys.argv) == 1:
+        print(f"""\
+Pasos para obtener un codigo OTP de BROU (Llave Digital):
+
+  1) Conseguir de BROU un cupon de asociacion y el PIN correspondiente
+     (los da el banco; este script no los genera).
+
+  2) Canjear el cupon por la semilla cifrada (una sola vez, el cupon se
+     invalida despues de esto). El resultado se imprime en la salida
+     estandar:
+       SEED=$({PROG} activate --cupon <CUPON>)
+
+  3) Descifrar la semilla y obtener la URI otpauth:// para importar en
+     cualquier app TOTP compatible:
+       {PROG} token --pin <PIN> --encrypted-seed "$SEED"
+
+Para obtener mas informacion usar `{PROG} -h`.
+""")
+        return
+
+    p = argparse.ArgumentParser(prog=PROG)
+    sub = p.add_subparsers(dest="command", required=True)
+
+    sp = sub.add_parser("activate", help="Canjea un cupon por la semilla cifrada")
+    sp.add_argument("--cupon", required=True, help="Cupon de asociacion entregado por BROU")
+    sp.add_argument("-v", "--verbose", action="store_true", help="Mostrar el request/response HTTP")
+    sp.set_defaults(func=cmd_activate)
+
+    sp = sub.add_parser(
+        "token",
+        help="Genera el codigo OTP vigente",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description=f"""\
+La salida sigue el formato otpauth:// (draft IETF "otpauth URI Scheme"):
+  https://datatracker.ietf.org/doc/draft-linuxgemini-otpauth-uri/
+
+Ejemplo de uso:
+  {PROG} token --pin 999999 --encrypted-seed jNnbU15eXl5dMsxWZ5alkd9nFoWo1Eb1t0Izj4nh5PKVMGI0hOQLBQMv8k2t -v
+""",
+    )
+    sp.add_argument("--pin", required=True, help="PIN entregado por BROU")
+    sp.add_argument("--encrypted-seed", required=True, help="Semilla cifrada obtenida con 'activate'")
+    sp.add_argument("-v", "--verbose", action="store_true", help="Mostrar CRC, seed en texto plano y codigo TOTP actual")
+    sp.set_defaults(func=cmd_token)
+
+    args = p.parse_args()
+    try:
+        args.func(args)
+    except (ValueError, RuntimeError) as e:
+        sys.exit(f"Error: {e}")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Corrigiendo la especificación microprofile jwt | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Corrigiendo la especificación microprofile jwt</h1>
+        <h2 class="date">2021-05-03</h2>
+      </div>
+<p>A continuación se detallan algunas de las pruebas que estuve haciendo hace unos
+meses con la especificación <a href="https://microprofile.io/">microprofile</a> <a href="https://github.com/eclipse/microprofile-jwt-auth/releases/tag/1.2">jwt propagation 1.2</a>, también
+llamada JWT RBAC (role based access control) y que me <a href="https://github.com/eclipse/microprofile-jwt-auth/commit/eb19c6d7f0155e0827a0110c08f629cf3c93d621">llevaron a corregir la
+especificación</a>.</p>
+<p>Notas:</p>
+<ol>
+<li>Estas pruebas fueron realizadas con <a href="https://download.jboss.org/wildfly/22.0.1.Final/wildfly-22.0.1.Final.tar.gz">wildfly 22.0.1.Final</a>.</li>
+<li>Las diferentes versiones del código mostrado aquí se encuentra en el
+repositorio <a href="https://git.sr.ht/~jumapico/jakarta-ee-experiments">https://git.sr.ht/~jumapico/jakarta-ee-experiments</a>, bajo el
+directorio <a href="https://git.sr.ht/~jumapico/jakarta-ee-experiments/tree/master/item/mp4-demo-jwt">mp4-demo-jwt</a>.</li>
+</ol>
+<h2>Versión 01</h2>
+<p>Se comienza con:</p>
+<ol>
+<li>
+<p>Un <code>pom.xml</code> que contiene las dependencias de microprofile:</p>
+<pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;org.eclipse.microprofile&lt;/groupId&gt;
+    &lt;artifactId&gt;microprofile&lt;/artifactId&gt;
+    &lt;version&gt;4.0.1&lt;/version&gt;
+    &lt;type&gt;pom&lt;/type&gt;
+    &lt;scope&gt;provided&lt;/scope&gt;
+&lt;/dependency&gt;
+</code></pre>
+</li>
+<li>
+<p>La clase <code>JAXRSActivator.java</code> que activa jax-rs:</p>
+<pre><code>@ApplicationPath(&quot;/&quot;)
+public class JAXRSActivator extends Application {}
+</code></pre>
+</li>
+<li>
+<p>Una clase <code>Resources.java</code> que contendrá un resource que devuelve la
+información del token jwt:</p>
+<pre><code>@Inject JsonWebToken jsonWebToken;
+
+@Path(&quot;info&quot;)
+@GET
+public String info() {
+  return &quot;Token info: &quot; + jsonWebToken;
+}
+</code></pre>
+<p>y otro que no permita el acceso, para poder probar que el control de acceso
+por roles funciona:</p>
+<pre><code>@Path(&quot;denied&quot;)
+@GET
+@DenyAll
+public String denied() {
+  return &quot;This endpoint is denied&quot;;
+}
+</code></pre>
+</li>
+<li>
+<p>El archivo <code>beans.xml</code> para la <a href="https://jakarta.ee/specifications/cdi/2.0/cdi-spec-2.0.html#packaging_deployment">busqueda de beans</a></p>
+</li>
+<li>
+<p>El archivo <code>jboss-web.xml</code> para definir el path a utilizar por la aplicación:</p>
+<pre><code>&lt;context-root&gt;/demojwt&lt;/context-root&gt;
+</code></pre>
+</li>
+</ol>
+<p>Se genera el war de la aplicación utilizando <code>./mvnw clean package</code> y al
+deployar se obtiene la siguiente traza:</p>
+<pre><code>01:44:38,539 INFO  [org.jboss.as.repository] (DeploymentScanner-threads - 1) WFLYDR0001: Content added at location /home/jmpc/workspace/wildfly-22.0.1.Final/standalone/data/content/84/5c625078d3dbb1a5127f7e5d93a5ab6b650b36/content
+01:44:38,575 INFO  [org.jboss.as.server.deployment] (MSC service thread 1-6) WFLYSRV0027: Starting deployment of &quot;demo-jwt-1.0-SNAPSHOT.war&quot; (runtime-name: &quot;demo-jwt-1.0-SNAPSHOT.war&quot;)
+01:44:39,206 INFO  [org.jboss.weld.deployer] (MSC service thread 1-2) WFLYWELD0003: Processing weld deployment demo-jwt-1.0-SNAPSHOT.war
+01:44:39,393 INFO  [org.hibernate.validator.internal.util.Version] (MSC service thread 1-2) HV000001: Hibernate Validator 6.0.22.Final
+01:44:39,808 INFO  [io.jaegertracing.internal.JaegerTracer] (MSC service thread 1-2) No shutdown hook registered: Please call close() manually on application shutdown.
+01:44:39,909 INFO  [org.jboss.weld.Version] (MSC service thread 1-8) WELD-000900: 3.1.5 (Final)
+01:44:40,333 INFO  [org.infinispan.CONTAINER] (ServerService Thread Pool -- 78) ISPN000128: Infinispan version: Infinispan 'Corona Extra' 11.0.8.Final
+01:44:40,430 INFO  [org.jboss.weld.Bootstrap] (Weld Thread Pool -- 2) WELD-000119: Not generating any bean definitions from uy.jumapico.experiments.demojwt.boundary.Resources because of underlying class loading error: Type org.eclipse.microprofile.jwt.JsonWebToken from [Module &quot;deployment.demo-jwt-1.0-SNAPSHOT.war&quot; from Service Module Loader] not found.  If this is unexpected, enable DEBUG logging to see the full error.
+01:44:40,446 INFO  [org.infinispan.CONFIG] (MSC service thread 1-4) ISPN000152: Passivation configured without an eviction policy being selected. Only manually evicted entities will be passivated.
+01:44:40,448 INFO  [org.infinispan.CONFIG] (MSC service thread 1-4) ISPN000152: Passivation configured without an eviction policy being selected. Only manually evicted entities will be passivated.
+01:44:40,564 INFO  [org.infinispan.PERSISTENCE] (ServerService Thread Pool -- 78) ISPN000556: Starting user marshaller 'org.wildfly.clustering.infinispan.spi.marshalling.InfinispanProtoStreamMarshaller'
+01:44:40,944 INFO  [org.jboss.as.clustering.infinispan] (ServerService Thread Pool -- 78) WFLYCLINF0002: Started http-remoting-connector cache from ejb container
+01:44:41,715 INFO  [org.jboss.resteasy.resteasy_jaxrs.i18n] (ServerService Thread Pool -- 78) RESTEASY002225: Deploying javax.ws.rs.core.Application: class uy.jumapico.experiments.demojwt.boundary.JAXRSActivator$Proxy$_$$_WeldClientProxy
+01:44:41,765 ERROR [org.jboss.msc.service.fail] (ServerService Thread Pool -- 78) MSC000001: Failed to start service jboss.deployment.unit.&quot;demo-jwt-1.0-SNAPSHOT.war&quot;.undertow-deployment: org.jboss.msc.service.StartException in service jboss.deployment.unit.&quot;demo-jwt-1.0-SNAPSHOT.war&quot;.undertow-deployment: java.lang.NoClassDefFoundError: Lorg/eclipse/microprofile/jwt/JsonWebToken;
+	at org.wildfly.extension.undertow@22.0.1.Final//org.wildfly.extension.undertow.deployment.UndertowDeploymentService$1.run(UndertowDeploymentService.java:81)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at org.jboss.threads@2.4.0.Final//org.jboss.threads.ContextClassLoaderSavingRunnable.run(ContextClassLoaderSavingRunnable.java:35)
+	at org.jboss.threads@2.4.0.Final//org.jboss.threads.EnhancedQueueExecutor.safeRun(EnhancedQueueExecutor.java:1990)
+	at org.jboss.threads@2.4.0.Final//org.jboss.threads.EnhancedQueueExecutor$ThreadBody.doRunTask(EnhancedQueueExecutor.java:1486)
+	at org.jboss.threads@2.4.0.Final//org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1377)
+	at java.base/java.lang.Thread.run(Thread.java:829)
+	at org.jboss.threads@2.4.0.Final//org.jboss.threads.JBossThread.run(JBossThread.java:513)
+Caused by: java.lang.NoClassDefFoundError: Lorg/eclipse/microprofile/jwt/JsonWebToken;
+	at java.base/java.lang.Class.getDeclaredFields0(Native Method)
+	at java.base/java.lang.Class.privateGetDeclaredFields(Class.java:3061)
+	at java.base/java.lang.Class.getDeclaredFields(Class.java:2248)
+	at org.jboss.resteasy.resteasy-jaxrs@3.14.0.Final//org.jboss.resteasy.spi.metadata.ResourceBuilder.processDeclaredFields(ResourceBuilder.java:1008)
+	at org.jboss.resteasy.resteasy-jaxrs@3.14.0.Final//org.jboss.resteasy.spi.metadata.ResourceBuilder.processFields(ResourceBuilder.java:987)
+	at org.jboss.resteasy.resteasy-jaxrs@3.14.0.Final//org.jboss.resteasy.spi.metadata.ResourceBuilder.fromAnnotations(ResourceBuilder.java:869)
+	at org.jboss.resteasy.resteasy-jaxrs@3.14.0.Final//org.jboss.resteasy.spi.metadata.ResourceBuilder.getRootResourceFromAnnotations(ResourceBuilder.java:830)
+	at org.jboss.resteasy.resteasy-jaxrs@3.14.0.Final//org.jboss.resteasy.plugins.server.resourcefactory.POJOResourceFactory.&lt;init&gt;(POJOResourceFactory.java:38)
+	at org.jboss.resteasy.resteasy-jaxrs@3.14.0.Final//org.jboss.resteasy.core.ResourceMethodRegistry.addPerRequestResource(ResourceMethodRegistry.java:81)
+	at org.jboss.resteasy.resteasy-jaxrs@3.14.0.Final//org.jboss.resteasy.spi.ResteasyDeployment.registration(ResteasyDeployment.java:487)
+	at org.jboss.resteasy.resteasy-jaxrs@3.14.0.Final//org.jboss.resteasy.spi.ResteasyDeployment.startInternal(ResteasyDeployment.java:288)
+	at org.jboss.resteasy.resteasy-jaxrs@3.14.0.Final//org.jboss.resteasy.spi.ResteasyDeployment.start(ResteasyDeployment.java:93)
+	at org.jboss.resteasy.resteasy-jaxrs@3.14.0.Final//org.jboss.resteasy.plugins.server.servlet.ServletContainerDispatcher.init(ServletContainerDispatcher.java:140)
+	at org.jboss.resteasy.resteasy-jaxrs@3.14.0.Final//org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher.init(HttpServletDispatcher.java:42)
+	at io.undertow.servlet@2.2.4.Final//io.undertow.servlet.core.LifecyleInterceptorInvocation.proceed(LifecyleInterceptorInvocation.java:117)
+	at org.wildfly.extension.undertow@22.0.1.Final//org.wildfly.extension.undertow.security.RunAsLifecycleInterceptor.init(RunAsLifecycleInterceptor.java:78)
+	at io.undertow.servlet@2.2.4.Final//io.undertow.servlet.core.LifecyleInterceptorInvocation.proceed(LifecyleInterceptorInvocation.java:103)
+	at io.undertow.servlet@2.2.4.Final//io.undertow.servlet.core.ManagedServlet$DefaultInstanceStrategy.start(ManagedServlet.java:305)
+	at io.undertow.servlet@2.2.4.Final//io.undertow.servlet.core.ManagedServlet.createServlet(ManagedServlet.java:145)
+	at io.undertow.servlet@2.2.4.Final//io.undertow.servlet.core.DeploymentManagerImpl$2.call(DeploymentManagerImpl.java:588)
+	at io.undertow.servlet@2.2.4.Final//io.undertow.servlet.core.DeploymentManagerImpl$2.call(DeploymentManagerImpl.java:559)
+	at io.undertow.servlet@2.2.4.Final//io.undertow.servlet.core.ServletRequestContextThreadSetupAction$1.call(ServletRequestContextThreadSetupAction.java:42)
+	at io.undertow.servlet@2.2.4.Final//io.undertow.servlet.core.ContextClassLoaderSetupAction$1.call(ContextClassLoaderSetupAction.java:43)
+	at org.wildfly.extension.undertow@22.0.1.Final//org.wildfly.extension.undertow.security.SecurityContextThreadSetupAction.lambda$create$0(SecurityContextThreadSetupAction.java:105)
+	at org.wildfly.extension.undertow@22.0.1.Final//org.wildfly.extension.undertow.deployment.UndertowDeploymentInfoService$UndertowThreadSetupAction.lambda$create$0(UndertowDeploymentInfoService.java:1530)
+	at org.wildfly.extension.undertow@22.0.1.Final//org.wildfly.extension.undertow.deployment.UndertowDeploymentInfoService$UndertowThreadSetupAction.lambda$create$0(UndertowDeploymentInfoService.java:1530)
+	at org.wildfly.extension.undertow@22.0.1.Final//org.wildfly.extension.undertow.deployment.UndertowDeploymentInfoService$UndertowThreadSetupAction.lambda$create$0(UndertowDeploymentInfoService.java:1530)
+	at org.wildfly.extension.undertow@22.0.1.Final//org.wildfly.extension.undertow.deployment.UndertowDeploymentInfoService$UndertowThreadSetupAction.lambda$create$0(UndertowDeploymentInfoService.java:1530)
+	at io.undertow.servlet@2.2.4.Final//io.undertow.servlet.core.DeploymentManagerImpl.start(DeploymentManagerImpl.java:601)
+	at org.wildfly.extension.undertow@22.0.1.Final//org.wildfly.extension.undertow.deployment.UndertowDeploymentService.startContext(UndertowDeploymentService.java:97)
+	at org.wildfly.extension.undertow@22.0.1.Final//org.wildfly.extension.undertow.deployment.UndertowDeploymentService$1.run(UndertowDeploymentService.java:78)
+	... 8 more
+Caused by: java.lang.ClassNotFoundException: org.eclipse.microprofile.jwt.JsonWebToken from [Module &quot;deployment.demo-jwt-1.0-SNAPSHOT.war&quot; from Service Module Loader]
+	at org.jboss.modules.ModuleClassLoader.findClass(ModuleClassLoader.java:255)
+	at org.jboss.modules.ConcurrentClassLoader.performLoadClassUnchecked(ConcurrentClassLoader.java:410)
+	at org.jboss.modules.ConcurrentClassLoader.performLoadClass(ConcurrentClassLoader.java:398)
+	at org.jboss.modules.ConcurrentClassLoader.loadClass(ConcurrentClassLoader.java:116)
+	... 39 more
+
+01:44:41,772 ERROR [org.jboss.as.controller.management-operation] (DeploymentScanner-threads - 1) WFLYCTL0013: Operation (&quot;deploy&quot;) failed - address: ([(&quot;deployment&quot; =&gt; &quot;demo-jwt-1.0-SNAPSHOT.war&quot;)]) - failure description: {&quot;WFLYCTL0080: Failed services&quot; =&gt; {&quot;jboss.deployment.unit.\&quot;demo-jwt-1.0-SNAPSHOT.war\&quot;.undertow-deployment&quot; =&gt; &quot;java.lang.NoClassDefFoundError: Lorg/eclipse/microprofile/jwt/JsonWebToken;
+    Caused by: java.lang.NoClassDefFoundError: Lorg/eclipse/microprofile/jwt/JsonWebToken;
+    Caused by: java.lang.ClassNotFoundException: org.eclipse.microprofile.jwt.JsonWebToken from [Module \&quot;deployment.demo-jwt-1.0-SNAPSHOT.war\&quot; from Service Module Loader]&quot;}}
+01:44:41,911 INFO  [org.jboss.as.server] (DeploymentScanner-threads - 1) WFLYSRV0010: Deployed &quot;demo-jwt-1.0-SNAPSHOT.war&quot; (runtime-name : &quot;demo-jwt-1.0-SNAPSHOT.war&quot;)
+01:44:41,912 INFO  [org.jboss.as.controller] (DeploymentScanner-threads - 1) WFLYCTL0183: Service status report
+WFLYCTL0186:   Services which failed to start:      service jboss.deployment.unit.&quot;demo-jwt-1.0-SNAPSHOT.war&quot;.undertow-deployment: java.lang.NoClassDefFoundError: Lorg/eclipse/microprofile/jwt/JsonWebToken;
+WFLYCTL0448: 1 additional services are down due to their dependencies being missing or failed
+</code></pre>
+<p>Dejando de lado la traza horrible (siempre son muy <a href="https://dle.rae.es/verboso">verbosas</a> en java), lo que
+extraña es que no se encuentra la clase
+<code>org.eclipse.microprofile.jwt.JsonWebToken</code> que debido a que wildfly cumple con
+microprofile jwt propagation 1.2 debería encontrarse.</p>
+<h2>Versión 02</h2>
+<p>Releyendo la especificación con más detenimiento, en la sección <a href="https://download.eclipse.org/microprofile/microprofile-jwt-auth-1.2/microprofile-jwt-auth-spec-1.2.html#_marking_a_jax_rs_application_as_requiring_mp_jwt_access_control">Marking a
+JAX-RS Application as Requiring MP-JWT Access Control</a> se indica que debe
+utilizarse la clase <code>LoginConfig</code> para indicar que la aplicación requiere el uso
+de control de acceso jwt.</p>
+<p><strong>Aquí es donde se detecta una inconsistencia en la especificación</strong>, ya que en
+el texto se indica que se agregó la anotación
+<code>org.eclipse.microprofile.jwt.LoginConfig</code>, pero en el código se utiliza
+<code>org.eclipse.microprofile.annotation.LoginConfig</code>.</p>
+<p>Para determinar cual de las dos es la correcta, se busca el nombre de la clase
+en el jar.  Para determinar el jar, se busca en las dependencias:</p>
+<pre><code>$ ./mvnw dependency:tree
+...
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ demo-jwt ---
+[INFO] uy.jumapico.experiments:demo-jwt:war:1.0-SNAPSHOT
+[INFO] \- org.eclipse.microprofile:microprofile:pom:4.0.1:provided
+...
+[INFO]    +- org.eclipse.microprofile.jwt:microprofile-jwt-auth-api:jar:1.2:provided
+...
+</code></pre>
+<p>De lo anterior, la clase es probable que se encuentre en el artefacto
+<code>org.eclipse.microprofile.jwt:microprofile-jwt-auth-api:jar:1.2</code> y se la busca
+en el repositorio local de maven:</p>
+<pre><code>$ unzip -l $(find $HOME/.m2 -name 'microprofile-jwt-auth-api-1.2.jar') | grep LoginConfig
+      578  2020-12-04 16:40   org/eclipse/microprofile/auth/LoginConfig.class
+</code></pre>
+<p>De lo anterior se encuentra que ninguno de los paquetes indicados en la
+especificación es correcto, sinó que el correcto es
+<code>org.eclipse.microprofile.auth</code>.</p>
+<p>De lo anterior se modifica la clase <code>JAXRSActivator</code>, quedando como:</p>
+<pre><code>package uy.jumapico.experiments.demojwt.boundary;
+
+import javax.ws.rs.ApplicationPath;
+import javax.ws.rs.core.Application;
+
+@ApplicationPath(&quot;/&quot;)
+public class JAXRSActivator extends Application {}
+</code></pre>
+<p>y esta vez al realizar el deploy este no tiene problemas:</p>
+<pre><code>02:22:12,215 INFO  [org.jboss.as.server] (DeploymentScanner-threads - 2) WFLYSRV0010: Deployed &quot;demo-jwt-1.0-SNAPSHOT.war&quot; (runtime-name : &quot;demo-jwt-1.0-SNAPSHOT.war&quot;)
+</code></pre>
+<p>Por supuesto aunque se realizó correctamente el deploy, la aplicación fallará al
+momento de realizarse un <em>request</em> ya que no se realizó la configuración
+completa de jwt.</p>
+<p>Haciendo el request en una consola</p>
+<pre><code>$ curl 'http://localhost:8080/demojwt/info'
+</code></pre>
+<p>Se obtiene en el servidor el error (y una traza que se omite):</p>
+<pre><code>02:23:47,292 ERROR [io.undertow.request] (default task-1) UT005023: Exception handling request to /demojwt/info: java.lang.IllegalStateException: JWTAuthContextInfo has not been initialized. Please make sure that either 'mp.jwt.verify.publickey' or 'mp.jwt.verify.publickey.location' properties are set.
+</code></pre>
+<h2>Versión 03</h2>
+<p>En lo que sigue se realizará la configuración para verificar la firma del token
+jwt.  Como se indica en la sección <a href="https://download.eclipse.org/microprofile/microprofile-jwt-auth-1.2/microprofile-jwt-auth-spec-1.2.html#signature-verification-params">Signature Verification Configuration
+Parameters</a>.</p>
+<p>En mi caso las pruebas las realicé utilizando tokens obtenidos por un <a href="https://wso2.com/identity-and-access-management/">Identity
+Server de WSO2</a>.  En lugar de utilizar la clave pública del certificado con el
+cual el WSO2 firma el certificado,</p>
+<p>Para <em>probar de forma rápida</em>, se utilizará como clave pública el certificado
+utilizado en la especificación.  Esto impedirá que sea posible utilizar un token
+firmado, pero sirve para asegurarse que se agrega la configuración mínima y la
+aplicación funciona.</p>
+<p>Se agregan en <code>/META-INF/</code> los archivos:</p>
+<ol>
+<li>
+<p><code>microprofile-config.properties</code> con la configuración de jwt propagation:</p>
+<pre><code>mp.jwt.verify.publickey.location=/META-INF/public.pem
+</code></pre>
+</li>
+<li>
+<p><code>public.pem</code> con la clave pública que se encuentra en la especificación.</p>
+</li>
+</ol>
+<p>Se deploya la aplicación con los cambios y ahora si se obtiene el resultado
+esperado:</p>
+<pre><code>$ curl -v 'http://localhost:8080/demojwt/info'
+&gt; GET /demojwt/info HTTP/1.1
+&gt; Host: localhost:8080
+&gt; User-Agent: curl/7.74.0
+&gt; Accept: */*
+&gt;
+* Mark bundle as not supporting multiuse
+&lt; HTTP/1.1 200 OK
+&lt; Connection: keep-alive
+&lt; Content-Type: application/octet-stream
+&lt; Content-Length: 62
+&lt; Date: Mon, 03 May 2021 06:06:48 GMT
+&lt;
+* Connection #0 to host localhost left intact
+Token info: io.smallrye.jwt.auth.cdi.NullJsonWebToken@5940b3dd
+
+$ curl -v -H 'Authorization: Bearer 123' 'http://localhost:8080/demojwt/info'
+&gt; GET /demojwt/info HTTP/1.1
+&gt; Host: localhost:8080
+&gt; User-Agent: curl/7.74.0
+&gt; Accept: */*
+&gt; Authorization: Bearer 123
+&gt;
+* Mark bundle as not supporting multiuse
+&lt; HTTP/1.1 401 Unauthorized
+&lt; Connection: keep-alive
+&lt; Content-Type: text/html;charset=UTF-8
+&lt; Content-Length: 71
+&lt; Date: Mon, 03 May 2021 06:06:05 GMT
+&lt;
+* Connection #0 to host localhost left intact
+&lt;html&gt;&lt;head&gt;&lt;title&gt;Error&lt;/title&gt;&lt;/head&gt;&lt;body&gt;Unauthorized&lt;/body&gt;&lt;/html&gt;
+
+$ curl -v 'http://localhost:8080/demojwt/denied'
+&gt; GET /demojwt/denied HTTP/1.1
+&gt; Host: localhost:8080
+&gt; User-Agent: curl/7.74.0
+&gt; Accept: */*
+&gt;
+* Mark bundle as not supporting multiuse
+&lt; HTTP/1.1 200 OK
+&lt; Connection: keep-alive
+&lt; Content-Type: application/octet-stream
+&lt; Content-Length: 23
+&lt; Date: Mon, 03 May 2021 06:24:05 GMT
+&lt;
+* Connection #0 to host localhost left intact
+This endpoint is denied
+</code></pre>
+<p>Y claramente aquí ocurre un problema, ya que se nos debería haber negado el
+acceso al endpoint.</p>
+<h2>Versión 04</h2>
+<p>De la documentación de resteasy, capítulo <a href="https://docs.jboss.org/resteasy/docs/3.14.0.Final/userguide/html_single/index.html#Securing_JAX-RS_and_RESTeasy">Securing JAX-RS and RESTEasy</a> se
+indica que es necesario activar la seguridad basada en roles, para que resteasy
+reconozca las anotaciones <code>@RolesAllowed</code>, <code>@PermitAll</code> y <code>@DenyAll</code> en los
+métodos de la resource class.</p>
+<p>Según el capítulo <a href="https://docs.jboss.org/resteasy/docs/3.14.0.Final/userguide/html_single/index.html#config_mechanisms">Configuring RESTEasy</a> de la misma documentación, alcanza con
+agregar en el archivo <code>microprofile-config.properties</code> la linea:</p>
+<pre><code>resteasy.role.based.security=true
+</code></pre>
+<p>para activar el uso de roles.</p>
+<p>Deployando y volviendo a probar:</p>
+<pre><code>$ curl -v 'http://localhost:8080/demojwt/denied'
+&gt; GET /demojwt/denied HTTP/1.1
+&gt; Host: localhost:8080
+&gt; User-Agent: curl/7.74.0
+&gt; Accept: */*
+&gt;
+* Mark bundle as not supporting multiuse
+&lt; HTTP/1.1 200 OK
+&lt; Connection: keep-alive
+&lt; Content-Type: application/octet-stream
+&lt; Content-Length: 23
+&lt; Date: Mon, 03 May 2021 06:36:07 GMT
+&lt;
+* Connection #0 to host localhost left intact
+This endpoint is denied
+</code></pre>
+<p>La seguridad basada en roles no estaría funcionando....</p>
+<p>Probando de deployar en la última versión de wildfly a la fecha, 23.0.2.Final,
+se ve que se cumple con lo indicado en la documentación:</p>
+<pre><code>$ curl -v 'http://localhost:8080/demojwt/denied'
+&gt; GET /demojwt/denied HTTP/1.1
+&gt; Host: localhost:8080
+&gt; User-Agent: curl/7.74.0
+&gt; Accept: */*
+&gt;
+* Mark bundle as not supporting multiuse
+&lt; HTTP/1.1 403 Forbidden
+&lt; Connection: keep-alive
+&lt; Content-Type: text/html;charset=UTF-8
+&lt; Content-Length: 34
+&lt; Date: Mon, 03 May 2021 06:38:53 GMT
+&lt;
+* Connection #0 to host localhost left intact
+Access forbidden: role not allowed
+</code></pre>
+<p><strong>Por lo que estamos ante la presencia de un bug en la versión 3.14.0.Final de
+resteasy</strong> (la utilizada por wildfly 22.0.1.Final).</p>
+<h2>Versión 05</h2>
+<p>En el caso de que sea necesario utilizar la versión 22.0.1.Final de wildfly, la
+solución al problema anterior es habilitar el control de acceso utilizando el
+archivo <code>web.xml</code>:</p>
+<ol>
+<li>
+<p>Se agrega el archivo <code>web.xml</code>:</p>
+<pre><code>&lt;context-param&gt;
+    &lt;param-name&gt;resteasy.role.based.security&lt;/param-name&gt;
+    &lt;param-value&gt;true&lt;/param-value&gt;
+&lt;/context-param&gt;
+</code></pre>
+</li>
+<li>
+<p>Se quita del <code>pom.xml</code> la linea</p>
+<pre><code>&lt;failOnMissingWebXml&gt;false&lt;/failOnMissingWebXml&gt;
+</code></pre>
+</li>
+</ol>
+<p>Deployando nuevamente y probando acceder al endpoint:</p>
+<pre><code>$ curl -v 'http://localhost:8080/demojwt/denied'
+&gt; GET /demojwt/denied HTTP/1.1
+&gt; Host: localhost:8080
+&gt; User-Agent: curl/7.74.0
+&gt; Accept: */*
+&gt;
+* Mark bundle as not supporting multiuse
+&lt; HTTP/1.1 403 Forbidden
+&lt; Connection: keep-alive
+&lt; Content-Type: text/html;charset=UTF-8
+&lt; Content-Length: 34
+&lt; Date: Mon, 03 May 2021 12:10:42 GMT
+&lt;
+* Connection #0 to host localhost left intact
+Access forbidden: role not allowed
+</code></pre>
+<p>Por supuesto, si se desea probar con un token que pueda ser validado conviene
+leer los pasos dados en <code>microprofile-jwt/README.adoc</code> del <a href="https://github.com/wildfly/quickstart">repositorio
+quickstart de wildfly</a> para obtener un token firmado de prueba.</p>
+<h2>Cambio en la especificación</h2>
+<p>Como ya se mencionó al inicio, y se vió al realizar la Versión 02 del ejemplo,
+el paquete de <code>LoginConfig</code> no es correcto.  Si bien la corrección es bien
+simple:</p>
+<pre><code>diff --git a/spec/src/main/asciidoc/interoperability.asciidoc b/spec/src/main/asciidoc/interoperability.asciidoc
+index 7cc0ddf..cdc6275 100644
+--- a/spec/src/main/asciidoc/interoperability.asciidoc
++++ b/spec/src/main/asciidoc/interoperability.asciidoc
+@@ -380,13 +380,13 @@ for more information.
+
+ ## Marking a JAX-RS Application as Requiring MP-JWT Access Control
+ Since the MicroProfile does not specify a deployment format, and currently does
+-not rely on servlet metadata descriptors, we have added an `org.eclipse.microprofile.jwt.LoginConfig`
++not rely on servlet metadata descriptors, we have added an `org.eclipse.microprofile.auth.LoginConfig`
+ annotation that provides the same information as the web.xml login-config
+ element. It's intended usage is to mark a JAX-RS `Application` as requiring
+ MicroProfile JWT RBAC as shown in the following sample:
+
+ ```java
+-import org.eclipse.microprofile.annotation.LoginConfig;
++import org.eclipse.microprofile.auth.LoginConfig;
+
+ import javax.ws.rs.ApplicationPath;
+ import javax.ws.rs.core.Application;
+</code></pre>
+<p>para poder realizar contribuciones a los repositorios de microprofile hay que
+seguir las <a href="https://wiki.eclipse.org/MicroProfile/ContributingGuidelines">Contributing Guidelines</a>, que implican aceptar el <a href="https://www.eclipse.org/legal/ECA.php">Eclipse
+Contributor Agreement</a> (ECA) y al momento de realizar el commit firmarlo
+agregando la linea <code>Signed-off-by:</code>.  Lo verificación de que el usuario cumple
+con las pautas de contribuciones se realizan de forma automática al realizar el
+pull request, mostrandose un error si el usuario no aceptó el ECA o no firmó el
+commit.</p>
+<h2>Conclusiones</h2>
+<ol>
+<li>Aunque sin duda hubiera sido mucho más rápido descargar el <a href="https://github.com/wildfly/quickstart">repositorio
+quickstart de wildfly</a> y copiar/pegar el ejemplo del directorio
+<a href="https://github.com/wildfly/quickstart/tree/master/microprofile-jwt">microprofile-jwt</a>, vale más la pena leer la especificación y probar desde
+cero.</li>
+<li>Utilizar un editor que no agregue los <code>import</code> de las clases automáticamente
+ni autocomplete los métodos ayuda a pensar un poco más sobre el código.
+Obviamente al programar una aplicación completa el tiempo que se gana
+utilizando un IDE es enorme, pero durante una prueba de concepto pequeña
+vale la pena demorar un poco más y entender la aplicación de punta a punta.</li>
+<li>Me sorprendí gratamente al poder corregir la especificación de jwt aunque
+fuera un cambio menor y encontrar un bug en resteasy (habilitación de RBAC),
+aunque ya fuera solucionado en una versión más reciente.  Eso último seguro
+que ayuda a ahorrar un tiempo importante de debug en desarrollo.</li>
+</ol>
+<!-- Referencias -->
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

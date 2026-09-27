@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Instalando OpenBSD 6.7 multiboot UEFI | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Instalando OpenBSD 6.7 multiboot UEFI</h1>
+        <h2 class="date">2020-07-17</h2>
+      </div>
+<p><strong>TLDR</strong></p>
+<p>Al instalar OpenBSD junto a Debian (multiboot) en un disco con tablas de
+particiones GPT y un BIOS que utilize UEFI:</p>
+<ol>
+<li>Utilizar una única partición encriptada para OpenBSD.</li>
+<li>Que el tamaño de la partición para OpenBSD sea por lo menos de 150GB.</li>
+</ol>
+<hr />
+<p>En estos días quise probar de instalar <a href="https://www.openbsd.org/">OpenBSD</a>.
+Entre los motivos se encuentran:</p>
+<ol>
+<li>
+<p>Probar un sistema que fué <em>diseñado</em> (cualquier sistema basado en BSD) como
+alternativa de uno cuyo crecimiento fué <em>orgánico</em> (cualquiera basado en
+<a href="https://www.gnu.org/gnu/linux-and-gnu.en.html">GNU/Linux</a>).</p>
+</li>
+<li>
+<p>Utilizar un sistema (OpenBSD) que tiene entre sus máximas la simplificación
+en lugar del agregado de funcionalidades.  Recordando la famosa cita de
+<a href="https://en.wikipedia.org/wiki/Antoine_de_Saint-Exup%C3%A9ry">Saint-Exupéry</a>:</p>
+<blockquote>
+<p>La perfección no se alcanza cuando no hay nada más que añadir,
+sinó cuando no hay nada más que quitar.</p>
+</blockquote>
+</li>
+</ol>
+<p>Actualmente mi PC -laptop, en realidad- tiene el disco con una tabla de
+particiones <a href="https://en.wikipedia.org/wiki/GUID_Partition_Table">GPT</a> en el que
+está instalado <a href="https://www.debian.org/">Debian</a> con
+<a href="https://www.gnu.org/software/grub/">grub</a> e inicia mediante
+<a href="https://en.wikipedia.org/wiki/Unified_Extensible_Firmware_Interface">UEFI</a>.</p>
+<p>En el disco se deja una partición de <em>150GB</em> para instalar OpenBSD.  Para
+bootear el sistema se configurará grub desde Debian, por lo cual no es una
+instalación que dependa 100% de OpenBSD.</p>
+<p>Antes de empezar conviente tener claro la diferencia entre las <em>particiones de
+disco</em> (<a href="https://en.wikipedia.org/wiki/Master_boot_record">MBR</a>) y las
+<em>filesystem partitions</em> tal como se indica en las
+<a href="https://www.openbsd.com.au/faq/faq14.html#intro">FAQ</a> de OpenBSD:</p>
+<blockquote>
+<p>The term &quot;partition&quot; can mean two different things in OpenBSD:</p>
+<ul>
+<li><a href="https://man.openbsd.org/disklabel.8">disklabel(8)</a> partitions, also called
+filesystem partitions.</li>
+<li><a href="https://man.openbsd.org/fdisk.8">fdisk(8)</a> partitions, sometimes called
+Master Boot Record (MBR) partitions.</li>
+</ul>
+</blockquote>
+<h2>Soporte de hardware</h2>
+<p>Si bien no hay muchas indicaciones de que equipos están soportados por OpenBSD,
+lo que se lee en varias web's es la mención:</p>
+<blockquote>
+<p>si se instala y funciona va a funcionar bien</p>
+</blockquote>
+<p>El hardware en que instalaré OpenBSD es una <em>Lenovo Thinkpad T440s</em> que se
+indica en varios foros y blogs que está dentro de los equipos mejor soportados.</p>
+<h2>Layout del disco</h2>
+<p>Como se mencionó anteriormente, el disco posee una tabla de particiones <em>GPT</em>,
+en lugar de una de tipo <em>MSDOS</em> recomendada en las FAQ de OpenBSD.
+El layout del disco es el siguiente:</p>
+<ol>
+<li>efi, EFI System (fat32).  Necesaria por el bios para iniciar con UEFI</li>
+<li>boot, ext4. Utilizada por grub (es allí donde están instalados los archivos
+utilizados por grub) y además necesaria por el sistema Debian, ya que allí
+se encuentra el kernel y la imagen initrd necesarias para iniciarl dicho
+sistema.</li>
+<li>debian, crypo_LUKS + LVM.  Sistema Debian en partición encriptada.</li>
+<li>openbsd, unformatted.  Espacio en que se instalará OpenBSD.</li>
+<li>data, ntfs.  Partición que se utilizará para compartir datos entre el
+sistema Debian y el OpenBSD.</li>
+</ol>
+<p><em>NOTA 1</em>: Hay que recalcar que el sistema Debian es <em>imprescindible</em> para
+configurar el inicio del sistema OpenBSD, ya que este no cuenta con herramientas
+para iniciar desde un sistema UEFI.</p>
+<p><em>NOTA 2</em>: Se utiliza la partición de tipo <em>ntfs</em> ya que en varios blogs y foros
+se indica que es la que mejor funciona con OpenBSD (¿quizás tenga que ver con
+que tanto las distribuciones GNU/Linux como OpenBSD utilicen el paquete
+<a href="https://jp-andre.pagesperso-orange.fr/advanced-ntfs-3g.html">ntfs-3g</a>?).</p>
+<h2>Preparación de pendrive con instalador de OpenBSD</h2>
+<p>Para preparar el pendrive hacer (desde el sistema Debian):</p>
+<pre><code>$ wget 'https://cdn.openbsd.org/pub/OpenBSD/6.7/amd64/install67.fs'
+$ wget 'https://cdn.openbsd.org/pub/OpenBSD/6.7/amd64/SHA256'
+$ sha256sum -c --ignore-missing SHA256
+$ sudo dd if=install67.fs of=/dev/sdb1 bs=1M
+</code></pre>
+<p><em>¿Porqué se utiliza <code>sdb1</code>?</em>.  Debido a que corresponde al pendrive
+conectado al sistema.</p>
+<h2>Pasos previos a la instalación</h2>
+<p>Se inicia el sistema desde el pendrive y se elige la opción <em>Shell</em> para
+preparar el disco para encriptación como es sugerido en la
+<a href="https://www.openbsd.com.au/faq/faq14.html#softraid">FAQ</a> de OpenBSD.</p>
+<h3>Creación del archivo /dev/sd0</h3>
+<p>Se comienza creando el archivo especial de dispositivo
+<a href="https://man.openbsd.org/sd.4">sd0</a> utilizando el script
+<a href="https://man.openbsd.org/MAKEDEV.8">MAKEDEV</a> para referenciar posteriormente al
+disco duro:</p>
+<pre><code>$ cd /dev &amp;&amp; sh MAKEDEV sd0
+</code></pre>
+<p><em>¿Porqué se utiliza sd0?</em>.  Porque corresponde al dispositivo de bloques
+detectado por el kernel.  Esto se desprende de la salida del comando
+<code>dmesg | grep ^sd</code>.</p>
+<h3>Setup de partición para OpenBSD</h3>
+<p>Si bien hay varios programas en Debian que permiten establecer el tipo de la
+partición que utilizará OpenBSD, conviene para estar seguros realizar este paso
+utilizando el programa <a href="https://man.openbsd.org/fdisk.8">fdisk</a> de OpenBSD:</p>
+<pre><code>  $ fdisk -e sd0
+➊ print g         # se ven las particones
+➋ setpid 2        # A6 (OpenBSD)
+➌ write
+  quit
+</code></pre>
+<p>En ➊ se listan las particiones del disco, más que nada para asegurarse en un
+sistema con varios discos que estamos modificando el indicado.  En ➋ se cambia
+el identificador de la tercera partición -correspondiente a OpenBSD- al tipo
+<code>A6</code> (OpenBSD); como se puede ver aquí la numeración de las particiones
+comienza en <code>0</code> y no en <code>1</code>.  En ➌ se escriben los cambios al disco, ya que
+por defecto al salir no se almacenan los cambios.</p>
+<p><em>Nota</em>: Inicialmente también se marcó la partición como booteable utilizando
+<code>flag 2</code> previo al comando <code>write</code>, pero esto hace que si el bios está
+configurado para utilizar <code>UEFI + legacy</code>, el bios inicia en el sistema
+OpenBSD, salteandose grub por lo que no es una buena idea.</p>
+<h3>Escritura de datos aleatorios en la partición (opcional)</h3>
+<p>En las <a href="https://www.openbsd.com.au/faq/faq14.html#softraidFDE">FAQ</a> también se
+indica que es conveniente escribir datos aleatorios en la partición (siempre
+teniendo en cuenta el tipo de
+<a href="https://en.wikipedia.org/wiki/Adversary_(cryptography)">adversario</a> que se tenga
+en mente).</p>
+<p>A diferencia de las FAQ en las que se escriben datos aleatorios a todo el disco
+(<code>rsd0c</code>), en nuestro caso queremos escribir datos aleatorios <strong>solo</strong> en la
+partición destinada a OpenBSD.</p>
+<p>Para ello primero hay que crear una partición (disklabel) de OpenBSD que ocupe
+todo el espacio destinado a OpenBSD para luego poder sobreescribir dicha
+partición con datos aleatorios:</p>
+<pre><code>  $ disklabel -E sd0
+➊ p g
+➋ a a
+➌ w
+  q
+</code></pre>
+<p>En ➊ se muestran las particiones utilizadas por OpenBSD.  Hay que tener en
+cuenta que deben existir la partición <code>c</code> que indica todo el disco y las
+particiones <code>i</code>, <code>j</code> y <code>k</code> que corresponden a las particiones <em>efi</em>, <em>debian</em> y
+<em>data</em> respectivamente.
+En ➋ se crea una nueva partición (de filesystem).  Siguiendo los <em>defaults</em> se
+crea una partición (de filesystem) para uso de OpenBSD de nombre <code>a</code> que ocupa
+todo el espacio asignado para OpenBSD.
+En ➌ se escriben los cambios a disco, ya que al salir por defecto no se realizan
+cambios.</p>
+<p>Una vez que se tiene creada la partición (de filesystem) se puede escribir datos
+aleatorios utilizando</p>
+<pre><code>$ dd if=/dev/urandom of=/dev/rsd0a bs=1m
+</code></pre>
+<p>Lo anterior borra la información de la partición, por lo que es necesario volver
+a recrearla.</p>
+<h3>Creación de partición encriptada para OpenBSD</h3>
+<p>Siguiendo la indicación de las
+<a href="https://www.openbsd.com.au/faq/faq14.html#softraidFDE">FAQ</a>, se crea la
+partición (de filesystem) de tipo <strong>RAID</strong> (este paso es idéntico al de la FAQ):</p>
+<pre><code>  $ disklabel -E sd0
+➊ p g
+➋ a a
+➌ w
+  q
+</code></pre>
+<p>En ➊ listamos nuevamente las particiones (de filesystem) para asegurarnos que
+estamos haciendo correctamente los cambios.  En ➋ creamos una nueva partición
+que debe ocupar todo el espacio asignado a la partición (de disco) para OpenBSD.
+Cuando se deba ingresar el tipo de filesystem hay que introducir <strong>RAID</strong>.
+Por último, en ➌ se guarda la información en disco antes de salir del programa.</p>
+<pre><code>➊ $ bioctl -c C -l sd0a softraid0
+➋ $ cd /dev &amp;&amp; sh MAKEDEV sd2
+➌ $ dd if=/dev/zero of=/dev/rsd2c bs=1m count=1
+</code></pre>
+<p>En ➊ se utiliza <a href="https://man.openbsd.org/bioctl">bioctl</a> para configurar el
+filesystem creado de tipo RAID e indicar que será un filesystem encriptado.
+Luego, en ➋ se crea el archivo especial del dispositivo.</p>
+<p><em>¿Porqué se utiliza sd2?</em>.  Porque corresponde al dispositivo de bloques
+agregado al sistema al utilizar <code>bioctl</code> que es mostrado en la salida del
+comando.</p>
+<p>Siguiendo las indicaciones de la página del manual de
+<a href="https://man.openbsd.org/softraid">softraid</a>, en ➌ se borra la información al
+principio del disco antes de usarlo.</p>
+<p>Ahora puede instalarse el sistema en <code>sd2</code>.  Hay que recordar que en este caso
+<code>sd0</code> corresponde al disco duro (ssd) y <code>sd1</code> al pendrive con el sistema.</p>
+<p>Se utiliza <code>exit</code> para salir del shell y continuar con la instalación normal.</p>
+<h2>Pasos durante la instalación</h2>
+<p>Se continúa la instalación normalmente, pero al momento de instalar el sistema
+debe elegirse <strong>sd2</strong> como disco a utilizar.</p>
+<h2>Pasos posteriores a la instalación</h2>
+<h3>Extracción de bootloader UEFI</h3>
+<p>Luego de finalizada la instalación <strong>pero antes de reiniciar el equipo</strong> hay que
+guardar el bootloader UEFI de OpenBSD en la partición EFI System.</p>
+<p>Para copiar los archivos hacer:</p>
+<pre><code># mkdir -p /mnt2
+# mount /dev/sd0i /mnt2
+# mkdir /mnt2/EFI/OpenBSD
+# cp /mnt/usr/mdec/BOOTX64.EFI /mnt2/EFI/OpenBSD
+</code></pre>
+<p>Y luego utilizar <code>reboot</code> para reiniciar el sistema.
+El sistema se reiniciara en Debian, ya que aún no se configuró el bootloader
+para cargar OpenBSD.</p>
+<h3>Configuración de grub en Debian</h3>
+<p>Luego de reiniciado el sistema y ya en el sistema Debian se debe configurar grub
+para que se agregue al menú la opción de iniciar OpenBSD.</p>
+<p>Para ello se creará el archivo <code>40_openbsd</code> y se agregará al directorio
+<code>/etc/grub.d/40_openbsd</code>:</p>
+<pre><code>$ sudo cp /etc/grub.d/40_custom /etc/grub.d/40_openbsd
+$ cat &lt;&lt;'END' | sudo tee -a /etc/grub.d/40_openbsd
+menuentry &quot;OpenBSD&quot; {
+    insmod part_gpt
+    insmod chain
+    set root='(hd0,gpt1)'
+    chainloader /EFI/OpenBSD/BOOTX64.EFI
+}
+END
+</code></pre>
+<p><em>NOTA</em>: No se utiliza el archivo <code>/etc/grub.d/40_custom</code> para evitar que este
+sea sobreescrito en una actualización de grub.</p>
+<p>Para hacer efectivos los cambios hay que actualizar la configuración de grub:</p>
+<pre><code>$ sudo update-grub
+</code></pre>
+<h3>Configuración de entrada UEFI (opcional)</h3>
+<p>Si quiere agregarse una entrada para iniciar OpenBSD utilizando UEFI se puede,
+mediante <code>efibootmgr</code> agregar la siguiente linea:</p>
+<pre><code>$ sudo efibootmgr -c -d /dev/sda -p 1 -w -L openbsd -l '\EFI\OpenBSD\BOOTX64.EFI'
+</code></pre>
+<p>Para confirmar que esta fué agregada correctamente (y ver todas las entradas
+disponibles) utilizar:</p>
+<pre><code>$ sudo efibootmgr -v
+</code></pre>
+<h2>Conclusiones</h2>
+<p>Bueno, debo admitirlo, hace <strong>AÑOS</strong> que no transpiraba tanto al realizar la
+instalación de un sistema operativo teniendo otro en el disco.</p>
+<p>La instalación funcionó sin problemas como se mencionaba en las FAQ y en varios
+blogs, pero sin duda el uso de <a href="https://man.openbsd.org/disklabel.8">disklabel</a>
+por parte de OpenBSD y la falta de conocimiento sobre este hizo la experiencia
+poco placentera.  No por algo se indica en las FAQ</p>
+<p>Otro punto a tener en cuenta es la cantidad de espacio en disco necesaria si se
+desea realizar un <em>particionado por defecto</em> (usando
+<a href="https://man.openbsd.org/disklabel#AUTOMATIC_DISK_ALLOCATION">AUTOMATIC DISK ALLOCATION</a>)
+y tener un buen espacio en la partición correspondiente a <code>/usr/local</code>, donde se
+almacenarán los paquetes en OpenBSD.  <em>150GB</em> para comenzar a probar quizás sea
+un poco bastante, por lo que sugiero que si no se está convencido se comience
+probando con una máquina virtual en linux y utilizando una partición única.
+Aunque con esto se pierden características de seguridad en el sistema, para
+comenzar a probar OpenBSD creo que es un buen compromiso.</p>
+<h2>Extras</h2>
+<h3>Errores con defaults de disklabel al no utilizar particion encriptada</h3>
+<p>Inicialmente se intentó realizar la instalación sin utilizar una partición
+encriptada como se sugiere en el libro
+<a href="https://nostarch.com/obenbsd2e">Absolute OpenBSD, 2nd Edition</a>, pero se
+constató que el particionado automático realizado por disklabel automáticamente
+<em>se confunde</em> con las otras particiones utilizadas en el sistema
+(efi/boot/debian como se mencionó anteriormente) y solo crea cuatro particiones:
+<code>/</code>, <code>swap</code>, <code>/usr</code> y <code>/home</code>:</p>
+<p><img src="./error-automatic-allocation.png" alt="Error Automatic Allocation de disklabel" /></p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

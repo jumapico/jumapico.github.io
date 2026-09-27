@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Creación de imagen raw para disco de datos | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Creación de imagen raw para disco de datos</h1>
+        <h2 class="date">2017-04-18</h2>
+      </div>
+<p><strong>TODO: crear script para crear imagen</strong></p>
+<p>Hay dos escenarios distintos según la versión del paquete <code>util-linux</code>
+instalada, ya que a partir de la versión <code>2.21</code> se agrega la opción
+<code>--partscan</code> al comando <code>losetup</code> lo que facilita la creación de la imagen:</p>
+<pre><code>losetup(8):
+   - the command has been rewritten, features:
+   ...
+     * supports new command line option --partscan to enable kernel partition
+       table parser
+</code></pre>
+<p>Para mas detalles ver las <a href="https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git/tree/Documentation/releases/v2.21-ReleaseNotes">notas de la release 2.21</a></p>
+<h2>Pasos comunes</h2>
+<pre><code># cd /path/
+# dd if=/dev/zero of=data.img bs=1M count=$((10 * 1024))
+# parted data.img mktable gpt
+# parted --align optimal data.img mkpart DATA ext4 0% 100%
+</code></pre>
+<h2>util-linux &gt;= 2.21</h2>
+<pre><code># LOOPDEV=&quot;$(losetup --partscan --show --find data.img | tr -d '\n')&quot;
+# [ -z &quot;$LOOPDEV&quot; ] &amp;&amp; { echo &quot;Can't attach to loop device&quot;; exit 1; }
+# [ ! -e &quot;${LOOPDEV}p1&quot; ] &amp;&amp; { echo &quot;Partition in loop device not detected&quot;; losetup --detach &quot;$LOOPDEV&quot;; exit 1; }
+# mkfs.ext4 &quot;${LOOPDEV}p1&quot;
+# losetup --detach &quot;$LOOPDEV&quot;
+</code></pre>
+<h2>util-linux &lt; 2.21</h2>
+<pre><code># PARTINFO=&quot;$(parted -m data.img &quot;unit s print&quot;)&quot;
+# SECTSIZE=&quot;$(echo &quot;$PARTINFO&quot; | head -2 | tail -1 | cut -d':' -f5)&quot;
+# read -r PART_START PART_SIZE &lt;&lt;&lt; &quot;$(echo &quot;$PARTINFO&quot; | grep '^1' | cut -d':' -f2,4 --output-delimiter=' ' | tr -d s)&quot;
+# LOOPDEV=&quot;$(losetup --find --show \
+    --offset &quot;$((PART_START * SECTSIZE))&quot; \
+    --sizelimit &quot;$((PART_SIZE * SECTSIZE))&quot; \
+    data.img | tr -d '\n')&quot;
+# [ -z &quot;$LOOPDEV&quot; ] &amp;&amp; { echo &quot;Can't attach to loop device&quot;; exit 1; }
+# mkfs.ext4 &quot;$LOOPDEV&quot;
+# losetup --detach &quot;$LOOPDEV&quot;
+</code></pre>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

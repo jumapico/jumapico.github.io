@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Agregando menu de freedesktop | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Agregando menu de freedesktop</h1>
+        <h2 class="date">2021-04-02</h2>
+      </div>
+<p>Se desea agregar un <a href="https://specifications.freedesktop.org/menu-spec/menu-spec-latest.html">menu siguiendo la especificación dada por freedesktop</a>.</p>
+<p>El caso es el siguiente:</p>
+<ul>
+<li>Se creará un paquete base que entre otras cosas agrega una entrada en el menú
+principal.</li>
+<li>Otros paquetes, los cuales tendrán como dependencia el paquete base, agregarán
+items a la entrada del menú.</li>
+</ul>
+<p>Para realizar pruebas se utilizarán dos scripts distintos que permiten
+<em>instalar</em> y <em>desinstalar</em> los archivos necesarios para agregar un item del
+menú:</p>
+<ul>
+<li><a href="./demo-vendor-menu-by-category.sh">demo-vendor-menu-by-category.sh</a>:
+Los nuevos items se agregan utilizando en el archivo <code>.desktop</code> de la
+aplicación la linea <code>Categories=X-myvendor;</code>.</li>
+<li><a href="./demo-vendor-menu-by-filename.sh">demo-vendor-menu-by-filename.sh</a>:
+Los nuevos items se agregan editando el archivo
+<code>/etc/xdg/menus/applications-merged/myvendor-applications.menu</code> y agregando
+una entrada <code>&lt;Filename&gt;nombre-de-archivo.desktop&lt;/Filename&gt;</code> dentro del tag
+<code>&lt;Include&gt;</code>.</li>
+</ul>
+<p>De lo anterior, la forma más flexible a usar es mediante la definición de una
+nueva categoría.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

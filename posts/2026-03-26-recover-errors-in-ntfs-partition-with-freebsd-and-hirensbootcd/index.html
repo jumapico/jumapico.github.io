@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Recuperando errores en particiones NTFS con FreeBSD y Hiren's BootCD PE | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Recuperando errores en particiones NTFS con FreeBSD y Hiren's BootCD PE</h1>
+        <h2 class="date">2026-03-26</h2>
+      </div>
+
+<section id="Contexto">
+<h2>Contexto</h2>
+<p>Actualmente tengo instalados tres sistemas en mi equipo: Debian, FreeBSD y
+OpenBSD.</p>
+<p>Para poder acceder archivos <a href="https://en.wikipedia.org/wiki/Multimedia">multimedia</a> que no requieren seguridad elegí
+utilizar una partición <a href="https://en.wikipedia.org/wiki/NTFS">NTFS</a>, ya que los sistemas mencionados previamente
+no manejan los mismos filesystems.</p>
+<p>El más limitante es OpenBSD.
+Las opciones de <a href="https://en.wikipedia.org/wiki/File_system">sistemas de archivos</a> soportados se pueden encontrar en la
+<a href="https://man.openbsd.org/OpenBSD-7.8/fstab.5">página del manual de fstab</a>, donde entre las listadas, las relevantes en
+este caso son <a href="https://en.wikipedia.org/wiki/File_Allocation_Table">FAT32</a> y <a href="https://en.wikipedia.org/wiki/Ext2">ext2</a>, los no cuales elegí por no tener
+<a href="https://en.wikipedia.org/wiki/Journaling_file_system">journaling</a>.</p>
+<p>Pasando a FreeBSD.
+Las opciones de archivos soportados aparte de las nativas se pueden encontrar
+en la <a href="https://docs.freebsd.org/en/books/handbook/filesystems/index.html">página del handbook, capítulo Other File Systems</a>.
+Mismo caso, FAT32 y ext2 presentes, pero sin journaling.</p>
+<p>Por último, Debian.
+En la <a href="https://docs.kernel.org/filesystems/">documentación del kernel linux</a> abundan los distintos tipos de
+filesystems soportados, pero a esta altura ya queda claro que el problema son
+los filesystems soportados por FreeBSD y OpenBSD.</p>
+<p>Pero en todos los sistemas se encuentra empaquetado <a href="https://github.com/tuxera/ntfs-3g">ntfs-3g</a>, el cual
+permite lecturas y escrituras en sistemas de archivo NTFS que soporta
+journaling, por lo que me decidí por este al momento de crear la partición
+<code>data</code> que contendrá archivos multimedia a compartir entre los tres sistemas.</p>
+</section>
+<section id="Problemas-de-lectura">
+<h2>Problemas de lectura</h2>
+<p>Todo funcionaba de maravilla hasta que el otro día, al querer borrar un archivo
+de la partición <code>data</code> (NTFS) obtuve el error:</p>
+<pre><code class="language-sh">$ rm /mnt/data/path/to/file
+rm: /mnt/data/path/to/file: No such file or directory
+</code></pre>
+<p>y al intentar realizar operaciones sobre el mismo:</p>
+<pre><code class="language-sh">$ mv /mnt/data/path/to/file /mnt/data/path/to/file/bad-file
+mv: rename /mnt/data/path/to/file to /mnt/data/path/to/bad-file: Input/output error
+</code></pre>
+<p>Revisando la salida de <a href="https://man.freebsd.org/cgi/man.cgi?query=dmesg&amp;manpath=FreeBSD+15.0-RELEASE">dmesg</a>:</p>
+<pre><code class="language-sh">$ doas dmesg
+...
+WARNING: FUSE protocol violation for server mounted at /mnt/data: file has different inode number and nodeid.  This warning will not be repeated.
+</code></pre>
+<p>De aquí que ya está claro que algo está pasando con la partición.</p>
+<p>Lo primero que hice fué intentar buscar entre los comandos instalados por el
+paquete <code>fusefs-ntfs</code>, nombre dado en FreeBSD a <code>ntfs-3g</code> a ver si alguno podría
+servir para solucionar el problema:</p>
+<pre><code class="language-sh">$ pkg info -l fusefs-ntfs | grep bin/
+	/usr/local/bin/lowntfs-3g
+	/usr/local/bin/ntfs-3g
+	/usr/local/bin/ntfs-3g.probe
+	/usr/local/bin/ntfscat
+	/usr/local/bin/ntfscluster
+	/usr/local/bin/ntfscmp
+	/usr/local/bin/ntfsfix
+	/usr/local/bin/ntfsinfo
+	/usr/local/bin/ntfsls
+	/usr/local/bin/ntfsrecover
+	/usr/local/bin/ntfssecaudit
+	/usr/local/bin/ntfstruncate
+	/usr/local/bin/ntfsusermap
+	/usr/local/bin/ntfswipe
+	/usr/local/sbin/mkntfs
+	/usr/local/sbin/ntfsclone
+	/usr/local/sbin/ntfscp
+	/usr/local/sbin/ntfslabel
+	/usr/local/sbin/ntfsresize
+	/usr/local/sbin/ntfsundelete
+</code></pre>
+<p>De todos los anteriores los más relevantes me parecieron <code>ntfsrecover</code> y
+<code>ntfsfix</code>.</p>
+<p>Ya leyendo la <a href="https://man.freebsd.org/cgi/man.cgi?query=ntfsrecover&amp;manpath=FreeBSD+15.0-RELEASE+and+Ports">página del manual de ntfsrecover</a> hay indicaciones de que el
+comando no será tan útil como su nombre pareciera indicar:</p>
+<blockquote>
+<p>Currently, ntfs-3g does not log updates, so ntfsrecover cannot be used to
+restore consistency after an unfortunate event occurred while the file
+system was updated by Linux.</p>
+</blockquote>
+<p>Probando con <code>ntfsfix</code> no estamos mejor:</p>
+<pre><code class="language-sh">$ doas umount /mnt/data
+$ doas ntfsfix /dev/gpt/data 
+Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /dev/gpt/data was processed successfully.
+$ doas /usr/sbin/mount_ntfs-3g -o rw /dev/gpt/data /mnt/data
+$ rm /mnt/data/path/to/file
+$ doas dmesg
+...
+WARNING: FUSE protocol violation for server mounted at /mnt/data: file has different inode number and nodeid.  This warning will not be repeated.
+</code></pre>
+<p>ya que este comando no se soluciona el problema.</p>
+</section>
+<section id="Hirens-BootCD-PE-chkdsk-desde-windows">
+<h2>Hiren’s BootCD PE: chkdsk desde windows</h2>
+<p>Ya que ntfs-3g no soluciona el problema otra alternativa que se me ocurre es
+probar el comando para reparar particiones de windows creado por microsoft:
+<a href="https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/chkdsk">chkdsk</a>.</p>
+<p>El problema es que para ello necesitamos ejecutarlo desde un sistema operativo
+windows.
+El sistema no está instalado en el equipo ni tengo deseos de instalarlo.
+Por otro lado, no es una opción conectar el disco duro a otro equipo, ya que
+esto implicaría estar desarmando el equipo cada vez.</p>
+<p><strong><strong>Solución: ejecutar windows desde un pendrive.</strong></strong></p>
+<p>Esto es posible si se utiliza una versión <a href="https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/winpe-intro">Windows PE</a> (WinPE) que permita
+ejecutar el comando <code>chkdsk</code> para corregir problemas en la partición sin tener
+que instalar windows en el equipo:</p>
+<blockquote>
+<p>Windows PE (WinPE) is a small operating system used to install, deploy, and
+repair Windows desktop editions, Windows Server, and other Windows operating
+systems</p>
+</blockquote>
+<p>La contra de esto es que microsoft no provee una imagen para copiar a un
+pendrive o una imagen <em>iso</em>, por lo que es necesaria otra alternativa.</p>
+<p>Por eso se utilizará <a href="https://www.hirensbootcd.org/">Hiren’s BootCD PE (Preinstallation Environment)</a>, el
+cual en su <a href="https://www.hirensbootcd.org/download/">página de descargas</a> brinda un iso que puede iniciar un sistema
+windows 11 desde el pendrive y allí tenemos disponible el comando <code>chkdsk</code>.</p>
+</section>
+<section id="Crear-pendrive-con-hiren">
+<h2>Crear pendrive con hiren</h2>
+<p>A continuación los pasos para crear un pendrive booteable a partir del iso.</p>
+<ol>
+<li>
+<p>Descargar iso de <em>Hiren’s BootCD PE</em> de la página de descargas.
+La versión actual es <code>Hiren's BootCD PE x64 (v1.0.8)</code>.</p>
+<pre><code class="language-sh">$ fetch 'https://www.hirensbootcd.org/files/HBCD_PE_x64.iso'
+</code></pre>
+</li>
+<li>
+<p>Se verifica el iso.</p>
+<pre><code class="language-sh">$ [ "$(sha256 -q HBCD_PE_x64.iso)" = "8c4c670c9c84d6c4b5a9c32e0aa5a55d8c23de851d259207d54679ea774c2498" ] &amp;&amp; echo "OK" || echo "FAIL"
+OK
+</code></pre>
+</li>
+<li>
+<p>Se crea partición tabla de partición GPT en el pendrive para que pueda
+bootear vía <a href="https://en.wikipedia.org/wiki/UEFI">UEFI</a>.</p>
+<pre><code class="language-sh">$ doas gpart destroy -F da0
+da0 destroyed
+$ doas gpart create -s GPT da0
+da0 created
+</code></pre>
+<p><strong>NOTA</strong>: el dispositivo del pendrive en FreeBSD es reconocido como <code>/dev/da0</code>;
+por más información ver <a href="https://docs.freebsd.org/en/books/handbook/disks/#usb-disks">la sección USB Storage Devices</a> en el 
+<a>FreeBSD handbook</a>33].</p>
+</li>
+<li>
+<p>Se crea una partición <a href="https://en.wikipedia.org/wiki/EFI_system_partition">EFI</a> utilizando todo el espacio disponible del
+pendrive en la que se copiarán los archivos del iso.</p>
+<pre><code class="language-sh">$ doas gpart add -t efi da0
+da0p1 added
+</code></pre>
+<p>En mi caso esto es razonable ya que el pendrive es de 3.6GB y el iso de 3.2GB.
+En caso de querer fijar la tamaño de la partición se puede utilizar el
+parámetro <code>-s size</code>:</p>
+<pre><code class="language-sh">$ doas gpart add -t efi -s 3584M da0
+</code></pre>
+</li>
+<li>
+<p>Se formatea la partición recién creada usando FAT32.</p>
+<pre><code class="language-sh">$ doas newfs_msdos -F 32 -L HBCD_PE da0p1
+/dev/da0p1: 7862272 sectors in 122848 FAT32 clusters (32768 bytes/cluster)
+BytesPerSec=512 SecPerClust=64 ResSectors=32 FATs=2 Media=0xf0 SecPerTrack=63 Heads=255 HiddenSecs=0 HugeSectors=7864240 FATsecs=960 RootCluster=2 FSInfo=1 Backup=2
+</code></pre>
+</li>
+<li>
+<p>Se monta el iso.</p>
+<p>Para ello, primero debemos crear un <a href="https://docs.freebsd.org/en/books/handbook/disks/#disks-virtual">memory disk</a> el cual permitirá acceder
+al contenido del archivo mediante un archivo de dispositivo.</p>
+<pre><code class="language-sh">$ doas mdconfig HBCD_PE_x64.iso
+md0
+</code></pre>
+<p>Se crea el directorio donde se montará el cd y se monta el memory disk
+asociado al archivo.</p>
+<pre><code class="language-sh">$ doas mkdir /mnt/iso
+$ doas mount -t cd9660 /dev/md0 /mnt/iso
+</code></pre>
+</li>
+<li>
+<p>Se monta la partición efi del pendrive.</p>
+<p>Primero se crea el punto de montaje y luego montamos la partición efi.</p>
+<pre><code class="language-sh">$ doas mkdir /mnt/usb
+$ doas mount -t msdosfs /dev/da0p1 /mnt/usb
+</code></pre>
+</li>
+<li>
+<p>Se copia el contenido del iso a la partición efi</p>
+<pre><code class="language-sh">$ doas cp -a /mnt/iso/* /mnt/usb/
+</code></pre>
+</li>
+<li>
+<p>Una vez terminada la copia se desmontan los dispositivos y se libera el
+memory disk:</p>
+<pre><code class="language-sh">$ doas umount /dev/da0p1
+$ doas umount /dev/md0
+$ doas mdconfig -d -u md0
+</code></pre>
+</li>
+</ol>
+<p>Ahora se reinicia y a probar.</p>
+</section>
+<section id="Ejecución-de-chkdsk">
+<h2>Ejecución de chkdsk</h2>
+<p>Antes de poder bootear el pendrive hay que asegurarse que el sistema permita
+bootear UEFI y Legacy (solo UEFI no me funcionó, quizás algún error al momento
+de crear el pendrive) y que sea posible bootear desde el pendrive:</p>
+<p><img alt="bios-1" src="./bios-1.jpg">
+<img alt="bios-2" src="./bios-2.jpg"></p>
+<p>Luego en windows pe, abrimos una consola y ejecutamos <code>chkdsk C:</code> en modo
+read-only, lo cual muestra que hay errores.</p>
+<p><img alt="chkdsk-1" src="./chkdsk-1.jpg"></p>
+<p>Luego ejecutamos <code>chkdsk C: /F</code></p>
+<p><img alt="chkdsk-2" src="./chkdsk-2.jpg"></p>
+<p>Lo hacemos una segunda vez</p>
+<p><img alt="chkdsk-3" src="./chkdsk-3.jpg"></p>
+<p>y aquí vemos que no hay más errores.</p>
+<p>Por tercera vez ejecutamos <code>chkdsk /F /R /X</code>, lo cual según la documentación
+sería un análisis más exhaustivo.</p>
+<p><img alt="chkdsk-4" src="./chkdsk-4.jpg"></p>
+<p>Tampoco encontró errores, pero demoró un tiempo considerable.</p>
+</section>
+<section id="Conclusión">
+<h2>Conclusión</h2>
+<p>Al final, el sistema de archivos NTFS que elegí ya que soporta lectura y
+escritura con journaling en Linux, FreeBSD y OpenBSD resulta que es propietario
+y ante problemas estos deben arreglarse utilizando windows.</p>
+</section>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

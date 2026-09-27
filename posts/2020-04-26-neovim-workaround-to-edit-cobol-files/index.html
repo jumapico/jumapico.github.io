@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Workaround de neovim para editar archivos cobol | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Workaround de neovim para editar archivos cobol</h1>
+        <h2 class="date">2020-04-26</h2>
+      </div>
+<p><a href="https://en.wikipedia.org/wiki/COBOL">cobol</a> admite dos <a href="https://en.wikipedia.org/wiki/COBOL#Code_format">formatos distintos del archivo</a>:</p>
+<ul>
+<li><em>fixed</em>: viene del formato utilizado por las tarjetas perforadas e implica que
+las columnas tienen diferentes usos.</li>
+<li><em>free</em>: introducido en <em>Cobol 2002</em>, el código puede agregarse en cualquier
+columna (como los lenguajes a los que se está acostumbrado).</li>
+</ul>
+<p>vim, y particularmente neovim, incluyen plugins para trabajar con cobol:</p>
+<ul>
+<li><a href="https://github.com/vim/vim/blob/master/runtime/ftplugin/cobol.vim">https://github.com/vim/vim/blob/master/runtime/ftplugin/cobol.vim</a></li>
+<li><a href="https://github.com/vim/vim/blob/master/runtime/indent/cobol.vim">https://github.com/vim/vim/blob/master/runtime/indent/cobol.vim</a></li>
+<li><a href="https://github.com/vim/vim/blob/master/runtime/syntax/cobol.vim">https://github.com/vim/vim/blob/master/runtime/syntax/cobol.vim</a></li>
+</ul>
+<p>El problema es que utilizan el formato <em>fixed</em> e indentan comenzando desde la
+séptima columna.</p>
+<p>Ya que actualmente los plugins de cobol no soportan el formato <em>free</em> y no se
+desea perder tiempo (des)indentando -volviendo a la primera columna luego de que
+el cursor salta automáticamente a la séptima columna- se utiliza como workaround
+el deshabilitar la carga de plugins de neovim al abrir un archivo de cobol:</p>
+<pre><code>$ nvim --clean file.cob
+</code></pre>
+<h2>Extras</h2>
+<ul>
+<li>
+<p>Para compilar utilizando gnucobol en formato libre hay que utilizar el flag
+<code>--free</code>:</p>
+<pre><code>$ cobc -x --free file.cob
+</code></pre>
+</li>
+<li>
+<p><a href="https://open-cobol.sourceforge.io/faq/index.html">Información sobre gnucobol</a></p>
+</li>
+<li>
+<p>Más detalles sobre <a href="https://open-cobol.sourceforge.io/faq/gcfaq.html#what-source-formats-are-accepted-by-gnucobol">formato fixed/free</a></p>
+</li>
+</ul>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

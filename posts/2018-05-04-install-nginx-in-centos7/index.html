@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Instalar nginx en centos 7 | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Instalar nginx en centos 7</h1>
+        <h2 class="date">2018-05-04</h2>
+      </div>
+<h1>Instalar nginx en centos 7</h1>
+<p>Los otros días tuve que crear un servidor para servir un mirror de los paquetes
+de ubuntu 18.04.</p>
+<p>Se utilizará <em>Centos 7</em> para el servidor, instalandolo a partir del <a href="http://isoredirect.centos.org/centos/7/isos/x86_64/CentOS-7-x86_64-DVD-1708.iso">DVD
+ISO</a>.
+La mayoría de las opciones se dejarán por defecto, eligiendose la opción
+<em>Minimal Install</em> para el entorno base y sin addons.</p>
+<p>Ya con el sistema instalado empieza la diversión:</p>
+<p>Se actualiza el sistema y se instala <code>nginx</code>. Ya que <code>nginx</code> no se encuentra en
+los repositorios de <em>centos</em>, se utilizará el repositorio <a href="https://fedoraproject.org/wiki/EPEL">EPEL - Extra Packages
+for Enterprise Linux</a>:</p>
+<p>(Nota: los comandos serán ejecutados con usuario root):</p>
+<pre><code>yum -y update
+yum -y install epel-release
+yum -y update
+yum -y install nginx
+</code></pre>
+<p>Se habilita e inicia <code>nginx</code> a nivel de sistema (servicio de systemd), ya que
+inicialmente está deshabilitado:</p>
+<pre><code>systemctl enable nginx.service
+systemctl start nginx.service
+</code></pre>
+<p>Se utiliza <code>curl 127.0.0.1</code> en el sistema para corroborar que se está sirviendo
+contenido (la página por defecto configurada por el paquete).</p>
+<p>En mi configuración particular los archivos se van a servir de <code>/srv/www</code>, por
+lo que se crea la siguiente configuración de <code>nginx</code>:</p>
+<pre><code>cat &lt;&lt;'END' &gt; /etc/nginx/conf.d/my-mirror.example.com.conf
+server {
+    listen 80;
+    server_name my-mirror.example.com;
+    root /srv/www;
+    autoindex on;
+}
+END
+</code></pre>
+<p>Se utiliza el directorio <code>/srv/www</code> ya que los archivos servidos por <code>nginx</code> se
+encontrarán en otro disco y tiene sentido según las <a href="https://refspecs.linuxfoundation.org/FHS_3.0/fhs/ch03s17.html">Filesystem Hierarchy
+Standard de linux</a>.</p>
+<p>Ya que es un mirror y solo se servirán archivos, se encuentra útil habilitar la
+opción <code>autoindex</code>, para listar el contenido de los directorios.</p>
+<p>Se reinicia <code>nginx</code> mediante <code>systemctl restart nginx.service</code> y cuando se
+intenta acceder mediante <code>curl my-mirror.example.com</code> no se devuelve nada.
+Se busca en los logs <code>/var/log/nginx/access.log</code> y <code>/var/log/nginx/error.log</code> y
+nada. Una búsqueda rápida en internet y me doy cuenta que había olvidado que
+<em>Centos 7</em> tiene habilitado el <em>firewall</em> por defecto.</p>
+<p>Se desactiva el firewall:</p>
+<pre><code>firewall-cmd --zone=public --permanent --add-service=http
+firewall-cmd --zone=public --permanent --add-service=https
+firewall-cmd --reload
+</code></pre>
+<p>Ahora <code>curl</code> nuevamente y se obtiene: <em>404 Not Found</em>.</p>
+<p>Se busca en el log de error y se encuentra:</p>
+<pre><code>... [error] 11414#0: *3 open() &quot;/srv/www/mirror&quot; failed (13: Permission denied), ...
+</code></pre>
+<p>Despues de buscar un rato más (nuevamente internet), si, <em>Centos 7</em> también
+tiene por defecto <em>selinux</em> en estado <strong>Enforcing</strong>:</p>
+<pre><code># getenforce
+Enforcing
+</code></pre>
+<p>Buscando las reglas de <em>selinux</em></p>
+<pre><code># grep -r '/srv.*www' /etc/selinux
+/etc/selinux/targeted/contexts/files/file_contexts:/srv/([^/]*/)?www(/.*)?	system_u:object_r:httpd_sys_content_t:s0
+/etc/selinux/targeted/contexts/files/file_contexts:/srv/([^/]*/)?www/logs(/.*)?	system_u:object_r:httpd_log_t:s0
+Binary file /etc/selinux/targeted/contexts/files/file_contexts.bin matches
+/etc/selinux/targeted/active/file_contexts:/srv/([^/]*/)?www(/.*)?	system_u:object_r:httpd_sys_content_t:s0
+/etc/selinux/targeted/active/file_contexts:/srv/([^/]*/)?www/logs(/.*)?	system_u:object_r:httpd_log_t:s0
+</code></pre>
+<p>se encuentra que el directorio <code>/srv/www</code> ya está incluido, pero los archivos
+que se encuentran allí fueron copiados de otro sistema mediante <code>rsync</code>, por lo
+cual hay que reestablecer los contextos de selinux:</p>
+<pre><code>restorecon -R /srv/www
+</code></pre>
+<p><strong>NOTA</strong>: si se utiliza un directorio distinto de <code>/srv/www</code> que no tenga un
+contexto de selinux asociado (ejemplo <code>/srv/my-files</code>), el comando <code>restorecon</code>
+no hará nada. La alternativa es agregar primero los archivos a <em>selinux</em> y
+recién despues utilizar <code>restorecon</code>.</p>
+<p>También se agrega un acl para que el usuario <code>nginx</code> puede acceder los archivos,
+ya que es posible que los archivos tengan otro usuario (el utilizado para
+copiarlos al sistema):</p>
+<pre><code>setfacl -R -m u:nginx:rx /srv/www
+</code></pre>
+<p>Ahora si, haciendo <code>curl my-mirror.example.com</code> se obtiene un listado del
+directorio.</p>
+<p>En resumen; en un <em>Centos 7</em> con los archivos que se quieren servir en
+<code>/srv/www</code> hacer:</p>
+<ol>
+<li>
+<p>Descargar los archivos:</p>
+<ul>
+<li><a href="./provision-nginx.sh">provision-nginx.sh</a></li>
+<li><a href="./fix-permissions-srv-www.sh">fix-permissions-srv-www.sh</a></li>
+</ul>
+</li>
+<li>
+<p>Ejecutar en el servidor como root:</p>
+<pre><code># export SERVER_DOMAIN=my-mirror.example.com
+# export ROOT_DIRECTORY=/srv/www
+# ./provision-nginx.sh
+# ./fix-permissions-srv-www.sh
+</code></pre>
+</li>
+</ol>
+<p>Referencias:</p>
+<ul>
+<li><a href="https://www.tecmint.com/install-nginx-on-centos-7/">https://www.tecmint.com/install-nginx-on-centos-7/</a></li>
+<li><a href="https://fedoraproject.org/wiki/Nginx">https://fedoraproject.org/wiki/Nginx</a></li>
+<li><a href="http://nginx.org/en/docs/http/ngx_http_autoindex_module.html">http://nginx.org/en/docs/http/ngx_http_autoindex_module.html</a></li>
+</ul>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Trabajar con sql | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Trabajar con sql</h1>
+        <h2 class="date">2018-04-13</h2>
+      </div>
+<p><a href="https://tapoueh.org/blog/2017/06/how-to-write-sql/">Como escribir sql</a>:</p>
+<ul>
+<li>
+<p>Con PostgreSQL:</p>
+<pre><code>$ psql --variable &quot;&lt;name&gt;=&lt;value&gt;&quot; -f query.sql database
+</code></pre>
+<p>o en una sesión <code>psql</code>:</p>
+<pre><code>&gt; \cd path/to/my/sources
+&gt; \set name value
+&gt; \i query.sql
+</code></pre>
+</li>
+<li>
+<p><a href="https://stackoverflow.com/questions/3564283/how-to-declare-variable-and-use-it-in-the-same-sql-script-oracle-sql">Con Oracle</a></p>
+<p>En una sesión <a href="http://www.oracle.com/technetwork/developer-tools/sqlcl/overview/index.html"><code>sqlcl</code></a>
+usando <a href="http://oracle.readthedocs.io/en/latest/plsql/bind/">bind variables</a>:</p>
+<pre><code>SQL&gt; cd path/to/my/sources
+SQL&gt; var name datatype
+SQL&gt; exec :name := value
+SQL&gt; @query.sql
+</code></pre>
+</li>
+</ul>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

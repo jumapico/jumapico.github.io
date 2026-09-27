@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Construyendo programas arduino | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Construyendo programas arduino</h1>
+        <h2 class="date">2021-03-30</h2>
+      </div>
+<p><strong>TL;DR</strong></p>
+<p>Para programar aplicaciones <a href="https://www.arduino.cc/">arduino</a> utilizar <a href="https://github.com/sudar/Arduino-Makefile">Arduino-Makefile</a>.</p>
+<p>El archivo <code>Makefile</code>, utilizando una <a href="https://www.arduino.cc/en/Guide/ArduinoMega2560">arduino mega</a> y las librerías que
+se encuentran en el directorio <code>libraries</code>, es de la forma:</p>
+<pre><code># Arduino Make file. Refer to https://github.com/sudar/Arduino-Makefile
+
+BOARD_TAG    = mega
+BOARD_SUB    = atmega2560
+MONITOR_PORT = /dev/ttyACM0
+AVRDUDE_CONF = /etc/avrdude.conf
+
+USER_LIB_PATH = libraries
+ARDUINO_LIBS  = &lt;...&gt;
+
+include /usr/share/arduino/Arduino.mk
+</code></pre>
+<h2>Opciones para creación de programas</h2>
+<p>Actualmente para crear programas con <a href="https://www.arduino.cc/">arduino</a> se puede utilizar tres opciones:</p>
+<ul>
+<li>
+<p><a href="https://create.arduino.cc/editor">arduino web editor</a>: editor web que compila (verifica los programas) en
+linea.</p>
+<p>Para hacer el upload a una placa se necesita instalar el programa <a href="https://create.arduino.cc/getting-started/plugin/welcome">arduino
+create agent</a>, el cual tiene como dependencia en debian el paquete
+<code>libappindicator3-1</code>, el cual debe descargarse desde debian los repositorios
+de debian stable ya que testing a la fecha no posee el paquete:</p>
+<pre><code>$ echo 'deb [arch=amd64] http://deb.debian.org/debian/ stable main' \
+    | sudo tee /etc/apt/sources.list.d/stable-for-arduino.list
+$ sudo apt-get update
+$ sudo apt-get install -Vy libappindicator3-1
+$ sudo rm /etc/apt/sources.list.d/stable-for-arduino.list
+</code></pre>
+<p>Para tener acceso termisos para conectarse a la placa por el puerto serie usb
+el usuario debe pertenecer al grupo <code>dialout</code>:</p>
+<pre><code>$ sudo addgroup $(id -un) dialout
+</code></pre>
+<p>para que el grupo sea efectivo debemos reloguearnos al sistema o utilizar en
+una consola el comando <code>newgrp dialout</code></p>
+</li>
+<li>
+<p><a href="https://www.arduino.cc/en/software">arduino ide</a>: permite programar, compilar y enviar a la placa localmente.  En
+debian se instala como parte del paquete <code>arduino</code>:</p>
+<pre><code>$ sudo apt-get install -Vy arduino
+</code></pre>
+<p>Al iniciar el ide, si no se pertenece al grupo <code>dialout</code> se muestra un cartel
+indicando que esto es necesario.</p>
+<p><em>A mi criterio la experiencia del IDE es mala</em>, ya que como editor de textos
+es bastante mediocre.  Como positivo tiene el hecho que permite de forma
+sencilla especificar el modelo de placa utilizada (<em>Tools &gt; Boards</em>), el
+puerto al que está conectada la placa (<em>Tools &gt; Port</em>) y cuenta con un monitor
+del puerto serie (<em>Tools &gt; Serial Monitor</em>).</p>
+<p>Las librerías que serán utilizadas por los proyectos se deben agregar a
+arduino como un zip (<em>Sketch &gt; Include Library &gt; Add .ZIP Library...</em>) o
+descargandose de internet (<em>Sketch &gt; Include Library &gt; Manage Libraries...</em>),
+con lo cual son agregadas por defecto bajo el directorio
+<code>~/Arduino/libraries/</code>.</p>
+<p>En la [guia para librerías de arduino] se indica que las librerías de arduino
+se pueden encontrar en tres lugares:</p>
+<ol>
+<li><em>IDE installation folder</em> (<code>USER_LIB_PATH=~/Arduino/libraries</code>)</li>
+<li><em>core folder</em> (<code>ARDUINO_LIB_PATH=/usr/share/arduino/libraries</code>)</li>
+<li><em>libraries folder inside your sketchbook</em></li>
+</ol>
+<p>La instalación en 2. y 3. debe realizarse de forma manual.</p>
+</li>
+<li>
+<p><a href="https://github.com/sudar/Arduino-Makefile">Arduino-Makefile</a>: es un conjunto de <a href="https://www.gnu.org/software/make/manual/html_node/Introduction.html">Makefiles</a> que permiten compilar y
+enviar al dispositivo los programas utilizando solamente la linea de comandos.
+A diferencia de las otras opciones no se posee un <em>Serial Monitor</em>, por lo que
+conviene instalar un programa como <code>picocom</code> para conectarse al puerto serie:</p>
+<pre><code>$ sudo apt-get install -Vy arduino-mk picocom
+</code></pre>
+<p>Es la opción más potente para el desarrollador aunque puede dar problemas al
+momento de configurar.</p>
+<p>Vale la pena notar que tanto en este caso como en el anterior se instala el
+paquete <code>arduino</code>, el cual posee varios ejemplos:</p>
+<pre><code>$ dpkg -L arduino | grep /examples/
+</code></pre>
+</li>
+</ul>
+<h2>Uso de arduino-mk</h2>
+<p>Como ejemplo de uso de arduino-mk se tiene el programa <code>Blink</code> que se instala
+junto al paquete <code>arduino-mk</code>:</p>
+<pre><code>$ dpkg -L arduino-mk | grep -i /blink/
+/usr/share/doc/arduino-mk/examples/Blink/Blink.ino
+/usr/share/doc/arduino-mk/examples/Blink/Makefile
+</code></pre>
+<p>Comenzamos copiando el ejemplo:</p>
+<pre><code>$ cp -a /usr/share/doc/arduino-mk/examples/Blink $HOME/arduino-example
+</code></pre>
+<p>A continuación, debe editarse el <code>Makefile</code> teniendo en cuenta la placa
+utilizada.  En mi caso que estoy utilizando una <a href="https://www.arduino.cc/en/Guide/ArduinoMega2560">arduino mega</a>.  A continuación
+se mostrarán dos errores posibles que pueden cometerse al editarse el archivo
+<code>Makefile</code>, y los mensajes de error asociados</p>
+<h3>Placa incorrecta o no especificada correctamente.</h3>
+<p>En el siguiente ejemplo del archivo <code>Makefile</code> la placa no está completamente
+especificada (se utiliza el <em>ide 1.0</em> en lugar del <em>ide 1.6</em>):</p>
+<pre><code>BOARD_TAG    = mega
+ARDUINO_PORT = /dev/ttyACM0
+include /usr/share/arduino/Arduino.mk
+</code></pre>
+<p>Al intentar compilar:</p>
+<pre><code>$ make clean &amp;&amp; make
+...
+mkdir -p build-mega
+/usr/share/arduino/hardware/tools/avr/bin/avr-g++ -x c++ -include Arduino.h -MMD -c -mmcu= -DF_CPU=16000000L -DARDUINO=1813 -DARDUINO_ARCH_AVR -D__PROG_TYPES_COMPAT__ -I/usr/share/arduino/hardware/arduino/avr/cores/arduino -I/usr/share/arduino/hardware/arduino/avr/variants/mega    -Wall -ffunction-sections -fdata-sections -Os -fpermissive -fno-exceptions -std=gnu++11 -fno-threadsafe-statics -flto Blink.ino -o build-mega/Blink.ino.o
+avr-g++: error: missing device or architecture after ‘-mmcu=’
+make: *** [/usr/share/arduino/Arduino.mk:1252: build-mega/Blink.ino.o] Error 1
+...
+</code></pre>
+<p>Corrigiendo en el <code>Makefile</code> la versión de la placa:</p>
+<pre><code>BOARD_TAG    = mega
+BOARD_SUB    = atmega2560
+MONITOR_PORT = /dev/ttyACM0
+include /usr/share/arduino/Arduino.mk
+</code></pre>
+<p>Se encuentra que la compilación esta vez se realiza sin problemas:</p>
+<pre><code>$ make clean &amp;&amp; make
+AVR Memory Usage
+----------------
+Device: atmega2560
+
+Program:    1554 bytes (0.6% Full)
+(.text + .data + .bootloader)
+
+Data:          9 bytes (0.1% Full)
+(.data + .bss + .noinit)
+</code></pre>
+<h3>Configuración incorrecta de <code>avrdude</code>.</h3>
+<p>El segundo problema surge al querer cargar (<code>upload</code>) el programa a la placa:</p>
+<pre><code>$ make upload
+...
+make[1]: Entering directory '/home/jmpc/arduino-example'
+/usr/share/arduino/hardware/tools/avr/bin/avrdude -q -V -p atmega2560 -C /usr/share/arduino/hardware/tools/avr/etc/avrdude.conf -D -c wiring -b 115200 -P /dev/ttyACM0 \
+            -U flash:w:build-mega-atmega2560/arduino-example_.hex:i
+avrdude: can't open config file &quot;/usr/share/arduino/hardware/tools/avr/etc/avrdude.conf&quot;: No such file or directory
+avrdude: error reading system wide configuration file &quot;/usr/share/arduino/hardware/tools/avr/etc/avrdude.conf&quot;
+make[1]: *** [/usr/share/arduino/Arduino.mk:1462: do_upload] Error 1
+</code></pre>
+<p>Lo anterior sucede porque al invocar al programa <code>avrdude</code> (utilizado para
+programar la placa) no se le está pasando la ruta correcta de configuración.
+Revisando el paquete <code>avrdude</code> vemos que la configuración se encuentra en
+<code>/etc/avrdude.conf</code>:</p>
+<pre><code>$ dpkg -L avrdude | grep /etc/
+/etc/avrdude.conf
+</code></pre>
+<p>con lo que se debe utilizar la variable <code>AVRDUDE_CONF = /etc/avrdude.conf</code>
+para que la configuración se tome correctamente y el programa pueda cargarse
+a la placa.</p>
+<h3>Corrección de Makefile</h3>
+<p>De lo anterior el archivo <code>Makefile</code> debe quedar como:</p>
+<pre><code># Arduino Make file. Refer to https://github.com/sudar/Arduino-Makefile
+
+BOARD_TAG    = mega
+BOARD_SUB    = atmega2560
+MONITOR_PORT = /dev/ttyACM0
+AVRDUDE_CONF = /etc/avrdude.conf
+
+include /usr/share/arduino/Arduino.mk
+</code></pre>
+<p>Y al momento de compilar y cargar a la placa:</p>
+<pre><code>$ make clean &amp;&amp; make &amp;&amp; make upload
+...
+avrdude: AVR device initialized and ready to accept instructions
+avrdude: Device signature = 0x1e9801 (probably m2560)
+avrdude: reading input file &quot;build-mega-atmega2560/arduino-example_.hex&quot;
+avrdude: writing flash (1554 bytes):
+avrdude: 1554 bytes of flash written
+
+avrdude: safemode: Fuses OK (E:FD, H:D8, L:FF)
+
+avrdude done.  Thank you.
+...
+</code></pre>
+<h2>Conclusiones</h2>
+<ul>
+<li>El utilizar el editor web para programar no me agrada ya que se pierde la
+posibilidad de realizar las tareas de forma offline y tener las herramientas
+en el sistema.</li>
+<li>El IDE es malo (muy malo..).  Quizás no sea justo compararlo con otros
+entornos de desarrollo, pero el <code>vim</code> le da mil vueltas.</li>
+<li>Antes de dar con el archivo
+<code>/usr/share/doc/arduino-mk/examples/Blink/Makefile</code> que posee las
+combinaciones necesarias para utilizar varias de las placas más comunes de
+arduino <em>perdí horas</em> tratando de dar con los valores correctos para poder
+compilar.  Por otro lado el problema de la configuración de <code>avrdude</code> me llevó
+minutos.</li>
+<li>Si bien el archivo <code>Makefile</code> es sencillo, este tiene hardcodeadas varias
+rutas del sistema, lo que no está tan bueno...</li>
+</ul>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

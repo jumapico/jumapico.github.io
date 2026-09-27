@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Actualización a FreeBSD 15.1 | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Actualización a FreeBSD 15.1</h1>
+        <h2 class="date">2026-07-26</h2>
+      </div>
+
+<p>Estoy usando <a href="https://www.freebsd.org/releases/14.4R/announce/">FreeBSD 14.4</a> con pkg-base y quiero actualizar a
+<a href="https://www.freebsd.org/releases/15.1R/announce/">FreeBSD 15.1</a>.</p>
+<p>Ya que previamente había convertido la instalación de FreeBSD a <a href="https://wiki.freebsd.org/PkgBase">pkg-base</a>
+voy a seguir las instrucciones correspondientes del handbook para actualizar
+el sistema: <a href="https://docs.freebsd.org/en/books/handbook/cutting-edge/#pkgbase">Updating FreeBSD with packages</a>.</p>
+<section id="Preparación">
+<h2>Preparación</h2>
+<p>En la sección <a href="https://docs.freebsd.org/en/books/handbook/cutting-edge/#_preparations">Preparations</a> se indica cambiar el archivo
+<code>/usr/local/etc/pkg/repos/FreeBSD-base.conf</code> para que se vea de la forma
+siguiente:</p>
+<pre><code class="language-sh">FreeBSD-base: {
+  url: "pkg+https://pkg.FreeBSD.org/${ABI}/base_release_0",
+  mirror_type: "srv",
+  signature_type: "fingerprints",
+  fingerprints: "/usr/share/keys/pkg",
+  enabled: yes
+}
+</code></pre>
+<p>Esto tiene varios problemas:</p>
+<ol>
+<li>
+<p>Modifica el repositorio del sistema actual, a diferencia de la sugerencia
+previa de usar como url
+<code>pkg+https://pkg.FreeBSD.org/${ABI}/base_release_${VERSION_MINOR}</code> que
+funciona tanto para 14.4 como para 15.1 (ver VARIABLES en <a href="https://man.freebsd.org/pkg.conf">man pkg.conf</a>).</p>
+</li>
+<li>
+<p>El uso de <code>base_release_0</code> indica que se quiere pasar a FreeBSD 15.0, cuando
+en realidad quiero instalar 15.1 lo cual es posible según
+<a href="https://www.freebsd.org/releases/15.1R/upgrading/">FreeBSD 15.1-RELEASE Upgrading Instructions</a>.</p>
+<blockquote>
+<p>This document explains the procedure for upgrading existing 14.4-RELEASE or
+15.0-RELEASE installations to 15.1-RELEASE</p>
+</blockquote>
+</li>
+<li>
+<p>Otro problema que no aparece en el handbook ni en las instrucciónes de
+upgrade a 15.1, pero si aparece en los foros y en 
+<a href="https://www.freebsd.org/releases/15.0R/relnotes/">FreeBSD 15.0-RELEASE Release Notes</a> es que ahora las keys deben estar en
+el directorio <code>/usr/share/keys/pkgbase-15</code> y puede ser necesario copiarlas de
+forma manual.</p>
+</li>
+</ol>
+<p>Debido a estos problemas se va a posponer la modificación del archivo para
+realizarla solamente en el <strong>boot environment</strong> que será creado más adelante.</p>
+</section>
+<section id="Creación-del-boot-environment">
+<h2>Creación del boot environment</h2>
+<p>Ya que estamos usando zfs se va a crear un nuevo <strong>boot environment</strong> utilizando 
+<a href="https://man.freebsd.org/bectl">bectl</a> como se indica en el handbook y en las instrucciones de upgrade de
+15.1.</p>
+<p>Aquí hay una diferencia entre la sección <a href="https://docs.freebsd.org/en/books/handbook/cutting-edge/#pkgbase-major-zfs">Major Upgrade With ZFS</a> del
+handbook y la sección <strong>Upgrading with Base System Packages</strong> de la página de
+<a href="https://www.freebsd.org/releases/15.1R/upgrading/">Upgrading Instructions</a>.
+En la primera se crea un nuevo boot environment que se irá actualizando
+mediante el uso de pkg con la opción <code>-c</code> que permite indicar un directorio
+chroot donde se montará el boot environment creado y bectl para activar el boot
+environtmen.
+En la segunda se crea un nuevo boot environment que será utilizado como backup
+en caso de que algo salga mal y se actualiza el boot environment actual.</p>
+<p>De las dos alternativas voy a utilizar la indicada en la página de upgrading a
+15.1 y crear un boot environment que funcione como backup:</p>
+<pre><code class="language-sh"># bectl create -r FreeBSD-14.4
+</code></pre>
+<p>Verificamos la creación:</p>
+<pre><code class="language-sh"># bectl list
+BE           Active Mountpoint Space Created
+FreeBSD-14.4 -      -          8K    2026-07-27 01:16
+default      NR     /          13.3G 2025-08-26 22:51
+</code></pre>
+</section>
+<section id="Actualización-del-sistema">
+<h2>Actualización del sistema</h2>
+<p>Ahora que fué creado el boot environment de backup modifico el archivo 
+<code>/usr/local/etc/pkg/repos/FreeBSD-base.conf</code> para que se vea de la forma</p>
+<pre><code class="language-sh">FreeBSD-base: {
+  url: "pkg+https://pkg.FreeBSD.org/${ABI}/base_release_${VERSION_MINOR}",
+  mirror_type: "srv",
+  signature_type: "fingerprints",
+  fingerprints: "/usr/share/keys/pkgbase-15",
+  enabled: yes
+}
+</code></pre>
+<p>Una vez hecho esto actualizamos el sistema actual y luego hacemos el upgrade:</p>
+<pre><code class="language-sh"># pkg upgrade -r FreeBSD-base
+# pkg -oABI=FreeBSD:15:amd64 -oOSVERSION=1501000 upgrade -r FreeBSD-base
+pkg: Warning: Major OS version upgrade detected.  Running "pkg bootstrap -f" recommended
+Updating FreeBSD-base repository catalogue...
+pkg: Repository FreeBSD-base has a wrong packagesite, need to re-create database
+Fetching meta.conf: 100%     179 B   0.2 kB/s    00:01
+Fetching data: 100%    82 KiB  84.0 kB/s    00:01
+pkg: cannot parse fingerprints: cannot open file &lt;bsd.prog.mk&gt;: No such file or directory
+Processing entries: 100%
+FreeBSD-base repository update completed. 509 packages processed.
+FreeBSD-base is up to date.
+Checking for upgrades (152 candidates): 100%
+Processing candidates (152 candidates): 100%
+The following 216 package(s) will be affected (of 0 checked):
+
+New packages to be INSTALLED:
+	FreeBSD-atf: 15.1 [FreeBSD-base]
+	FreeBSD-atf-dev: 15.1 [FreeBSD-base]
+	FreeBSD-atf-lib: 15.1 [FreeBSD-base]
+...
+	FreeBSD-zfs: 14.4p7 -&gt; 15.1 [FreeBSD-base]
+	FreeBSD-zfs-dev: 14.4p7 -&gt; 15.1p1 [FreeBSD-base]
+	FreeBSD-zoneinfo: 14.4p7 -&gt; 15.1 [FreeBSD-base]
+
+Number of packages to be installed: 65
+Number of packages to be upgraded: 151
+
+The process will require 87 MiB more space.
+306 MiB to be downloaded.
+
+Proceed with this action? [y/N]:y
+
+...
+[320/332] Extracting FreeBSD-zfs-15.1: 100%
+pkg: fstat() failed for(//root/usr/local/lib/compat/pkg/libavl.so.2): No such file or directory
+pkg: fstat() failed for(//root/usr/local/lib/compat/pkg/libbe.so.1): No such file or directory
+pkg: fstat() failed for(//root/usr/local/lib/compat/pkg/libicp.so.3): No such file or directory
+pkg: fstat() failed for(//root/usr/local/lib/compat/pkg/libnvpair.so.2): No such file or directory
+pkg: fstat() failed for(//root/usr/local/lib/compat/pkg/libspl.so.2): No such file or directory
+pkg: fstat() failed for(//root/usr/local/lib/compat/pkg/libtpool.so.2): No such file or directory
+pkg: fstat() failed for(//root/usr/local/lib/compat/pkg/libumem.so.2): No such file or directory
+pkg: fstat() failed for(//root/usr/local/lib/compat/pkg/libuutil.so.2): No such file or directory
+pkg: fstat() failed for(//root/usr/local/lib/compat/pkg/libzfs.so.4): No such file or directory
+pkg: fstat() failed for(//root/usr/local/lib/compat/pkg/libzfs_core.so.2): No such file or directory
+pkg: fstat() failed for(//root/usr/local/lib/compat/pkg/libzfsbootenv.so.1): No such file or directory
+pkg: fstat() failed for(//root/usr/local/lib/compat/pkg/libzpool.so.2): No such file or directory
+pkg: fstat() failed for(//root/usr/local/lib/compat/pkg/libzutil.so.2): No such file or directory
+[321/332] Upgrading FreeBSD-zfs-dev from 14.4p7 to 15.1p1...
+...
+
+
+[331/332] Installing FreeBSD-set-base-15.1...
+[332/332] Upgrading FreeBSD-tests-dbg from 14.4p7 to 15.1p1...
+[332/332] Extracting FreeBSD-tests-dbg-15.1p1: 100%
+==&gt; Running trigger: mandoc.ucl
+Generating apropos(1) database for /usr/share/man...
+Generating apropos(1) database for /usr/share/openssl/man...
+
+# pkg upgrade -r FreeBSD-ports-kmods
+</code></pre>
+<p>Por último revisamos si hubo fallas en la actualización de configuraciones:</p>
+<pre><code class="language-sh"># find /etc /usr/local/etc -name '*.pkgnew' -ls
+</code></pre>
+<p>y por suerte no hay ninguna de la que tengamos que preocuparnos.</p>
+</section>
+<section id="Actualización-del-boot-loader">
+<h2>Actualización del boot loader</h2>
+<p>Este paso solo se encuentra en la página de actualización a 15.1.</p>
+<p>Ya que el sistema es UEFI:</p>
+<pre><code># sysctl machdep.bootmethod
+machdep.bootmethod: UEFI
+</code></pre>
+<p>se seguirán los pasos indicados en la sección <strong>Upgrading the UEFI Boot Loader</strong>.</p>
+<p>En el sistema, la partición ESP ya se encuentra montada en <code>/boot/efi</code>.</p>
+<p>Antes de reemplazar el boot loader respaldamos el existente:</p>
+<pre><code class="language-sh"># cp /boot/efi/EFI/freebsd/loader.efi /boot/efi/EFI/freebsd/loader.efi.bak-`date -I`
+</code></pre>
+<p>Ahora si, sustituyo el bootloader por el nuevo correspondiente a 15.1:</p>
+<pre><code class="language-sh"># cp /boot/loader.efi /boot/efi/EFI/freebsd/loader.efi
+</code></pre>
+<p>Y se reinicia el sistema.</p>
+</section>
+<section id="Actualización-de-ports">
+<h2>Actualización de ports</h2>
+<p>Una vez que reinicia el sistema actualizamos pkg, el repositorio de paquetes y
+los ports:</p>
+<pre><code># pkg bootstrap -f  
+# pkg update -f
+# pkg upgrade -f
+</code></pre>
+</section>
+<section id="Notas-sobre-boot-environment">
+<h2>Notas sobre boot environment</h2>
+<p>En el proceso de entender mejor los boot environment di con el post
+<a href="https://vermaden.wordpress.com/2025/11/25/zfs-boot-environments-explained/">ZFS Boot Environments Explained</a> donde se explica el layout creado por el
+instalador, particularmente:</p>
+<blockquote>
+<p>This is the first often misunderstood topic … probably because of not
+understanding the canmount=off ZFS property – you can read more about that
+in the zfsprops(7) man page.</p>
+<p>So by default everything is included in ZFS BE – and if you want to EXCLUDE
+some parts of /usr or /var – you add needed ZFS datasets for these EXCLUDES.</p>
+</blockquote>
+<p>De lo anterior, se puede confirmar que datasets se encuentran en el pool, si se
+montarán o no y cual es su punto de montaje.</p>
+<pre><code class="language-sh"># zfs list
+# zfs get canmount
+# zfs get mountpoint
+</code></pre>
+</section>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

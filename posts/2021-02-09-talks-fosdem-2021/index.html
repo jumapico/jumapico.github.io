@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Charlas FOSDEM 2021 | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Charlas FOSDEM 2021</h1>
+        <h2 class="date">2021-02-09</h2>
+      </div>
+<p>Charlas <a href="https://fosdem.org/2021/">FOSDEM 2021</a></p>
+<h2>Interesantes</h2>
+<ul>
+<li><a href="https://fosdem.org/2021/schedule/event/gnumes/">GNU Mes - the Full Source Bootstrap</a>
+<ul>
+<li>Actualización del estado de <a href="https://www.gnu.org/software/mes/">GNU Mes</a> -
+<a href="https://bootstrappable.org/">bootstrappable builds</a></li>
+</ul>
+</li>
+<li><a href="https://fosdem.org/2021/schedule/event/reverse_engineering/">Reverse-Engineering of (binary) File-Formats</a>
+<ul>
+<li><a href="https://wiki.xentax.com/index.php/DGTEFF">THE DEFINITIVE GUIDE TO EXPLORING FILE FORMATS</a></li>
+<li>Uso de entropía para detectar secciones en el archivo</li>
+<li>Herramientas:
+<ul>
+<li><a href="https://github.com/ReFirmLabs/binwalk">Binwalk</a> - herramienta de análisis</li>
+<li><a href="https://r2wiki.readthedocs.io/en/latest/tools/radiff2/">radiff2</a> - diff
+binario</li>
+<li><a href="https://kaitai.io/">Kaitai Struct</a> - DSL para formatos de archivo binario</li>
+<li><a href="https://github.com/Mahlet-Inc/hobbits">hobbits</a> - visualización y
+análisis de archivos binarios</li>
+<li><a href="https://github.com/WerWolv/ImHex">ImHex</a> - <a href="https://en.wikipedia.org/wiki/Hex_editor">hex editor</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="https://fosdem.org/2021/schedule/event/alpine/">Alpine Musl Containers: Now Upstream</a>
+<ul>
+<li>Uso de <a href="https://alpinelinux.org/">Alpine</a> como imagen base para containers</li>
+<li>Alpine: <a href="https://musl.libc.org/">musl</a> + <a href="https://www.busybox.net/">busybox</a>;
+<a href="https://wiki.gentoo.org/wiki/OpenRC">OpenRC</a>, ash (busybox)
+<ul>
+<li><a href="https://wiki.alpinelinux.org/wiki/Alpine_Linux:Overview">overview</a></li>
+</ul>
+</li>
+<li><a href="https://openjdk.java.net/jeps/386">JEP 386: Alpine Linux Port</a> - Hecho
+<blockquote>
+<p>Port the JDK to Alpine Linux, and to other Linux distributions that use
+musl as their primary C library, on both the x64 and AArch64 architectures</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><a href="https://fosdem.org/2021/schedule/event/retro_gemini/">Gemini, a modern protocol that looks retro</a>
+<ul>
+<li>cliente <a href="https://framagit.org/bortzmeyer/agunua/">Agunua</a> para probar
+<ul>
+<li><a href="https://git.sr.ht/~fkfd/picross">picross</a> - python3, pocas dependencias</li>
+</ul>
+</li>
+<li>para mi la gran limitante es que no muestre imagenes, aunque en los foros se
+indica que podría ser configurado en el cliente</li>
+</ul>
+</li>
+<li><a href="https://fosdem.org/2021/schedule/event/postgres_development_environment/">A PostgreSQL development environment</a>
+<ul>
+<li><a href="https://www.gnu.org/software/global/">global</a></li>
+<li>tips de git:
+<ul>
+<li>Uso de <a href="https://www.gnu.org/software/diffutils/manual/diffutils.html#Comparing-Three-Files">diff3</a>:
+<pre><code>[merge]
+    conflictStyle = diff3
+</code></pre>
+</li>
+<li>Blancos al final de archivos
+<pre><code>[alias]
+check-whitespace = \
+  !git diff-tree --check $(git hash-object -t tree /dev/null) HEAD ${1:-$GIT_PREFIX}
+</code></pre>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="https://fosdem.org/2021/schedule/event/postgresql_database_disasters_and_how_to_find_them/">Database Disasters and How to Find Them</a>
+<ul>
+<li>
+<blockquote>
+<p>Crisis = Problem + Panic</p>
+</blockquote>
+</li>
+<li>
+<blockquote>
+<p>If you’re down, you’re down. Take a deep breath, and move cautiously.</p>
+</blockquote>
+</li>
+<li>
+<blockquote>
+<p>A backup that is not tested is not a backup.</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+<h2>Indiferentes</h2>
+<p><em>(Pero por lo menos generaron algún comentario)</em></p>
+<ul>
+<li><a href="https://fosdem.org/2021/schedule/event/vai_cloud_images_unikraft/">Severely Debloating Cloud Images with Unikraft</a>
+<ul>
+<li>Más librerías implementadas, sigue sin soporte para RISC-V</li>
+<li>Nuevo programa <code>kraft</code> para facilitar desarrollos</li>
+</ul>
+</li>
+<li><a href="https://fosdem.org/2021/schedule/event/eleventy_static_site_generator/">Eleventy is a simpler static site generator</a>
+<ul>
+<li>Otro <a href="https://jamstack.org/generators/">static site generator</a> más hecho en
+javascript.</li>
+<li><a href="https://jamstackthemes.dev/">https://jamstackthemes.dev/</a> - <em>list of themes, templates and starters for
+Jamstack sites</em>.  Para mi este es el link más importante de la diapositiva.</li>
+<li>No lo usaría por la <a href="https://github.com/11ty/eleventy/blob/master/package.json">cantidad de dependencias</a>;
+preferiría <a href="https://gohugo.io/">hugo</a> que es más pequeño aunque actualmente
+estoy usando <a href="https://nanoc.ws/">nanoc</a> -del cual quiero salir pero por
+cuestiones de tiempo no he hecho aún-.</li>
+</ul>
+</li>
+<li><a href="https://fosdem.org/2021/schedule/event/jakartaeecontributorsguide/">Contributors Guide to the Jakarta EE 10 Galaxy</a>
+<ul>
+<li>jakarta security (¿jakarta ee 10?) - <code>@OAuth2IdentityStoreDefinition</code></li>
+</ul>
+</li>
+<li><a href="https://fosdem.org/2021/schedule/event/dep_depclean/">DepClean: Automatically revealing bloated software dependencies in Maven projects</a>
+<ul>
+<li>No hay diapositiva, pero puede ser interesante probar <a href="https://github.com/castor-software/depclean">depclean</a>:
+<pre><code>$ mvn se.kth.castor:depclean-maven-plugin:1.1.0:depclean
+</code></pre>
+</li>
+</ul>
+</li>
+<li><a href="https://fosdem.org/2021/schedule/event/lo_qualityassurance/">LibreOffice QA - how to write your first test</a>
+<blockquote>
+<ul>
+<li>A bug fix without a unit test WILL GET BROKEN AGAIN in the next release.</li>
+<li>A bug fix with a unit test WILL REMAIN FIXED FOREVER.</li>
+</ul>
+</blockquote>
+</li>
+<li><a href="https://fosdem.org/2021/schedule/event/pcsx2/">The PlayStation 2: From Emotion to Emulation</a>
+<ul>
+<li>Recordatorio de lo feo que es leer código que utiliza <a href="https://en.wikipedia.org/wiki/Delay_slot">delay slot</a></li>
+<li>Como funciona la protección de copia del PS2
+<ul>
+<li><a href="https://nostarch.com/mangacrypto">The Manga Guide to Cryptography</a> :)</li>
+</ul>
+</li>
+<li><a href="https://www.recon.cx/2012/schedule/events/236.en.html">Reverse engineering of binary programs for custom virtual machines</a></li>
+</ul>
+</li>
+<li><a href="https://fosdem.org/2021/schedule/event/odf_for_interoperability/">ODF for Interoperability</a>
+<ul>
+<li>MS Office utiliza <em>Transitional OOXML</em> que es propietario</li>
+</ul>
+</li>
+<li><a href="https://fosdem.org/2021/schedule/event/ttdasciidocantora/">Creating a documentation site for users with AsciiDoc and Antora</a>
+<ul>
+<li><a href="https://plantuml.com/">PlantUML</a> - actualizaron el sitio, mucho mejor que el
+anterior</li>
+<li><a href="https://real-world-plantuml.com/">Real World PlantUML</a> - sitio con ejemplos;
+más comodo de navegar que el sitio de PlantUML</li>
+</ul>
+</li>
+</ul>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

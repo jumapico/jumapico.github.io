@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Consulta y modificación de parámetros del kernel | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Consulta y modificación de parámetros del kernel</h1>
+        <h2 class="date">2018-05-18</h2>
+      </div>
+<h2>Obtener información de un módulo del kernel</h2>
+<p>Para obtener información de un módulo del kernel está el programa
+<a href="https://manpages.debian.org/testing/kmod/modinfo.8.en.html"><code>modinfo</code></a>:</p>
+<p>Ejemplo:</p>
+<pre><code># modinfo drm
+filename:       /lib/modules/4.16.0-1-amd64/kernel/drivers/gpu/drm/drm.ko
+license:        GPL and additional rights
+description:    DRM shared core routines
+author:         Gareth Hughes, Leif Delgass, José Fonseca, Jon Smirl
+license:        GPL and additional rights
+description:    DRM bridge infrastructure
+author:         Ajay Kumar &lt;ajaykumar.rs@samsung.com&gt;
+license:        GPL and additional rights
+description:    DRM panel infrastructure
+author:         Thierry Reding &lt;treding@nvidia.com&gt;
+depends:
+retpoline:      Y
+intree:         Y
+name:           drm
+vermagic:       4.16.0-1-amd64 SMP mod_unload modversions
+parm:           edid_firmware:Do not probe monitor, use specified EDID blob from built-in data or /lib/firmware instead.  (string)
+parm:           vblankoffdelay:Delay until vblank irq auto-disable [msecs] (0: never disable, &lt;0: disable immediately) (int)
+parm:           timestamp_precision_usec:Max. error on timestamps [usecs] (int)
+parm:           edid_fixup:Minimum number of valid EDID header bytes (0-8, default 6) (int)
+parm:           debug:Enable debug output, where each bit enables a debug category.
+                Bit 0 (0x01) will enable CORE messages (drm core code)
+                Bit 1 (0x02) will enable DRIVER messages (drm controller code)
+                Bit 2 (0x04) will enable KMS messages (modesetting code)
+                Bit 3 (0x08) will enable PRIME messages (prime code)
+                Bit 4 (0x10) will enable ATOMIC messages (atomic code)
+                Bit 5 (0x20) will enable VBL messages (vblank code)
+                Bit 7 (0x80) will enable LEASE messages (leasing code) (int)
+</code></pre>
+<p>Si el objetivo es modificar los parámetros se puede utilizar la opción <code>-p</code> para
+obtener solamente la lista de parámetros que soporta el módulo.</p>
+<h2>Obtener los parámetros utilizados en un módulo del kernel</h2>
+<h3>grep</h3>
+<p>La versión de un <a href="https://www.macmillandictionary.com/dictionary/british/a-poor-man-s-something"><em>hombre
+pobre</em></a>
+para verificar los valores en <em>run-time</em> es utilizando <code>grep</code> como se indica en
+la <a href="https://www.kernel.org/doc/html/latest/driver-api/dmaengine/dmatest.html#part-3-when-built-in-in-the-kernel">documentación del
+kernel</a>:</p>
+<pre><code># grep -H . /sys/module/&lt;module&gt;/parameters/*
+</code></pre>
+<p>Notar que hay que ejecutar el comando como <em>root</em> o a través de <code>sudo</code>, ya que
+en caso contrario al obtener el valor de algunos parámetros nos puede aparecer
+el error de permisos.</p>
+<p>Ejemplo:</p>
+<pre><code># grep -H . /sys/module/drm/parameters/*
+/sys/module/drm/parameters/debug:0
+/sys/module/drm/parameters/edid_fixup:6
+/sys/module/drm/parameters/timestamp_precision_usec:20
+/sys/module/drm/parameters/vblankoffdelay:5000
+</code></pre>
+<p><em>PROS</em>:</p>
+<ul>
+<li>Sencillo.</li>
+<li>Si la terminal tiene colores la salida se ve bastante bien, ya que el nombre
+del parámetro (nombre de archivo) está en un color y su valor (contenido) en
+otro.</li>
+</ul>
+<p><em>CONS</em>:</p>
+<ul>
+<li>Si el valor del parámetro es <em>vacio</em> este no aparece en la salida del
+comando.</li>
+</ul>
+<h3>systool</h3>
+<p>Una información más completa se puede obtener mediante el comando
+<a href="https://manpages.debian.org/testing/sysfsutils/systool.1.en.html"><code>systool</code></a>
+del paquete <code>sysfsutils</code> (debian/centos):</p>
+<pre><code># systool -vm &lt;modulo&gt;
+</code></pre>
+<p>Ejemplo:</p>
+<pre><code># systool -vm drm
+Module = &quot;drm&quot;
+
+  Attributes:
+    coresize            = &quot;458752&quot;
+    initsize            = &quot;0&quot;
+    initstate           = &quot;live&quot;
+    refcnt              = &quot;7&quot;
+    taint               = &quot;&quot;
+    uevent              = &lt;store method only&gt;
+
+  Parameters:
+    debug               = &quot;0&quot;
+    edid_firmware       = &quot;&quot;
+    edid_fixup          = &quot;6&quot;
+    timestamp_precision_usec= &quot;20&quot;
+    vblankoffdelay      = &quot;5000&quot;
+
+  Sections:
+...
+</code></pre>
+<p><em>PROS</em>:</p>
+<ul>
+<li>Información más completa y exhaustiva.</li>
+</ul>
+<p><em>CONS</em>:</p>
+<ul>
+<li>Puede ser necesario instalar un paquete en el sistema.</li>
+</ul>
+<p>De los ejemplos anteriores se puede ver el caso del parámetro <code>edid_firmware</code>
+que está vacío, en la versión con <code>grep</code> no aparece.</p>
+<h2>Modificar parámetros de un módulo del kernel</h2>
+<p>Para modificar un parámetro de un módulo del kernel se tienen las siguientes
+alternativas:</p>
+<ol>
+<li>
+<p>Linea de comandos del kernel.</p>
+<p>Es la opción a utilizar cuando el módulo está integrado al kernel. De
+<a href="https://www.kernel.org/doc/html/latest/admin-guide/kernel-parameters.html">kernel-parameters</a> en la documentación del kernel:</p>
+<blockquote>
+<p>Parameters for modules which are built into the kernel need to be
+specified on the kernel command line</p>
+</blockquote>
+<p>Hay dos formas de especificarlo:</p>
+<ol>
+<li>Al iniciar el sistema, editando la linea de comandos del kernel</li>
+<li>Modificando la linea de comandos del kernel en los archivos de
+configuración del bootloader; en el caso de grub la variable
+<code>GRUB_CMDLINE_LINUX_DEFAULT</code> del archivo <code>/etc/default/grub</code>.</li>
+</ol>
+<p>Ejemplo: utilizando el <a href="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/gpu/drm/drm_edid_load.c">built-in
+data</a>
+para el valor de edid:</p>
+<pre><code>drm.edid_firmware=1024x768
+</code></pre>
+</li>
+<li>
+<p><a href="https://manpages.debian.org/unstable/kmod/modprobe.d.5.en.html">modprobe.d - directorios de configuración de
+modprobe</a>.</p>
+<p>El paquete <a href="https://sources.debian.org/src/kmod/">kmod</a> que contiene los
+comandos <code>modprobe</code> e <code>insmod</code> incluye el directorio de configuración
+<code>/etc/modprobe.d/</code> en el cual pueden crearse archivos con extensión <em>.conf</em>
+para indicar que opciones deben utilizarse al cargar un módulo dado. Para
+ello se utiliza la directiva <em>option</em>, aunque hay otras disponibles.</p>
+<p>Ejemplo:</p>
+<pre><code># cat &gt; /etc/modprobe.d/drm.conf &lt;&lt;'END'
+options drm edid_firmware=1024x768
+END
+</code></pre>
+</li>
+<li>
+<p>Llamar manualmente a <code>modprobe</code> o <code>insmod</code> al cargar el módulo del kernel.</p>
+<p>De la documentación de
+<a href="https://manpages.debian.org/unstable/kmod/modprobe.8.en.html"><code>modprobe</code></a> e
+<a href="https://manpages.debian.org/unstable/kmod/insmod.8.en.html"><code>insmod</code></a> se ve
+que es posible pasar los parámetros del módulo al insertar un módulo en el
+kernel.</p>
+<p>Si el módulo ya está en memoria es necesario removerlo previamente
+(<code>modprobe -r</code>/<code>rmmod</code>) y volver a insertarlo para utilizar los nuevos
+valores de los parámetros.</p>
+<p>Ejemplo:</p>
+<pre><code># cat /sys/module/usbhid/parameters/jspoll
+0
+# modprobe -v -r usbhid; modprobe -v usbhid jspoll=5
+rmmod usbhid
+insmod /lib/modules/4.16.0-1-amd64/kernel/drivers/hid/usbhid/usbhid.ko jspoll=5
+# cat /sys/module/usbhid/parameters/jspoll
+5
+</code></pre>
+<p><strong>CUIDADO</strong>: si se está utilizando un teclado usb y se remueve el módulo
+<em>usbhid</em> del kernel el teclado dejará de responder. Por eso es que se
+realiza en una misma linea del shell la remoción e inserción del kernel.</p>
+</li>
+<li>
+<p>Cambio en runtime.</p>
+<p>Como se indica en <a href="https://www.kernel.org/doc/html/latest/admin-guide/kernel-parameters.html">kernel-parameters</a>:</p>
+<blockquote>
+<p>Loadable modules, after being loaded into the running kernel, also reveal
+their parameters in /sys/module/${modulename}/parameters/. Some of these
+parameters may be changed at runtime by the command
+<code>echo -n ${value} &gt; /sys/module/${modulename}/parameters/${parm}</code>.</p>
+</blockquote>
+<p>Los parámetros se pueden modificar o no en base al valor del parámetro
+<code>perm</code> de la macro <code>module_param</code> que es utilizada para definir el parámetro
+del módulo.</p>
+<p>Ejemplo:</p>
+<pre><code># cat /sys/module/usbhid/parameters/jspoll
+5
+# echo -n 7 &gt; /sys/module/usbhid/parameters/jspoll
+# cat /sys/module/usbhid/parameters/jspoll
+7
+</code></pre>
+<p><strong>NOTA</strong>: En este caso se puede ver del código del módulo en
+<a href="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/hid/usbhid/hid-core.c">https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/hid/usbhid/hid-core.c</a>
+que el valor del parámetro <em>jspoll</em> se puede cambiar en runtime. Si los
+permisos no lo permiten es necesario reinsertar el módulo del kernel como se
+vió en el caso anterior.</p>
+</li>
+</ol>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Revisitando BROU OTP (llave digital del BROU) | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Revisitando BROU OTP (llave digital del BROU)</h1>
+        <h2 class="date">2026-08-30</h2>
+      </div>
+
+<p>Los otros días al entrar en la página del <a href="https://ebanking.brou.com.uy/">BROU</a> e intentar transferir a
+otro banco me encuentro con el error:</p>
+<p><img alt="Mensaje de error del BROU" src="/posts/2026-08-30-revisiting-brou-otp/error-brou.png"></p>
+<p>Esto, que me indica que debo crear una nueva llave digital (como le llama el
+BROU a un TOTP), me hace desempolvar un post previo,
+<a href="/posts/2022-04-05-get-brou-otp/">Obtener token OTP del BROU</a>.</p>
+<p>En ese post, por un tema de desconocer la licencia del archivo <code>aes-ctr-min.js</code>
+no incluí el código.
+Esto me lleva a tener que volver a descargar el apk para obtenerlo, cosa
+bastante incómoda.</p>
+<p>El problema que encontré (aparte del que me generó el banco) es que el sitio
+<a href="https://apkdownload.com">https://apkdownload.com</a> que usé previamente ya no existe.</p>
+<p>Probando con los buscadores no tuve suerte pero encontré una aplicación similar
+en el sitio <a href="https://apkpure.com/">APKPure</a>: <a href="https://apkpure.com/vu-br-token/com.brou.vusecurity">https://apkpure.com/vu-br-token/com.brou.vusecurity</a>.</p>
+<p>Si bien no es la misma aplicación, en las capturas se parece, por lo que decidí
+investigar el contenido para ver si allí se encontraba el archivo esperado.</p>
+<p>Luego de abrir el archivo con <a href="https://apktool.org/">Apktool</a> encontré que este tiene un archivo
+<code>aes.js</code> pero también me di cuenta que en el post anterior no incluí un checksum
+del archivo, <em>mal yo</em>.</p>
+<p>Lo que esta vez hice distinto fué descargar varias versiones del apk, para ver
+que diferencias tenían entre ellos y en la versión <code>3.4.1</code> encuentro en el
+archivo <code>assets/www/js/aes/utf8.js</code> el encabezado:</p>
+<pre><code>/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
+/*  Utf8 class: encode / decode between multi-byte Unicode characters and UTF-8 multiple          */
+/*              single-byte character encoding (c) Chris Veness 2002-2010                         */
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
+</code></pre>
+<p>Este es el único archivo con encabezado, pero bueno, una pista…</p>
+<p>Buscando sobre Chris Veness pude encontrar estos dos posts:</p>
+<ul>
+<li>
+<a href="https://movable-type.co.uk/scripts/aes.html">AES Advanced Encryption Standard</a>
+</li>
+<li>
+<a href="https://codeandlife.com/2023/02/05/recreating-chris-veness-aes256-ctr-decryption-with-cryptojs-for-fun-and-profit/">Recreating Chris Veness’ AES256 CTR decryption with CryptoJS for fun and
+profit</a>
+</li>
+</ul>
+<p>Utilizando principalmente el segundo link creé un script (en python) que permite
+realizar los pasos de obtener la semilla cifrada del banco y luego descifrarla
+localmente: <a href="/posts/2026-08-30-revisiting-brou-otp/brou-token">brou-token</a>.</p>
+<p>Y bueno, luego de todo el trabajo anterior y cuando voy a intengar generar el
+cupon … veo que no puedo generar el cupón de asociación (primer paso descripto
+en el post original).</p>
+<p>Ya molesto, buscando en la página del banco encuentro:
+<a href="https://www.brou.com.uy/personas/servicios/internet/llave-digital">https://www.brou.com.uy/personas/servicios/internet/llave-digital</a>:</p>
+<blockquote>
+<p>La Llave Digital es un mecanismo de seguridad que permite autorizar
+transacciones de eBROU desde un único celular validado.</p>
+</blockquote>
+<p>O sea, ahora el banco pasó de usar un token OTP a una aplicación android que
+recibe notificaciones del banco cuando se realizan las transacciones y hay que
+validarlas usando la aplicación (la cual invoca una api rest del banco…).</p>
+<p><strong><strong>Aprovecho a indicar mi extrema molestia, ya que pierdo opciones porque paso
+de poder generar un TOTP en cualquier sistema con el programa que quiera a
+tener que usar una aplicación android/ios desde un celular con uno de los
+sistemas operativos anteriores.</strong></strong></p>
+<p>Y bueno, si bien perdí el tiempo porque no pude registrar un TOTP, me quedo
+contento porque pude dar con la forma en que se descifraba la semilla que me
+había quedado pendiente del post anterior.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

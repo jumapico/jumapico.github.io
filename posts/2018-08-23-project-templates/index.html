@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Template de proyectos | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Template de proyectos</h1>
+        <h2 class="date">2018-08-23</h2>
+      </div>
+<h2>¿Porqué usar un template de proyectos?</h2>
+<ol>
+<li><strong>Para acelerar el inicio de un proyecto</strong>.</li>
+<li>Para crear un proyecto con los componentes que sean deseables sin tener que
+invertir tiempo en customizar la construcción del paquete y las elecciones
+hechas:
+<ul>
+<li>Programa para construir el paquete</li>
+<li>Programa para correr los distintos tipos de tests</li>
+<li>Customización para integración continua y deployment continuo</li>
+</ul>
+</li>
+</ol>
+<h2>¿Que programa usar?</h2>
+<p>Recordando la <a href="https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/project.html">documentación de pyramid referente a la creación de
+proyectos</a>, empiezo la búsqueda de opciones por
+<a href="https://github.com/audreyr/cookiecutter">cookiecutter</a>.</p>
+<p>La sección <a href="https://github.com/audreyr/cookiecutter#similar-projects">similar
+projects</a> en el
+sitio web da una idea de alternativas.
+También el sitio <a href="https://alternativeto.net">alternativeto</a>:
+<a href="https://alternativeto.net/software/cookiecutter/">alternativas a cookiecutter</a>,
+<a href="https://alternativeto.net/software/yeoman/?license=opensource&amp;platform=linux">alternativas a yeoman</a> aunque la mayoría son para
+realizar desarrollos web, las descarto por estar interesado en proyectos
+genéricos.
+Por interes (o completitud parcial) busqué algún equivalente en perl sin
+encontrar algo significativo (en unos 20 minutos de busqueda bastante
+aleatoria).</p>
+<p>Al final elegí entre las siguientes alternativas:</p>
+<ul>
+<li><a href="https://github.com/audreyr/cookiecutter">cookiecutter</a></li>
+<li><a href="http://yeoman.io/">yeoman</a></li>
+</ul>
+<h2>Comparación entre cookiecutter (CK) y yeoman (YM)</h2>
+<p>A continuación algunas comparaciones entre ellos luego de leer sus respectivas
+páginas de documentación (<a href="https://cookiecutter.readthedocs.io/en/latest/">docs cookiecutter</a>,
+<a href="http://yeoman.io/authoring/">docs yeoman (relativa a creación de generadores)</a>)</p>
+<h3>Lenguaje</h3>
+<ul>
+<li>CK: python</li>
+<li>YM: javascript</li>
+</ul>
+<h3>Conceptos</h3>
+<ul>
+<li>
+<p>CK: se crea un nuevo proyecto en base a un template. Una vez creado el
+proyecto no se pueden crear nuevos elementos (ver el <a href="https://github.com/audreyr/cookiecutter/issues/785">issue #785 en
+github</a>).</p>
+<p>Los templates son creados utilizando <a href="http://jinja2.pocoo.org/">jinja2</a> como template
+engine. Estos templates pueden estar almacenados en repositorios git,
+repositorios mercurial y archivos zip. Pueden poseer lógica en forma de
+<em>hooks</em>, pero es opcional.</p>
+</li>
+<li>
+<p>YM: se utilizan generadores (<em>scaffolding templates</em>) para la creación de
+proyectos y elementos dentro de estos.</p>
+<p>El generador es un paquete <em>npm</em> que debe codificarse y puede utilizar
+templates mediante <a href="http://ejs.co/">ejs</a> (ver sección <a href="http://yeoman.io/authoring/file-system.html">Working With The File
+System</a> en la documentación).
+También se permite actualizar archivos, quedando la elección del uso de
+parsers al usuario.</p>
+<p>Pueden componerse generadores.</p>
+</li>
+</ul>
+<p>Impresiones:</p>
+<ol>
+<li>No es agradable el uso de <a href="http://jinja.pocoo.org/docs/2.10/templates/#expressions">expresiones de
+jinja2</a> en nombres
+de archivo que utiliza CK.</li>
+<li><em>Se nota que los conceptos manejados por YM son más potentes y genéricos.</em></li>
+<li>CK solo es útil para la creación de un proyecto.</li>
+</ol>
+<h3>Disponibilidad de templates/generadores</h3>
+<ul>
+<li>
+<p>CK: No hay muchos <em>templates</em> disponibles, una lista de ellos se encuenta en
+el <a href="https://github.com/audreyr/cookiecutter">sitio web</a>.</p>
+</li>
+<li>
+<p>YM: Hay muchos <em>generadores</em> disponibles. Conviene buscarlos mediante la
+<a href="http://yeoman.io/generators/">página Discovering generators</a> en el sitio web.</p>
+</li>
+</ul>
+<h3>Disponibilidad del programa en <em>debian</em></h3>
+<ul>
+<li>CK: disponible en debian <em>stable</em> y <em>testing</em>.</li>
+<li>YM: No está empaquetado para debian.
+Aunque la versión de <em>nodejs</em> en debian <em>stable</em> (repositorio
+stretch-backports) es la <em>8.11.1~dfsg-2~bpo9+1</em>, debian no tiene paquete para
+<em>npm</em> y por ende se complica la instalación de <em>yeoman</em>.
+Para poder instalar <em>yeoman</em> hay que agregar repositorios externos; ver la
+<a href="https://nodejs.org/en/download/package-manager/#debian-and-ubuntu-based-linux-distributions">página de instalación en el sitio web de node</a>.</li>
+</ul>
+<p>Impresión:</p>
+<ul>
+<li>CK tiene la ventaja de no tener que estar agregando repositorios y <em>paquetes
+npm</em> externos.</li>
+</ul>
+<h3>Ejemplos en documentación para creación de templates/generadores</h3>
+<ul>
+<li>
+<p>CK: varios ejemplos en la documentación. Ya que lo único que hace CK al crear
+un proyecto es renderizar los templates hay abundantes ejemplos.</p>
+</li>
+<li>
+<p>YM: falta un ejemplo o tutorial que indique como crear en generador desde
+cero. Las indicaciones que hay en la página web son muy genéricas, ya que se
+deja a criterio del implementador que herramientas utilizar.</p>
+<p>YM cuenta con un <a href="https://github.com/yeoman/generator-generator">generator-generator</a> que puede
+utilizarse para crear generadores, pero no fué investigado.</p>
+</li>
+</ul>
+<p>Impresión:</p>
+<ul>
+<li>CK se ve más accesible para crear templates de proyectos de forma fácil y
+rápida.</li>
+</ul>
+<h2>Conclusiones</h2>
+<p>Ya que:</p>
+<ul>
+<li>carezco de experiencia en el uso de ambos,</li>
+<li>no deseo invertir tiempo en aprender a crear templates/generadores y</li>
+<li>deseo una rápida instalación del programa</li>
+</ul>
+<p>voy a optar por comenzar a utilizar <em>cookiecutter</em> para la creación de futuros
+proyectos.</p>
+<p>La opción de <em>yeoman</em> quedará para cuando requiera crear un template más
+complejo de lo que pueda manejar con CK o donde realmente requiera el uso de
+scaffolding para crear/modificar archivos tal que amerite aprender sobre
+<em>yeoman</em>.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

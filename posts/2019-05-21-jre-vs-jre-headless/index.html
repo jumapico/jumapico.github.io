@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>jre vs jre-headless | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">jre vs jre-headless</h1>
+        <h2 class="date">2019-05-21</h2>
+      </div>
+<h2>Problema</h2>
+<p>Al ejecutar una aplicación java con GUI se obtiene una traza similar a la
+siguiente:</p>
+<pre><code>may 21, 2019 11:33:53 PM org.bardsoftware.impl.eclipsito.BootImpl$1 uncaughtException
+ADVERTENCIA: [uncaughtException]java.awt.HeadlessException
+java.awt.HeadlessException
+at java.awt.GraphicsEnvironment.checkHeadless(GraphicsEnvironment.java:207)
+at java.awt.Window.&lt;init&gt;(Window.java:535)
+at java.awt.Frame.&lt;init&gt;(Frame.java:420)
+at javax.swing.JFrame.&lt;init&gt;(JFrame.java:218)
+at net.sourceforge.ganttproject.GanttSplash.&lt;init&gt;(GanttSplash.java:32)
+at net.sourceforge.ganttproject.GanttProject$14.run(GanttProject.java:1008)
+at java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:312)
+at java.awt.EventQueue.dispatchEventImpl(EventQueue.java:745)
+at java.awt.EventQueue.access$300(EventQueue.java:103)
+at java.awt.EventQueue$3.run(EventQueue.java:706)
+at java.awt.EventQueue$3.run(EventQueue.java:704)
+at java.security.AccessController.doPrivileged(Native Method)
+at java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:76)
+at java.awt.EventQueue.dispatchEvent(EventQueue.java:715)
+at java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:218)
+at java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:133)
+at java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:122)
+at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:118)
+at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:110)
+at java.awt.EventDispatchThread.run(EventDispatchThread.java:91)
+
+may 21, 2019 11:33:54 PM net.sourceforge.ganttproject.GPLogger log
+INFORMACIÓN: Waiting until main window closes
+java.awt.HeadlessException
+at java.awt.GraphicsEnvironment.checkHeadless(GraphicsEnvironment.java:207)
+at java.awt.Window.&lt;init&gt;(Window.java:535)
+at java.awt.Frame.&lt;init&gt;(Frame.java:420)
+at javax.swing.JFrame.&lt;init&gt;(JFrame.java:218)
+at net.sourceforge.ganttproject.GanttProjectBase.&lt;init&gt;(GanttProjectBase.java:102)
+at net.sourceforge.ganttproject.GanttProject.&lt;init&gt;(GanttProject.java:191)
+at net.sourceforge.ganttproject.GanttProject$15.run(GanttProject.java:1021)
+at java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:312)
+at java.awt.EventQueue.dispatchEventImpl(EventQueue.java:745)
+at java.awt.EventQueue.access$300(EventQueue.java:103)
+at java.awt.EventQueue$3.run(EventQueue.java:706)
+at java.awt.EventQueue$3.run(EventQueue.java:704)
+at java.security.AccessController.doPrivileged(Native Method)
+at java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:76)
+at java.awt.EventQueue.dispatchEvent(EventQueue.java:715)
+at java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:218)
+at java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:133)
+at java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:122)
+at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:118)
+at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:110)
+at java.awt.EventDispatchThread.run(EventDispatchThread.java:91)
+may 21, 2019 11:33:54 PM org.bardsoftware.impl.eclipsito.BootImpl$1 uncaughtException
+ADVERTENCIA: [uncaughtException]java.lang.NullPointerException
+java.lang.NullPointerException
+at net.sourceforge.ganttproject.GanttProject$15.run(GanttProject.java:1046)
+at java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:312)
+at java.awt.EventQueue.dispatchEventImpl(EventQueue.java:745)
+at java.awt.EventQueue.access$300(EventQueue.java:103)
+at java.awt.EventQueue$3.run(EventQueue.java:706)
+at java.awt.EventQueue$3.run(EventQueue.java:704)
+at java.security.AccessController.doPrivileged(Native Method)
+at java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:76)
+at java.awt.EventQueue.dispatchEvent(EventQueue.java:715)
+at java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:218)
+at java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:133)
+at java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:122)
+at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:118)
+at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:110)
+at java.awt.EventDispatchThread.run(EventDispatchThread.java:91)
+</code></pre>
+<p><em>La salida anterior corresponde al programa <a href="https://www.ganttproject.biz/">GanttProject</a> que se utilizará
+como ejemplo.</em></p>
+<p>En este caso particular el programa no muestra ninguna interfaz pero queda
+ejecutandose el proceso java.</p>
+<p>La ejecución se realiza en una PC con <a href="http://releases.ubuntu.com/14.04/">Ubuntu 14.04</a></p>
+<h2>Diagnóstico</h2>
+<p>El problema está relacionado a la excepción <a href="https://docs.oracle.com/javase/8/docs/api/java/awt/HeadlessException.html">java.awt.HeadlessException</a>:</p>
+<blockquote>
+<p>Thrown when code that is dependent on a keyboard, display, or mouse is called
+in an environment that does not support a keyboard, display, or mouse.</p>
+</blockquote>
+<p>Se revisa el sistema buscando las <a href="https://en.wikipedia.org/wiki/Java_virtual_machine">JVM</a> instaladas.  En ubuntu y debian están
+los paquetes <code>default-jre</code> y <code>default-jre-headless</code>, los cuales dependen de la
+versión de java recomendada para el sistema.</p>
+<pre><code>$ dpkg -l 'default-jre*' | grep ^ii
+</code></pre>
+<p>Nota: <em>jre</em> hace referencia a <em>Java Runtime Environment</em>.</p>
+<p>Si solo se lista el paquete <code>default-jre-headless</code> tenemos el <strong>Caso 1</strong>.</p>
+<p>Si no se obtiene ningún paquete puede ocurrir que haya sido instalada
+directamente una versión particular de la JVM.  Para determinar que JVM está
+instalada en el sistema utilizar</p>
+<pre><code>$ dpkg -l '*-jre*' | grep ^ii
+</code></pre>
+<p>Aquí puede suceder que solo se encuentren paquetes con el sufijo
+<code>-jre-headless</code>; este será el <strong>Caso 2</strong>.  También pueden no obtenerse
+resultados, <strong>Caso 3</strong>, o se pueden obtener varias versiones de JVM's,
+teniendose en algunos casos que solo se encuentra instalado el paquete con
+sufijo <code>-jre-headless</code> en lugar de la combinación con sufijo
+<code>-jre-headless</code>/<code>-jre</code>, a lo que llamaremos <strong>Caso 4</strong>.</p>
+<h2>Solución</h2>
+<h3>Caso 1</h3>
+<p>En este caso si solo está instalado el paquete <code>default-jre-headless</code> hay que
+instalar además el paquete <code>default-jre</code>, ya que como lo indica su descripción
+no se incluye el soporte para aplicaciones gráficas:</p>
+<pre><code>$ apt-cache show default-jre-headless | sed -n '/^Description-en:/,/^\S/p'
+Description-en: Standard Java or Java compatible Runtime (headless)
+ This package points to the Java runtime, or Java compatible
+ runtime recommended for this architecture, which is
+ openjdk-7-jre-headless for i386.
+ .
+ The package is used as dependency for packages not needing a
+ graphical display during runtime.
+Description-md5: d5b4670ac6d3f132e688eb4d6e67965f
+</code></pre>
+<p>La instalación se realiza mediante:</p>
+<pre><code>$ sudo apt-get install -V default-jre
+</code></pre>
+<h3>Caso 2</h3>
+<p>En este caso se instaló una JVM particular sin la opción para gráficos, por lo
+que se debe incluir el soporte para gráficos.  Esto se hace instalando el
+paquete con sufijo <code>-jre</code>.</p>
+<p>Como ejemplo si la salida del comando es:</p>
+<pre><code>ii  openjdk-7-jre-headless:i386                7u121-2.6.8-1ubuntu0.14.04.1            i386         OpenJDK Java runtime, using Hotspot JIT (headless)
+</code></pre>
+<p>Se debe instalar el paquete <code>openjdk-7-jre</code></p>
+<h3>Caso 3</h3>
+<p>Si no se obtuvo ninguna salida esto indica que no se tiene instalada una JVM de
+java en el PC.  Conviene instalar como se mencionó en el <strong>Caso 1</strong> el paquete
+<code>default-jre</code>.</p>
+<h3>Caso 4</h3>
+<p>La salida del comando <code>dpkg -l</code> es similar a la siguiente:</p>
+<pre><code>ii  openjdk-7-jre-headless:i386                7u121-2.6.8-1ubuntu0.14.04.1            i386         OpenJDK Java runtime, using Hotspot JIT (headless)
+ii  oracle-java7-jre                           7.80-1                                  all          Oracle Java(TM) Runtime Environment (JRE) 7 (architecture independent files)
+</code></pre>
+<p>En este caso se tiene más de una versión de JVM instalada y entra en juego el
+<a href="https://wiki.debian.org/DebianAlternatives">sistema de alternativas de debian</a>.</p>
+<p>Primero hay que saber cual es la versión por defecto en uso:</p>
+<pre><code>$ javac --version
+</code></pre>
+<p>o</p>
+<pre><code>$ update-alternatives --display java
+</code></pre>
+<p>Aquí puede pasar que la versión en uso por defecto sea la que solo tiene
+instalado el <code>-jre-headless</code>.  En ese caso alcanza con instalar la versión
+<code>-jre</code>.  En el ejemplo anterior <code>openjdk-7-jre</code>.</p>
+<p>Otra alternativa es que la versión por defecto sea la <code>-jre</code> (en el caso de
+ejemplo <code>oracle-java7-jre</code>), pero el programa está utilizando la versión
+<code>-jre-headless</code> mediante el uso de <code>JAVA_HOME</code> o porque utiliza directamente la
+ruta del binario <code>java</code> del paquete <code>-jre-headless</code>.  Las alternativas serían
+nuevamente instalar la versión del paquete <code>-jre</code> (en el ejemplo
+<code>openjdk-7-jre</code>) o configurar el script que ejecuta el programa para que utilice
+la versión de java por defecto del sistema.</p>
+<h2>Lecciones aprendidas</h2>
+<p>Siempre verificar:</p>
+<ol>
+<li>Si fué instalada una versión por defecto de la JVM (paquetes <code>default-jre</code> y
+<code>default-jre-headless</code>).</li>
+<li>Las versiones de la JVM instaladas en el sistema (paquetes <code>-jre</code> y
+<code>-jre-headless</code>).</li>
+<li>La JVM utilizada por el programa.</li>
+</ol>
+<p>Varias distribuciones separan la JVM en varios paquetes:</p>
+<ul>
+<li><em>headless</em>, contiene lo minimo necesario para ejecutar programas java desde
+la linea de comandos</li>
+<li><em>completo</em>, que permite ejecutar aplicaciones gráficas</li>
+<li><em>development</em> (<em>jdk</em>), utilizado para el desarrollo y construcción de
+programas java.</li>
+</ul>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

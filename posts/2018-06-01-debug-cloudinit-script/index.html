@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Depurar script de cloud-init | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Depurar script de cloud-init</h1>
+        <h2 class="date">2018-06-01</h2>
+      </div>
+<p><a href="https://raymii.org/s/tutorials/Automating_Openstack_with_Cloud_init_run_a_script_on_VMs_first_boot.html#Re-execute_or_debugging">Depurar script de cloudinit</a></p>
+<p>Borrar los archivos:</p>
+<pre><code>/var/lib/cloud/instances/$UUID/boot-finished
+/var/lib/cloud/instances/$UUID/sem/config_scripts_user
+</code></pre>
+<p>Luego ejecutar el módulo <code>final</code> para ejecutar el script <code>user_data</code>:</p>
+<pre><code>cloud-init modules --mode final
+</code></pre>
+<p><strong>NOTA</strong>: Los cambios se mantienen, por lo que se debe escribir código
+<a href="https://en.wikipedia.org/wiki/Idempotence">idempotente</a>.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

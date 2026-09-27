@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Usando sbuild para cambiar paquetes fuente | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Usando sbuild para cambiar paquetes fuente</h1>
+        <h2 class="date">2018-12-12</h2>
+      </div>
+<h2>Objetivo</h2>
+<p>Se quieren realizar cambios al paquete <a href="https://packages.debian.org/supercat">supercat</a> para hacerlo
+reproducible en <em>debian testing (buster)</em>.</p>
+<p>Como no se desean instalar las dependencias de construcción en el sistema
+(<code>apt-get build-dep</code>), se quiere utilizar un <em>entorno schroot</em> para crear el
+<strong>source</strong> del paquete utilizando <code>sbuild</code>.</p>
+<p>En lo que sigue se supone familiaridad con el [nuevo método para probar la
+reproducibilidad de un paquete en debian][wdo rb howto new method].</p>
+<p>Esto está asociado al post <a href="/posts/2018-11-16-setup-new-method-for-testing-reproducible-packages-in-debian/">setup del nuevo método de pruebas para paquetes
+reproducibles en debian</a>.</p>
+<p><em>Nota: en lo que sigue se intentará disminuir el tiempo utilizado por <code>sbuild</code>
+para construir el paquete fuente</em></p>
+<h2>Creación de schroot</h2>
+<p>Se desea generar un nuevo schroot, distinto al utilizado con <code>reprotest</code>, ya que
+se desea que las dependencias queden instaladas para así acelerar la
+construcción del paquete fuente.</p>
+<p>Para ello se creará un segundo schroot a partir de buster (testing), cuyo nombre
+será devel-buster:</p>
+<pre><code>$ sudo sbuild-createchroot --chroot-prefix=devel-buster \
+    --include=eatmydata,ccache,gnupg \
+    buster \
+    /srv/chroot/devel-buster-amd64-sbuild \
+    http://localhost:3142/deb.debian.org/debian
+</code></pre>
+<p>Aquí se agregaron los paquetes <code>eatmydata</code>, <code>ccache</code> y <code>gnupg</code> ya que estos son
+incluidos en el <code>schroot</code> utilizado para construir el paquete de forma
+reproducible.</p>
+<p>Para agregar las dependencias de construcción del paquete <code>supercat</code> se
+realizará un rebuild de dicho paquete fuente (sin modificarlo):</p>
+<pre><code>$ mkdir -p ~/workspace-rb; cd ~/workspace-rb
+$ apt-get source supercat/buster
+$ sbuild -c devel-buster-amd64-sbuild --purge-deps=never \
+    --source --no-arch-any --no-arch-all supercat-0.5.5/
+</code></pre>
+<p><strong>Nota: la opcion <code>--purge-deps=never</code> es la que se utiliza para acelerar las
+ejecuciones subsiguientes de sbuild al crear un nuevo paquete fuente.</strong></p>
+<p><strong>Nota: si bien el reconstruir el paquete fuente parece superfluo, la ventaja
+radica en que si existe algún error este se detecta enseguida y este puede
+atribuirse a la creación del entorno de schroot, ya que no se realizaron cambios
+al paquete.</strong></p>
+<h2>Creación del paquete fuente luego de realizar cambios</h2>
+<p>Para construir una nueva versión del paquete fuente se utilizan los archivos
+descargados en el paso previo.</p>
+<p>Para realizar una prueba se modifica solamente el changelog:</p>
+<pre><code>$ cd ~/workspace-rb/supercat-0.5.5/
+$ dch -i &quot;Change for test 'build source package'&quot;
+$ dch -r ''
+$ cd ..
+</code></pre>
+<p>y se vuelve a generar el fuente:</p>
+<pre><code>$ sbuild -c devel-buster-amd64-sbuild --purge-deps=never \
+    --source --no-arch-any --no-arch-all supercat-0.5.5/
+</code></pre>
+<p>En las pruebas realizadas se pasó de utilizar alrededor de <em>4m30s</em> en el primer
+build a <em>55s</em> en los subsiguientes, por lo que se reconoce la utilidad de
+utilizar un schroot alternativo.</p>
+<h2>Anexo</h2>
+<h3>Actualización del schroot</h3>
+<p>Para actualizar el schroot se puede utilizar:</p>
+<pre><code>$ sudo sbuild-update --update --upgrade --clean devel-buster-amd64-sbuild
+$ sudo schroot --end-session --all-sessions
+</code></pre>
+<h3>Cerrar sesiones abiertas</h3>
+<p>Hay veces que al cancelar el comando <code>sbuild</code> quedan sesiones <em>colgadas</em>. Para
+listarlas y eliminarlas se puede utilizar:</p>
+<pre><code>$ schroot --all-sessions --list
+$ sudo schroot --end-session --all
+</code></pre>
+<p><strong>Nota: el comando anterior elimina <em>todas</em> las sesiones, por lo cual al
+ejecutarlo no se debe estar utilizando <code>sbuild</code>.</strong></p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Programando arduino en openbsd | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Programando arduino en openbsd</h1>
+        <h2 class="date">2022-04-24</h2>
+      </div>
+<p>En un <a href="/posts/2021-03-30-building-arduino-programs/">artículo previo</a> utilicé <a href="https://github.com/sudar/Arduino-Makefile">Arduino-Makefile</a> en debian para crear y
+cargar programas arduino.  Me pregunto... ¿ahora que estoy utilizando
+<a href="https://www.openbsd.org/">OpenBSD</a> (7.1, <code>-current</code>) cambiará mucho como hacerlo?</p>
+<p><strong>TL;DR</strong>:</p>
+<p>Instalar paquetes:</p>
+<pre><code>$ doas pkg_add arduino-makefile picocom
+</code></pre>
+<p>Agregar al usuario al grupo <code>dialer</code>:</p>
+<pre><code>$ doas usermod -G dialer jmpc
+</code></pre>
+<p>Utilizar como <code>Makefile</code>:</p>
+<pre><code># Arduino Make file. Refer to https://github.com/sudar/Arduino-Makefile
+
+BOARD_TAG    = mega
+BOARD_SUB    = atmega2560
+MONITOR_PORT = /dev/ttyU0
+AVRDUDE_CONF = /usr/local/share/examples/avrdude/avrdude.conf
+
+USER_LIB_PATH = libraries
+# ARDUINO_LIBS  = &lt;...&gt; # no se están incluyendo librerías
+
+include /usr/local/share/arduino-makefile/Arduino.mk
+</code></pre>
+<p>Conectarse a la placa a través del dispositivo <code>/dev/ttyU0</code>.</p>
+<h2>Instalación</h2>
+<p>Comienzo revisando los paquetes disponibles para arduino:</p>
+<pre><code>$ pkg_info -Q arduino
+arduino-1.8.10v0
+arduino-adafruit-gfx-1.7.0
+arduino-adafruit-ra8875-1.3.5
+arduino-esp32-2.0.1
+arduino-esp8266-3.0.2p0
+arduino-makefile-1.6.0p2
+makeesparduino-6.5.0p1
+</code></pre>
+<p>¡Suerte!, al parecer ya está empaquetado <a href="https://github.com/sudar/Arduino-Makefile">Arduino-Makefile</a>.  Se revisa la
+descripción de ambos paquetes:</p>
+<pre><code>$ pkg_info -d arduino arduino-makefile
+Information for https://cdn.openbsd.org/pub/OpenBSD/snapshots/packages/amd64/arduino-1.8.10v0.tgz
+
+Description:
+Arduino is an open-source electronics prototyping platform based on
+flexible, easy-to-use hardware and software. It's intended for artists,
+designers, hobbyists, and anyone interested in creating interactive
+objects or environments.
+
+Arduino can sense the environment by receiving input from a variety of
+sensors and can affect its surroundings by controlling lights, motors,
+and other actuators. The microcontroller on the board is programmed
+using the Arduino programming language (based on Wiring) and the Arduino
+development environment (based on Processing). Arduino projects can be
+stand-alone or they can communicate with software running on a computer
+(e.g. Flash, Processing, MaxMSP).
+
+This package contains the libraries, header files and tools to develop
+Arduino sketches. It does not include the Arduino IDE frontend.
+
+Maintainer: The OpenBSD ports mailing-list &lt;ports@openbsd.org&gt;
+
+WWW: https://www.arduino.cc/
+
+
+Information for https://cdn.openbsd.org/pub/OpenBSD/snapshots/packages/amd64/arduino-makefile-1.6.0p2.tgz
+
+Description:
+This is a very simple Makefile which knows how to build Arduino
+sketches. It defines entire workflows for compiling code, flashing
+it to Arduino and even communicating through Serial monitor. You
+don't need to change anything in the Arduino sketches.
+
+To use, create a Makefile and add:
+
+	include /usr/local/share/arduino-makefile/Arduino.mk
+
+Then compile with `gmake` and upload with `gmake upload`.
+
+Maintainer: The OpenBSD ports mailing-list &lt;ports@openbsd.org&gt;
+
+WWW: https://github.com/sudar/Arduino-Makefile
+</code></pre>
+<p>Confirmamos que es lo que estamos buscando.  También vemos en la descripción
+indicaciones de como usar Arduino-Makefile:</p>
+<ul>
+<li>hay que usar <code>/usr/local/share/arduino-makefile/Arduino.mk</code> en lugar de
+<code>/usr/share/arduino/Arduino.mk</code> que se utiliza en debian</li>
+<li>hay que usar el comando <a href="https://www.gnu.org/software/make/">gmake - GNU make -</a> en lugar de
+<a href="https://man.openbsd.org/make">make - OpenBSD -</a>.</li>
+</ul>
+<p>Se revisan las dependencias de los paquetes:</p>
+<pre><code>@name arduino-1.8.10v0
+@depend devel/avr/binutils:avr-binutils-*:avr-binutils-2.30
+@depend devel/avr/gcc:avr-gcc-*:avr-gcc-8.5.0p0
+@depend devel/avr/libc:avr-libc-*:avr-libc-2.0.0
+@depend devel/avrdude:avrdude-*:avrdude-6.3
+@name arduino-makefile-1.6.0p2
+@depend devel/arduino:arduino-*:arduino-1.8.10v0
+@depend devel/gmake:gmake-*:gmake-4.3
+@depend devel/py-serial,python3:py3-serial-*:py3-serial-3.4p2
+@depend devel/teensyloader:teensyloader-*:teensyloader-2.2
+@depend lang/python/3.9,-main:python-&gt;=3.9,&lt;3.10:python-3.9.12
+</code></pre>
+<p>Aquí vemos que <code>arduino-makefile</code> depende de <code>arduino</code>, así que vamos a instalar
+directamente el primero:</p>
+<pre><code>$ doas pkg_add arduino-makefile
+</code></pre>
+<h2>Hello World - Blink</h2>
+<p>Revisando el contenido de los paquetes, vemos ambos traen ejemplos, entre ellos
+el <em>Hello World!</em> del mundo arduino: <em>Blink</em>.</p>
+<pre><code>$ pkg_info -L arduino arduino-makefile | grep /Blink/
+/usr/local/share/examples/arduino/01.Basics/Blink/Blink.ino
+/usr/local/share/examples/arduino/01.Basics/Blink/Blink.txt
+/usr/local/share/examples/arduino-makefile/Blink/Blink.ino
+/usr/local/share/examples/arduino-makefile/Blink/Makefile
+</code></pre>
+<p>Revisando la diferencia en los archivos, aparte de los comentarios en un caso se
+utiliza el valor del pin <code>13</code> y en otro la constante <code>LED_BUILTIN</code>.</p>
+<p>Si bien el archivo <code>/usr/local/share/examples/arduino-makefile/Blink/Makefile</code>
+parecería que podría sernos útil, este incluye una ruta relativa a <code>Arduino.mk</code>
+que no aplicaría a nuestro caso, ya que vamos a copiar solo el ejemplo y tampoco
+aplicaría el valor de la variable <code>BOARD_TAG</code>, ya que la placa que voy a estar
+utilizando como ejemplo es la <code>atmega2560</code>.  Por lo anterior copio el ejemplo
+del paquete <code>arduino</code> y creo un <code>Makefile</code> a partir del que tenía en el <a href="/posts/2021-03-30-building-arduino-programs/">post
+anterior con debian</a> con los siguientes cambios:</p>
+<ul>
+<li>se ajusta la de <code>Arduino.mk</code></li>
+<li>se comenta <code>MONITOR_PORT</code> ya que <code>/dev/ttyACM0</code> no existe en OpenBSD</li>
+<li>se utiliza para <code>AVRDUDE_CONF</code> el valor
+<code>/usr/local/share/examples/avrdude/avrdude.conf</code> obtenido al revisar los
+archivos del paquete <a href="https://www.nongnu.org/avrdude/">avrdude</a> (<code>pkg_info -L avrdude</code>).  Se comparó con el
+archivo <a href="https://sources.debian.org/src/avrdude/6.3-20171130%2Bsvn1429-2/avrdude.conf.in/">/etc/avrdude.conf</a> de debian constatando que son el mismo, solo
+que debian utiliza una versión más reciente.</li>
+</ul>
+<pre><code>$ cp -a /usr/local/share/examples/arduino/01.Basics/Blink .
+$ cd Blink
+$ cat &gt; Makefile &lt;&lt;'END'
+# Arduino Make file. Refer to https://github.com/sudar/Arduino-Makefile
+
+BOARD_TAG    = mega
+BOARD_SUB    = atmega2560
+# MONITOR_PORT = /dev/ttyACM0 # el dispositivo no existe en OpenBSD
+AVRDUDE_CONF = /usr/local/share/examples/avrdude/avrdude.conf
+
+USER_LIB_PATH = libraries
+# ARDUINO_LIBS  = &lt;...&gt; # no se están incluyendo librerías
+
+include /usr/local/share/arduino-makefile/Arduino.mk
+END
+</code></pre>
+<p>Como paso siguiente compilamos con <code>gmake</code> y vemos que errores se obtienen:</p>
+<pre><code>$ gmake
+-------------------------
+Arduino.mk Configuration:
+- [AUTODETECTED]       CURRENT_OS = OPENBSD
+- [USER]               ARDUINO_DIR = /usr/local/share/arduino
+- [COMPUTED]           ARDMK_DIR = /usr/local/share/arduino-makefile (relative to Common.mk)
+- [DEFAULT]            ARDUINO_VERSION = 100
+- [DEFAULT]            ARCHITECTURE =
+- [DEFAULT]            ARDMK_VENDOR = arduino
+- [DEFAULT]            ARDUINO_SKETCHBOOK =
+- [USER]               AVR_TOOLS_DIR = /usr/local
+- [COMPUTED]           ARDUINO_LIB_PATH = /usr/local/share/arduino/libraries (from ARDUINO_DIR)
+- [USER]               ALTERNATE_CORE_PATH = /usr/local/share/arduino
+- [COMPUTED]           ARDUINO_VAR_PATH = /usr/local/share/arduino/variants (from ALTERNATE_CORE_PATH)
+- [COMPUTED]           BOARDS_TXT = /usr/local/share/arduino/boards.txt (from ALTERNATE_CORE_PATH)
+- [USER]               USER_LIB_PATH = libraries
+- [DEFAULT]            PRE_BUILD_HOOK = pre-build-hook.sh
+- [USER]               BOARD_SUB = atmega2560
+- [USER]               BOARD_TAG = mega
+- [COMPUTED]           CORE = arduino (from build.core)
+- [COMPUTED]           VARIANT = mega (from build.variant)
+- [COMPUTED]           OBJDIR = build-mega-atmega2560 (from BOARD_TAG)
+- [COMPUTED]           ARDUINO_CORE_PATH = /usr/local/share/arduino/cores/arduino (from ALTERNATE_CORE_PATH, BOARD_TAG and boards.txt)
+- [ASSUMED]            MONITOR_BAUDRATE = 9600
+- [DEFAULT]            OPTIMIZATION_LEVEL = s
+- [DEFAULT]            MCU_FLAG_NAME = mmcu
+- [DEFAULT]            CFLAGS_STD = -std=gnu11 -flto -fno-fat-lto-objects
+- [DEFAULT]            CXXFLAGS_STD = -std=gnu++11 -fno-threadsafe-statics -flto
+- [COMPUTED]           DEVICE_PATH = /dev/ttyU0 (from MONITOR_PORT)
+- [DEFAULT]            FORCE_MONITOR_PORT =
+- [AUTODETECTED]       Size utility: Basic (not AVR-aware)
+- [COMPUTED]           BOOTLOADER_PARENT = /usr/local/share/arduino/hardware/arduino//bootloaders (from ARDUINO_DIR)
+- [COMPUTED]           ARDMK_VERSION = 1.5
+- [COMPUTED]           CC_VERSION = 8.5.0 (avr-gcc)
+-------------------------
+...
+/usr/local/bin/avr-size build-mega-atmega2560/Blink_.hex
+   text	   data	    bss	    dec	    hex	filename
+      0	   1536	      0	   1536	    600	build-mega-atmega2560/Blink_.hex
+</code></pre>
+<p>De la salida anterior vemos que compiló sin problemas y nos da la pista que el
+dispositivo a usar para conectar la placa y subir el programa es <code>/dev/ttyU0</code>.</p>
+<p>Comenzamos revisando el manual:</p>
+<pre><code>$ apropos tty
+...
+tty, cua(4) - general terminal interface
+ucom(4) - USB tty support
+...
+$ man ucom
+UCOM(4)                      Device Drivers Manual                     UCOM(4)
+
+NAME
+     ucom – USB tty support
+...
+FILES
+     /dev/ttyU?    tty devices
+     /dev/cuaU?    call out devices (see tty(4))
+</code></pre>
+<p>Ahora revisando los permisos del dispositivo:</p>
+<pre><code>$ ls -lh /dev/ttyU*
+crw-rw---- 1 root dialer 66, 0 Apr 17 03:19 /dev/ttyU0
+crw-rw---- 1 root dialer 66, 1 Apr 17 03:19 /dev/ttyU1
+crw-rw---- 1 root dialer 66, 2 Apr 17 03:19 /dev/ttyU2
+crw-rw---- 1 root dialer 66, 3 Apr 17 03:19 /dev/ttyU3
+</code></pre>
+<p>Por lo que tenemos que agregarnos al grupo <code>dialer</code>:</p>
+<pre><code>$ doas usermod -G dialer jmpc
+</code></pre>
+<p>y ahora tenemos que salir de la sesión y volver a entrar para que se cargue el
+grupo.</p>
+<p>Confirmamos que tenemos permisos:</p>
+<pre><code>$ groups
+jmpc ... dialer ...
+</code></pre>
+<p>Conectamos la placa a un puerto usb y corroboramos que el sistema la detectó:</p>
+<pre><code>$ dmesg
+umodem0 at uhub0 port 2 configuration 1 interface 0 &quot;Arduino (www.arduino.cc) product 0x0042&quot; rev 1.10/0.01 addr 5
+umodem0: data interface 1, has no CM over data, has break
+umodem0: status change notification available
+ucom0 at umodem0
+</code></pre>
+<p>Ahora intentamos hacer un upload:</p>
+<pre><code>$ gmake upload
+...
+mkdir -p build-mega-atmega2560
+gmake reset
+gmake[1]: Entering directory '/home/jmpc/tmp/Blink'
+/usr/local/bin/ard-reset-arduino  /dev/ttyU0
+gmake[1]: Leaving directory '/home/jmpc/tmp/Blink'
+gmake do_upload
+gmake[1]: Entering directory '/home/jmpc/tmp/Blink'
+/usr/local/bin/avrdude -q -V -p atmega2560 -C /usr/local/share/examples/avrdude/avrdude.conf -D -c wiring -b 115200 -P /dev/ttyU0 \
+		-U flash:w:build-mega-atmega2560/Blink_.hex:i
+
+avrdude: AVR device initialized and ready to accept instructions
+avrdude: Device signature = 0x1e9801 (probably m2560)
+avrdude: reading input file &quot;build-mega-atmega2560/Blink_.hex&quot;
+avrdude: writing flash (1536 bytes):
+avrdude: 1536 bytes of flash written
+
+avrdude: safemode: Fuses OK (E:FD, H:D8, L:FF)
+
+avrdude done.  Thank you.
+
+gmake[1]: Leaving directory '/home/jmpc/tmp/Blink'
+</code></pre>
+<p>Y podemos comprobar que el programa se cargó en la placa y el led está
+parpadeando.</p>
+<h2>Leer puerto serie - ASCIITable</h2>
+<p>Previamente ya vimos que podíamos cargar sin problemas un programa y ejecutarlo.</p>
+<p>Ahora se intentará leer información enviada por la placa por el puerto serie.</p>
+<p>Nuevamente se partirá de un ejemplo existente, esta vez <code>ASCIITable</code>:</p>
+<pre><code>$ cp -a /usr/local/share/examples/arduino/04.Communication/ASCIITable .
+$ cd ASCIITable
+$ cat &gt; Makefile &lt;&lt;'END'
+# Arduino Make file. Refer to https://github.com/sudar/Arduino-Makefile
+
+BOARD_TAG    = mega
+BOARD_SUB    = atmega2560
+MONITOR_PORT = /dev/ttyU0
+AVRDUDE_CONF = /usr/local/share/examples/avrdude/avrdude.conf
+
+USER_LIB_PATH = libraries
+# ARDUINO_LIBS  = &lt;...&gt; # no se están incluyendo librerías
+
+include /usr/local/share/arduino-makefile/Arduino.mk
+END
+</code></pre>
+<p>Esta vez se explicitó el valor de <code>MONITOR_PORT</code> ya que sabemos a que
+corresponde.  El resto de los valores fueron los utilizados (y explicados)
+previamente.</p>
+<p>Se compila y carga el programa a la placa sin problemas:</p>
+<pre><code>$ gmake &amp;&amp; gmake upload
+...
+avrdude: AVR device initialized and ready to accept instructions
+avrdude: Device signature = 0x1e9801 (probably m2560)
+avrdude: reading input file &quot;build-mega-atmega2560/ASCIITable_.hex&quot;
+avrdude: writing flash (2308 bytes):
+avrdude: 2308 bytes of flash written
+
+avrdude: safemode: Fuses OK (E:FD, H:D8, L:FF)
+
+avrdude done.  Thank you.
+
+gmake[1]: Leaving directory '/home/jmpc/tmp/ASCIITable'
+</code></pre>
+<p>Luego para conectarnos instalamos el programa <a href="https://github.com/npat-efault/picocom">picocom</a>:</p>
+<pre><code>$ doas pkg_add picocom
+</code></pre>
+<p>y luego nos conectamos utilizando:</p>
+<pre><code>$ picocom -b 9600 /dev/ttyU0
+picocom v3.1
+
+port is        : /dev/ttyU0
+flowcontrol    : none
+baudrate is    : 9600
+parity is      : none
+databits are   : 8
+stopbits are   : 1
+escape is      : C-a
+local echo is  : no
+noinit is      : no
+noreset is     : no
+hangup is      : no
+nolock is      : no
+send_cmd is    : sz -vv
+receive_cmd is : rz -vv -E
+imap is        :
+omap is        :
+emap is        : crcrlf,delbs,
+logfile is     : none
+initstring     : none
+exit_after is  : not set
+exit is        : no
+
+Type [C-a] [C-h] to see available commands
+Terminal ready
+ASCII Table ~ Character Map
+!, dec: 33, hex: 21, oct: 41, bin: 100001
+&quot;, dec: 34, hex: 22, oct: 42, bin: 100010
+#, dec: 35, hex: 23, oct: 43, bin: 100011
+
+...
+~, dec: 126, hex: 7E, oct: 176, bin: 1111110
+</code></pre>
+<p>Notas:</p>
+<ol>
+<li>La velocidad se obtiene de revisar el código (<code>ASCIITable.ino</code>) y corroborar
+la velocidad a la que se incializa la conexión serial
+(<code>Serial.begin(9600);</code>).</li>
+<li>En OpenBSD también existe el programa [cu] disponible en el sistema base en
+lugar de picocom.</li>
+</ol>
+<h2>Escritura en puerto serie - PhysicalPixel</h2>
+<p>Al revisar la documentación de <a href="https://man.openbsd.org/cu">cu</a> (que no se utilizó previamente ya que
+tengo mayor experiencia utilizando <code>picocom</code>) se indica de utilizar los
+dispositivos <code>/dev/cua??</code> y leer el manual de <a href="https://man.openbsd.org/cua">cua</a>.  En este se encuentra:</p>
+<blockquote>
+<p>For hardware terminal ports, dial-out is supported through matching device
+nodes called calling units. For instance, the terminal called /dev/tty03
+would have a matching calling unit called /dev/cua03.</p>
+</blockquote>
+<p>De aquí que surja la duda de si se puede escribir en el puerto serie utilizando
+el dispositivo <code>/dev/ttyU0</code> (lo que sería lo esperable) o debe utilizarse el
+<code>/dev/cuaU0</code> (y no me imagino escribiendo en una terminal y recibiendo los datos
+en otra).  Si bien la duda parece venida de una lectura superficial del manual
+probemoslo con el ejemplo <code>PhysicalPixel</code>:</p>
+<pre><code>$ cp -a /usr/local/share/examples/arduino/04.Communication/PhysicalPixel .
+$ cd PhysicalPixel/
+$ cat &gt; Makefile &lt;&lt;'END'
+# Arduino Make file. Refer to https://github.com/sudar/Arduino-Makefile
+
+BOARD_TAG    = mega
+BOARD_SUB    = atmega2560
+MONITOR_PORT = /dev/ttyU0
+AVRDUDE_CONF = /usr/local/share/examples/avrdude/avrdude.conf
+
+USER_LIB_PATH = libraries
+# ARDUINO_LIBS  = &lt;...&gt; # no se están incluyendo librerías
+
+include /usr/local/share/arduino-makefile/Arduino.mk
+END
+$ gmake
+$ gmake upload
+</code></pre>
+<p>Luego nos conectamos a la placa e intentamos mandarle los carácteres <code>L</code> y <code>H</code>
+que apagan y prenden el led interno respectivamente:</p>
+<pre><code>$ picocom -b 9600 /dev/ttyU0
+</code></pre>
+<p>Y se corrobora que funciona como se esperaba.</p>
+<p>Nota: en este ejemplo se incluye en el archivo <code>layout.png</code> que puede llevar a
+pensar que <em>siempre</em> hay que conectar un led a la placa.  Como se indica en la
+<a href="https://docs.arduino.cc/built-in-examples/communication/PhysicalPixel">página del ejemplo</a>:</p>
+<blockquote>
+<p>Many Arduino boards have a built-in LED connected to pin 13; if your board has
+no built-in LED, attach an external LED to pin 13.</p>
+</blockquote>
+<h2>Conclusión</h2>
+<ol>
+<li>No hubo mayores problemas para instalar los programas necesarios en OpenBSD
+ya que estos estaban empaquetados.</li>
+<li>Leyendo la descripción del paquete y teniendo un poco de intuición se
+pudieron compilar y subir (upload) los programas <em>Blink</em>, <em>ASCIITable</em> y
+<em>PhysicalPixel</em> de arduino sin problemas.</li>
+<li>Se tuvo suerte en que el parche haya agregado por defecto el valor de
+<code>MONITOR_PORT</code>, lo que permitió encontr la documentación sobre los puertos
+<a href="https://man.openbsd.org/ucom">ucom</a>.</li>
+<li>Lo único no indicado en la documentación, pero trivial de solucionar era
+tener permisos para el dispositivo usb en el cual se conecta la placa.</li>
+<li>La página del manual de <a href="https://man.openbsd.org/ucom">ucom</a> y <a href="https://man.openbsd.org/cu">cu</a> me confundió al mencionar el
+caso de los <code>call-out</code> devices o <code>dial-out</code> respectivamente, pero luego de
+probar se pudo enviar sin problemas informacion mediante el dispositivo
+<code>/dev/ttyU0</code>.</li>
+</ol>
+<p>En resumen, <strong>¡igual de fácil que en linux!</strong></p>
+<h2>Apéndice - Cálculo de MONITOR_PORT</h2>
+<p>¿Como se calculó el MONITOR_PORT a <code>/dev/ttyU0</code>?</p>
+<p>Suponiendo que el dispositivo es específico de OpenBSD o los BSD en general, ya
+que en linux es <code>/dev/ttyACM0</code>, se busca en los <a href="https://cvsweb.openbsd.org/cgi-bin/cvsweb/ports/devel/arduino-makefile/patches/">parches del port</a> y se
+encuentra en <a href="https://cvsweb.openbsd.org/cgi-bin/cvsweb/~checkout~/ports/devel/arduino-makefile/patches/patch-Common_mk">patch-Common_mk</a>:</p>
+<pre><code>+        ifndef MONITOR_PORT
++            MONITOR_PORT = /dev/ttyU0
++        endif
+</code></pre>
+<h2>Apéndice - Uso de <code>cu</code></h2>
+<p>Buscando en internet por el uso de arduino en OpenBSD encuentro los posts:</p>
+<ul>
+<li><a href="https://jcs.org/2019/12/17/arduino">Arduino Development on OpenBSD</a> en el blog de <a href="https://jcs.org/">Joshua Stein</a>, quien
+agregó el <a href="https://www.openbsd.org/faq/ports/index.html">port</a> Arduino-Makefile a OpenBSD</li>
+<li><a href="https://www.lounge.se/Ulisp">Run lisp on Arduino using OpenBSD</a> en el blog de <a href="https://www.lounge.se/Home">Peter Ljung</a>.</li>
+</ul>
+<p>En estos se indica el uso de <code>cu</code> pero utilizan el dispositivo <code>/dev/cuaU0</code> en
+lugar de <code>/dev/ttyU0</code>:</p>
+<pre><code>$ cu -l /dev/cuaU0 -s 9600
+</code></pre>
+<p>Volviendo a probar los programas <code>Blink</code>, <code>ASCIITable</code> y <code>PhysicalPixel</code>
+utilizando <code>/dev/cuaU0</code> en lugar de <code>/dev/ttyU0</code>, los programas funcionaron
+igual.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

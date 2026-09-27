@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Desarrollando con angular en openbsd | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Desarrollando con angular en openbsd</h1>
+        <h2 class="date">2025-01-15</h2>
+      </div>
+<p><strong>TL;DR</strong>: si un proyecto utiliza <code>rollup</code> en OpenBSD, hacer:</p>
+<pre><code>$ jq '. + {overrides: {&quot;rollup&quot;: &quot;npm:@rollup/wasm-node&quot;}}' \
+    package.json &gt; package.tmp.json &amp;&amp; mv package.tmp.json package.json
+$ npm update
+</code></pre>
+<p>A continuación los pasos para desarrollar aplicaciones <a href="https://angular.dev/">angular</a> en OpenBSD</p>
+<h2>1. Instalar paquete de node:</h2>
+<pre><code>$ doas pkg_add -Dsnap node
+</code></pre>
+<p>Aquí se utiliza <code>-Dsnap</code> porque se está en <code>-current</code>.</p>
+<h2>2. Configurar npm</h2>
+<p>Según el manual de <code>npm</code> (<code>man npm</code>), el directorio donde se instalan los
+paquetes de forma global:</p>
+<blockquote>
+<p>global mode: npm installs packages into the install prefix at
+$npm_config_prefix/lib/node_modules and bins to $npm_config_prefix/bin</p>
+</blockquote>
+<p>En OpenBSD, el valor por defecto de la configuración <code>prefix</code> es:</p>
+<pre><code>$ npm config get prefix
+/usr/local
+</code></pre>
+<p>Por supuesto no es un directorio donde un usuario normal deba tener permisos de
+escritura, por lo cual al tratar de instalar un paquete se obtiene un error.</p>
+<p>Por ejemplo, intentando instalar el paquete <code>@angular</code> se obtiene el error:</p>
+<pre><code>npm error code EACCES
+npm error syscall mkdir
+npm error path /usr/local/lib/node_modules/@angular
+npm error errno -13
+npm error Error: EACCES: permission denied, mkdir '/usr/local/lib/node_modules/@angular'
+npm error     at async mkdir (node:internal/fs/promises:857:10)
+npm error     at async /usr/local/lib/node_modules/@npmcli/arborist/lib/arborist/reify.js:624:20
+npm error     at async Promise.allSettled (index 0)
+npm error     at async [reifyPackages] (/usr/local/lib/node_modules/@npmcli/arborist/lib/arborist/reify.js:325:11)
+npm error     at async Arborist.reify (/usr/local/lib/node_modules/@npmcli/arborist/lib/arborist/reify.js:142:5)
+npm error     at async Install.exec (/usr/local/lib/node_modules/npm/lib/commands/install.js:150:5)
+npm error     at async Npm.exec (/usr/local/lib/node_modules/npm/lib/npm.js:207:9)
+npm error     at async module.exports (/usr/local/lib/node_modules/npm/lib/cli/entry.js:74:5) {
+npm error   errno: -13,
+npm error   code: 'EACCES',
+npm error   syscall: 'mkdir',
+npm error   path: '/usr/local/lib/node_modules/@angular'
+npm error }
+npm error
+npm error The operation was rejected by your operating system.
+npm error It is likely you do not have the permissions to access this file as the current user
+npm error
+npm error If you believe this might be a permissions issue, please double-check the
+npm error permissions of the file and its containing directories, or try running
+npm error the command again as root/Administrator.
+</code></pre>
+<p>Para evitar lo anterior se configura <em>para el usuario</em> el valor <code>path</code> a
+<code>~/.npm</code>:</p>
+<pre><code>$ npm config set prefix='~/.npm'
+</code></pre>
+<p>De esta forma se instalarán allí los paquetes globales.</p>
+<p>Para tener disponibles los comandos en <code>$npm_config_prefix/bin</code> agregar a la
+variable <code>PATH</code> en <code>~/.profile</code>:</p>
+<pre><code>[ -d ~/.npm/bin] &amp;&amp; export PATH=&quot;$PATH&quot;:~/.npm/bin
+</code></pre>
+<h2>3. Instalar cliente angular</h2>
+<p>Siguiendo los pasos indicados en el <a href="https://angular.dev/installation#install-angular-cli">tutorial de instalación de angular</a>:</p>
+<pre><code>$ npm install -g @angular/cli
+</code></pre>
+<h2>4. Crear aplicación angular</h2>
+<p>Se utiliza el comando <code>ng</code> para crear una nueva aplicación angular.</p>
+<p>Aquí hay dos opciones:</p>
+<ol>
+<li>Utilizar <code>ng new</code> e ir contestando las preguntas que van surgiendo.</li>
+<li>Interiorizarse con las opciones del comando <code>ng new</code> (<code>ng new --help</code>) y
+agregar los parámetros necesarios para que no se realicen preguntas.</li>
+</ol>
+<p>Iremos por la opción 2.:</p>
+<pre><code>$ ng new --minimal --routing --skip-tests --ssr=false --style=css demo
+</code></pre>
+<h2>4. Configuración de overrides</h2>
+<p>Para <a href="https://angular.dev/installation#running-your-new-project-locally">ejecutar el proyecto de prueba</a>:</p>
+<pre><code>$ cd demo
+$ npm start
+</code></pre>
+<p>pero siguiendo los pasos anteriores se tiene el error:</p>
+<pre><code>&gt; demo@0.0.0 start
+&gt; ng serve
+
+An unhandled exception occurred: Your current platform &quot;openbsd&quot; and architecture &quot;x64&quot; combination is not yet supported by the native Rollup build. Please use the WASM build &quot;@rollup/wasm-node&quot; instead.
+
+The following platform-architecture combinations are supported:
+android-arm
+android-arm64
+darwin-arm64
+darwin-x64
+freebsd-arm64
+freebsd-x64
+linux-arm
+linux-arm (musl)
+linux-arm64
+linux-arm64 (musl)
+linux-ppc64
+linux-riscv64
+linux-s390x
+linux-x64
+linux-x64 (musl)
+win32-arm64
+win32-ia32
+win32-x64
+
+If this is important to you, please consider supporting Rollup to make a native build for your platform and architecture available.
+See &quot;/tmp/ng-0A2IvR/angular-errors.log&quot; for further details.
+</code></pre>
+<p>Como bien se explica en la salida anterior, no existe una versión nativa de
+<a href="https://rollupjs.org/">rollup</a>, por lo que debe utilizarse <code>@rollup/wasm-node</code> en su lugar.</p>
+<p>Para ello se agrega la <a href="https://docs.npmjs.com/cli/v11/configuring-npm/package-json#overrides">sección <code>overrides</code></a> en el archivo <code>package.json</code>
+para indicar que deseamos utilizar <code>@rollup/wasm-node</code> en lugar de <code>rollup</code>.
+Ya que no existe un comando de <code>npm</code> que nos permita agregarla directamente se
+utiliza el comando <code>jq</code> (el cual puede instalarse mediante <code>doas pkg_add -Dsnap jq</code> si aún no está en el sistema):</p>
+<pre><code>$ jq '. + {overrides: {&quot;rollup&quot;: &quot;npm:@rollup/wasm-node&quot;}}' \
+    package.json &gt; package.tmp.json &amp;&amp; mv package.tmp.json package.json
+</code></pre>
+<p>Paso seguido se actualizan las dependencias:</p>
+<pre><code>$ npm update
+</code></pre>
+<p>Para verificar que la configuracion de <code>overrides</code> funcionó correctamente:</p>
+<pre><code>$ npm ls rollup
+demo@0.0.0 /home/jmpc/workspace/playground/angular/demo
+└─┬ @angular-devkit/build-angular@19.0.7
+  └─┬ @angular/build@19.0.7
+    ├── rollup@npm:@rollup/wasm-node@4.30.1 overridden
+    └─┬ vite@5.4.11
+      └── rollup@npm:@rollup/wasm-node@4.30.1 deduped
+</code></pre>
+<p>o</p>
+<pre><code>$ jq .name node_modules/rollup/package.json
+&quot;@rollup/wasm-node&quot;
+</code></pre>
+<h2>5. Ejecutar el proyecto localmente</h2>
+<p>Ahora, si, el proyecto ya puede utilizarse mediante</p>
+<pre><code>$ npm start
+
+&gt; demo@0.0.0 start
+&gt; ng serve
+
+Initial chunk files | Names         | Raw size
+polyfills.js        | polyfills     | 90.20 kB |
+main.js             | main          |  1.63 kB |
+styles.css          | styles        | 95 bytes |
+
+                    | Initial total | 91.92 kB
+
+Application bundle generation complete. [3.448 seconds]
+
+▲ [WARNING] Unable to initialize JavaScript cache storage. [plugin angular-compiler]
+
+  No native build was found for platform=openbsd arch=x64 runtime=node abi=127 uv=1 libc=glibc node=22.12.0
+  This will not affect the build output content but may result in slower builds.
+
+
+Watch mode enabled. Watching for file changes...
+NOTE: Raw file sizes do not reflect development server per-request transformations.
+  ➜  Local:   http://localhost:4200/
+  ➜  press h + enter to show help
+</code></pre>
+<p>Luego para construir la aplicación angular:</p>
+<pre><code>$ npm run build
+
+&gt; demo@0.0.0 build
+&gt; ng build
+
+Initial chunk files   | Names         |  Raw size | Estimated transfer size
+main-U73MHXF4.js      | main          | 183.32 kB |                49.68 kB
+polyfills-FFHMD2TL.js | polyfills     |  34.52 kB |                11.28 kB
+styles-5INURTSO.css   | styles        |   0 bytes |                 0 bytes
+
+                      | Initial total | 217.84 kB |                60.96 kB
+
+Application bundle generation complete. [9.440 seconds]
+
+▲ [WARNING] Unable to initialize JavaScript cache storage. [plugin angular-compiler]
+
+  No native build was found for platform=openbsd arch=x64 runtime=node abi=127 uv=1 libc=glibc node=22.12.0
+  This will not affect the build output content but may result in slower builds.
+
+
+Output location: /home/jmpc/workspace/playground/angular/demo/dist/demo
+</code></pre>
+<h2>Apéndice - vue</h2>
+<p>Para desarrollar aplicaciones <a href="https://vuejs.org/">vue</a> deben seguirse pasos similares, ya que se
+también se utiliza <code>rollup</code> como dependencia de <a href="https://vite.dev/">vite</a>.</p>
+<p>Los pasos para crear una aplicación vue <a href="https://vuejs.org/guide/quick-start#creating-a-vue-application">son los siguientes</a>:</p>
+<pre><code>$ npm create vue@latest
+
+&gt; npx
+&gt; create-vue
+
+
+Vue.js - The Progressive JavaScript Framework
+
+✔ Project name: … demo
+✔ Add TypeScript? … No / Yes  (Yes)
+✔ Add JSX Support? … No / Yes  (No)
+✔ Add Vue Router for Single Page Application development? … No / Yes  (Yes)
+✔ Add Pinia for state management? … No / Yes  (No)
+✔ Add Vitest for Unit Testing? … No / Yes  (No)
+✔ Add an End-to-End Testing Solution? › No
+✔ Add ESLint for code quality? › Yes
+✔ Add Prettier for code formatting? … No / Yes  (Yes)
+
+Scaffolding project in /home/jmpc/workspace/playground/vue/demo...
+
+Done. Now run:
+
+  cd demo
+  npm install
+  npm run format
+  npm run dev
+</code></pre>
+<p>Luego, siguiendo las indicaciones:</p>
+<pre><code>$ cd demo
+$ npm install
+</code></pre>
+<p>y verificamos que se está utilizando <code>rollup</code>:</p>
+<pre><code>$ npm ls rollup
+demo@0.0.0 /home/jmpc/workspace/playground/vue/demo
+├─┬ vite-plugin-vue-devtools@7.7.0
+│ └─┬ vite-plugin-inspect@0.8.9
+│   └─┬ @rollup/pluginutils@5.1.4
+│     └── rollup@4.30.1 deduped
+└─┬ vite@6.0.7
+  └── rollup@4.30.1
+</code></pre>
+<p>Por lo que al hacer</p>
+<pre><code>$ npm run dev
+
+&gt; demo@0.0.0 dev
+&gt; vite
+
+/home/jmpc/workspace/playground/vue/demo/node_modules/rollup/dist/native.js:89
+	throw new Error(
+	      ^
+
+Error: Your current platform &quot;openbsd&quot; and architecture &quot;x64&quot; combination is not yet supported by the native Rollup build. Please use the WASM build &quot;@rollup/wasm-node&quot; instead.
+
+The following platform-architecture combinations are supported:
+android-arm
+android-arm64
+darwin-arm64
+darwin-x64
+freebsd-arm64
+freebsd-x64
+linux-arm
+linux-arm (musl)
+linux-arm64
+linux-arm64 (musl)
+linux-loong64
+linux-ppc64
+linux-riscv64
+linux-s390x
+linux-x64
+linux-x64 (musl)
+win32-arm64
+win32-ia32
+win32-x64
+
+If this is important to you, please consider supporting Rollup to make a native build for your platform and architecture available.
+    at throwUnsupportedError (/home/jmpc/workspace/playground/vue/demo/node_modules/rollup/dist/native.js:89:8)
+    at getPackageBase (/home/jmpc/workspace/playground/vue/demo/node_modules/rollup/dist/native.js:80:3)
+    at Object.&lt;anonymous&gt; (/home/jmpc/workspace/playground/vue/demo/node_modules/rollup/dist/native.js:42:21)
+    at Module._compile (node:internal/modules/cjs/loader:1565:14)
+    at Object..js (node:internal/modules/cjs/loader:1708:10)
+    at Module.load (node:internal/modules/cjs/loader:1318:32)
+    at Function._load (node:internal/modules/cjs/loader:1128:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:219:24)
+    at cjsLoader (node:internal/modules/esm/translators:263:5)
+
+Node.js v22.12.0
+</code></pre>
+<p>obtuvimos un error similar a que cuando hicimos <code>npm start</code> en el proyecto
+angular.</p>
+<p>La solución es similar:</p>
+<pre><code>$ jq '. + {overrides: {&quot;rollup&quot;: &quot;npm:@rollup/wasm-node&quot;}}' \
+    package.json &gt; package.tmp.json &amp;&amp; mv package.tmp.json package.json
+$ npm update
+</code></pre>
+<p>y verificando:</p>
+<pre><code>$ npm ls rollup
+demo@0.0.0 /home/jmpc/workspace/playground/vue/demo
+├─┬ vite-plugin-vue-devtools@7.7.0
+│ └─┬ vite-plugin-inspect@0.8.9
+│   └─┬ @rollup/pluginutils@5.1.4
+│     └── rollup@npm:@rollup/wasm-node@4.30.1 deduped
+└─┬ vite@6.0.7
+  └── rollup@npm:@rollup/wasm-node@4.30.1 overridden
+</code></pre>
+<p>Luego, solo queda confirmar que el proyecto se puede ejecutar sin problemas:</p>
+<pre><code>$ npm run dev
+
+&gt; demo@0.0.0 dev
+&gt; vite
+
+
+  VITE v6.0.7  ready in 1229 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+  ➜  Vue DevTools: Open http://localhost:5173/__devtools__/ as a separate window
+  ➜  Vue DevTools: Press Alt(⌥)+Shift(⇧)+D in App to toggle the Vue DevTools
+  ➜  press h + enter to show help
+</code></pre>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Usando multiarch en debian para emular binarios de RISC-V | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Usando multiarch en debian para emular binarios de RISC-V</h1>
+        <h2 class="date">2020-03-22</h2>
+      </div>
+<p><strong>TL;DR: El enfoque descripto a continuación no funcionó como era esperado
+respecto a la reinstalación de paquetes en arquitectura riscv64.</strong></p>
+<p><strong>NO UTILIZAR</strong></p>
+<h2>Motivación</h2>
+<p>Como seguro quedó manifestado en posts anteriores estoy interesado en el ISA
+RISC-V.  Para evaluar el avance de la arquitectura <a href="https://wiki.debian.org/RISC-V">RISC-V en debian</a> que se
+lleva adelante en <a href="https://www.ports.debian.org/">debian ports</a> -y eventualmente ayudar con el reporte de
+bugs- es que decidí habilitar el <a href="https://wiki.debian.org/Multiarch/HOWTO">soporte multiarch de debian</a> para RISC-V.</p>
+<h2>Cambio a debian sid</h2>
+<p>El primer requerimiento <strong>fuerte</strong> en el sistema operativo es la necesidad de
+pasar a <a href="https://www.debian.org/releases/sid/">debian sid</a> ya que el repositorio de RISC-V en debian ports solo
+tiene disponibles las distribuciones <em>sid</em> y <em>experimental</em>.</p>
+<p>Respecto al cambio anterior los motivos a favor (PROS) y en contra (CONS)
+evaluados fueron entre otros:</p>
+<p>PROS:</p>
+<ul>
+<li>Se pasa a una <a href="https://en.wikipedia.org/wiki/Rolling_release">rolling release</a>.  Como ejemplo de distribución rolling
+release se tiene a <a href="https://www.archlinux.org/">Arch linux</a>.</li>
+<li>Últimas versiones disponibles de programas.  Lo más útil de esto se da en el
+toolchain de RISC-V que sigue desarrollandose: binutils, gcc y qemu.</li>
+<li>No directamente relacionado, pero es útil para el caso en que se quiera
+colaborar con <a href="https://wiki.debian.org/ReproducibleBuilds">debian reproducible builds</a> (que si bien se realizan tests
+de distintas distribuciones de debian es mucho más fácil que se acepte un
+parche en <em>sid</em>).</li>
+</ul>
+<p>CONS:</p>
+<ul>
+<li><a href="https://www.debian.org/releases/sid/">Se pierden las actualizaciones de seguridad</a>.</li>
+<li>El <strong>fuerte</strong> de debian es la estabilidad y se estaría perdiendo al utilizar
+la release <em>sid</em>.</li>
+<li>La frecuencia de actualización de paquetes es bastante alta, lo que implica un
+alto uso de ancho de banda y la posibilidad de problemas de dependencias entre
+paquetes.</li>
+<li><strong>Para volver a <em>stable</em> o <em>testing</em> se debe reinstalar el sistema.</strong></li>
+</ul>
+<p>Si bien no muy estrictas o profundas los motivos anteriores está claro que <em>no
+conviene pasar a sid</em> y es mejor seguir en debian <em>stable</em> o en su defecto
+<em>testing</em>.</p>
+<p>Para <a href="https://wiki.debian.org/DebianUnstable">pasar el sistema a <em>sid</em></a> se comienza con debian <em>stable</em> o <em>testing</em>,
+se modifican los repositorios, reempazando las lineas en <code>/etc/apt/sources.list</code>
+por</p>
+<pre><code>deb [arch=amd64] http://deb.debian.org/debian sid main non-free contrib
+</code></pre>
+<p>Luego se actualizan las listas de paquetes y se realiza un dist-upgrade:</p>
+<pre><code>$ sudo apt-get clean
+$ sudo apt-get update
+$ sudo apt-get dist-upgrade -V --purge --autoremove
+</code></pre>
+<p>Si bien en la wiki de debian se indica realiza un <code>full-upgrade</code>, en la
+<a href="https://manpages.debian.org/buster/apt/apt-get.8.en.html">documentación de apt-get</a> esta opción ya no se encuentra, siendo la opción
+equivalente <code>dist-upgrade</code>.</p>
+<p>Luego de pasar a <em>sid</em> es posible que sea necesario ajustar el sistema, más
+especificamente el marcar que paquetes fueron instalados automáticamente y
+cuales de forma manual.  En mi caso, muchas librerías o paquetes que deberían
+estar marcados como instalados automáticamente estaban marcados como instalados
+de forma manual.</p>
+<p>Algunos tips para corregir la situación anterior utilizando los programas
+<code>apt-mark</code> y <code>aptitude</code>:</p>
+<ul>
+<li>
+<p>Marcar todas las librerías como instaladas automáticamente:</p>
+<pre><code>for i in $(apt-mark showmanual | grep ^lib | grep -v -e '-dev$' -e '-bin$'); do
+    sudo apt-mark auto $i
+done
+</code></pre>
+</li>
+<li>
+<p>En el caso de las dependencias de <code>nodejs</code>, la mayoría aparece como instalada
+de forma manual:</p>
+<pre><code>for i in $(apt-mark showmanual | grep ^node); do
+    sudo apt-mark auto $i
+done
+</code></pre>
+</li>
+<li>
+<p>Buscar que paquetes para desarrollo (dev) están instalados de forma manual:</p>
+<pre><code>apt-mark showmanual | grep '^lib.*-dev'
+</code></pre>
+</li>
+<li>
+<p>Listar los paquetes marcados como instalados manualmente que no son parte del
+sistema base, esto es, los que tienen como prioridad <a href="https://www.debian.org/doc/debian-policy/ch-binary.html#base-system"><em>requered</em> o
+<em>important</em></a>:</p>
+<pre><code>apt-mark showmanual | grep -v -f &lt;(aptitude search ~prequired -F&quot;%p&quot;; aptitude search ~pimportant -F&quot;%p&quot;)
+</code></pre>
+</li>
+<li>
+<p>Para obtener información respecto a porqué un paquete debe ser instalado o no
+en el sistema:</p>
+<pre><code>aptitude why &lt;package&gt;
+</code></pre>
+</li>
+<li>
+<p>Por último utilizar <code>aptitude</code> de forma interactiva para marcar los paquetes
+como instalados automáticamente (<code>M</code>) o manualmente (<code>m</code>).</p>
+</li>
+</ul>
+<p>Lo malo de tener que revisar los paquetes instalados: unas tres horas revisando
+todos los paquetes del sistema.  Lo bueno: se tiene un mejor conocimiento del
+sistema, los paquetes instalados en este y para que son utilizados.</p>
+<p>Se instalan como es sugerido en la <a href="https://wiki.debian.org/DebianUnstable">wiki de debian unstable</a> los paquetes
+<code>apt-listbugs</code> y <code>apt-listchanges</code> para verificar que una actualización no
+<em>romperá</em> el sistema:</p>
+<pre><code>$ sudo apt-get install -V apt-listbugs apt-listchanges
+</code></pre>
+<p>Luego al empezar a utilizar debian <em>sid</em> ya empezaron los problemas:</p>
+<ul>
+<li>
+<p>El kernel instalado por <code>linux-image-rt-amd64</code> no funciona correctamente,
+dejando varias trazas de error en <code>/var/log/kern.log</code>.</p>
+</li>
+<li>
+<p><code>virtualbox</code> (el paquete provisto en los repositorios de debian <em>sid</em>) no me
+funcionó correctamente, por lo que debí volver a instalar el provisto por
+<em>Oracle</em> en sus repositorios privativos.  Ya que el más cercano a la versión
+de <em>sid</em> es <em>buster</em>, debí agregar temporalmente los repositorios de <em>buster</em>,
+ya que había dependencias que no se encontraban en <em>sid</em>.  Luego de instalado
+virtualbox y corroborando que funciona se quitaron los repositorios de
+<em>buster</em>.</p>
+</li>
+</ul>
+<h2>Ejecución de programas compilados para RISC-V utilizando QEMU</h2>
+<p>Ya que la arquitectura del sistema es <em>amd64</em> y queremos ejecutar programas
+compilados para la arquitectura <em>riscv</em> debemos instalar <a href="https://www.qemu.org/">QEMU</a> para que los
+programas sean emulados.  También se debe utilizar el módulo del kernel
+<a href="https://nongnu.org/binfmt-support/">binfmt-support</a> que según la cabecera de un archivo utiliza un programa que
+haya sido registrado previamente para asociado para ejecutarlo.</p>
+<pre><code>$ sudo apt-get install -V qemu-user-static binfmt-support
+$ sudo update-binfmts --display | grep riscv
+qemu-riscv32 (enabled):
+ interpreter = /usr/bin/qemu-riscv32-static
+qemu-riscv64 (enabled):
+ interpreter = /usr/bin/qemu-riscv64-static
+</code></pre>
+<p>En las lineas anteriores instalamos los programas necesarios y nos aseguramos
+que <code>qemu</code> sea utilizado para ejecutar binarios de RISC-V.</p>
+<p>Se prefirió instalar el paquete <code>qemu-user-static</code> en lugar de <code>qemu-user</code> por
+el caso en que se utilice un <code>chroot</code> para ejecutar un binario de RISC-V.  Por
+más detalles al respecto ver por ejemplo el post <a href="https://ownyourbits.com/2018/06/13/transparently-running-binaries-from-any-architecture-in-linux-with-qemu-and-binfmt_misc/">Transparently running binaries
+from any architecture in Linux with QEMU and binfmt_misc</a>.</p>
+<h2>Agregado de architectura RISC-V de debian ports en el sistema</h2>
+<p>Anteriormente se configuró el sistema para que puedan ejecutarse directamente
+programas compilados para RISC-V.  Ahora falta configurar el sistema para
+agregar la arquitectura <code>riscv64</code> al sistema y que puedan instalarse paquetes de
+los repositorios.  Ya que la arquitectura <code>riscv64</code> no está soportada
+&quot;oficialmente&quot; sinó a través de <a href="https://www.ports.debian.org/">debian ports</a> debe agregarse primero el
+<a href="https://en.wikipedia.org/wiki/Keyring_(cryptography)">keyring</a>, luego agregarse la arquitectura y por último el repositorio de
+debian ports:</p>
+<pre><code>$ sudo apt-get install -Vy debian-ports-archive-keyring
+$ sudo dpkg --add-architecture riscv64
+$ echo 'deb [arch=riscv64] http://ftp.ports.debian.org/debian-ports/ sid main' \
+    | sudo tee /etc/apt/sources.list.d/riscv64.list &gt; /dev/null
+$ sudo apt-get update
+</code></pre>
+<p>Notas:</p>
+<ol>
+<li>ftp.ports.debian.org es más rápido al descargar que deb.debian.org</li>
+<li>No se instalan los paquetes libc6:riscv64 y libstdc++6:riscv64 ya que cuando
+algún ejecutable dependa de ellos deberían ser instalados por defecto,
+aunque en algunas guías de multiarquitectura son instalados.</li>
+</ol>
+<h2>Prueba de instalación y ejecución de programa de arquitectura riscv64</h2>
+<p>Como prueba se instalará y ejecutará el programa <a href="https://packages.debian.org/sid/ed">ed</a> (editor de lineas,
+predecesor de vi).</p>
+<pre><code>$ sudo apt-get install -V ed:riscv64
+$ ed
+</code></pre>
+<p>En otra terminal se verifica que está ejecutandose <code>ed</code> con qemu:</p>
+<pre><code>$ ps aux | grep /bin/ed
+jmpc       21832  0.0  0.0 126780  7860 pts/1    Sl+  02:29   0:00 /usr/bin/qemu-riscv64-static /usr/bin/ed
+jmpc       21848  0.0  0.0   6156   908 pts/3    S+   02:30   0:00 grep /bin/ed
+</code></pre>
+<hr />
+<h2>Problemas al querer instalar programas</h2>
+<p>Ya que no es muy común que utilice el programa <code>ed</code>, intenté reinstalar el
+programa <a href="https://packages.debian.org/sid/eom">Eye of Mate</a>.  Para ello primero eliminé la versión instalada de
+arquitectura amd64 y pasé a instalar la versión de arquitectura riscv64:</p>
+<pre><code>$ sudo apt purge -V eom
+$ sudo apt install -V eom:riscv64
+Reading package lists... Done
+Building dependency tree-------
+Reading state information... Done
+Some packages could not be installed. This may mean that you have
+requested an impossible situation or if you are using the unstable
+distribution that some required packages have not yet been created
+or been moved out of Incoming.
+The following information may help to resolve the situation:
+
+The following packages have unmet dependencies:
+ eom:riscv64 : Depends: eom-common:riscv64 (= 1.24.0-1) but it is not installable
+               Depends: gir1.2-eom-1.0:riscv64 but it is not going to be installed
+               Depends: librsvg2-common:riscv64 (&gt;= 2.36.2) but it is not going to be installed
+               Depends: mate-desktop-common:riscv64 but it is not installable
+               Depends: libgl1-mesa-glx:riscv64 but it is not going to be installed or
+                        libgl1:riscv64 but it is not going to be installed
+               Depends: libgdk-pixbuf2.0-0:riscv64 (&gt;= 2.25.2) but it is not going to be installed
+               Depends: libgtk-3-0:riscv64 (&gt;= 3.21.5) but it is not going to be installed
+               Depends: libjpeg62-turbo:riscv64 (&gt;= 1.3.1) but it is not going to be installed
+               Depends: libmate-desktop-2-17:riscv64 (&gt;= 1.18) but it is not going to be installed
+               Depends: libpeas-1.0-0:riscv64 (&gt;= 1.0.0) but it is not going to be installed
+               Depends: librsvg2-2:riscv64 (&gt;= 2.36.2) but it is not going to be installed
+               Depends: libxml2:riscv64 (&gt;= 2.7.4) but it is not going to be installed
+E: Unable to correct problems, you have held broken packages.
+</code></pre>
+<p>Y aquí esta el problema: ¿porqué eom-common:riscv64 es no instalable si es de
+arquitectura all y no tiene archivos que dependan de la arquitectura?.</p>
+<p>La respuesta puede encontrarse bajo el punto <a href="https://wiki.ubuntu.com/MultiarchSpec#Dependencies_involving_Architecture:_all_packages">Dependencies involving
+Architecture: all packages, de la wiki MultiarchSpec</a>:</p>
+<blockquote>
+<p><strong>Dependencies involving Architecture: all packages</strong></p>
+<p>Pre-multiarch, architecture-dependent packages may depend on Architecture: all
+packages and assume that the transitive dependencies will be resolved using
+packages of the same architecture or other packages that are Architecture:
+all. To avoid breaking this assumption, Architecture: all packages will, at
+least initially, be treated as equivalent to packages of the native
+architecture for all dependency resolution. This means that for an
+Architecture: all package to satisfy the dependencies of a
+foreign-architecture package, it must be marked Multi-Arch: foreign or
+Multi-Arch: allowed.</p>
+</blockquote>
+<p>De lo anterior, si un paquete con datos tiene en los campos del archivo de
+control <code>Architecture: all</code> pero le falta <code>Multi-Arch: foreign</code>, se tomará como
+que su arquitectura es la del sistema.  En el caso del paquete <code>eom-common</code>, se
+tiene en <a href="https://web.archive.org/web/20200404043817/https://sources.debian.org/src/eom/1.24.0-1/debian/control/">https://sources.debian.org/src/eom/1.24.0-1/debian/control/</a>:</p>
+<pre><code>Package: eom-common
+Architecture: all
+</code></pre>
+<p>Lo que de hecho convierte al paquete en <code>eom-common:amd64</code> para <code>apt</code>.</p>
+<p>La solución a lo anterior es como se vió más arriba que al paquete se le agregue
+<code>Multi-Arch: foreign</code>.  Pero no sería solo a ese y también se encuentra que
+paquetes como el <code>libgtk-3-0</code> no permiten instalar en otra arquitectura, como se
+puede ver en <a href="https://web.archive.org/web/20200404043928/https://sources.debian.org/src/gtk+3.0/3.24.17-1/debian/control/">https://sources.debian.org/src/gtk+3.0/3.24.17-1/debian/control/</a>:</p>
+<pre><code>Package: libgtk-3-0
+Architecture: any
+Multi-Arch: same
+</code></pre>
+<p>Por todo lo anterior es que <em>el espiritu</em> de querer utilizar paquetes de
+arquitectura riscv64 no se estaría consiguiendo.</p>
+<h2>¿Vuelta a testing?</h2>
+<p>Ya que estaba <strong>realmente</strong> interesado en instalar programas utilizando la
+arquitectura <code>riscv64</code> asumí el &quot;riesgo&quot; de pasar a la distribución <code>unstable</code>.
+Ahora, a raíz de que no funcionó lo anterior me <em>pesa</em> estar utilizando la
+distribución unstable ya que actualiza muy seguido y no hay actualizaciones de
+seguridad.  Por ello y porque no deseo estar reinstalando el sistema es que voy
+a probar de pasar a <code>testing</code>.</p>
+<p>Para ello simplemente voy a cambiar el archivo <code>/etc/apt/sources.list</code>, pasando
+de <code>sid</code> a <code>testing</code> y actualizando la lista de paquetes:</p>
+<pre><code>$ sudo sed -i 's# sid # testing #' /etc/apt/sources.list
+$ sudo apt-get clean
+$ sudo apt-get update
+</code></pre>
+<p>¿Porqué solo realizo el cambio anterior?: Según se indica en las <a href="https://www.debian.org/doc/manuals/debian-faq/ch-choosing.en.html#s3.1.7">faqs de
+debian</a>, los paquetes luego de 5 días son migrados de <code>unstable</code> a
+<code>testing</code>, por lo cual solo tengo que esperar unos cuantos días para que se
+actualicen todos los paquetes del sistema con la versión de testing.</p>
+<ul>
+<li><strong>Lo negativo</strong>: al final terminé pasando de debian stable a debian testing y
+no estaba en mis planes.</li>
+<li><strong>Lo positivo</strong>: debian testing tiene mayor velocidad en las actualizaciones
+de binutils/gcc y qemu para soporte al ISA RISC-V, por lo que eso puede actuar
+como <em>consuelo</em>.  Otra ventaja inmediata es poder utilizar la última versión
+de <code>mate-desktop</code>.</li>
+</ul>
+<p>En todo caso, cuando hice esta prueba sabía que como peor caso iba a tener que
+reinstalar el sistema y me pareció aceptable.  Ahora simplemente estoy
+retrasando un tiempo esa decisión/tarea si es que estar en <code>testing</code> no me
+conforma.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

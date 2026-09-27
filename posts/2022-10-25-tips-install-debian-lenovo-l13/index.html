@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tips sobre instalación de debian testing (bookworm) en lenovo thinkpad L13 | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Tips sobre instalación de debian testing (bookworm) en lenovo thinkpad L13</h1>
+        <h2 class="date">2022-10-25</h2>
+      </div>
+<p>Hace unos días tuve que instalar una Lenovo Thinkpad L13 Gen3 (21B4-S1H300).</p>
+<p>El sistema operativo elegido: debian testing (bookworm).</p>
+<p>A continuación algunos tips a tener en cuenta durante la instalación.</p>
+<h2>Elección de imagen de instalación</h2>
+<p>Usualmente suelo utilizar una imagen <a href="https://www.debian.org/CD/netinst/">netinst</a> de debian testing para
+realizar las instalaciones.
+El problema en este caso es que el hardware es bastante nuevo (2022/07 según la
+carcasa) y la imagen netinst no incluye los drivers del wifi a octubre de 2022:</p>
+<pre><code>$ wget 'https://cdimage.debian.org/cdimage/unofficial/non-free/cd-including-firmware/bookworm_di_alpha1+nonfree/amd64/list-cd/firmware-bookworm-DI-alpha1-amd64-netinst.list.gz'
+$ zgrep ^firmware-iwlwifi firmware-bookworm-DI-alpha1-amd64-netinst.list.gz
+firmware-iwlwifi_20210818-1_all.deb
+</code></pre>
+<p>Por ello es que decidí utilizar la imagen &quot;no oficial&quot; de CD/DVD que incluye
+firmware <em>non-free</em>:
+<a href="https://cdimage.debian.org/cdimage/unofficial/non-free/cd-including-firmware/bookworm_di_alpha1+nonfree/amd64/iso-dvd/firmware-bookworm-DI-alpha1-amd64-DVD-1.iso">https://cdimage.debian.org/cdimage/unofficial/non-free/cd-including-firmware/bookworm_di_alpha1+nonfree/amd64/iso-dvd/firmware-bookworm-DI-alpha1-amd64-DVD-1.iso</a></p>
+<p>En particular me interesa instalar el <a href="https://mate-desktop.org/">escritorio mate</a>, el cual se puede
+confirmar que se encuentra en el iso revisando la lista de paquetes:</p>
+<pre><code>$ wget 'https://cdimage.debian.org/cdimage/unofficial/non-free/cd-including-firmware/bookworm_di_alpha1+nonfree/amd64/list-dvd/firmware-bookworm-DI-alpha1-amd64-DVD-1.list.gz'
+$ zgrep -e ^mate-desktop -e task-mate firmware-bookworm-DI-alpha1-amd64-DVD-1.list.gz
+task-mate-desktop_3.70_all.deb
+mate-desktop-common_1.26.0-1_all.deb
+mate-desktop_1.26.0-1_amd64.deb
+mate-desktop-environment-core_1.26.0+1_all.deb
+mate-desktop-environment_1.26.0+1_all.deb
+</code></pre>
+<p>Como se indica en <a href="https://www.debian.org/releases/bookworm/amd64/ch04s03.en.html">4.3. Preparing Files for USB Memory Stick Booting</a>,
+alcanza con copiar el iso al dispositivo en que es montado el pendrive a usar.
+<strong>Hay que tener en cuenta de desmontar las particiones del el pendrive si alguna
+de estas fué montada automáticamente</strong>.</p>
+<p>Suponiendo que el pendrive se encuentra en <code>/dev/sdb</code>:</p>
+<pre><code>$ mount | grep ^/dev/sdb  # asegurarse que la salida sea vacía
+$ doas cp firmware-bookworm-DI-alpha1-amd64-DVD-1.iso /dev/sdb
+</code></pre>
+<h2>Creación de entrada EFI</h2>
+<p>Luego de realizada la instalación, al hacer el primer reinicio encuentro que el
+sistema no es encontrado.</p>
+<p>Utilizando el instalador con la opción <a href="https://www.debian.org/releases/bookworm/amd64/ch05s02.en.html#idm1348">rescue mode</a> y abriendo una terminal
+en el sistema se agrega la entrada efi para el sistema.
+<em>Nota</em>: primero hay que montar la partición <a href="https://docs.kernel.org/filesystems/efivarfs.html">efivarfs</a>.</p>
+<pre><code>$ mount -t efivarfs none /sys/firmware/efi/efivars/
+$ efibootmgr -c -b 0030 -d /dev/nvme0n1 -p 1 -w -L debian -l '\EFI\debian\grubx64.efi'
+</code></pre>
+<p>Para confirmar que se agregó la entrada y asegurarnos que el proximo inicio sea
+con el sistema hacer:</p>
+<pre><code>$ efibootmgr -n 0030
+$ efibootmgr -v
+</code></pre>
+<h2>Copia de firmware nuevo</h2>
+<p>Como mencioné previamente, los paquetes de debian (a la fecha del post) no
+tienen el último firmware disponible de linux, por lo que la tarjeta wifi no
+funciona.</p>
+<p>Para solucionar esto, se descarga en otro pc el repositorio <a href="https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git">linux-firmware</a>,
+se copia en un pendrive y luego en el equipo se copian los archivos al
+directorio <code>/lib/firmware</code>:</p>
+<pre><code># pc con conexión a internet
+$ git clone --depth=1 git://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git
+# thinkpad l13
+$ doas cp -rn /path/to/linux-firmware/* /lib/firmware/
+</code></pre>
+<h2>Conclusiones</h2>
+<p>Cualquiera que haya instalado sistemas basados en linux y en este caso
+particular debian, sabe que si se instala en un equipo <em>muy nuevo</em> <strong>siempre</strong>
+hay que hacer algunos ajustes a mano.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

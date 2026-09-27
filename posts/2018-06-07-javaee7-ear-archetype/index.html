@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Generar proyecto java ee 7 utilizando arquetipos | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Generar proyecto java ee 7 utilizando arquetipos</h1>
+        <h2 class="date">2018-06-07</h2>
+      </div>
+<p>Para ello se utilizará el plugin de <a href="https://maven.apache.org/">maven</a>,
+<a href="https://maven.apache.org/archetype/">archetype</a>.</p>
+<p>La documentación resumida del plugin se obtiene usando:</p>
+<pre><code>$ mvn archetype:help
+</code></pre>
+<p>la documentación detallada de <em>generate</em> se obtiene con:</p>
+<pre><code>$ mvn archetype:help -Ddetail=true -Dgoal=generate
+</code></pre>
+<p>Para buscar un arquetipo para un proyecto de <em>wildfly</em> se puede utilizar:</p>
+<pre><code>$ mvn archetype:generate -Dfilter='wildfly'
+</code></pre>
+<p>Si se quiere generar el arquetipo</p>
+<blockquote>
+<p>11: remote -&gt; org.wildfly.archetype:wildfly-javaee7-webapp-ear-archetype (An
+archetype that generates a starter Java EE 7 webapp project for JBoss Wildfly.
+The project is an EAR, with an EJB-JAR and WAR)</p>
+</blockquote>
+<p>se pueden buscar las versiones disponibles en <a href="https://search.maven.org/">el repositorio central de
+maven</a>,
+<a href="https://search.maven.org/#search%7Cga%7C1%7Cwildfly-javaee7-webapp-ear-archetype">https://search.maven.org/#search%7Cga%7C1%7Cwildfly-javaee7-webapp-ear-archetype</a>,
+obteniendose las versiones <em>8.1.0.Final</em> y <em>8.2.0.Final</em>.</p>
+<p>El comando <a href="https://maven.apache.org/archetype/maven-archetype-plugin/examples/generate-batch.html">en modo batch</a> para generar el arquetipo queda:</p>
+<pre><code>$ mvn archetype:generate -B \
+    -DarchetypeGroupId=org.wildfly.archetype \
+    -DarchetypeArtifactId=wildfly-javaee7-webapp-ear-archetype \
+    -DarchetypeVersion=8.2.0.Final \
+    -DgroupId=uy.jumapico \
+    -DartifactId=first-project \
+    -Dversion=1.0-SNAPSHOT \
+    -Dpackage=uy.jumapico.firstproject
+</code></pre>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

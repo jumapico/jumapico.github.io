@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ejecutando juegos de gog en debian - Mable &amp; The Wood | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Ejecutando juegos de gog en debian - Mable &amp; The Wood</h1>
+        <h2 class="date">2022-03-06</h2>
+      </div>
+<p>A continuación los pasos seguidos para instalar el juego <a href="http://mableandthewood.com/">Mable &amp; The Wood</a>
+distribuido por <a href="https://www.gog.com">GOG</a> en debian testing (12) a partir de la experiencia
+adquirida al <a href="/posts/2022-02-28-run-gog-games-in-debian-volgarr/">instalar el juego Volgarr the Viking en debian</a>.</p>
+<p><img src="./mable.jpg" alt="mable intro" /></p>
+<p>Pasos a seguir:</p>
+<ol>
+<li>Instalar la aplicación y ver si anda <em>de casualidad</em> o dicho de otra forma,
+comprobar que no funciona en el sistema.</li>
+<li>Crear sistema base <em>Ubuntu 18.04 amd64</em> y utilizar el <a href="https://manpages.ubuntu.com/manpages/bionic/en/man8/ld.so.8.html">dynamic loader</a> y las librerías de dicho sistema para ejecutar el juego.</li>
+</ol>
+<p>Comenzamos ejecutando el instalador, <code>mable_the_wood_1_7_37606.sh</code>, donde se
+acepta el EULA, se elige el directorio <code>$HOME/GOG Games/Mable The Wood</code> para
+guardar los archivos del juego y se crea el ícono en el escritorio y la entrada
+en el menú.</p>
+<p>Para probar si anda el juego lo ejecutamos:</p>
+<pre><code>$ cd &quot;$HOME/GOG Games/Mable The Wood&quot;
+$ ./start.sh
+Running Mable &amp; The Wood
+./Mable_PC: error while loading shared libraries: libcrypto.so.1.0.0: cannot open shared object file: No such file or directory
+</code></pre>
+<p>Buscamos el ejecutable y verificamos la arquitectura usada y las librerías no
+resueltas:</p>
+<pre><code>$ file game/Mable_PC
+game/Mable_PC: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 2.6.32, BuildID[sha1]=ab14d071393bba44769fa72677e1e9388fc628e8, stripped
+$ ldd ./game/Mable_PC | grep -F 'not found'
+	libcrypto.so.1.0.0 =&gt; not found
+	libssl.so.1.0.0 =&gt; not found
+</code></pre>
+<p>Utilizando <code>locate</code> se encuentra que las librerías dinámicas <code>libcrypto</code> y
+<code>libssl</code> instaladas en el sistema pertenecen al paquete <code>libssl1.1</code> y que <a href="https://packages.debian.org/search?suite=bookworm&amp;arch=amd64&amp;mode=filename&amp;searchon=contents&amp;keywords=libssl">no
+hay versión <code>1.0</code> disponible para debian testing</a></p>
+<p>Ahora se pasa a crear un sistema <em>Ubuntu 18.04 amd64</em> utilizando <a href="https://manpages.debian.org/testing/debootstrap/debootstrap.8.en.html">debootstrap</a>
+<a href="/posts/2022-02-28-run-gog-games-in-debian-volgarr/">como se hizo en un post anterior</a>:</p>
+<pre><code>$ doas apt-get install -Vy debootstrap
+$ doas /usr/sbin/debootstrap --arch=amd64 --cache-dir=/srv/cache \
+    bionic /srv/chroot_ubuntu_1804_amd64 http://archive.ubuntu.com/ubuntu/
+</code></pre>
+<p>Para obtener las dependencias se copia el binario dentro del sistema obtenido,
+se hace <a href="https://manpages.debian.org/testing/coreutils/chroot.8.en.html">chroot</a> y se utiliza <a href="https://manpages.debian.org/testing/manpages/ldd.1.en.html">ldd</a>:</p>
+<pre><code>$ cp &quot;$HOME/GOG Games/Mable The Wood/game/Mable_PC&quot; /srv/chroot_ubuntu_1804_amd64/tmp
+$ doas /sbin/chroot /srv/chroot_ubuntu_1804_amd64
+# ldd /tmp/Mable_PC | grep -F 'not found'
+	libXxf86vm.so.1 =&gt; not found
+	libGL.so.1 =&gt; not found
+	libcrypto.so.1.0.0 =&gt; not found
+	libXext.so.6 =&gt; not found
+	libX11.so.6 =&gt; not found
+	libXrandr.so.2 =&gt; not found
+	libGLU.so.1 =&gt; not found
+	libcurl-gnutls.so.4 =&gt; not found
+	libssl.so.1.0.0 =&gt; not found
+</code></pre>
+<p>Antes de buscar que paquete provee cada librería se busca en la <a href="https://www.gog.com/en/game/mable_the_wood">página web del
+juego</a> las librerías indicadas.  Para este juego la página no indica ninguna
+librería.</p>
+<p>Viendo que hay varias <code>libX</code> se instala primero el paquete <code>xorg</code> y luego se ve
+que librerías no son resueltas:</p>
+<p>(en el chroot)</p>
+<pre><code># apt-get install -Vy xorg
+# ldd /tmp/Mable_PC | grep -F 'not found'
+	libcrypto.so.1.0.0 =&gt; not found
+	libcurl-gnutls.so.4 =&gt; not found
+	libssl.so.1.0.0 =&gt; not found
+</code></pre>
+<p>Ahora que son menos librerías se busca en el sitio web de ubuntu, filtrando por
+arquitectura (<code>amd64</code>) y suite (<code>bionic</code>):</p>
+<ul>
+<li><code>libcrypto.so.1.0.0</code>: <code>libssl1.0.0</code> (<a href="https://packages.ubuntu.com/search?suite=bionic&amp;arch=amd64&amp;keywords=libcrypto.so.1.0.0&amp;searchon=contents">*</a>)</li>
+<li><code>libcurl-gnutls.so.4</code>: <code>libcurl3-gnutls</code> (<a href="https://packages.ubuntu.com/search?suite=bionic&amp;arch=amd64&amp;keywords=libcurl-gnutls.so.4&amp;searchon=contents">*</a>)</li>
+<li><code>libssl.so.1.0.0</code>: <code>libssl1.0.0</code> (<a href="https://packages.ubuntu.com/search?suite=bionic&amp;arch=amd64&amp;keywords=libssl.so.1.0.0&amp;searchon=contents">*</a>)</li>
+</ul>
+<p>Del resultado anterior se pasan a instalar los paquetes y luego se corrobora que
+no queden más dependencias:</p>
+<pre><code># apt-get install -Vy libssl1.0.0 libcurl3-gnutls
+# ldd /tmp/Mable_PC | grep -F 'not found'
+</code></pre>
+<p>Ahora se pasan a obtener los directorios de las librerías en el chroot:</p>
+<pre><code># dirname $(ldd /tmp/Mable_PC | awk '/ =&gt; / { print $3 }') | sort -u
+/lib/x86_64-linux-gnu
+/usr/lib/x86_64-linux-gnu
+</code></pre>
+<p>Ya que la aplicación se va a ejecutar de forma normal (fuera del chroot), se
+debe utilizar la variable <code>LD_LIBRARY_PATH</code> que contiene las rutas anteriores
+prefijadas por la ruta en la cual se encuentran los archivos de <em>Ubuntu 18.04
+amd64</em>:</p>
+<pre><code>$ cd &quot;$HOME/GOG Games/Mable The Wood/game&quot;
+$ LD_LIBRARY_PATH=/srv/chroot_ubuntu_1804_amd64/lib/x86_64-linux-gnu:/srv/chroot_ubuntu_1804_amd64/usr/lib/x86_64-linux-gnu ./Mable_PC
+Inconsistency detected by ld.so: dl-call-libc-early-init.c: 37: _dl_call_libc_early_init: Assertion `sym != NULL' failed!
+</code></pre>
+<p>El error anterior se debe a que se está utilizando el
+<a href="https://manpages.ubuntu.com/manpages/bionic/en/man8/ld.so.8.html">dynamic loader</a> del sistema debian en lugar del sistema ubuntu.
+Para corregir esto se obtiene la ruta del dynamic loader del sistema ubuntu
+(cuya ruta se indica en la <a href="https://manpages.ubuntu.com/manpages/bionic/en/man8/ld.so.8.html">página del manual</a>) y se vuelve a
+ejecutar el programa:</p>
+<pre><code>$ ls -lh /srv/chroot_ubuntu_1804_amd64/lib64/ld-linux-x86-64.so.2
+lrwxrwxrwx 1 root root 32 Apr 16  2018 /srv/chroot_ubuntu_1804_amd64/lib64/ld-linux-x86-64.so.2 -&gt; /lib/x86_64-linux-gnu/ld-2.27.so
+$ ls -lh /srv/chroot_ubuntu_1804_amd64/lib/x86_64-linux-gnu/ld-2.27.so
+-rwxr-xr-x 1 root root 167K Apr 16  2018 /srv/chroot_ubuntu_1804_amd64/lib/x86_64-linux-gnu/ld-2.27.so
+$ LD_LIBRARY_PATH=/srv/chroot_ubuntu_1804_amd64/lib/x86_64-linux-gnu:/srv/chroot_ubuntu_1804_amd64/usr/lib/x86_64-linux-gnu /srv/chroot_ubuntu_1804_amd64/lib/x86_64-linux-gnu/ld-2.27.so ./Mable_PC
+
+***************************************
+*     YoYo Games Linux Runner V1.3    *
+***************************************
+CommandLine: -game game.unx
+ExeName= /srv/chroot_ubuntu_1804_amd64/lib/x86_64-linux-gnu/ld-2.27.so
+MemoryManager allocated: 44470
+FAILED to load File game.unx
+ShowMessage: Unable to find game!!: game.unx
+</code></pre>
+<p>Mejoramos, pero ahora el programa no está encontrando los archivos del juego.
+Recordando que esto es debido a la ruta en que se encuentra el interprete
+utilizado (el binario <code>ld-2.27.so</code>) se copia este al directorio donde se
+encuentra el juego y se vuelve a ejecutar:</p>
+<pre><code>$ cd &quot;$HOME/GOG Games/Mable The Wood/game&quot;
+$ cp /srv/chroot_ubuntu_1804_amd64/lib/x86_64-linux-gnu/ld-2.27.so .
+$ LD_LIBRARY_PATH=/srv/chroot_ubuntu_1804_amd64/lib/x86_64-linux-gnu:/srv/chroot_ubuntu_1804_amd64/usr/lib/x86_64-linux-gnu ./ld-2.27.so ./Mable_PC
+...
+dlopen failed to open libopenal.so, there will be no sound!
+...
+</code></pre>
+<p>Se utiliza el comando chroot para volver al sistema base de ubuntu y corroborar
+si es que no está la librería o hay un problema al cargarla:</p>
+<pre><code>$ doas /sbin/chroot /srv/chroot_ubuntu_1804_amd64
+# find / -name 'libopenal.so*'
+</code></pre>
+<p>y corroboramos que la librería no se encuentra en el sistema.
+Buscandola en el sitio de ubuntu <a href="https://packages.ubuntu.com/bionic/amd64/libopenal1/filelist">llegamos a que la librería a instalar</a>
+es <a href="https://packages.ubuntu.com/bionic/libopenal1">libopenal1</a> que se encuentra
+en el repositorio <code>universe</code>, por lo que se agrega el repositorio y se instala
+<code>libopenal1</code>:</p>
+<p>(chroot)</p>
+<pre><code># echo 'deb http://archive.ubuntu.com/ubuntu bionic main universe' &gt; /etc/apt/sources.list
+# apt-get update
+# apt-get install -Vy libopenal1
+</code></pre>
+<p>(host)</p>
+<pre><code>$ LD_LIBRARY_PATH=/srv/chroot_ubuntu_1804_amd64/lib/x86_64-linux-gnu:/srv/chroot_ubuntu_1804_amd64/usr/lib/x86_64-linux-gnu ./ld-2.27.so ./Mable_PC
+...
+ALSA lib conf.c:3523:(snd_config_hooks_call) Cannot open shared library libasound_module_conf_pulse.so
+ALSA lib pcm.c:2495:(snd_pcm_open_noupdate) Unknown PCM default
+...
+</code></pre>
+<p><a href="https://packages.ubuntu.com/search?suite=bionic&amp;section=all&amp;arch=amd64&amp;keywords=libasound_module_conf_pulse.so&amp;searchon=contents">Volvemos a buscar en el sitio de ubuntu</a>
+y encontramos que el paquete a instalar es <a href="https://packages.ubuntu.com/bionic/libasound2-plugins">libasound2-plugins</a>:</p>
+<p>(chroot)</p>
+<pre><code># apt-get install -Vy libasound2-plugins
+</code></pre>
+<p>(host)</p>
+<pre><code>$ LD_LIBRARY_PATH=/srv/chroot_ubuntu_1804_amd64/lib/x86_64-linux-gnu:/srv/chroot_ubuntu_1804_amd64/usr/lib/x86_64-linux-gnu ./ld-2.27.so ./Mable_PC
+</code></pre>
+<p>y <strong>¡EXITO!</strong>.</p>
+<p>Una vez iniciando el juego aparece una pantalla con el texto</p>
+<blockquote>
+<p>CONTROLLER RECOMMENDED</p>
+</blockquote>
+<p>y este no es reconocido.</p>
+<p>Leyendo en los <a href="https://www.gog.com/forum/mable_the_wood/controller_support">foros de gog</a> y los <a href="https://steamcommunity.com/app/568070/discussions/0/1639794651168757017/">foros de steam</a> se indica que en linux el
+joystick no está bien soportado y un workaround para que sea detectado es
+desconectarlo y volverlo a conectar una vez que se ejecute el juego.  Haciendo
+esto el joystick es detectado pero no funcionan correctamente los botones, lo
+cual también está indicado en los foros.</p>
+<h2>Resumen</h2>
+<ol>
+<li>
+<p>Instalar juego ejecutando <code>mable_the_wood_1_7_37606.sh</code>, aceptar el EULA,
+elegir como directorio para la instalación <code>~/GOG Games/Mable The Wood</code>, no
+crear lanzador en el escritorio ni entrada en el menú.</p>
+</li>
+<li>
+<p>Crear sistema <em>Ubuntu 18.04 amd64</em></p>
+<pre><code>$ doas /usr/sbin/debootstrap --arch=amd64 --cache-dir=/srv/cache \
+    bionic /srv/chroot_ubuntu_1804_amd64 http://archive.ubuntu.com/ubuntu/
+</code></pre>
+</li>
+<li>
+<p>Agregar repositorios e instalar paquetes necesarios que no se instalaron
+durante la creación del sistema base</p>
+<pre><code>$ doas /sbin/chroot /srv/chroot_ubuntu_1804_amd64
+# echo 'deb http://archive.ubuntu.com/ubuntu bionic main universe' &gt; /etc/apt/sources.list
+# apt-get update
+# apt-get install -Vy xorg libssl1.0.0 libcurl3-gnutls libopenal1 libasound2-plugins
+</code></pre>
+</li>
+<li>
+<p>Copiar el dynamic loader al directorio donde se encuentran los archivos del
+juego:</p>
+<pre><code>$ cd &quot;$HOME/GOG Games/Mable The Wood/game&quot;
+$ cp /srv/chroot_ubuntu_1804_amd64/lib/x86_64-linux-gnu/ld-2.27.so .
+</code></pre>
+</li>
+<li>
+<p>Ejecutar</p>
+<pre><code>$ LD_LIBRARY_PATH=/srv/chroot_ubuntu_1804_amd64/lib/x86_64-linux-gnu:/srv/chroot_ubuntu_1804_amd64/usr/lib/x86_64-linux-gnu ./ld-2.27.so ./Mable_PC
+</code></pre>
+</li>
+</ol>
+<h2>Apendice - pruebas joystick - 1</h2>
+<p><strong>TL;DR: No dieron resultado.</strong></p>
+<p>Suponiendo que la librería que utiliza el juego para reconocer el joystick es
+<a href="https://www.libsdl.org/">SDL</a> (como lo hacen muchos juegos) podemos buscar si en el binario hay algún
+indicio de que se utiliza, ya que la salida de <code>ldd</code> no muestra que falten
+librerías por resolver:</p>
+<pre><code>$ strings Mable_PC | grep -i sdl
+SDL_GAMECONTROLLERCONFIG
+</code></pre>
+<p>y se obtiene un indicio de que la suposición puede ser acertada.</p>
+<p>Para probarlo <a href="https://packages.ubuntu.com/search?keywords=libsdl&amp;searchon=names&amp;suite=bionic&amp;section=all">se buscan los paquete nuevamente en la página de
+ubuntu</a> y se comienza probando con la versión 2 de SDL:</p>
+<pre><code># apt-get install -Vy libsdl2-2.0-0
+</code></pre>
+<p>Sin éxito.</p>
+<p>Se prueba ahora con la versión 1 de SDL:</p>
+<pre><code># apt-get install -Vy libsdl1.2debian
+</code></pre>
+<p>Ninguna de las anteriores funciona</p>
+<p>En la salida de la consola del programa se encuentra:</p>
+<pre><code>...
+Joystick : Re-read Axis 0 (0) val= 5823
+Joystick : Re-read Axis 1 (1) val= -2517
+Joystick : Re-read Axis 2 (2) val= -32768
+Joystick : Re-read Axis 3 (3) val= -1653
+Joystick : Re-read Axis 4 (4) val= -3589
+Joystick : Re-read Axis 5 (5) val= -32768
+Event = audio_system_status
+Pad = undefined
+Event = gamepad discovered
+Pad = 23
+Texture #3 4096,4096
+Texture #3 4096,4096
+Window Size w=1920 h=1080
+Event = gamepad lost
+Pad = 23
+max life is: 52
+volume control created
+Failed to initialize GOG:
+Room started: Room 1
+Made an edge on left
+Made an edge on left
+Made an edge on right
+Made an edge on right
+SOUND SHOULD BE PLAYING
+Texture #3 4096,4096
+Texture #3 4096,4096
+Texture #3 4096,4096
+Texture #3 4096,4096
+Texture #3 4096,4096
+GAMEPAD: Enumerating 6
+Joystick: Xbox 360 Wireless Receiver, bustype = 3, vendor = 0x045e, product = 0x02a1, version = 256
+looks like a joystick with guid : 030000005e040000a102000000010000
+Unable to find mapping for device &quot;Xbox 360 Wireless Receiver&quot;
+Joystick has button: 0x130
+Joystick has button: 0x131
+Joystick has button: 0x133
+Joystick has button: 0x134
+Joystick has button: 0x136
+Joystick has button: 0x137
+Joystick has button: 0x13a
+Joystick has button: 0x13b
+Joystick has button: 0x13c
+Joystick has button: 0x13d
+Joystick has button: 0x13e
+Joystick has button: 0x2c0
+Joystick has button: 0x2c1
+Joystick has button: 0x2c2
+Joystick has button: 0x2c3
+Joystick has absolute axis: 0x00
+Values = { 0, -32768, 32767, 16, 128 }
+Joystick has absolute axis: 0x01
+Values = { 0, -32768, 32767, 16, 128 }
+Joystick has absolute axis: 0x02
+Values = { 0, 0, 255, 0, 0 }
+Joystick has absolute axis: 0x03
+Values = { 0, -32768, 32767, 16, 128 }
+Joystick has absolute axis: 0x04
+Values = { 0, -32768, 32767, 16, 128 }
+Joystick has absolute axis: 0x05
+Values = { 0, 0, 255, 0, 0 }
+Joystick has hat 0
+Values = { 0, -1, 1, 0, 0 }
+Event = gamepad discovered
+Pad = 23
+Pause event has been registered for this frame
+Pause event has been unregistered
+...
+</code></pre>
+<p>Valores que son coherentes con la salida obtenida mediante <code>jstest-gtk</code> (paquete
+<code>jstest-gtk</code>).</p>
+<h2>Apendice - pruebas joystick - 2</h2>
+<p><strong>TL;DR: No dieron resultado.</strong></p>
+<p>Otro intento realizado fué con el control desconectado ejecutar el juego y
+elegir <em>Options &gt; Control</em> en el menú y luego conectar el control.  Luego de
+ello se sale de la aplicación y se confirma que en el archivo
+<code>$HOME/.config/Mable_PC/options.sav</code> que contiene entre otros valores:</p>
+<pre><code>$ cat $HOME/.config/Mable_PC/options.sav
+...
+[Controls]
+holdPosition=&quot;72.000000&quot;
+downL=&quot;75.000000&quot;
+upL=&quot;73.000000&quot;
+rightL=&quot;76.000000&quot;
+leftL=&quot;74.000000&quot;
+altFire=&quot;16.000000&quot;
+fire=&quot;32.000000&quot;
+down=&quot;83.000000&quot;
+up=&quot;87.000000&quot;
+right=&quot;68.000000&quot;
+left=&quot;65.000000&quot;
+...
+</code></pre>
+<p>los cuales intenté cambiar para ver si con ello se capturaban correctamente los
+botones del control, <strong>sin éxito</strong>.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

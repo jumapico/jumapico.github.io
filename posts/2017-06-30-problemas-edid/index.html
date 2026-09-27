@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Problemas con EDID | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Problemas con EDID</h1>
+        <h2 class="date">2017-06-30</h2>
+      </div>
+<p>Hay veces que la resolución de video es baja y no puede cambiarse. Esto suele
+pasar por dos motivos:</p>
+<ol>
+<li>El hardware no está correctamente reconocido o configurado.</li>
+<li>No se está obteniendo correctamente la información
+<em><a href="https://en.wikipedia.org/wiki/Extended_Display_Identification_Data">EDID</a></em>.</li>
+</ol>
+<p><strong>Aquí se supondrá que el hardware está correctamente detectado y configurado y
+nos concentraremos en caso en que no se obtiene correctamente la información
+<em>EDID</em></strong>.</p>
+<h2>Verificación de precondiciones</h2>
+<p>Para corroborar las precondiciones del problema verificaremos:</p>
+<ol>
+<li>
+<p>Que el kernel está siendo detectado:</p>
+<pre><code>$ lspci -s 00:02.0 -v | grep -i kernel
+        Kernel driver in use: i915
+        Kernel modules: i915
+</code></pre>
+<p>En este caso el hardware está siendo detectado y se está utilizando el
+módulo del kernel <code>i915</code>. Si la salida del comando es vacía no se está
+detectando correctamente el hardware.</p>
+</li>
+<li>
+<p>Que la información <em>EDID</em> no es devuelta correctamente</p>
+<p>Para obtener la información <em>EDID</em> deben utilizarse los comandos provistos
+por el paquete <code>read-edid</code>:</p>
+<pre><code>$ sudo apt-get install -qVy read-edid
+$ sudo get-edid 2&gt;/dev/null | parse-edid
+</code></pre>
+<p>Aquí se espera que se devuelva un valor <em>inválido</em> del <em>checksum</em>.</p>
+</li>
+</ol>
+<h2>Corrección de información EDID</h2>
+<p>Para este caso el módulo del kernel <code>drm_kms_helper</code> incluye el parámetro
+<code>edid_firmware</code>, el cual espera la ruta del archivo con la información <em>EDID</em> a
+partir del directorio <code>/lib/firmware</code>.</p>
+<p>Si el monitor fuera por ejemplo un <em>AOC e1621Sw</em> y se tuviera un archivo
+<code>aoc-e1621Sw.bin</code> con la información <em>EDID</em> hay que guardar dicho archivo en
+el directorio <code>/lib/firmware/edid</code> y modificar la configuración de grub para
+agregar el parámetro <code>drm_kms_helper.edid_firmware=edid/aoc-e1621Sw.bin</code>:</p>
+<pre><code>$ sudo sed -i.bak-$(date -uIs) 's#GRUB_CMDLINE_LINUX_DEFAULT=&quot;\(.*\)&quot;#GRUB_CMDLINE_LINUX_DEFAULT=&quot;\1 drm_kms_helper.edid_firmware=edid/aoc-e1621Sw.bin&quot;#' /etc/default/grub
+$ sudo update-grub
+</code></pre>
+<p>En caso de no tener el archivo <em>EDID</em> correspondiente al monitor, se
+puede utilizar el hecho de que el
+<a href="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/gpu/drm/drm_edid_load.c">módulo del kernel</a>
+posee precargados los siguientes archivos (con indicar los siguientes strings se
+configura la resolución correspondiente):</p>
+<ul>
+<li>edid/800x600.bin</li>
+<li>edid/1024x768.bin</li>
+<li>edid/1280x1024.bin</li>
+<li>edid/1600x1200.bin</li>
+<li>edid/1680x1050.bin</li>
+<li>edid/1920x1080.bin</li>
+</ul>
+<p>Siguiendo con el ejemplo anterior, ya que el monitor
+<a href="https://www.cnet.com/products/aoc-e1621sw-led-monitor-15-6/specs/">AOC e1621Sw</a>
+posee una resolución nativa de <code>1366 x 768 at 60 Hz</code> que no se corresponde con
+ninguna de las precargadas en el módulo se utiliza la resolución menor más
+cercana:</p>
+<pre><code>$ sudo sed -i.bak-$(date -uIs) 's/GRUB_CMDLINE_LINUX_DEFAULT=&quot;\(.*\)&quot;/GRUB_CMDLINE_LINUX_DEFAULT=&quot;\1 drm_kms_helper.edid_firmware=edid/1280x1024.bin&quot;/' /etc/default/grub
+$ sudo update-grub
+</code></pre>
+<h2>Obtener EDID de un monitor</h2>
+<p>Para obtener la información <em>EDID</em> de un monitor se utiliza el programa
+<code>get-edid</code> (provisto en el paquete <code>read-edid</code>):</p>
+<pre><code>$ sudo get-edid &gt; &lt;marca&gt;-&lt;modelo&gt;.bin
+</code></pre>
+<p>Se utiliza</p>
+<pre><code>$ cat &lt;marca&gt;-&lt;modelo&gt;.bin | parse-edid
+</code></pre>
+<p>para verificar que la información se obtuvo correctamente (verificando el valor
+del <em>Checksum</em>).</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+

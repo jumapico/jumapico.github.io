@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Intento de visualización de paquetes instalados y sus dependencias en OpenBSD | Blog de Juan Picca</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <ul class="menu">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/posts/">Artículos</a></li>
+        <li><a href="/notes/">Notas</a></li>
+        <li><a href="/about/">Sobre mi</a></li>
+      </ul>
+      <hr/>
+    </nav>
+    <main>
+      <div class="article-meta">
+        <h1 class="title">Intento de visualización de paquetes instalados y sus dependencias en OpenBSD</h1>
+        <h2 class="date">2022-05-01</h2>
+      </div>
+<h2>Objetivo</h2>
+<p>Ver de forma gráfica las dependencias entre los paquetes de <a href="https://www.openbsd.org/">OpenBSD</a> instalados
+desde <a href="https://www.openbsd.org/faq/ports/ports.html">ports</a>.  Esto es porque a medida que se van instalando paquetes aumenta
+significativamente la cantidad de dependencias transitivas y se busca una forma
+de visualizar este aumento.</p>
+<p>Para ello se utilizará la información brindada por <a href="https://man.openbsd.org/pkg_info.1">pkg_info</a> y se transformará
+a una imagen utilizando <a href="https://graphviz.org/">graphviz</a></p>
+<h2>Prueba de creación de imagen con graphviz</h2>
+<p>Se desea generar una imagen a partir de la información de un
+<a href="https://en.wikipedia.org/wiki/Directed_graph">gráfo dirigido</a>, ya que esta es una forma natural de
+modelar dependencias entre paquetes.</p>
+<p>Por ello comenzamos buscando en la <a href="https://graphviz.org/gallery/">galería del sitio web</a>, en
+particular la <a href="https://graphviz.org/Gallery/directed/">sección de grafos dirigidos</a>.</p>
+<p>De los ejemplos decidí elegir <a href="https://graphviz.org/Gallery/directed/go-package.html">Go Package Imports</a> ya que
+modela un ejemplo de dependencias y me agradó la visualización.
+Revisando el ejemplo, se encuentra que es posible agragar información extra para
+que al ser generada una <a href="https://en.wikipedia.org/wiki/Scalable_Vector_Graphics">imagen svg</a> y pasar el cursor sobre los
+distintos nodos se muestre esta.</p>
+<p>También, viendo el ejemplo <a href="https://graphviz.org/Gallery/directed/unix.html">UNIX Family 'Tree'</a> se deduce que no
+es necesario generar un nombre de nodo <em>auxiliar</em> y puede utilizarse
+directamente el nombre que se mostrará en el nodo.</p>
+<p>Para obtener el archivo de ejemplo se hace:</p>
+<pre><code>$ ftp 'https://graphviz.org/Gallery/directed/go-package.gv.txt'
+</code></pre>
+<p>Luego hay que asegurarse de tener instalado el programa <code>graphviz</code>:</p>
+<pre><code>$ doas pkg_add graphviz
+</code></pre>
+<p>Para generar un <code>svg</code> a partir del archivo de ejemplo se utiliza el comando
+<code>dot</code> como se indica en la
+<a href="https://graphviz.org/doc/info/command.html">documentacion de linea de comandos</a>:</p>
+<pre><code>$ cat go-package.gv.txt | dot -Tsvg &gt; /tmp/go-package.gv.svg
+$ firefox 'file:///tmp/go-package.gv.svg'
+</code></pre>
+<p>Nota 1: se supone instalado el navegador firefox (obviamente), y se utiliza este
+para que se visualice la información del <em>tooltip</em>.  Por ejemplo, con <em>Eye of
+Mate</em>/<code>eom</code> se visualiza la imagen pero no se visualiza el <em>tooltip</em>.</p>
+<p>Nota 2: se genera el archivo en <code>/tmp</code> ya que por defecto en la configuracion de
+<a href="https://man.openbsd.org/unveil.2">unveil</a>, <code>/etc/firefox/unveil.main</code>, <code>/tmp</code> es una ruta permitida.</p>
+<p>Con lo anterior ya se comprobó que es posible generar y visualizar un grafo
+dirigido.</p>
+<p>Como un segundo ejemplo de prueba para asegurarnos que se puede utilizar como
+etiqueta el nombre del nodo hacemos:</p>
+<pre><code>$ cat &lt;&lt;'END' | dot -Tsvg &gt; /tmp/test.svg
+digraph regexp {
+ fontname=&quot;Helvetica,Arial,sans-serif&quot;
+ node [fontname=&quot;Helvetica,Arial,sans-serif&quot;]
+ edge [fontname=&quot;Helvetica,Arial,sans-serif&quot;]
+
+ paq1 [tooltip=&quot;Info paq 1&quot;];
+ paq1 -&gt; paq2;
+ paq2 [tooltip=&quot;Info paq 2&quot;];
+ paq3 [tooltip=&quot;Info paq 3&quot;];
+}
+END
+</code></pre>
+<p>Y el paquete se genera como deseamos:</p>
+<p><img src="./test.svg" alt="svg ejemplo" /></p>
+<h2>Generación de imagen de dependencias</h2>
+<p>Siguiendo el manual de <a href="https://man.openbsd.org/pkg_info.1">pkg_info</a>, para obtener la información de las
+dependencias se puede utilizar <code>pkg_info -A -f</code>.  El problema es que se devuelve
+<em>mucha</em> más información de la deseada.  Para obtener <em>solamente</em> la información
+de los paquetes y sus dependencias filtramos por las anotaciones <code>@name</code> y
+<code>@depend</code> cuya información se encuenra en los manuales de <a href="https://man.openbsd.org/pkg_create.1">pkg_create</a> y
+<a href="https://man.openbsd.org/package.5">package</a>.  Ya que la anotación <code>@depend</code> tiene el formato
+<code>@depend pkgpath:pkgspec:default</code> se utilizará <code>sed</code> para eliminar los valores
+<code>pkgpath:pkgspec</code> y dejar solamente el valor de <code>default</code>:</p>
+<pre><code>$ pkg_info -A -f | grep -e '^@name' -e '^@depend' \
+    | sed 's/^@depend .*:\([^:]*\)$/@depend \1/' &gt; /tmp/dependencies.txt
+</code></pre>
+<p>Luego, se utilizará <code>awk</code> para generar el archivo <code>dependencies.dot</code> necesario
+para generar el grafo con <code>graphviz</code>:</p>
+<pre><code>$ awk -f generate-graph.awk /tmp/dependencies.txt &gt; dependencies.dot
+$ cat dependencies.dot | dot -Tsvg &gt; /tmp/dependencies.svg
+</code></pre>
+<p>El archivo <a href="./generate-graph.awk">generate-graph.awk</a> es extremandamente sencillo:</p>
+<pre><code>BEGIN {
+    print &quot;digraph dependencies {\n fontname=\&quot;Helvetica,Arial,sans-serif\&quot;\n node [fontname=\&quot;Helvetica,Arial,sans-serif\&quot;]\n edge [fontname=\&quot;Helvetica,Arial,sans-serif\&quot;]&quot;
+    hasdeps=1
+}
+
+/^@name/ {
+    if (!hasdeps)
+        printf &quot; \&quot;%s\&quot; ;\n&quot;, current
+    current=$2
+    hasdeps=0
+}
+/^@depend/ {
+    printf &quot; \&quot;%s\&quot; -&gt; \&quot;%s\&quot; ;\n&quot;, current, $2
+    hasdeps=1
+}
+
+END {
+    print &quot;}&quot;
+}
+</code></pre>
+<p>En este se inserta el cabezal y la cola del archivo utilizando <code>BEGIN</code> y <code>END</code>.
+Luego, cuando se encuentra <code>@name</code> si el paquete anterior no tuvo por lo menos
+una dependencia se imprime el nombre del paquete anterior para que se visualice
+el nodo.  El paquete actual pasa a ser el valor de <code>@name</code>.  Al encontrar
+<code>@depend</code> imprimimos la dependencia <code>&quot;paquete1&quot; -&gt; &quot;paquete2&quot; ;</code> e indicamos que
+el paquete actual del cual se imprimen las dependencias tuvo por lo menos una.
+Las comillas que rodean al nombre de los paquetes es necesaria ya que sin esta
+<code>graphviz</code> da warnings por el uso de <code>.xxx</code> en los textos.</p>
+<p>El resultado:
+<img src="./dependencies.svg" alt="grafo todas las dependencias" /></p>
+<p>Pensamiento: ¿Porqué no hay una opción en los gestores de paquetes para mostrar
+el grafo de dependencias?  ¡Supongo que porque es enorme y es imposible de ver
+de forma satisfactoria!</p>
+<h2>Filtrado de nodos, vista izquierda-derecha y alternativas a svg</h2>
+<p>Desconforme con el resultado, pero no rendido, ¿no habrá una forma de <em>filtrar</em>
+los nodos de forma tal que se pueda mostrar la dependencia de un solo paquete?.
+Quizás si un paquete tiene una cantidad <em>razonable</em> de dependencias la imagen
+con las dependencias se vea mejor.</p>
+<p>Para ello se busca en el sitio web de <a href="https://graphviz.org/">graphviz</a> en la documentación y se
+encuentra <a href="https://graphviz.org/pdf/gvpr.1.pdf">gvpr</a>:</p>
+<blockquote>
+<p>NAME</p>
+<p>gvpr − graph pattern scanning and processing language</p>
+<p>DESCRIPTION</p>
+<p>gvpr (previously known as gpr) is a graph stream editor inspired by awk. It
+copies input graphs to its output, possibly transforming their structure and
+attributes, creating new graphs, or printing arbitrary information. The
+graph model is that pro vided by libcgraph(3). In particular, gvpr reads and
+writes graphs using the dot language.</p>
+</blockquote>
+<p>Suena interesante ...</p>
+<p>Buscando en internet, se encuentra que en la ahora abandonada
+<a href="https://marc.info/?l=graphviz-interest">lista graphviz-interest</a> <a href="https://marc.info/?l=graphviz-interest&amp;m=115395628003845">ya preguntaron</a> lo que deseamos
+lograr:</p>
+<blockquote>
+<p>I'd like to take a (rather complicated) graph, and, given a certain node X,
+remove all nodes which are not direct descendants or ancestors of X</p>
+</blockquote>
+<p><a href="https://marc.info/?l=graphviz-interest&amp;m=115396062000535">La respuesta</a>:</p>
+<pre><code>BEG_G {
+   graph_t sg = subg ($, &quot;reachable&quot;);
+   $tvtype = TV_fwd;
+   $tvroot = node($,ARGV[0]);
+}
+
+N {$tvroot = NULL; subnode (sg, $); }
+
+END_G {
+   induce (sg);
+   write (sg);
+}
+</code></pre>
+<p>Este código lo guardaremos como el archivo <a href="./fwd.g">fwd.g</a>.</p>
+<p>Para utilizar el programa anterior hay que hacer utilizar el nombre de un nodo
+del grafo, que corresponde a un programa instalado.  Ejemplificando con las
+dependencias de <code>atril-1.26.0p0</code>:</p>
+<pre><code>$ gvpr -a 'atril-1.26.0p0' -f fwd.g dependencies.dot | dot -Tsvg &gt; dependencies-atril-1.26.0p0.svg
+</code></pre>
+<p>Y nos queda la imagen</p>
+<p><img src="./dependencies-atril-1.26.0p0.svg" alt="grafo dependencias de atril" /></p>
+<p>Sigue sin estar genial, pero está mucho mejor.</p>
+<p>Otra mejora que se le puede hacer es agregando el atributo
+<a href="https://graphviz.org/docs/attrs/rankdir/"><code>rankdir=&quot;LR&quot;</code></a> (encontrado durante la lectura de la
+documentación  en el sitio de graphviz).  Para hacer este cambio hay que cambiar
+el script de <code>awk</code> para agregar en el bloque <code>BEGIN</code> la linea,
+<a href="./generate-graph-v2.awk">quedando</a>:</p>
+<pre><code>BEGIN {
+    print &quot;digraph dependencies {&quot;
+    print &quot;  fontname=\&quot;Helvetica,Arial,sans-serif\&quot;&quot;
+    print &quot;  node [fontname=\&quot;Helvetica,Arial,sans-serif\&quot;]&quot;
+    print &quot;  edge [fontname=\&quot;Helvetica,Arial,sans-serif\&quot;]&quot;
+    print &quot;  rankdir=\&quot;LR\&quot;&quot;
+    hasdeps=1
+}
+</code></pre>
+<p>Generamos nuevamente la imagen:</p>
+<pre><code>$ pkg_info -A -f \
+    | grep -e '^@name' -e '^@depend' \
+    | sed 's/^@depend .*:\([^:]*\)$/@depend \1/' \
+    | awk -f generate-graph-v2.awk &gt; dependencies-v2.dot
+$ gvpr -a 'atril-1.26.0p0' -f fwd.g dependencies-v2.dot | dot -Tsvg &gt; dependencies-atril-1.26.0p0-v2.svg
+</code></pre>
+<p>Obtenemos:</p>
+<p><img src="./dependencies-atril-1.26.0p0-v2.svg" alt="grafo dependencias de atril v2" /></p>
+<p>Esta última imagen a mi criterio está mejor.</p>
+<p>Sobre la visualización, está claro que no es práctico estar generando un archivo
+svg cada vez, por lo que también busqué como mejorar esta parte.</p>
+<p>El comando <a href="https://www.graphviz.org/doc/info/command.html">dot</a> entre sus <a href="https://graphviz.org/docs/outputs/">opciones de salida</a> incluye el
+<a href="https://graphviz.org/docs/outputs/xlib/">formato Xlib</a>, que en lugar de generar un archivo nos muestra la
+salida en pantalla.  Esto nos ahorra el tener que generar un archivo svg y abrir
+un programa para visualizar dicho archivo:</p>
+<pre><code>$ gvpr -a 'atril-1.26.0p0' -f fwd.g dependencies-v2.dot | dot -Tx11
+</code></pre>
+<p>Lo cual se ve como:</p>
+<p><img src="./dependencies-atril-x11.png" alt="grafo dependencias atril salida x11" /></p>
+<p>La salida anterior está bien, pero... ¿es lo mejor que se puede conseguir?</p>
+<p>Navegando por el sitio de <a href="https://graphviz.org/">graphviz</a>, en la <a href="https://www.graphviz.org/resources/">página de resources</a> se listan
+varios <em>viewers</em>.  De entre ellos, <a href="https://github.com/jrfonseca/xdot.py">xdot.py</a> es de los pocos que no aparece como
+abandonado y aparte está empaquetado para OpenBSD, por lo que procedemos a
+instalarlo y probarlo:</p>
+<pre><code>$ doas pkg_add xdot
+$ gvpr -a 'atril-1.26.0p0' -f fwd.g dependencies-v2.dot | xdot -
+</code></pre>
+<p>Lo cual se ve como:</p>
+<p><img src="./dependencies-atril-xdot.png" alt="grafo dependencias atril con xdot" /></p>
+<p>Bueno, se ve casi idéntico pero realmente tiene la ventaja de la interacción
+para recorrer el grafo.  En lo personal lo prefiero a utilizar <code>dot -Tx11</code>.</p>
+<h2>¿Haciendo un programa?</h2>
+<p>Bueno, ya tenemos resuelto:</p>
+<ul>
+<li>como generar un grafo de dependencias a partir de todos los paquetes
+instalados en el sistema</li>
+<li>como filtrar el grafo anterior, dejando solo las dependencias de un paquete
+dado</li>
+<li>como visualizarlo de forma interactiva</li>
+</ul>
+<p>Lo que estaría faltando es una forma de obtener una lista de los paquetes
+instalados (<code>pkg_info -q</code>) y a partir de allí poder elegir de forma interactiva
+uno de estos paquetes para visualizar las dependencias.</p>
+<p>Como opción se toma zenity.</p>
+<p>¿Porqué <a href="https://help.gnome.org/users/zenity/stable/">zenity</a>?  Porque es una forma sencilla de crear un diálogo.  Para este
+caso se quiere listar las dependencias y seleccionar solo una: un radiolist (o
+<a href="https://en.wikipedia.org/wiki/Radio_button">radio button</a>).</p>
+<p>En la <a href="https://help.gnome.org/users/zenity/stable/list.html.en">documentación de zenity</a> se indica que cada fila debe
+empezar con el texto <code>FALSE</code> y partiendo del ejemplo hacemos creamos una lista
+de radio buttons con los paquetes instalados <em>manualmente</em>:</p>
+<pre><code>$ pkg_info -q -m | sed 's/^/FALSE /' &gt; packages-manual.txt
+$ zenity --width=640 --height=800 --list --radiolist --title=&quot;Dependency viewer&quot; --text=&quot;Select a package&quot; --column=&quot;&quot; --column=&quot;Package&quot; $(cat packages-manual.txt)
+calibre-5.39.1
+</code></pre>
+<p>Lo cual vemos como:</p>
+<p><img src="./selector-zenity.png" alt="selector zenity" /></p>
+<p>Al seleccionar un paquete (<code>calibre-5.39.1</code> como se ve en la captura anterior)
+se obtiene un string con el nombre del paquete.</p>
+<p>En caso de presionar el botón <code>Cancel</code> se obtiene <em>exit status</em> de <code>1</code> y ningún
+texto.</p>
+<p>En el caso de querer elegir entre <em>todos los paquetes instalados</em> hay que
+utilizar <code>pkg_info -q -a</code>.</p>
+<p>Con lo anterior ya podemos enganchar la salida de zenity con el uso de <code>gpvr</code> y
+crear el programa <a href="./view-dependencies.sh">view-dependencies</a> que tiene como puntos relevantes:</p>
+<ul>
+<li>
+<p>Precálculo.  Para acelerar las consultas se generan archivos temporales que
+luego serán utilizados para mostrar los diagramas:</p>
+<ul>
+<li>
+<p>Creación de directorio temporal y <code>trap</code> para eliminar los archivo al
+salir del programa:</p>
+<pre><code>WORKDIR=&quot;$(mktemp -d -t view-dependencies.XXXXXXXXXX)&quot;
+trap 'rm -r &quot;$WORKDIR&quot;' EXIT
+</code></pre>
+</li>
+<li>
+<p>Creación de archivos para <code>awk</code> y <code>gpvr</code> cuyo contenido está en el script.
+Esto ocurre ya que se desea que el script sea autocontenido y no que sea
+necesario instalar otros scripts en el sistema.</p>
+</li>
+<li>
+<p>Lista de paquetes a partir de <code>pkg_info</code>: <code>pkg_info -q -a</code> /
+<code>pkg_info -q -m</code>.  Se crea la lista de paquetes de forma tal que al
+principio estén los paquetes instalados de forma manual y luego el resto
+de los paquetes que se encuentran instalados.</p>
+</li>
+<li>
+<p>Generación de grafo:</p>
+<pre><code>pkg_info -A -f \
+    | grep -e '^@name' -e '^@depend' \
+    | sed 's/^@depend .*:\([^:]*\)$/@depend \1/' \
+    | awk -f &quot;$WORKDIR/generate-graph.awk&quot;
+</code></pre>
+</li>
+</ul>
+</li>
+<li>
+<p>Selección de paquete a visualizar.  Esto se realiza utilizando <code>zenity</code>:</p>
+<pre><code>zenity --width=640 --height=800 --title=&quot;Dependency viewer&quot; \
+    --list --radiolist --text=&quot;Select a package&quot; \
+    --column=&quot;&quot; --column=&quot;Package&quot; \
+    $(cat &quot;$WORKDIR/package-list.txt&quot;)
+</code></pre>
+</li>
+<li>
+<p>Filtrado del grafo utilizando <code>gpvr</code> y visualización utilizando <code>xdot</code>:</p>
+<pre><code>gvpr -a &quot;$1&quot; -f &quot;$WORKDIR/fwd.g&quot; &quot;$WORKDIR/package-dependencies.dot&quot; \
+    | xdot -
+</code></pre>
+</li>
+</ul>
+<p>Los últimos dos pasos se realizan en un loop, para poder aprovechar el cache
+generado.</p>
+<p>Además, se agrega la opción para poder generar un archivo svg desde linea de
+comandos utilizando <code>dot -Tsvg</code> y que guarda en el archivo
+<code>dependencies-for-&lt;package&gt;.svg</code> las dependencias de un paquete dado.</p>
+<p>Como ejemplo de invocación podemos usar:</p>
+<pre><code>$ ./view-dependencies.sh firefox-99.0.1
+</code></pre>
+<p>El cual nos genera el archivo <code>dependencies-for-firefox-99.0.1.svg</code>:</p>
+<p><img src="./dependencies-for-firefox-99.0.1.svg" alt="dependencias para firefox" /></p>
+<h2>Conclusiones</h2>
+<p>Bueno.. fué largo el post, llevó muchos días y tuvo unas cuantas
+actualizaciones.</p>
+<p>Con el programa creado me es posible revisar las dependencias <strong>de programas
+instalados</strong>.  Luego de utilizarlo un rato entiendo porqué se llenó tanto el
+directorio <code>/etc</code>, siendo que cuando se instala el sistema desde cero
+prácticamente no hay archivos en este.  El <a href="https://mate-desktop.org/">escritorio mate</a> que me parecía
+liviano resulta que tiene una cantidad importante de dependencias.  Ya estoy
+pensando en una alternativa al visor <a href="https://wiki.mate-desktop.org/mate-desktop/applications/atril/">atril</a>.  Por el lado de [firefox], no hay
+tantas dependencias.</p>
+<p><strong>El único pendiente es tener una función de búsqueda de paquetes en la GUI, en
+lugar de tener que estar haciendo scrolling.</strong></p>
+<p>Una segunda funcionalidad deseada sería poder limitar la profundidad del grafo
+para los casos de paquetes con <em>muchas</em> dependencias, de forma tal de poder
+visualizar mejor el grafo.</p>
+<h2>Apendice - Uso de xlink:title por parte de graphviz</h2>
+<p>Revisando como se genera el <em>tooltip</em> en el archivo <code>svg</code> se encuentra que es
+mediante el agregado del atributo <code>xlink:title</code>, el cual <a href="https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/xlink:title">se encuentra
+deprecado</a>.</p>
+<p>La sugerencia es pasar de utilizar el atributo <code>xlink:title</code> a utilizar un nodo
+hijo de tipo <code>&lt;title&gt;</code> cuyo contenido sea el texto.</p>
+<p>En el <a href="https://forum.graphviz.org/t/svg-without-tooltips/425">foro de graphviz</a> se indica el código que genera el tooltip en el
+<a href="https://gitlab.com/graphviz/graphviz/-/blob/cd969273/plugin/core/gvrender_core_svg.c#L348">archivo gvrender_core_svg.c</a> por lo que puede ser una tarea sencilla realizar
+el cambio.</p>
+    </main>
+    <footer>
+      <hr/>
+    </footer>
+  </body>
+</html>
+
