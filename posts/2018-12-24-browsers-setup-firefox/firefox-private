@@ -1,0 +1,21 @@
+#!/bin/bash
+set -e
+show_error() {
+    if [[ $(readlink -f /proc/$(ps -o ppid:1= -p $$)/exe) = $(readlink -f "$SHELL") ]]; then
+        echo -e "$1"
+    elif [ -x /usr/bin/zenity ]; then
+        zenity --warning --width=500 --text "$1"
+    fi
+}
+
+if [ ! -d "$HOME/.firefox-private" ]; then
+    show_error "Directory $HOME/.firefox-private don't exist\nCreate it and reopen tomb file\n"
+    exit 1
+elif ! mountpoint -q "$HOME/.firefox-private"; then
+    show_error "Directory $HOME/.firefox-private is not a mount point\nTry open tomb file\n"
+    exit 1
+elif [ ! -d /opt/firefox-latest ]; then
+    show_error "Missing firefox installation in \`/opt/firefox-latest\`\n"
+    exit 1
+fi
+/opt/firefox-latest/firefox --profile "$HOME/.firefox-private" "$@"

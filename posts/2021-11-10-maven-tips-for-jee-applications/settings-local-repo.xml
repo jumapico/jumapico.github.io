@@ -1,0 +1,3 @@
+<settings>
+    <localRepository>${HOME}/.m2-alter</localRepository>
+</settings>
